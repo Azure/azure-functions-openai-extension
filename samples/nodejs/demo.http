@@ -1,0 +1,2 @@
+# Invoke the "whois" function with the {name} parameter set to "pikachu"
+GET http://localhost:7071/api/whois/pikachu

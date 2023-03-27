@@ -1,0 +1,71 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAITesting", "sandbox\OpenAITesting\OpenAITesting.csproj", "{C000807F-9AF6-4544-8491-2CFBBE7D5444}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI", "src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj", "{58E729F3-7936-4522-900C-57AD99824776}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sandbox", "sandbox", "{CAEDF9E2-7B35-4889-9341-8417321A2575}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7A80B95C-AD57-4057-AED0-48629B75874F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{680E7714-A1E6-45F7-BC6E-E1900067FD7A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{62E0F519-1D25-4C9E-B9E5-C93ED944B46C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnet", "dotnet", "{54C9862E-B501-449A-B9E4-463A49375C94}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "csharp-inproc", "csharp-inproc", "{08A45BEF-54BA-4E99-9F60-7FAD16C97B05}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpInProcSamples", "samples\dotnet\csharp-inproc\CSharpInProcSamples.csproj", "{18200A18-641A-4F3C-A5CD-4EDF28AE8B47}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nodejs", "nodejs", "{73252836-5979-4B69-82FE-0A5B15BCDE00}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "extensions", "samples\nodejs\extensions.csproj", "{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58E729F3-7936-4522-900C-57AD99824776}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58E729F3-7936-4522-900C-57AD99824776}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58E729F3-7936-4522-900C-57AD99824776}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58E729F3-7936-4522-900C-57AD99824776}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18200A18-641A-4F3C-A5CD-4EDF28AE8B47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18200A18-641A-4F3C-A5CD-4EDF28AE8B47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18200A18-641A-4F3C-A5CD-4EDF28AE8B47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18200A18-641A-4F3C-A5CD-4EDF28AE8B47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C000807F-9AF6-4544-8491-2CFBBE7D5444} = {CAEDF9E2-7B35-4889-9341-8417321A2575}
+		{58E729F3-7936-4522-900C-57AD99824776} = {7A80B95C-AD57-4057-AED0-48629B75874F}
+		{54C9862E-B501-449A-B9E4-463A49375C94} = {62E0F519-1D25-4C9E-B9E5-C93ED944B46C}
+		{08A45BEF-54BA-4E99-9F60-7FAD16C97B05} = {54C9862E-B501-449A-B9E4-463A49375C94}
+		{18200A18-641A-4F3C-A5CD-4EDF28AE8B47} = {08A45BEF-54BA-4E99-9F60-7FAD16C97B05}
+		{73252836-5979-4B69-82FE-0A5B15BCDE00} = {62E0F519-1D25-4C9E-B9E5-C93ED944B46C}
+		{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B} = {73252836-5979-4B69-82FE-0A5B15BCDE00}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}
+	EndGlobalSection
+EndGlobal

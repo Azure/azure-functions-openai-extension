@@ -35,8 +35,8 @@ public static class Completions
     /// </summary>
     [FunctionName(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
-        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
-        [OpenAICompletion("{data}", Model = "text-davinci-003")] CompletionCreateResponse response,
+        [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
+        [OpenAICompletion("{Prompt}", Model = "text-davinci-003")] CompletionCreateResponse response,
         ILogger log)
     {
         if (!response.Successful)
@@ -45,8 +45,10 @@ public static class Completions
             return new ObjectResult(error) { StatusCode = 500 };
         }
 
-        log.LogInformation("Prompt = {prompt}, Response = {response}", req.Body.ToString(), response);
+        log.LogInformation("Prompt = {prompt}, Response = {response}", payload.Prompt, response);
         string text = response.Choices[0].Text;
         return new OkObjectResult(text);
     }
+
+    public record PromptPayload(string Prompt);
 }

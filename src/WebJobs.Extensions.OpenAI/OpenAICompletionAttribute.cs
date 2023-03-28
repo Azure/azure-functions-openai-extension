@@ -43,7 +43,7 @@ public sealed class OpenAICompletionAttribute : Attribute
     /// It's generally recommend to use this or <see cref="this.TopP"/> but not both.
     /// </remarks>
     [AutoResolve]
-    public string? Temperature { get; set; } = "0.9";
+    public string? Temperature { get; set; } = "0.5";
 
     /// <summary>
     /// Gets or sets an alternative to sampling with temperature, called nucleus sampling, where the model considers
@@ -64,7 +64,7 @@ public sealed class OpenAICompletionAttribute : Attribute
     /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
     /// </remarks>
     [AutoResolve]
-    public string? MaxTokens { get; set; }
+    public string? MaxTokens { get; set; } = "100";
 
     internal CompletionCreateRequest BuildRequest()
     {

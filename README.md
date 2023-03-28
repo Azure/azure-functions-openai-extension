@@ -56,4 +56,26 @@ app.http('whois', {
 });
 ```
 
-You can find instructions for running the samples in the corresponding project directories. The goal is to have samples for all languages supported by Azure Functions.
+You can run the above function locally using the Azure Functions Core Tools and sending an HTTP request, similar to the following:
+
+```http
+GET http://localhost:7127/api/whois/pikachu
+```
+
+The result that comes back will include the response from the GPT language model:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/plain; charset=utf-8
+Date: Tue, 28 Mar 2023 18:25:40 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+Pikachu is a fictional creature from the Pokémon franchise. It is a yellow
+mouse-like creature with powerful electrical abilities and a mischievous
+personality. Pikachu is one of the most iconic and recognizable characters
+from the franchise, and is featured in numerous video games, anime series,
+movies, and other media.
+```
+
+You can find more instructions for running the samples in the corresponding project directories. The goal is to have samples for all languages supported by Azure Functions.

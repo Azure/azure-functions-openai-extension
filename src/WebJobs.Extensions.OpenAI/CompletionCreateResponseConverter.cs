@@ -14,8 +14,8 @@ using OpenAI.GPT3.ObjectModels.ResponseModels;
 namespace WebJobs.Extensions.OpenAI;
 
 class CompletionCreateResponseConverter :
-    IAsyncConverter<OpenAICompletionAttribute, CompletionCreateResponse>,
-    IAsyncConverter<OpenAICompletionAttribute, string>
+    IAsyncConverter<TextCompletionAttribute, CompletionCreateResponse>,
+    IAsyncConverter<TextCompletionAttribute, string>
 {
     readonly IOpenAIService service;
     readonly ILogger logger;
@@ -27,16 +27,16 @@ class CompletionCreateResponseConverter :
     }
 
     // Intended for use with .NET in-proc functions
-    Task<CompletionCreateResponse> IAsyncConverter<OpenAICompletionAttribute, CompletionCreateResponse>.ConvertAsync(
-        OpenAICompletionAttribute attribute,
+    Task<CompletionCreateResponse> IAsyncConverter<TextCompletionAttribute, CompletionCreateResponse>.ConvertAsync(
+        TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
         return this.ConvertCoreAsync(attribute, cancellationToken);
     }
 
     // Intended for use with out-of-proc functions
-    async Task<string> IAsyncConverter<OpenAICompletionAttribute, string>.ConvertAsync(
-        OpenAICompletionAttribute attribute,
+    async Task<string> IAsyncConverter<TextCompletionAttribute, string>.ConvertAsync(
+        TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
         CompletionCreateResponse response = await this.ConvertCoreAsync(attribute, cancellationToken);
@@ -44,7 +44,7 @@ class CompletionCreateResponseConverter :
     }
 
     async Task<CompletionCreateResponse> ConvertCoreAsync(
-        OpenAICompletionAttribute attribute,
+        TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
         CompletionCreateRequest request = attribute.BuildRequest();

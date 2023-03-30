@@ -12,13 +12,13 @@ namespace WebJobs.Extensions.OpenAI;
 /// </summary>
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class OpenAICompletionAttribute : Attribute
+public sealed class TextCompletionAttribute : Attribute
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="OpenAICompletionAttribute"/> class with the specified text prompt.
+    /// Initializes a new instance of the <see cref="TextCompletionAttribute"/> class with the specified text prompt.
     /// </summary>
     /// <param name="prompt">The prompt to generate completions for, encoded as a string.</param>
-    public OpenAICompletionAttribute(string prompt)
+    public TextCompletionAttribute(string prompt)
     {
         this.Prompt = prompt ?? throw new ArgumentNullException(nameof(prompt));
     }

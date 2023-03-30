@@ -24,7 +24,7 @@ public static class Completions
     [FunctionName(nameof(WhoIs))]
     public static string WhoIs(
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-        [OpenAICompletion("Who is {name}?")] CompletionCreateResponse response)
+        [TextCompletion("Who is {name}?")] CompletionCreateResponse response)
     {
         return response.Choices[0].Text;
     }
@@ -36,7 +36,7 @@ public static class Completions
     [FunctionName(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
-        [OpenAICompletion("{Prompt}", Model = "text-davinci-003")] CompletionCreateResponse response,
+        [TextCompletion("{Prompt}", Model = "text-davinci-003")] CompletionCreateResponse response,
         ILogger log)
     {
         if (!response.Successful)

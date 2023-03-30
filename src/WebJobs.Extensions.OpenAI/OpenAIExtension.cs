@@ -26,8 +26,11 @@ class OpenAIExtension : IExtensionConfigProvider
     {
         // Completions input binding support
         CompletionCreateResponseConverter converter = new(this.service, this.logger);
-        var rule = context.AddBindingRule<OpenAICompletionAttribute>();
+        var rule = context.AddBindingRule<TextCompletionAttribute>();
         rule.BindToInput<CompletionCreateResponse>(converter);
         rule.BindToInput<string>(converter);
+
+        // OpenAI service input binding support (NOTE: This may be removed in a future version.)
+        context.AddBindingRule<OpenAIServiceAttribute>().BindToInput(_ => this.service);
     }
 }

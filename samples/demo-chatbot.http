@@ -1,0 +1,20 @@
+### Create a new chatbot
+POST http://localhost:7127/api/chats
+
+You are a helpful chatbot that is helping someone named Chris. Please use Chris's name in each response. Respond to this first message with "Hi Chris. How can I help you?"
+
+
+### Get the chatbot's response
+GET http://localhost:7127/api/chats/{placeholder}
+
+
+### Send the first message to the chatbot
+POST http://localhost:7127/api/chats/{placeholder}
+
+Who won the SuperBowl in 2014?
+
+
+### Send the second message to the chatbot
+POST http://localhost:7127/api/chats/{placeholder}
+
+Amazing! Do you know who performed the halftime show?

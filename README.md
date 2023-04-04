@@ -16,6 +16,7 @@ The following features are currently available. More features will be slowly add
 
 * [Text completions](#text-completion-input-binding)
 * [Chat bots](#chat-bots)
+* [Embeddings generators](#embeddings-generator)
 
 ### Text completion input binding
 

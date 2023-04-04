@@ -11,7 +11,7 @@ using OpenAI.GPT3.ObjectModels.ResponseModels;
 namespace WebJobs.Extensions.OpenAI;
 
 [Extension("OpenAI")]
-class OpenAIExtension : IExtensionConfigProvider
+partial class OpenAIExtension : IExtensionConfigProvider
 {
     readonly IOpenAIService service;
     readonly ILogger logger;
@@ -25,10 +25,16 @@ class OpenAIExtension : IExtensionConfigProvider
     void IExtensionConfigProvider.Initialize(ExtensionConfigContext context)
     {
         // Completions input binding support
-        CompletionCreateResponseConverter converter = new(this.service, this.logger);
+        CompletionCreateResponseConverter textCompletionConverter = new(this.service, this.logger);
         var rule = context.AddBindingRule<TextCompletionAttribute>();
-        rule.BindToInput<CompletionCreateResponse>(converter);
-        rule.BindToInput<string>(converter);
+        rule.BindToInput<CompletionCreateResponse>(textCompletionConverter);
+        rule.BindToInput<string>(textCompletionConverter);
+
+        // Embeddings input binding support
+        EmbeddingsConverter embeddingsConverter = new(this.service, this.logger);
+        var embeddingsRule = context.AddBindingRule<EmbeddingsAttribute>();
+        embeddingsRule.BindToInput<EmbeddingCreateResponse>(embeddingsConverter);
+        embeddingsRule.BindToInput<string>(embeddingsConverter);
 
         // OpenAI service input binding support (NOTE: This may be removed in a future version.)
         context.AddBindingRule<OpenAIServiceAttribute>().BindToInput(_ => this.service);

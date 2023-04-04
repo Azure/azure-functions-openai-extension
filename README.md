@@ -139,3 +139,39 @@ public static async Task ChatBotOrchestration(
     cts.Cancel();
 }
 ```
+
+### Embeddings Generator
+
+OpenAI's [text embeddings](https://platform.openai.com/docs/guides/embeddings) measure the relatedness of text strings. Embeddings are commonly used for:
+
+* **Search** (where results are ranked by relevance to a query string)
+* **Clustering** (where text strings are grouped by similarity)
+* **Recommendations** (where items with related text strings are recommended)
+* **Anomaly detection** (where outliers with little relatedness are identified)
+* **Diversity measurement** (where similarity distributions are analyzed)
+* **Classification** (where text strings are classified by their most similar label)
+
+Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use. The OpenAI extension provides two mechanisms for that can be used to automate this process:
+
+1. An `Embeddings` input binding for producing embeddings for a single block of text that has already been pre-chunked.
+1. (TODO) A built-in `OpenAI::GenerateEmbeddings` orchestrator function for producing embeddings for many files stored in a blob container in a way that's fault tolerant, scalable, and handles chunking automatically.
+
+#### C# embeddings generator example
+
+```csharp
+[FunctionName(nameof(GenerateEmbeddings_Http_Request))]
+public static void GenerateEmbeddings_Http_Request(
+    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] EmbeddingsRequest req,
+    [Embeddings("{RawText}", InputType.RawText)] EmbeddingCreateResponse embeddingsResponse,
+    ILogger logger)
+{
+    logger.LogInformation(
+        "Received {count} embedding(s) for input text containing {length} characters.",
+        embeddingsResponse.Data.Count,
+        req.RawText.Length);
+
+    // TODO: Store the embeddings into a database or other storage.
+}
+```
+
+

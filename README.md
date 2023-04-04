@@ -154,10 +154,10 @@ OpenAI's [text embeddings](https://platform.openai.com/docs/guides/embeddings) m
 
 Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use. The OpenAI extension provides two mechanisms for that can be used to automate this process:
 
-1. An `Embeddings` input binding for producing embeddings for a single block of text that has already been pre-chunked.
+1. An `Embeddings` input binding for automaticlaly chunking and producing embeddings for a single block of text.
 1. (TODO) A built-in `OpenAI::GenerateEmbeddings` orchestrator function for producing embeddings for many files stored in a blob container in a way that's fault tolerant, scalable, and handles chunking automatically.
 
-#### C# embeddings generator example
+#### [C# embeddings generator example](./samples/dotnet/csharp-inproc/EmbeddingsGenerator.cs)
 
 ```csharp
 [FunctionName(nameof(GenerateEmbeddings_Http_Request))]

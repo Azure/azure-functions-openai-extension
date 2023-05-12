@@ -54,7 +54,12 @@ class CompletionCreateResponseConverter :
             request,
             modelId: null,
             cancellationToken);
-        this.logger.LogInformation("Received OpenAI completino response: {response}", response);
+        this.logger.LogInformation("Received OpenAI completion response: {response}", response);
+
+        if (attribute.ThrowOnError && response.Error is not null)
+        {
+            throw new InvalidOperationException($"OpenAI returned an error of type '{response.Error.Type}': {response.Error.Message}");
+        }
 
         return response;
     }

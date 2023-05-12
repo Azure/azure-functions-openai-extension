@@ -2,7 +2,7 @@
 
 This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) GPT-3 bindings in [Azure Functions](https://azure.microsoft.com/products/functions/). It is not currently endorsed or supported by Microsoft.
 
-This extension depends on the [Betalgo.OpenAI.GPT3](https://github.com/betalgo/openai) by [Betalgo](https://github.com/betalgo).
+This extension depends on the [Betalgo.OpenAI](https://github.com/betalgo/openai) by [Betalgo](https://github.com/betalgo).
 
 ## Requirements
 
@@ -154,7 +154,7 @@ OpenAI's [text embeddings](https://platform.openai.com/docs/guides/embeddings) m
 
 Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use. The OpenAI extension provides two mechanisms for that can be used to automate this process:
 
-1. An `Embeddings` input binding for automaticlaly chunking and producing embeddings for a single block of text.
+1. An `Embeddings` input binding for automatically chunking and producing embeddings for a single block of text.
 1. (TODO) A built-in `OpenAI::GenerateEmbeddings` orchestrator function for producing embeddings for many files stored in a blob container in a way that's fault tolerant, scalable, and handles chunking automatically.
 
 #### [C# embeddings generator example](./samples/dotnet/csharp-inproc/EmbeddingsGenerator.cs)
@@ -174,5 +174,3 @@ public static void GenerateEmbeddings_Http_Request(
     // TODO: Store the embeddings into a database or other storage.
 }
 ```
-
-

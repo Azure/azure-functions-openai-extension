@@ -30,7 +30,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nodejs", "nodejs", "{732528
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "extensions", "samples\nodejs\extensions.csproj", "{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebJobs.Extensions.OpenAI.DurableTask", "src\WebJobs.Extensions.OpenAI.DurableTask\WebJobs.Extensions.OpenAI.DurableTask.csproj", "{73B2BB3B-F135-46EE-966A-7568B567B692}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.DurableTask", "src\WebJobs.Extensions.OpenAI.DurableTask\WebJobs.Extensions.OpenAI.DurableTask.csproj", "{73B2BB3B-F135-46EE-966A-7568B567B692}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebJobs.Extensions.OpenAI.Kusto", "src\WebJobs.Extensions.OpenAI.Kusto\WebJobs.Extensions.OpenAI.Kusto.csproj", "{10BFFE66-E0B8-4762-81FE-77C3756984C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +60,10 @@ Global
 		{73B2BB3B-F135-46EE-966A-7568B567B692}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73B2BB3B-F135-46EE-966A-7568B567B692}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73B2BB3B-F135-46EE-966A-7568B567B692}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10BFFE66-E0B8-4762-81FE-77C3756984C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10BFFE66-E0B8-4762-81FE-77C3756984C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10BFFE66-E0B8-4762-81FE-77C3756984C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10BFFE66-E0B8-4762-81FE-77C3756984C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +77,7 @@ Global
 		{73252836-5979-4B69-82FE-0A5B15BCDE00} = {62E0F519-1D25-4C9E-B9E5-C93ED944B46C}
 		{A553833C-DDBB-4908-9B57-5CB8AE5E8B4B} = {73252836-5979-4B69-82FE-0A5B15BCDE00}
 		{73B2BB3B-F135-46EE-966A-7568B567B692} = {7A80B95C-AD57-4057-AED0-48629B75874F}
+		{10BFFE66-E0B8-4762-81FE-77C3756984C0} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

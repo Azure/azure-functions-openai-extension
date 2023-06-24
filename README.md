@@ -17,6 +17,7 @@ The following features are currently available. More features will be slowly add
 * [Text completions](#text-completion-input-binding)
 * [Chat bots](#chat-bots)
 * [Embeddings generators](#embeddings-generator)
+* [Semantic search](#semantic-search)
 
 ### Text completion input binding
 
@@ -152,10 +153,7 @@ OpenAI's [text embeddings](https://platform.openai.com/docs/guides/embeddings) m
 * **Diversity measurement** (where similarity distributions are analyzed)
 * **Classification** (where text strings are classified by their most similar label)
 
-Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use. The OpenAI extension provides two mechanisms for that can be used to automate this process:
-
-1. An `Embeddings` input binding for automatically chunking and producing embeddings for a single block of text.
-1. (TODO) A built-in `OpenAI::GenerateEmbeddings` orchestrator function for producing embeddings for many files stored in a blob container in a way that's fault tolerant, scalable, and handles chunking automatically.
+Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use.
 
 #### [C# embeddings generator example](./samples/dotnet/csharp-inproc/EmbeddingsGenerator.cs)
 
@@ -173,4 +171,70 @@ public static void GenerateEmbeddings_Http_Request(
 
     // TODO: Store the embeddings into a database or other storage.
 }
+```
+
+### Semantic Search
+
+The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).
+
+ The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Currently supported vector databases include:
+
+ * [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [this project](./src/WebJobs.Extensions.OpenAI.Kusto/)
+
+ More may be added over time.
+
+#### [C# document storage example](./samples/dotnet/csharp-inproc/Demos/EmailPromptDemo.cs)
+
+This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) (a.k.a. Kusto).
+
+```csharp
+public record EmbeddingsRequest(string FilePath);
+
+[FunctionName("IngestEmail")]
+public static async Task<IActionResult> IngestEmail_Better(
+    [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
+    [Embeddings("{FilePath}", InputType.FilePath)] EmbeddingsContext embeddings,
+    [SemanticSearch("KustoConnectionString", "Documents")] IAsyncCollector<SearchableDocument> output)
+{
+    string title = Path.GetFileNameWithoutExtension(req.FilePath);
+    await output.AddAsync(new SearchableDocument(title, embeddings));
+    return new OkObjectResult(new { status = "success", title, chunks = embeddings.Count });
+}
+```
+
+#### [C# document query example](./samples/dotnet/csharp-inproc/Demos/EmailPromptDemo.cs)
+
+This HTTP trigger function takes a query prompt as input, pulls in semantically similar document chunks into a prompt, and then sends the combined prompt to OpenAI. The results are then made available to the function, which simply returns that chat response to the caller.
+
+```csharp
+public record SemanticSearchRequest(string Prompt);
+
+[FunctionName("PromptEmail")]
+public static IActionResult PromptEmail(
+    [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
+    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}")] SemanticSearchContext result)
+{
+    return new ContentResult { Content = result.Response, ContentType = "text/plain" };
+}
+```
+
+The responses from the above function will be based on relevant document snippets which were previously uploaded to the vector database. For example, assuming you uploaded internal emails discussing a new feature of Azure Functions that supports OpenAI, you could issue a query similar to the following:
+
+```http
+POST http://localhost:7127/api/PromptEmail
+Content-Type: application/json
+
+{
+    "Prompt": "Was a decision made to officially release an OpenAI binding for Azure Functions?"
+}
+```
+
+And you might get a response that looks like the following (actual results may vary):
+
+```text
+HTTP/1.1 200 OK
+Content-Length: 454
+Content-Type: text/plain
+
+There is no clear decision made on whether to officially release an OpenAI binding for Azure Functions as per the email "Thoughts on Functions+AI conversation" sent by Bilal. However, he suggests that the team should figure out if they are able to free developers from needing to know the details of AI/LLM APIs by sufficiently/elegantly designing bindings to let them do the "main work" they need to do. Reference: Thoughts on Functions+AI conversation.
 ```

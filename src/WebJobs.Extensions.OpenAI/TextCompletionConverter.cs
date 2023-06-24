@@ -13,17 +13,17 @@ using OpenAI.GPT3.ObjectModels.ResponseModels;
 
 namespace WebJobs.Extensions.OpenAI;
 
-class CompletionCreateResponseConverter :
+class TextCompletionConverter :
     IAsyncConverter<TextCompletionAttribute, CompletionCreateResponse>,
     IAsyncConverter<TextCompletionAttribute, string>
 {
     readonly IOpenAIService service;
     readonly ILogger logger;
 
-    public CompletionCreateResponseConverter(IOpenAIService service, ILogger logger)
+    public TextCompletionConverter(IOpenAIService service, ILoggerFactory loggerFactory)
     {
         this.service = service ?? throw new ArgumentNullException(nameof(service));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.logger = loggerFactory?.CreateLogger<TextCompletionConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     // Intended for use with .NET in-proc functions
@@ -58,7 +58,8 @@ class CompletionCreateResponseConverter :
 
         if (attribute.ThrowOnError && response.Error is not null)
         {
-            throw new InvalidOperationException($"OpenAI returned an error of type '{response.Error.Type}': {response.Error.Message}");
+            throw new InvalidOperationException(
+                $"OpenAI returned an error of type '{response.Error.Type}': {response.Error.Message}");
         }
 
         return response;

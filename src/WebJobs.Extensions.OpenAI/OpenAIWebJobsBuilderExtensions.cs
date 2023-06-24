@@ -3,7 +3,9 @@
 
 using System;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.DependencyInjection;
 using OpenAI.GPT3.Extensions;
+using WebJobs.Extensions.OpenAI.Search;
 
 namespace WebJobs.Extensions.OpenAI;
 
@@ -35,6 +37,11 @@ public static class OpenAIWebJobsBuilderExtensions
 
         // Register the WebJobs extension, which enables the bindings.
         builder.AddExtension<OpenAIExtension>();
+
+        // Service objects that will be used by the extension
+        builder.Services.AddSingleton<TextCompletionConverter>();
+        builder.Services.AddSingleton<EmbeddingsConverter>();
+        builder.Services.AddSingleton<SemanticSearchConverter>();
 
         return builder;
     }

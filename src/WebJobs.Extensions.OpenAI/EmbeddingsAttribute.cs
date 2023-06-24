@@ -37,7 +37,7 @@ public sealed class EmbeddingsAttribute : Attribute
     /// Gets or sets the ID of the model to use.
     /// </summary>
     [AutoResolve]
-    public string Model { get; set; } = "input-embedding-ada-002";
+    public string Model { get; set; } = "text-embedding-ada-002";
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.
@@ -45,7 +45,7 @@ public sealed class EmbeddingsAttribute : Attribute
     /// <remarks>
     /// <para>
     /// At the time of writing, the maximum input tokens allowed for second-generation input embedding models
-    /// like <c>input-embedding-ada-002</c> is 8191. 1 token is ~4 chars in English, which translates to roughly 32K 
+    /// like <c>text-embedding-ada-002</c> is 8191. 1 token is ~4 chars in English, which translates to roughly 32K 
     /// characters of English input that can fit into a single chunk.
     /// </para>
     /// </remarks>
@@ -61,6 +61,15 @@ public sealed class EmbeddingsAttribute : Attribute
     /// Gets the type of the input.
     /// </summary>
     public InputType InputType { get; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the binding should throw if there is an error calling the OpenAI
+    /// endpoint.
+    /// </summary>
+    /// <remarks>
+    /// The default value is <c>true</c>. Set this to <c>false</c> to handle errors manually in the function code.
+    /// </remarks>
+    public bool ThrowOnError { get; set; } = true;
 
     internal EmbeddingCreateRequest BuildRequest()
     {

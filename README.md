@@ -1,8 +1,19 @@
 # Azure Functions bindings for OpenAI's GPT engine
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build](https://github.com/cgillum/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/cgillum/azure-functions-openai-extension/actions/workflows/build.yml)
+
 This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) GPT-3 bindings in [Azure Functions](https://azure.microsoft.com/products/functions/). It is not currently endorsed or supported by Microsoft.
 
 This extension depends on the [Betalgo.OpenAI](https://github.com/betalgo/openai) by [Betalgo](https://github.com/betalgo).
+
+## NuGet Packages
+
+The following NuGet packages are available as part of this project.
+
+[![NuGet](https://img.shields.io/nuget/v/CGillum.WebJobs.Extensions.OpenAI.svg?label=webjobs.extensions.openai)](https://www.nuget.org/packages/CGillum.WebJobs.Extensions.OpenAI)<br/>
+[![NuGet](https://img.shields.io/nuget/v/CGillum.WebJobs.Extensions.OpenAI.DurableTask.svg?label=webjobs.extensions.openai.durabletask)](https://www.nuget.org/packages/CGillum.WebJobs.Extensions.OpenAI.DurableTask)<br/>
+[![NuGet](https://img.shields.io/nuget/v/CGillum.WebJobs.Extensions.OpenAI.Kusto.svg?label=webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/CGillum.WebJobs.Extensions.OpenAI.Kusto)
 
 ## Requirements
 

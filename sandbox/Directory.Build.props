@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
+  </PropertyGroup>
+</Project>

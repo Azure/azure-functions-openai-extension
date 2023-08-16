@@ -1,0 +1,25 @@
+### Create a new chatbot
+PUT http://localhost:7071/api/chats/test123
+Content-Type: application/json
+
+{
+  "instructions": "You are a helpful chatbot. All of your responses should be in the form of a poem."
+}
+
+
+### Send the first message to the chatbot
+POST http://localhost:7071/api/chats/test123
+Content-Type: text/plain
+
+Who won the SuperBowl in 2014?
+
+
+### Get the chatbot's response
+GET http://localhost:7071/api/chats/test123?timestampUTC=2023-08-10T07:51:10Z
+
+
+### Send the second message to the chatbot
+POST http://localhost:7071/api/chats/test123
+Content-Type: text/plain
+
+Amazing! Do you know who performed the halftime show?

@@ -1,22 +1,16 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Script.Description;
 using Newtonsoft.Json.Linq;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
 
-namespace WebJobs.Extensions.OpenAI.DurableTask;
+namespace WebJobs.Extensions.OpenAI.Agents;
 
 /// <summary>
 /// Class that defines all the built-in functions for executing CNCF Serverless Workflows.
@@ -33,42 +27,10 @@ class BuiltInFunctionsProvider : IFunctionProvider
     ImmutableDictionary<string, ImmutableArray<string>> IFunctionProvider.FunctionErrors =>
         new Dictionary<string, ImmutableArray<string>>().ToImmutableDictionary();
 
-    /// <summary>
-    /// Calls ChatGPT with the specified <paramref name="chatHistory"/> and returns the response message.
-    /// </summary>
-    /// <param name="chatHistory">The full conversation chat history.</param>
-    /// <param name="service">
-    /// The dependency-injected <see cref="IOpenAIService"/> object to use for invoking ChatGPT.
-    /// </param>
-    /// <returns>Returns the response from ChatGPT, which can be appended to the chat history.</returns>
-    /// <exception cref="ApplicationException">Throw if ChatGPT returns an error.</exception>
-    [FunctionName(nameof(GetNextChatBotResponse))]
-    public static async Task<string> GetNextChatBotResponse(
-        [ActivityTrigger] IDurableActivityContext context,
-        [OpenAIService] IOpenAIService service)
+    [FunctionName("ChatBotEntity")]
+    public static Task ChatBotEntity([EntityTrigger] IDurableEntityContext context)
     {
-        List<ChatMessage> chatHistory = context.GetInput<List<ChatMessage>>();
-        ChatCompletionCreateRequest request = new()
-        {
-            Messages = chatHistory,
-            Model = Models.ChatGpt3_5Turbo
-        };
-
-        ChatCompletionCreateResponse response = await service.ChatCompletion.CreateCompletion(request);
-        if (!response.Successful)
-        {
-            // Throwing an exception will cause the orchestration to retry based on its configured retry policy.
-            // TODO: Check for a non-retriable error and return a different kind of result.
-            Error error = response.Error ?? new Error() { Message = "Unspecified error" };
-            throw new ApplicationException($"The {request.Model} engine returned an error: {error}");
-        }
-
-        // We don't normally expect more than one message, but just in case we get multiple messages,
-        // return all of them separated by two newlines.
-        string replyMessage = string.Join(
-            Environment.NewLine + Environment.NewLine,
-            response.Choices.Select(choice => choice.Message.Content));
-        return replyMessage;
+        return context.DispatchAsync<ChatBotEntity>();
     }
 
     internal static string GetBuiltInFunctionName(string functionName)
@@ -115,6 +77,13 @@ class BuiltInFunctionsProvider : IFunctionProvider
                     //       and defines the parameter name as "context".
                     metadata.Bindings.Add(BindingMetadata.Create(new JObject(
                         new JProperty("type", "activityTrigger"),
+                        new JProperty("name", "context"))));
+                }
+                else if (parameter.GetCustomAttribute<EntityTriggerAttribute>() is not null)
+                {
+                    // NOTE: We assume each orchestrator function in this file defines the parameter name as "context".
+                    metadata.Bindings.Add(BindingMetadata.Create(new JObject(
+                        new JProperty("type", "entityTrigger"),
                         new JProperty("name", "context"))));
                 }
                 else if (parameter.GetCustomAttribute<OpenAIServiceAttribute>() is not null)

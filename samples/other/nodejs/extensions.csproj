@@ -18,6 +18,6 @@
   
   <ItemGroup>
     <!-- Locally build and reference the extension -->
-    <ProjectReference Include="../../src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj" />
+    <ProjectReference Include="../../../src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj" />
   </ItemGroup>
 </Project>

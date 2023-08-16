@@ -24,10 +24,28 @@ jobs:
         dotnet-version: 6.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
+    - name: Main Build
       run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER
-    - name: Test
+    - name: Docker Build - Chat Bot Sample
+      run: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
+    - name: Docker Run - Azurite
+      run: docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
+    - name: Docker Run - Chat Bot Sample
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+          docker run -d -p 8080:80 --name openai-func-sample-csharp-inproc \
+            --add-host host.docker.internal:host-gateway \
+            --env OPENAI_API_KEY=$OPENAI_API_KEY \
+            --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
+            openai-func-sample-csharp-inproc
+    - name: Sleep for 10 seconds
+      run: sleep 10s
+    - name: E2E Test - Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal
+    - name: Print Docker Logs - Chat Bot Sample
+      run: docker logs openai-func-sample-csharp-inproc
+      if: always()
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts
     - name: Upload

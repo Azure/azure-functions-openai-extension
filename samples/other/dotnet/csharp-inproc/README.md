@@ -65,7 +65,7 @@ Use a tool like [Postman](https://www.postman.com/) to send a request to the `Cr
 ```http
 POST http://localhost:7071/api/chats
 
-You are a helpful chatbot that is helping someone named Chris. Please use Chris's name in each response. Respond to this first message with "Hi Chris. How can I help you?"
+You are a helpful chatbot. In all your English responses, speak as if you have an American southern accent.
 ```
 
 The HTTP response should contain a JSON payload that looks something like the following:

@@ -1,6 +1,10 @@
 {
   "version": "2.0",
   "logging": {
+    "logLevel": {
+      "default": "Warning",
+      "WebJobs": "Information"
+    },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,

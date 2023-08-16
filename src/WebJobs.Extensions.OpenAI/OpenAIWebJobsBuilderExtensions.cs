@@ -5,6 +5,7 @@ using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using OpenAI.GPT3.Extensions;
+using WebJobs.Extensions.OpenAI.Agents;
 using WebJobs.Extensions.OpenAI.Search;
 
 namespace WebJobs.Extensions.OpenAI;
@@ -33,6 +34,11 @@ public static class OpenAIWebJobsBuilderExtensions
             // TODO: Find a more generic way to configure these.
             settings.ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             settings.Organization = Environment.GetEnvironmentVariable("OPENAI_ORGANIZATION_ID");
+
+            if (settings.ApiKey == null)
+            {
+                throw new InvalidOperationException("OPENAI_API_KEY environment variable is not set.");
+            }
         });
 
         // Register the WebJobs extension, which enables the bindings.
@@ -42,6 +48,8 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services.AddSingleton<TextCompletionConverter>();
         builder.Services.AddSingleton<EmbeddingsConverter>();
         builder.Services.AddSingleton<SemanticSearchConverter>();
+        builder.Services.AddSingleton<ChatBotBindingConverter>();
+        builder.Services.AddSingleton<IChatBotService, DefaultChatBotService>();
 
         return builder;
     }

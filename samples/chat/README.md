@@ -19,7 +19,7 @@ You must have the following installed on your local machine in order to run thes
 
 ## Running the sample
 
-1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/chat/csharp-inproc`)    
+1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/chat/csharp-inproc`)
 2. Reference the table below for instructions on building and starting the app:
 
     | Language Worker | Command |
@@ -29,7 +29,7 @@ You must have the following installed on your local machine in order to run thes
 
     If successful, you should see the following output from the `func` command:
 
-    ```
+    ```plaintext
     Functions:
 
         CreateChatBot: [PUT] http://localhost:7071/api/chats/{chatId}
@@ -38,7 +38,7 @@ You must have the following installed on your local machine in order to run thes
 
         PostUserResponse: [POST] http://localhost:7071/api/chats/{chatId}
 
-        OpenAI::ChatBotEntity: entityTrigge
+        OpenAI::ChatBotEntity: entityTrigger
     ```
 
 3. Use an HTTP client tool to send a request to the `CreateChatBot` function. The following is an example request:
@@ -48,7 +48,7 @@ You must have the following installed on your local machine in order to run thes
     Content-Type: application/json
 
     {
-        "instructions": "You are a helpful chatbot. In all your English responses, speak as if you have an American southern accent."
+        "instructions": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare."
     }
     ```
 
@@ -95,15 +95,15 @@ You must have the following installed on your local machine in order to run thes
       "recentMessages": [
         {
           "role": "system",
-          "content": "You are a helpful chatbot. In all your English responses, speak as if you have an American southern accent."
+          "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare."
         },
         {
           "role": "user",
-          "content": "Who won the SuperBowl in 2014?"
+          "content": "Who won SuperBowl XLVIII in 2014?"
         },
         {
           "role": "assistant",
-          "content": "Well, darlin', in 2014 it was the Seattle Seahawks that took home the prize! They beat the Denver Broncos with a score of 43 to 8. That was quite a game, I'll tell ya!"
+          "content": "Hark, good sir! The victor of SuperBowl XLVIII was none other than the fierce and indomitable Seattle Seahawks. They didst vanquish their adversaries, the Denver Broncos, with great mirth and skill upon the field of battle."
         }
       ]
     }
@@ -141,7 +141,7 @@ You must have the following installed on your local machine in order to run thes
       "recentMessages": [
         {
           "role": "assistant",
-          "content": "Well now, the halftime show during the 2014 Super Bowl was a real treat! It was none other than Bruno Mars who graced that stage with his smooth moves and soulful voice. He put on quite a show, I reckon!"
+          "content": "Aye, fair question dost thou pose to me,\nThe minstrels who graced the halftime show at that decree,\n'Twas none other than the illustrious Bruno Mars,\nWhose voice and melodies did reach the stars."
         }
       ]
     }

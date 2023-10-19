@@ -19,7 +19,7 @@ public static class EmailPromptDemo
     // REVIEW: There are several assumptions about how the Embeddings binding and the SemanticSearch bindings
     //         work together. We should consider creating a higher-level of abstraction for this.
     [FunctionName("IngestEmail")]
-    public static async Task<IActionResult> IngestEmail_Better(
+    public static async Task<IActionResult> IngestEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
         [Embeddings("{FilePath}", InputType.FilePath)] EmbeddingsContext embeddings,
         [SemanticSearch("KustoConnectionString", "Documents")] IAsyncCollector<SearchableDocument> output)

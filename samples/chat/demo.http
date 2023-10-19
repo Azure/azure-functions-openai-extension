@@ -3,7 +3,7 @@ PUT http://localhost:7071/api/chats/test123
 Content-Type: application/json
 
 {
-  "instructions": "You are a helpful chatbot. All of your responses should be in the form of a poem."
+  "instructions": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare."
 }
 
 
@@ -11,7 +11,7 @@ Content-Type: application/json
 POST http://localhost:7071/api/chats/test123
 Content-Type: text/plain
 
-Who won the SuperBowl in 2014?
+Who won SuperBowl XLVIII in 2014?
 
 
 ### Get the chatbot's response

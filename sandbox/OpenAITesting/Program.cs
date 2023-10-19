@@ -9,7 +9,11 @@ using OpenAI.GPT3.ObjectModels.ResponseModels;
 
 OpenAIService openAiService = new(new OpenAiOptions()
 {
-    ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY")!,
+    ApiKey = (Environment.GetEnvironmentVariable("OPENAI_API_KEY")!) ?? (Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!),
+    BaseDomain = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!,
+    ProviderType = ProviderType.Azure,
+    ApiVersion = Environment.GetEnvironmentVariable("OPENAI_API_VERSION") ?? "2023-05-15",
+    DeploymentId = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHATGPT_DEPLOYMENT")!,
 });
 
 CompletionCreateResponse completionResult = await openAiService.Completions.CreateCompletion(

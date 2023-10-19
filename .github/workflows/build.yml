@@ -34,7 +34,7 @@ jobs:
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-          docker run -d -p 8080:80 --name openai-func-sample-csharp-inproc \
+          docker run -d -p 7071:80 --name openai-func-sample-csharp-inproc \
             --add-host host.docker.internal:host-gateway \
             --env OPENAI_API_KEY=$OPENAI_API_KEY \
             --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \

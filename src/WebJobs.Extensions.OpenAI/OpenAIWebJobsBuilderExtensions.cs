@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
+using OpenAI.GPT3;
 using OpenAI.GPT3.Extensions;
 using WebJobs.Extensions.OpenAI.Agents;
 using WebJobs.Extensions.OpenAI.Search;
@@ -31,13 +32,26 @@ public static class OpenAIWebJobsBuilderExtensions
         // Register the OpenAI service, which we depend on.
         builder.Services.AddOpenAIService(settings =>
         {
-            // TODO: Find a more generic way to configure these.
+            // Try public OpenAI service
             settings.ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
             settings.Organization = Environment.GetEnvironmentVariable("OPENAI_ORGANIZATION_ID");
 
             if (settings.ApiKey == null)
             {
-                throw new InvalidOperationException("OPENAI_API_KEY environment variable is not set.");
+                // Try Azure connection, which is preferred for privacy
+                settings.ApiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
+
+                if (settings.ApiKey == null)
+                {
+                    throw new InvalidOperationException("Must set OPENAI_API_KEY or AZURE_OPENAI_KEY environment variable.");
+                }
+                else
+                {
+                    settings.BaseDomain = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!;
+                    settings.ProviderType = ProviderType.Azure;
+                    settings.ApiVersion = Environment.GetEnvironmentVariable("OPENAI_API_VERSION") ?? "2023-05-15";
+                    settings.DeploymentId = Environment.GetEnvironmentVariable("AZURE_OPENAI_CHATGPT_DEPLOYMENT")!;
+                }
             }
         });
 

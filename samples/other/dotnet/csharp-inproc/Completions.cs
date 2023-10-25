@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.ObjectModels.ResponseModels;
 using WebJobs.Extensions.OpenAI;
 
 namespace CSharpInProcSamples;
@@ -41,7 +41,7 @@ public static class Completions
     {
         if (!response.Successful)
         {
-            Error error = response.Error ?? new Error() { Message = "OpenAI returned an unspecified error" };
+            Error error = response.Error ?? new Error() { MessageObject = "OpenAI returned an unspecified error" };
             return new ObjectResult(error) { StatusCode = 500 };
         }
 

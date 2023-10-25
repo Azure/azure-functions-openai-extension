@@ -144,7 +144,7 @@ The semantic search feature allows you to import documents into a vector databas
 
  The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Currently supported vector databases include:
 
- * [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [this project](./src/WebJobs.Extensions.OpenAI.Kusto/)
+* [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [this project](./src/WebJobs.Extensions.OpenAI.Kusto/)
 
  More may be added over time.
 
@@ -202,4 +202,41 @@ Content-Length: 454
 Content-Type: text/plain
 
 There is no clear decision made on whether to officially release an OpenAI binding for Azure Functions as per the email "Thoughts on Functions+AI conversation" sent by Bilal. However, he suggests that the team should figure out if they are able to free developers from needing to know the details of AI/LLM APIs by sufficiently/elegantly designing bindings to let them do the "main work" they need to do. Reference: Thoughts on Functions+AI conversation.
+```
+
+## Azure OpenAI
+
+As of v0.3.0, this extension also supports using OpenAI models deployed to the Azure OpenAI service. To use this feature, you must have an Azure OpenAI resource provisioned in your Azure subscription. You can find more information about how to provision an Azure OpenAI resource [here](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
+
+To use Azure OpenAI with these bindings, you must set the following environment variables:
+
+* `AZURE_OPENAI_KEY` - The API key for your Azure OpenAI resource.
+* `AZURE_OPENAI_ENDPOINT` - The endpoint for your Azure OpenAI resource - e.g., `https://***.openai.azure.com/`.
+
+**IMPORTANT:** Azure OpenAI requires you to specify a *deployment* when making API calls instead of a *model*. The *deployment* is a specific instance of a model that you have deployed to your Azure OpenAI resource. In order to make code more portable across OpenAI and Azure OpenAI, the bindings in this extension use the `Model` and `EmbeddingsModel` to refer to either the OpenAI model or the Azure OpenAI deployment ID, depending on whether you're using OpenAI or Azure OpenAI.
+
+All samples in this project rely on default model selection, which assumes the models are named after the OpenAI models. If you want to use an Azure OpenAI deployment, you'll want to configure the `Model` and `EmbeddingsModel` properties explicitly in your binding configuration. Here are a couple examples:
+
+```csharp
+// "my-gpt-4" is the name of an Azure OpenAI deployment
+[FunctionName(nameof(WhoIs))]
+public static string WhoIs(
+    [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
+    [TextCompletion("Who is {name}?", Model = "my-gpt-4")] CompletionCreateResponse response)
+{
+    return response.Choices[0].Text;
+}
+```
+
+```csharp
+public record SemanticSearchRequest(string Prompt);
+
+// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-ada-002 models, respectively
+[FunctionName("PromptEmail")]
+public static IActionResult PromptEmail(
+    [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
+    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "my-gpt-4", EmbeddingsModel = "my-ada-2")] SemanticSearchContext result)
+{
+    return new ContentResult { Content = result.Response, ContentType = "text/plain" };
+}
 ```

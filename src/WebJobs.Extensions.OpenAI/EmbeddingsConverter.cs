@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
 
 namespace WebJobs.Extensions.OpenAI;
 
@@ -17,12 +17,12 @@ class EmbeddingsConverter :
     IAsyncConverter<EmbeddingsAttribute, EmbeddingsContext>,
     IAsyncConverter<EmbeddingsAttribute, string>
 {
-    readonly IOpenAIService service;
+    readonly IOpenAIServiceProvider serviceProvider;
     readonly ILogger logger;
 
-    public EmbeddingsConverter(IOpenAIService service, ILoggerFactory loggerFactory)
+    public EmbeddingsConverter(IOpenAIServiceProvider serviceProvider, ILoggerFactory loggerFactory)
     {
-        this.service = service ?? throw new ArgumentNullException(nameof(service));
+        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = loggerFactory?.CreateLogger<EmbeddingsConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -45,9 +45,11 @@ class EmbeddingsConverter :
         EmbeddingsAttribute attribute,
         CancellationToken cancellationToken)
     {
+        IOpenAIService service = this.serviceProvider.GetService(attribute.Model);
+
         EmbeddingCreateRequest request = attribute.BuildRequest();
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
-        EmbeddingCreateResponse response = await this.service.Embeddings.CreateEmbedding(
+        EmbeddingCreateResponse response = await service.Embeddings.CreateEmbedding(
             request,
             cancellationToken);
         this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);

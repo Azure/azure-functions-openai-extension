@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace WebJobs.Extensions.OpenAI;
 

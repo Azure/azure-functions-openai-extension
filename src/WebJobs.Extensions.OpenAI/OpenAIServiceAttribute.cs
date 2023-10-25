@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.GPT3.Managers;
+using OpenAI.Managers;
 
 namespace WebJobs.Extensions.OpenAI;
 

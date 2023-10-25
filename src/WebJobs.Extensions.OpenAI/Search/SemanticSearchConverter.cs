@@ -8,9 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
 
 namespace WebJobs.Extensions.OpenAI.Search;
 
@@ -31,13 +31,16 @@ class SemanticSearchConverter :
     IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>,
     IAsyncConverter<SemanticSearchAttribute, IAsyncCollector<SearchableDocument>>
 {
-    readonly IOpenAIService service;
+    readonly IOpenAIServiceProvider serviceProvider;
     readonly ILogger logger;
     readonly ISearchProvider? searchProvider;
 
-    public SemanticSearchConverter(IOpenAIService service, ILoggerFactory loggerFactory, ISearchProvider searchProvider)
+    public SemanticSearchConverter(
+        IOpenAIServiceProvider serviceProvider,
+        ILoggerFactory loggerFactory,
+        ISearchProvider searchProvider)
     {
-        this.service = service ?? throw new ArgumentNullException(nameof(service));
+        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = loggerFactory?.CreateLogger<SemanticSearchConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
 
         // This will be null if no search provider extension is configured
@@ -82,8 +85,10 @@ class SemanticSearchConverter :
             Model = attribute.EmbeddingsModel,
         };
 
+        IOpenAIService embeddingsService = this.serviceProvider.GetService(attribute.EmbeddingsModel);
+
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", embeddingsRequest);
-        EmbeddingCreateResponse embeddingsResponse = await this.service.Embeddings.CreateEmbedding(
+        EmbeddingCreateResponse embeddingsResponse = await embeddingsService.Embeddings.CreateEmbedding(
             embeddingsRequest,
             cancellationToken);
         this.logger.LogInformation("Received OpenAI embeddings response: {response}", embeddingsResponse);
@@ -131,7 +136,8 @@ class SemanticSearchConverter :
             Model = attribute.ChatModel,
         };
 
-        ChatCompletionCreateResponse chatResponse = await this.service.ChatCompletion.CreateCompletion(chatRequest);
+        IOpenAIService chatService = this.serviceProvider.GetService(attribute.ChatModel);
+        ChatCompletionCreateResponse chatResponse = await chatService.ChatCompletion.CreateCompletion(chatRequest);
         if (attribute.ThrowOnError && chatResponse.Error is not null)
         {
             throw new InvalidOperationException(

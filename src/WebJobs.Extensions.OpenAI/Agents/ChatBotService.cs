@@ -11,7 +11,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask.ContextImplementations;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenAI.GPT3.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.RequestModels;
 
 namespace WebJobs.Extensions.OpenAI.Agents;
 

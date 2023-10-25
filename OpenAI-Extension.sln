@@ -15,6 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{680E7714-A
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
+		CHANGELOG.md = CHANGELOG.md
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -28,7 +29,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatBotSample", "samples\ch
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B99948E2-9853-4D9C-B784-19C2503CDA8B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleValidation", "tests\SampleValidation\SampleValidation.csproj", "{B0F02F06-9124-4A91-9685-824C55E698BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleValidation", "tests\SampleValidation\SampleValidation.csproj", "{B0F02F06-9124-4A91-9685-824C55E698BD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "other", "other", "{4B55F637-B067-43B4-B6FC-65171654315C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpInProcSamples", "samples\other\dotnet\csharp-inproc\CSharpInProcSamples.csproj", "{C541A7B4-5F55-4575-A80B-A9D8125E0A55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,6 +61,10 @@ Global
 		{B0F02F06-9124-4A91-9685-824C55E698BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0F02F06-9124-4A91-9685-824C55E698BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0F02F06-9124-4A91-9685-824C55E698BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C541A7B4-5F55-4575-A80B-A9D8125E0A55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C541A7B4-5F55-4575-A80B-A9D8125E0A55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C541A7B4-5F55-4575-A80B-A9D8125E0A55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C541A7B4-5F55-4575-A80B-A9D8125E0A55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +76,8 @@ Global
 		{46888A9D-8058-499C-9F2F-07800FF686EB} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{2C15A452-14A2-4156-95E2-E6D709F383EF} = {46888A9D-8058-499C-9F2F-07800FF686EB}
 		{B0F02F06-9124-4A91-9685-824C55E698BD} = {B99948E2-9853-4D9C-B784-19C2503CDA8B}
+		{4B55F637-B067-43B4-B6FC-65171654315C} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{C541A7B4-5F55-4575-A80B-A9D8125E0A55} = {4B55F637-B067-43B4-B6FC-65171654315C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

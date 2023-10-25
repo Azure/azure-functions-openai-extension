@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.GPT3.ObjectModels;
+using OpenAI.ObjectModels;
 
 namespace WebJobs.Extensions.OpenAI.Search;
 
@@ -77,7 +77,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string ChatModel { get; set; } = Models.ChatGpt3_5Turbo;
+    public string ChatModel { get; set; } = Models.Gpt_3_5_Turbo;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.

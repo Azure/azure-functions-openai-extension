@@ -5,8 +5,8 @@ using System;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Newtonsoft.Json.Linq;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels.ResponseModels;
 using WebJobs.Extensions.OpenAI.Agents;
 using WebJobs.Extensions.OpenAI.Search;
 

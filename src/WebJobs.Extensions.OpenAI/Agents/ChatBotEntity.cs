@@ -3,17 +3,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
 
 namespace WebJobs.Extensions.OpenAI.Agents;
 
@@ -51,13 +50,13 @@ class ChatBotRuntimeState
 class ChatBotEntity : IChatBotEntity
 {
     readonly ILogger logger;
-    readonly IOpenAIService openAIService;
+    readonly IOpenAIServiceProvider openAIServiceProvider;
 
-    public ChatBotEntity(ILoggerFactory loggerFactory, IOpenAIService openAIService)
+    public ChatBotEntity(ILoggerFactory loggerFactory, IOpenAIServiceProvider openAIServiceProvider)
     {
         // When initialized via dependency injection
         this.logger = loggerFactory.CreateLogger<ChatBotEntity>();
-        this.openAIService = openAIService ?? throw new ArgumentNullException(nameof(openAIService));
+        this.openAIServiceProvider = openAIServiceProvider ?? throw new ArgumentNullException(nameof(openAIServiceProvider));
     }
 
     [JsonConstructor]
@@ -65,7 +64,7 @@ class ChatBotEntity : IChatBotEntity
     {
         // For deserialization
         this.logger = null!;
-        this.openAIService = null!;
+        this.openAIServiceProvider = null!;
     }
 
     [JsonProperty("state")]
@@ -111,15 +110,16 @@ class ChatBotEntity : IChatBotEntity
         ChatCompletionCreateRequest chatRequest = new()
         {
             Messages = this.State.ChatMessages.Select(item => item.Message).ToList(),
-            Model = Models.ChatGpt3_5Turbo
+            Model = Models.Gpt_3_5_Turbo,
         };
 
-        ChatCompletionCreateResponse response = await this.openAIService.ChatCompletion.CreateCompletion(chatRequest);
+        IOpenAIService service = this.openAIServiceProvider.GetService(chatRequest.Model);
+        ChatCompletionCreateResponse response = await service.ChatCompletion.CreateCompletion(chatRequest);
         if (!response.Successful)
         {
             // Throwing an exception will cause the entity to abort the current operation.
             // Any changes to the entity state will be discarded.
-            Error error = response.Error ?? new Error() { Message = "Unspecified error" };
+            Error error = response.Error ?? new Error() { MessageObject = "Unspecified error" };
             throw new ApplicationException($"The {chatRequest.Model} engine returned an error: {error}");
         }
 

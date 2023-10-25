@@ -7,9 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels.RequestModels;
-using OpenAI.GPT3.ObjectModels.ResponseModels;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
 
 namespace WebJobs.Extensions.OpenAI;
 
@@ -17,12 +17,12 @@ class TextCompletionConverter :
     IAsyncConverter<TextCompletionAttribute, CompletionCreateResponse>,
     IAsyncConverter<TextCompletionAttribute, string>
 {
-    readonly IOpenAIService service;
+    readonly IOpenAIServiceProvider serviceProvider;
     readonly ILogger logger;
 
-    public TextCompletionConverter(IOpenAIService service, ILoggerFactory loggerFactory)
+    public TextCompletionConverter(IOpenAIServiceProvider serviceProvider, ILoggerFactory loggerFactory)
     {
-        this.service = service ?? throw new ArgumentNullException(nameof(service));
+        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = loggerFactory?.CreateLogger<TextCompletionConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -50,7 +50,8 @@ class TextCompletionConverter :
         CompletionCreateRequest request = attribute.BuildRequest();
         this.logger.LogInformation("Sending OpenAI completion request: {request}", request);
 
-        CompletionCreateResponse response = await this.service.Completions.CreateCompletion(
+        IOpenAIService service = this.serviceProvider.GetService(attribute.Model);
+        CompletionCreateResponse response = await service.Completions.CreateCompletion(
             request,
             modelId: null,
             cancellationToken);

@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OpenAI.Interfaces;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.ObjectModels.ResponseModels;
@@ -40,7 +40,7 @@ class TextCompletionConverter :
         CancellationToken cancellationToken)
     {
         CompletionCreateResponse response = await this.ConvertCoreAsync(attribute, cancellationToken);
-        return JsonSerializer.Serialize(response);
+        return JsonConvert.SerializeObject(response);
     }
 
     async Task<CompletionCreateResponse> ConvertCoreAsync(

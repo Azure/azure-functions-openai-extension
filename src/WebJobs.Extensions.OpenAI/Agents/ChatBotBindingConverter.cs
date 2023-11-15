@@ -1,14 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
 
 namespace WebJobs.Extensions.OpenAI.Agents;
 
@@ -27,7 +23,7 @@ class ChatBotBindingConverter :
         this.logger = loggerFactory.CreateLogger<ChatBotBindingConverter>();
     }
 
-    public IAsyncCollector<ChatBotCreateRequest> Convert(ChatBotCreateAttribute input)
+    public IAsyncCollector<ChatBotCreateRequest> Convert(ChatBotCreateAttribute attribute)
     {
         return new ChatBotCreateCollector(this.chatBotService, this.logger);
     }
@@ -126,15 +122,17 @@ class ChatBotBindingConverter :
             this.attribute = attribute;
         }
 
-        public Task AddAsync(ChatBotPostRequest item, CancellationToken cancellationToken = default)
+        public Task AddAsync(ChatBotPostRequest request, CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrEmpty(item.Id))
+            if (string.IsNullOrEmpty(request.Id))
             {
-                item.Id = this.attribute.Id;
+                request.Id = this.attribute.Id;
             }
 
-            this.logger.LogInformation("Posting message to chat bot '{Id}': {Text}", item.Id, item.UserMessage);
-            return this.chatService.PostMessageAsync(item, cancellationToken);
+            request.Model = this.attribute.Model;
+
+            this.logger.LogInformation("Posting message to chat bot '{Id}': {Text}", request.Id, request.UserMessage);
+            return this.chatService.PostMessageAsync(request, cancellationToken);
         }
 
         public Task FlushAsync(CancellationToken cancellationToken = default)

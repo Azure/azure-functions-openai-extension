@@ -110,7 +110,7 @@ class ChatBotEntity : IChatBotEntity
         ChatCompletionCreateRequest chatRequest = new()
         {
             Messages = this.State.ChatMessages.Select(item => item.Message).ToList(),
-            Model = Models.Gpt_3_5_Turbo,
+            Model = request.Model ?? Models.Gpt_3_5_Turbo,
         };
 
         IOpenAIService service = this.openAIServiceProvider.GetService(chatRequest.Model);
@@ -119,8 +119,8 @@ class ChatBotEntity : IChatBotEntity
         {
             // Throwing an exception will cause the entity to abort the current operation.
             // Any changes to the entity state will be discarded.
-            Error error = response.Error ?? new Error() { MessageObject = "Unspecified error" };
-            throw new ApplicationException($"The {chatRequest.Model} engine returned an error: {error}");
+            Error error = response.Error ?? new Error() { Code = "Unspecified", MessageObject = "Unspecified error" };
+            throw new ApplicationException($"The OpenAI {chatRequest.Model} engine returned a '{error.Code}' error: {error.Message}");
         }
 
         // We don't normally expect more than one message, but just in case we get multiple messages,

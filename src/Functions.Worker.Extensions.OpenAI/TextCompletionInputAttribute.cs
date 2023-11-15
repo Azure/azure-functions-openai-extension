@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
-using OpenAI.ObjectModels.RequestModels;
+
 
 // TODO: Move this somewhere else
 [assembly: ExtensionInformation("CGillum.WebJobs.Extensions.OpenAI", "0.3.1-alpha")]
@@ -70,34 +70,4 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// The default value is <c>true</c>. Set this to <c>false</c> to handle errors manually in the function code.
     /// </remarks>
     public bool ThrowOnError { get; set; } = true;
-
-    internal CompletionCreateRequest BuildRequest()
-    {
-        CompletionCreateRequest request = new()
-        {
-            Prompt = this.Prompt
-        };
-
-        if (this.Model is not null)
-        {
-            request.Model = this.Model;
-        }
-
-        if (int.TryParse(this.MaxTokens, out int maxTokens))
-        {
-            request.MaxTokens = maxTokens;
-        }
-
-        if (float.TryParse(this.Temperature, out float temperature))
-        {
-            request.Temperature = temperature;
-        }
-
-        if (float.TryParse(this.TopP, out float topP))
-        {
-            request.TopP = topP;
-        }
-
-        return request;
-    }
 }

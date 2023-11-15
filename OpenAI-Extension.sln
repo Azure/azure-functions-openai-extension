@@ -20,6 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "misc", "misc", "{680E7714-A
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		CHANGELOG.md = CHANGELOG.md
+		nuget.config = nuget.config
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -45,7 +46,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ooproc", "ooproc", "{E6B8C0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functions.Worker.Extensions.OpenAI", "src\Functions.Worker.Extensions.OpenAI\Functions.Worker.Extensions.OpenAI.csproj", "{EBFED369-EBBB-49F8-B2F2-236AF3063271}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpIsolatedSamples", "samples\other\dotnet\csharp-ooproc\CSharpIsolatedSamples\CSharpIsolatedSamples.csproj", "{537FD9B3-1288-461B-BEFD-8DF323A50BF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpIsolatedSamples", "samples\other\dotnet\csharp-ooproc\CSharpIsolatedSamples\CSharpIsolatedSamples.csproj", "{537FD9B3-1288-461B-BEFD-8DF323A50BF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using WebJobs.Extensions.OpenAI;
-using WebJobs.Extensions.OpenAI.Search;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 namespace CSharpInProcSamples.Demos;
 

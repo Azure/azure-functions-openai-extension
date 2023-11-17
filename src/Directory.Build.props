@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/cgillum/azure-functions-openai-extension</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Azure/azure-functions-ai-extension</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageReleaseNotes>$(RepositoryUrl)/releases/</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -14,7 +14,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Chris Gillum</Authors>
+    <Authors>Microsoft</Authors>
   </PropertyGroup>
 
     <!-- Version settings: https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/ -->

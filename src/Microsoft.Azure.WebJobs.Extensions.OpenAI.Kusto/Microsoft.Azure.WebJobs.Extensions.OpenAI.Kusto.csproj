@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="11.3.2" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="11.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Extensions.OpenAI\Microsoft.Azure.WebJobs.Extensions.OpenAI.csproj" />
+  </ItemGroup>
+</Project>

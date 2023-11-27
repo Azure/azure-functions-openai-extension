@@ -7,6 +7,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Azure.WebJobs.Extensions.OpenAI\Microsoft.Azure.WebJobs.Extensions.OpenAI.csproj" />
+    <ProjectReference Include="..\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <!-- OPTIONAL: Replace this with a package reference to WebJobs.Extensions.OpenAI -->
+    <!-- OPTIONAL: Replace this with a package reference to Microsoft.Azure.WebJobs.Extensions.OpenAI -->
     <ProjectReference Include="..\..\..\src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,132 @@
+variables:
+  ? ${{ if and( not(contains(variables['Build.SourceBranch'], '/release/')),  not(startsWith(variables['Build.SourceBranch'], 'refs/tags')) ) }}
+  : buildNumberTemp: $(Build.BuildNumber)
+  ? ${{ if or( contains(variables['Build.SourceBranch'], '/release/'), startsWith(variables['Build.SourceBranch'], 'refs/tags') ) }}
+  : isReleaseBuildTemp: true
+  buildNumber: $[variables.buildNumberTemp]
+  isReleaseBuild: $[variables.isReleaseBuildTemp]
+  buildConfiguration: Release
+  majorVersion: 0.0.0
+
+# Batch builds
+trigger:
+  branches:
+    include:
+      - main
+      - release/*
+      - feature/*
+  paths:
+    include:
+      - src/WebJobs.Extensions.OpenAI*/*
+    exclude:
+      - '**.md'
+
+continueOnError: false
+pool:
+  name: 1ES-Hosted-Azfunc
+  demands:
+    - ImageOverride -equals MMS2022TLS
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 6'
+    inputs:
+      version: 6.x
+      packageType: sdk
+
+  - task: DotNetCoreCLI@2
+    displayName: Build project
+    inputs:
+      command: 'build'
+      arguments: '--configuration $buildConfiguration -p:IsLocalBuild=False'
+      projects: src/*/*.csproj
+
+  - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+    displayName: Component Detection
+
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
+    displayName: 'ESRP CodeSigning - Authenticode'
+    condition: eq(variables.isReleaseBuild, true)
+    inputs:
+      ConnectedServiceName: 'ESRP Service'
+      FolderPath: 'extensions'
+      Pattern: WebJobs.Extensions.OpenAI*.dll
+      signConfigType: inlineSignParams
+      inlineOperation: |
+        [
+          {
+            "KeyCode": "CP-230012",
+            "OperationCode": "SigntoolSign",
+            "Parameters": {
+              "OpusName": "Microsoft",
+              "OpusInfo": "http://www.microsoft.com",
+              "FileDigest": "/fd \"SHA256\"",
+              "PageHash": "/NPH",
+              "TimeStamp": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+            },
+            "ToolName": "sign",
+            "ToolVersion": "1.0"
+          },
+          {
+            "KeyCode": "CP-230012",
+            "OperationCode": "SigntoolVerify",
+            "Parameters": {},
+            "ToolName": "sign",
+            "ToolVersion": "1.0"
+          }
+        ]
+
+  - task: DeleteFiles@1
+    displayName: 'Delete CodeSignSummary files'
+    condition: eq(variables.isReleaseBuild, true)
+    inputs:
+      contents: '**\CodeSignSummary-*.md'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build packages'
+    inputs:
+      command: 'custom'
+      custom: 'pack'
+      arguments: '--no-build -c Release -o packages -p:BuildNumber=$(buildNumber) -p:IsLocalBuild=False'
+      projects: src/*/WebJobs.Extensions.OpenAI*.csproj
+
+  - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
+    displayName: 'ESRP CodeSigning: Nupkg'
+    condition: eq(variables.isReleaseBuild, true)
+    inputs:
+      ConnectedServiceName: 'ESRP Service'
+      FolderPath: 'packages'
+      Pattern: 'WebJobs.Extensions.OpenAI*.nupkg'
+      signConfigType: inlineSignParams
+      inlineOperation: |
+        [
+            {
+              "KeyCode": "CP-401405",
+              "OperationCode": "NuGetSign",
+              "Parameters": {},
+              "ToolName": "sign",
+              "ToolVersion": "1.0"
+            },
+            {
+              "KeyCode": "CP-401405",
+              "OperationCode": "NuGetVerify",
+              "Parameters": {},
+              "ToolName": "sign",
+              "ToolVersion": "1.0"
+            }
+        ]
+
+  - task: DeleteFiles@1
+    displayName: 'Delete CodeSignSummary files'
+    condition: eq(variables.isReleaseBuild, true)
+    inputs:
+      contents: '**\CodeSignSummary-*.md'
+
+  - task: ManifestGeneratorTask@0
+    displayName: 'SBOM Generation Task'
+    inputs:
+      BuildDropPath: '$(System.DefaultWorkingDirectory)/packages'
+      Verbosity: 'Information'
+
+  - publish: $(System.DefaultWorkingDirectory)/packages
+    artifact: drop

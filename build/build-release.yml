@@ -1,9 +1,6 @@
 variables:
-  ? ${{ if and( not(contains(variables['Build.SourceBranch'], '/release/')),  not(startsWith(variables['Build.SourceBranch'], 'refs/tags')) ) }}
-  : buildNumberTemp: $(Build.BuildNumber)
   ? ${{ if or( contains(variables['Build.SourceBranch'], '/release/'), startsWith(variables['Build.SourceBranch'], 'refs/tags') ) }}
   : isReleaseBuildTemp: true
-  buildNumber: $[variables.buildNumberTemp]
   isReleaseBuild: $[variables.isReleaseBuildTemp]
   buildConfiguration: Release
   majorVersion: 0.0.0
@@ -38,7 +35,7 @@ steps:
     displayName: Build project
     inputs:
       command: 'build'
-      arguments: '--configuration $buildConfiguration -p:IsLocalBuild=False'
+      arguments: '--configuration $buildConfiguration -p:FileVersionRevision=$(Build.BuildId) -p:ContinuousIntegrationBuild=true'
       projects: src/*/*.csproj
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
@@ -84,7 +81,7 @@ steps:
     inputs:
       command: 'custom'
       custom: 'pack'
-      arguments: '--no-build -c Release -o packages -p:BuildNumber=$(buildNumber) -p:IsLocalBuild=False'
+      arguments: '--no-build -c Release -o packages -p:FileVersionRevision=$(Build.BuildId) -p:ContinuousIntegrationBuild=true'
       projects: src/*/WebJobs.Extensions.OpenAI*.csproj
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2

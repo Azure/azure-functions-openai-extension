@@ -12,7 +12,7 @@ This extension depends on the [Betalgo.OpenAI](https://github.com/betalgo/openai
 The following NuGet packages are available as part of this project.
 
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.svg?label=microsoft.azure.webjobs.extensions.openai)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI)<br/>
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.svg?label=wmicrosoft.azure.webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto)
 
 ## Requirements
 

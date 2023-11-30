@@ -1,14 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using OpenAI;
 using OpenAI.Interfaces;
 using OpenAI.Managers;
 
-namespace WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 interface IOpenAIServiceProvider
 {

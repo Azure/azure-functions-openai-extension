@@ -3,7 +3,7 @@
 
 using Microsoft.Azure.WebJobs.Description;
 
-namespace WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]

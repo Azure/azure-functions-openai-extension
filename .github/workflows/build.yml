@@ -37,11 +37,15 @@ jobs:
 
     - name: Docker Run - Chat Bot Sample
       env:
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
+        AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+        AZURE_DEPLOYMENT_NAME: ${{ vars.AZURE_DEPLOYMENT_NAME }}
       run: |
           docker run -d -p 7071:80 --name openai-func-sample-csharp-inproc \
             --add-host host.docker.internal:host-gateway \
-            --env OPENAI_API_KEY=$OPENAI_API_KEY \
+            --env AZURE_OPENAI_KEY=$AZURE_OPENAI_KEY \
+            --env AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
+            --env AZURE_DEPLOYMENT_NAME=$AZURE_DEPLOYMENT_NAME \
             --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
             openai-func-sample-csharp-inproc
 

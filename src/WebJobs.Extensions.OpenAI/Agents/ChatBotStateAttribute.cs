@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Azure.WebJobs.Description;
 using OpenAI.ObjectModels.RequestModels;
 
-namespace WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]

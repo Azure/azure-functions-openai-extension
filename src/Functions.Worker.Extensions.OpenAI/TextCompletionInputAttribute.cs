@@ -4,11 +4,11 @@
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 
-// TODO: Move this somewhere else
+// TODO: Move this somewhere else and update the package to use Microsoft.Azure.WebJobs.Extensions.OpenAI
 [assembly: ExtensionInformation("CGillum.WebJobs.Extensions.OpenAI", "0.3.1-alpha")]
 
 
-namespace Functions.Worker.Extensions.OpenAI;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 
 /// <summary>
 /// Input binding attribute for capturing OpenAI completions in function executions.

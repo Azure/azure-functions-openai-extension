@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using WebJobs.Extensions.OpenAI.Agents;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 namespace ChatBotSample;
 
@@ -20,7 +19,7 @@ public static class ChatBot
 
     [FunctionName(nameof(CreateChatBot))]
     public static async Task<IActionResult> CreateChatBot(
-        [HttpTrigger(AuthorizationLevel.Anonymous , "put", Route = "chats/{chatId}")] CreateRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] CreateRequest req,
         string chatId,
         [ChatBotCreate] IAsyncCollector<ChatBotCreateRequest> createRequests)
     {
@@ -42,14 +41,14 @@ public static class ChatBot
     public static async Task<IActionResult> PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}")] HttpRequest req,
         string chatId,
-        [ChatBotPost("{chatId}")] ICollector<ChatBotPostRequest> newMessages)
+        [ChatBotPost("{chatId}", Model = "%AZURE_DEPLOYMENT_NAME%")] ICollector<ChatBotPostRequest> newMessages)
     {
         string userMessage = await req.ReadAsStringAsync();
         if (string.IsNullOrEmpty(userMessage))
         {
             return new BadRequestObjectResult(new { message = "Request body is empty" });
         }
-        
+
         newMessages.Add(new ChatBotPostRequest(userMessage));
         return new AcceptedResult();
     }

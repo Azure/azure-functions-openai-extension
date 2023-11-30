@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-
-namespace WebJobs.Extensions.OpenAI.Search;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 /// <summary>
 /// Represents the results of a semantic search.

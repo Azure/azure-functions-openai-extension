@@ -1,15 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.DependencyInjection;
 using OpenAI;
 using OpenAI.Extensions;
-using WebJobs.Extensions.OpenAI.Agents;
-using WebJobs.Extensions.OpenAI.Search;
 
-namespace WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 /// <summary>
 /// Extension methods for registering the OpenAI webjobs extension.

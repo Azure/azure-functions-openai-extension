@@ -1,18 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using OpenAI.Interfaces;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.ObjectModels.ResponseModels;
 
-namespace WebJobs.Extensions.OpenAI.Search;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 /// <summary>
 /// Input binding target for the <see cref="SemanticSearchAttribute"/>.

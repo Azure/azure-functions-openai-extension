@@ -1,11 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace WebJobs.Extensions.OpenAI.Search;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 /// <summary>
 /// Interface for search store providers to implement.

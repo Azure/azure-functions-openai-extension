@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Azure.WebJobs.Description;
 
-namespace WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
@@ -29,7 +28,7 @@ public class ChatBotCreateRequest
     public ChatBotCreateRequest(string id, string? instructions)
     {
         this.Id = id;
-    
+
         if (!string.IsNullOrWhiteSpace(instructions))
         {
             this.Instructions = instructions;

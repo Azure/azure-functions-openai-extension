@@ -1,14 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Microsoft.Azure.WebJobs.Description;
 using OpenAI.ObjectModels.RequestModels;
 
-namespace WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 /// <summary>
 /// Input binding attribute for converting function trigger input into OpenAI embeddings.

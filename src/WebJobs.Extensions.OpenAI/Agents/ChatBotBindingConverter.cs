@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 class ChatBotBindingConverter :
     IConverter<ChatBotCreateAttribute, IAsyncCollector<ChatBotCreateRequest>>,

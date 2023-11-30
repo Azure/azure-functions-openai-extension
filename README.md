@@ -1,7 +1,7 @@
 # Azure Functions bindings for OpenAI's GPT engine
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build](https://github.com/cgillum/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/cgillum/azure-functions-openai-extension/actions/workflows/build.yml)
+[![Build](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml)
 
 This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/). It is not currently endorsed or supported by Microsoft.
 
@@ -11,8 +11,8 @@ This extension depends on the [Betalgo.OpenAI](https://github.com/betalgo/openai
 
 The following NuGet packages are available as part of this project.
 
-[![NuGet](https://img.shields.io/nuget/v/CGillum.WebJobs.Extensions.OpenAI.svg?label=webjobs.extensions.openai)](https://www.nuget.org/packages/CGillum.WebJobs.Extensions.OpenAI)<br/>
-[![NuGet](https://img.shields.io/nuget/v/CGillum.WebJobs.Extensions.OpenAI.Kusto.svg?label=webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/CGillum.WebJobs.Extensions.OpenAI.Kusto)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.svg?label=microsoft.azure.webjobs.extensions.openai)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI)<br/>
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.svg?label=wmicrosoft.azure.webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto)
 
 ## Requirements
 
@@ -257,8 +257,8 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 ## Trademarks
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
+This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft
+trademarks or logos is subject to and must follow
 [Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
 Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
 Any use of third-party trademarks or logos are subject to those third-party's policies.

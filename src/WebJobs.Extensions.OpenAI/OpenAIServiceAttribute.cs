@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Azure.WebJobs.Description;
 using OpenAI.Managers;
 
-namespace WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 /// <summary>
 /// Input binding attribute for getting an instance of the <see cref="OpenAIService"/> class.

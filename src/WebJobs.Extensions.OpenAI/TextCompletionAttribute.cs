@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Azure.WebJobs.Description;
 using OpenAI.ObjectModels.RequestModels;
 
-namespace WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 /// <summary>
 /// Input binding attribute for capturing OpenAI completions in function executions.

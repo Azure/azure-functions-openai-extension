@@ -1,24 +1,17 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Net.Client;
 using Kusto.Ingest;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Logging;
-using WebJobs.Extensions.OpenAI.Search;
 
-namespace WebJobs.Extensions.OpenAI.Kusto;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto;
 
 // IMPORTANT: This code assumes a particular table schema. A compliant table can be created using the following Kusto command:
 // .create table Documents (Id:string, Title:string, Text:string, Embeddings:dynamic, Timestamp:datetime)
@@ -48,7 +41,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
     public void Dispose()
     {
         foreach ((ICslQueryProvider client, _) in this.kustoQueryClients.Values)
-        { 
+        {
             client.Dispose();
         }
 
@@ -60,7 +53,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
 
     public async Task AddDocumentAsync(SearchableDocument document, CancellationToken cancellationToken)
     {
-        (IKustoIngestClient kustoIngestClient, KustoConnectionStringBuilder connectionStringBuilder) = 
+        (IKustoIngestClient kustoIngestClient, KustoConnectionStringBuilder connectionStringBuilder) =
             this.kustoIngestClients.GetOrAdd(
                 document.ConnectionInfo!.ConnectionName,
                 name =>

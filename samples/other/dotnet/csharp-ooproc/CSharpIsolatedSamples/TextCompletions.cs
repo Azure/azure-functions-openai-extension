@@ -1,6 +1,6 @@
-using Functions.Worker.Extensions.OpenAI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using OpenAI.ObjectModels.ResponseModels;

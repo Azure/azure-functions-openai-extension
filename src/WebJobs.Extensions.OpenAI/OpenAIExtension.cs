@@ -1,16 +1,15 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Azure.WebJobs.Description;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Newtonsoft.Json.Linq;
 using OpenAI.Interfaces;
 using OpenAI.ObjectModels.ResponseModels;
-using WebJobs.Extensions.OpenAI.Agents;
-using WebJobs.Extensions.OpenAI.Search;
 
-namespace WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 [Extension("OpenAI")]
 partial class OpenAIExtension : IExtensionConfigProvider

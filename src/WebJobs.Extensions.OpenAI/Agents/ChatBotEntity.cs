@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -14,7 +10,7 @@ using OpenAI.ObjectModels;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.ObjectModels.ResponseModels;
 
-namespace WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 public interface IChatBotEntity
 {
@@ -105,7 +101,7 @@ class ChatBotEntity : IChatBotEntity
 
         this.State.ChatMessages ??= new List<MessageRecord>();
         this.State.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromUser(request.UserMessage)));
-        
+
         // Get the next response from the LLM
         ChatCompletionCreateRequest chatRequest = new()
         {
@@ -134,7 +130,7 @@ class ChatBotEntity : IChatBotEntity
             Entity.Current.EntityId,
             response.Usage.CompletionTokens,
             replyMessage);
-        
+
         this.State.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromAssistant(replyMessage)));
 
         this.logger.LogInformation(

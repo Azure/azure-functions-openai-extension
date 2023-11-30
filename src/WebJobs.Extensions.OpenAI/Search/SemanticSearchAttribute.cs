@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Microsoft.Azure.WebJobs.Description;
 using OpenAI.ObjectModels;
 
-namespace WebJobs.Extensions.OpenAI.Search;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 /// <summary>
 /// Binding attribute for semantic search (input bindings) and semantic document storage (output bindings).

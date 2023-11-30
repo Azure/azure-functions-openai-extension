@@ -3,9 +3,8 @@
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI;
 using Microsoft.Extensions.Logging;
-using OpenAI.ObjectModels.ResponseModels;
-using WebJobs.Extensions.OpenAI;
 
 namespace CSharpInProcSamples;
 

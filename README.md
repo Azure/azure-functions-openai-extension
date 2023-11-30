@@ -1,7 +1,7 @@
 # Azure Functions bindings for OpenAI's GPT engine
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build](https://github.com/Azure/azure-functions-ai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/azure-functions-ai-extension/actions/workflows/build.yml)
+[![Build](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml)
 
 This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/). It is not currently endorsed or supported by Microsoft.
 

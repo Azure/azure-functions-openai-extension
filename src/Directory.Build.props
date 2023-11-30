@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/Azure/azure-functions-ai-extension</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Azure/azure-functions-openai-extension</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageReleaseNotes>$(RepositoryUrl)/releases/</PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>

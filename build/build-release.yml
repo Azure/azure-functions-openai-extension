@@ -44,10 +44,15 @@ steps:
       performMultiLevelLookup: true
 
   - task: DotNetCoreCLI@2
+    inputs:
+      command: 'restore'
+      feedsToUse: 'config'
+
+  - task: DotNetCoreCLI@2
     displayName: Build project
     inputs:
       command: 'build'
-      arguments: '--configuration $(buildConfiguration) -p:FileVersionRevision=$(Build.BuildId) -p:ContinuousIntegrationBuild=true'
+      arguments: '--configuration $(buildConfiguration) --no-restore -p:FileVersionRevision=$(Build.BuildId) -p:ContinuousIntegrationBuild=true'
       projects: src/*/*.csproj
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2

@@ -1,17 +1,11 @@
 variables:
-  ? ${{ if or( contains(variables['Build.SourceBranch'], '/release/'), startsWith(variables['Build.SourceBranch'], 'refs/tags') ) }}
-  : isReleaseBuildTemp: true
-  isReleaseBuild: $[variables.isReleaseBuildTemp]
   buildConfiguration: Release
-  majorVersion: 0.0.0
 
 # Batch builds
 trigger:
   branches:
     include:
       - main
-      - release/*
-      - feature/*
   paths:
     include:
       - src/WebJobs.Extensions.OpenAI*/*
@@ -32,12 +26,14 @@ steps:
       packageType: sdk
 
   - task: UseDotNet@2
+    displayName: 'Install .NET 2.1'
     inputs:
       packageType: 'sdk'
       version: '2.1.x'
       performMultiLevelLookup: true
 
   - task: DotNetCoreCLI@2
+    displayName: 'Dotnet Restore'
     inputs:
       command: 'restore'
       feedsToUse: 'config'
@@ -52,7 +48,6 @@ steps:
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
     displayName: 'ESRP CodeSigning - Authenticode'
-    condition: eq(variables.isReleaseBuild, true)
     inputs:
       ConnectedServiceName: 'ESRP Service'
       FolderPath: 'extensions'
@@ -84,7 +79,6 @@ steps:
 
   - task: DeleteFiles@1
     displayName: 'Delete CodeSignSummary files'
-    condition: eq(variables.isReleaseBuild, true)
     inputs:
       contents: '**\CodeSignSummary-*.md'
 
@@ -98,7 +92,6 @@ steps:
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
     displayName: 'ESRP CodeSigning: Nupkg'
-    condition: eq(variables.isReleaseBuild, true)
     inputs:
       ConnectedServiceName: 'ESRP Service'
       FolderPath: 'packages'
@@ -124,7 +117,6 @@ steps:
 
   - task: DeleteFiles@1
     displayName: 'Delete CodeSignSummary files'
-    condition: eq(variables.isReleaseBuild, true)
     inputs:
       contents: '**\CodeSignSummary-*.md'
 

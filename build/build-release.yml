@@ -50,7 +50,7 @@ steps:
     displayName: 'ESRP CodeSigning - Authenticode'
     inputs:
       ConnectedServiceName: 'ESRP Service'
-      FolderPath: 'extensions'
+      FolderPath: 'src'
       Pattern: WebJobs.Extensions.OpenAI*.dll
       signConfigType: inlineSignParams
       inlineOperation: |

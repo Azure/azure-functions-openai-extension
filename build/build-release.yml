@@ -43,7 +43,7 @@ steps:
     displayName: Build project
     inputs:
       command: 'build'
-      arguments: '--configuration $(buildConfiguration) --no-restore -p:FileVersionRevision=$(Build.BuildId) -p:ContinuousIntegrationBuild=true'
+      arguments: '--configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true'
       projects: src/*/*.csproj
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
@@ -87,7 +87,7 @@ steps:
     inputs:
       command: 'custom'
       custom: 'pack'
-      arguments: '--no-build -c Release -o packages -p:FileVersionRevision=$(Build.BuildId) -p:ContinuousIntegrationBuild=true'
+      arguments: '--no-build -c Release -o packages -p:ContinuousIntegrationBuild=true'
       projects: src/*/WebJobs.Extensions.OpenAI*.csproj
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2

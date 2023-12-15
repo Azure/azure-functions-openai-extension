@@ -17,10 +17,10 @@
     <Authors>Microsoft</Authors>
   </PropertyGroup>
 
-    <!-- Version settings: https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/ -->
+  <!-- Version settings: https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/ -->
   <PropertyGroup>
     <MajorVersion>0</MajorVersion>
-    <MinorVersion>4</MinorVersion>
+    <MinorVersion>5</MinorVersion>
     <PatchVersion>0</PatchVersion>
     <VersionPrefix>$(MajorVersion).$(MinorVersion).$(PatchVersion)</VersionPrefix>
     <VersionSuffix>alpha</VersionSuffix>

@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.ObjectModels.ResponseModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
@@ -27,7 +25,7 @@ public enum ChatBotStatus
     Expired,
 }
 
-record struct MessageRecord(DateTime Timestamp, ChatMessage Message);
+record struct MessageRecord(DateTime Timestamp, ChatRequestMessage Message);
 
 [JsonObject(MemberSerialization.OptIn)]
 class ChatBotRuntimeState
@@ -46,13 +44,13 @@ class ChatBotRuntimeState
 class ChatBotEntity : IChatBotEntity
 {
     readonly ILogger logger;
-    readonly IOpenAIServiceProvider openAIServiceProvider;
+    readonly OpenAIClient openAIClient;
 
-    public ChatBotEntity(ILoggerFactory loggerFactory, IOpenAIServiceProvider openAIServiceProvider)
+    public ChatBotEntity(ILoggerFactory loggerFactory, OpenAIClient openAIClient)
     {
         // When initialized via dependency injection
         this.logger = loggerFactory.CreateLogger<ChatBotEntity>();
-        this.openAIServiceProvider = openAIServiceProvider ?? throw new ArgumentNullException(nameof(openAIServiceProvider));
+        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
     }
 
     [JsonConstructor]
@@ -60,7 +58,7 @@ class ChatBotEntity : IChatBotEntity
     {
         // For deserialization
         this.logger = null!;
-        this.openAIServiceProvider = null!;
+        this.openAIClient = null!;
     }
 
     [JsonProperty("state")]
@@ -77,7 +75,7 @@ class ChatBotEntity : IChatBotEntity
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
                 new List<MessageRecord>() :
-                new List<MessageRecord>() { new(DateTime.UtcNow, ChatMessage.FromSystem(request.Instructions)) },
+                new List<MessageRecord>() { new(DateTime.UtcNow, new ChatRequestSystemMessage(request.Instructions)) },
             ExpiresAt = request.ExpiresAt ?? DateTime.UtcNow.AddHours(24),
             Status = ChatBotStatus.Active,
         };
@@ -100,38 +98,30 @@ class ChatBotEntity : IChatBotEntity
         this.logger.LogInformation("[{Id}] Received message: {Text}", Entity.Current.EntityId, request.UserMessage);
 
         this.State.ChatMessages ??= new List<MessageRecord>();
-        this.State.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromUser(request.UserMessage)));
+        this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatRequestUserMessage(request.UserMessage)));
 
+        var deploymentName = request.Model ?? "gpt-3.5-turbo";
+      
+        
         // Get the next response from the LLM
-        ChatCompletionCreateRequest chatRequest = new()
-        {
-            Messages = this.State.ChatMessages.Select(item => item.Message).ToList(),
-            Model = request.Model ?? Models.Gpt_3_5_Turbo,
-        };
+        ChatCompletionsOptions chatRequest = new(deploymentName, this.State.ChatMessages.Select(item => item.Message).ToList());
 
-        IOpenAIService service = this.openAIServiceProvider.GetService(chatRequest.Model);
-        ChatCompletionCreateResponse response = await service.ChatCompletion.CreateCompletion(chatRequest);
-        if (!response.Successful)
-        {
-            // Throwing an exception will cause the entity to abort the current operation.
-            // Any changes to the entity state will be discarded.
-            Error error = response.Error ?? new Error() { Code = "Unspecified", MessageObject = "Unspecified error" };
-            throw new ApplicationException($"The OpenAI {chatRequest.Model} engine returned a '{error.Code}' error: {error.Message}");
-        }
+        Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
+
 
         // We don't normally expect more than one message, but just in case we get multiple messages,
         // return all of them separated by two newlines.
         string replyMessage = string.Join(
             Environment.NewLine + Environment.NewLine,
-            response.Choices.Select(choice => choice.Message.Content));
+            response.Value.Choices.Select(choice => choice.Message.Content));
 
         this.logger.LogInformation(
             "[{Id}] Got LLM response consisting of {Count} tokens: {Text}",
             Entity.Current.EntityId,
-            response.Usage.CompletionTokens,
+            response.Value.Usage.CompletionTokens,
             replyMessage);
 
-        this.State.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromAssistant(replyMessage)));
+        this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatRequestAssistantMessage(replyMessage)));
 
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",

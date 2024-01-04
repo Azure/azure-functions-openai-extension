@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using OpenAI;
 using OpenAI.Extensions;
@@ -27,6 +29,26 @@ public static class OpenAIWebJobsBuilderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
+        // Register the Azure Open AI Client
+        builder.Services.AddAzureClients(clientBuilder =>
+        {
+            // Use Azure OpenAI configuration if available
+            string key = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY") ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new InvalidOperationException("Must set OPENAI_API_KEY or AZURE_OPENAI_KEY environment variable. Visit <insert troubleshooting link> for more.");
+            }
+
+            var credential = new AzureKeyCredential(key);
+            var endpoint = Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri)
+            ? uri
+            : new Uri("https://api.openai.com"); // Default to OpenAI endpoint if Azure endpoint is not specified
+
+            // ToDo: Add support for Azure Managed Identity
+            clientBuilder.AddOpenAIClient(endpoint, credential);
+        });
+
+        // ToDo: Remove below registration after migration of all converters to use Azure OpenAI Client
         // Register the OpenAI service, which we depend on.
         builder.Services.AddOpenAIService(settings =>
         {
@@ -53,11 +75,6 @@ public static class OpenAIWebJobsBuilderExtensions
                 // Public OpenAI configuration
                 settings.ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
                 settings.Organization = Environment.GetEnvironmentVariable("OPENAI_ORGANIZATION_ID");
-            }
-
-            if (string.IsNullOrEmpty(settings.ApiKey))
-            {
-                throw new InvalidOperationException("Must set OPENAI_API_KEY or AZURE_OPENAI_KEY environment variable.");
             }
         });
 

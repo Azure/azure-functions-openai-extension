@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask.ContextImplementations;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenAI.ObjectModels.RequestModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
@@ -76,20 +76,20 @@ public class DefaultChatBotService : IChatBotService
         if (!entityState.EntityExists)
         {
             this.logger.LogInformation("Entity does not exist with ID '{Id}'", entityId);
-            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessage>());
+            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatRequestMessage>());
         }
 
         ChatBotRuntimeState? runtimeState = entityState.EntityState?.State;
         if (runtimeState == null)
         {
             this.logger.LogWarning("Chat bot state is null for entity '{Id}'", entityId);
-            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessage>());
+            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatRequestMessage>());
         }
 
         IList<MessageRecord>? allChatMessages = runtimeState.ChatMessages;
         allChatMessages ??= Array.Empty<MessageRecord>();
 
-        List<ChatMessage> filteredMessages = allChatMessages
+        List<ChatRequestMessage> filteredMessages = allChatMessages
             .Where(item => item.Timestamp > after)
             .Select(item => item.Message)
             .ToList();

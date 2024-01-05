@@ -76,6 +76,10 @@ public static class OpenAIWebJobsBuilderExtensions
                 settings.ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
                 settings.Organization = Environment.GetEnvironmentVariable("OPENAI_ORGANIZATION_ID");
             }
+            if (string.IsNullOrEmpty(settings.ApiKey))
+            {
+                throw new InvalidOperationException("Must set OPENAI_API_KEY or AZURE_OPENAI_KEY environment variable.");
+            }
         });
 
         // Register the WebJobs extension, which enables the bindings.

@@ -36,4 +36,4 @@ public record ChatBotState(
     DateTime CreatedAt,
     DateTime LastUpdatedAt,
     int TotalMessages,
-    IReadOnlyList<ChatRequestMessage> RecentMessages);
+    IReadOnlyList<MessageRecord> RecentMessages);

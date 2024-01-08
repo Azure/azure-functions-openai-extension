@@ -25,7 +25,7 @@ public enum ChatBotStatus
     Expired,
 }
 
-public record struct MessageRecord(DateTime Timestamp, string Content, string Role);
+record struct MessageRecord(DateTime Timestamp, ChatMessageEntity ChatMessageEntity);
 
 [JsonObject(MemberSerialization.OptIn)]
 class ChatBotRuntimeState
@@ -75,7 +75,7 @@ class ChatBotEntity : IChatBotEntity
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
                 new List<MessageRecord>() :
-                new List<MessageRecord>() { new(DateTime.UtcNow, request.Instructions, ChatRole.System.ToString()) },
+                new List<MessageRecord>() { new(DateTime.UtcNow, new ChatMessageEntity(request.Instructions, ChatRole.System.ToString())) },
             ExpiresAt = request.ExpiresAt ?? DateTime.UtcNow.AddHours(24),
             Status = ChatBotStatus.Active,
         };
@@ -97,17 +97,15 @@ class ChatBotEntity : IChatBotEntity
 
         this.logger.LogInformation("[{Id}] Received message: {Text}", Entity.Current.EntityId, request.UserMessage);
 
-        this.State.ChatMessages ??= new List<MessageRecord>(); 
-        this.State.ChatMessages.Add(new(DateTime.UtcNow, request.UserMessage, ChatRole.User.ToString()));
+        this.State.ChatMessages ??= new List<MessageRecord>();
+        this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString())));
 
         var deploymentName = request.Model ?? "gpt-3.5-turbo";
 
-
         // Get the next response from the LLM
-        ChatCompletionsOptions chatRequest = new ChatCompletionsOptions(deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages).ToList());
+        ChatCompletionsOptions chatRequest = new ChatCompletionsOptions(deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity).ToList()).ToList());
 
         Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
-
 
         // We don't normally expect more than one message, but just in case we get multiple messages,
         // return all of them separated by two newlines.
@@ -121,7 +119,7 @@ class ChatBotEntity : IChatBotEntity
             response.Value.Usage.CompletionTokens,
             replyMessage);
 
-        this.State.ChatMessages.Add(new(DateTime.UtcNow, replyMessage, ChatRole.Assistant.ToString()));
+        this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(replyMessage, ChatRole.Assistant.ToString())));
 
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",
@@ -129,22 +127,22 @@ class ChatBotEntity : IChatBotEntity
             this.State.ChatMessages.Count);
     }
 
-
-    IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(List<MessageRecord> messages)
+    internal IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IList<ChatMessageEntity> messages)
     {
-        // not supporting function or tool chat roles at this moment
-        Dictionary<string, Func<string, ChatRequestMessage>> messageFactories = new()
+        Dictionary<string, Func<ChatMessageEntity, ChatRequestMessage>> messageFactories = new()
         {
-            { ChatRole.User.ToString(), content => new ChatRequestUserMessage(content) },
-            { ChatRole.Assistant.ToString(), content => new ChatRequestAssistantMessage(content) },
-            { ChatRole.System.ToString(), content => new ChatRequestSystemMessage(content) },
+            { ChatRole.User.ToString(), msg => new ChatRequestUserMessage(msg.Content) },
+            { ChatRole.Assistant.ToString(), msg => new ChatRequestAssistantMessage(msg.Content) },
+            { ChatRole.System.ToString(), msg => new ChatRequestSystemMessage(msg.Content) },
+            { ChatRole.Function.ToString(), msg => new ChatRequestFunctionMessage(msg.FunctionName, msg.Content)},
+            { ChatRole.Tool.ToString(), msg => new ChatRequestToolMessage(msg.ToolCallId, msg.Content)},
         };
 
-        foreach (MessageRecord message in messages)
+        foreach (ChatMessageEntity message in messages)
         {
             if (messageFactories.TryGetValue(message.Role, out var factory))
             {
-                yield return factory.Invoke(message.Content);
+                yield return factory.Invoke(message);
             }
             else
             {
@@ -152,5 +150,4 @@ class ChatBotEntity : IChatBotEntity
             }
         }
     }
-
 }

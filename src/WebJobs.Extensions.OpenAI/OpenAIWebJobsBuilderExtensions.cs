@@ -32,20 +32,18 @@ public static class OpenAIWebJobsBuilderExtensions
         // Register the Azure Open AI Client
         builder.Services.AddAzureClients(clientBuilder =>
         {
-            // Use Azure OpenAI configuration if available
-            string key = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY") ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-            if (string.IsNullOrEmpty(key))
+            // Use Azure OpenAI configuration
+            string key = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
+            var createUri = Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri);
+            if (string.IsNullOrEmpty(key) || !createUri)
             {
-                throw new InvalidOperationException("Must set OPENAI_API_KEY or AZURE_OPENAI_KEY environment variable. Visit <insert troubleshooting link> for more.");
+                throw new InvalidOperationException("Must set AZURE_OPENAI_KEY and AZURE_OPENAI_ENDPOINT environment variables. Visit <insert troubleshooting link> for more.");
             }
 
-            var credential = new AzureKeyCredential(key);
-            var endpoint = Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri)
-            ? uri
-            : new Uri("https://api.openai.com"); // Default to OpenAI endpoint if Azure endpoint is not specified
+            // ToDo: Check how to add support for non-Azure OpenAI Client through dependency injection and update above exception message.
 
             // ToDo: Add support for Azure Managed Identity
-            clientBuilder.AddOpenAIClient(endpoint, credential);
+            clientBuilder.AddOpenAIClient(uri, new AzureKeyCredential(key));
         });
 
         // ToDo: Remove below registration after migration of all converters to use Azure OpenAI Client

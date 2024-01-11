@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Azure;
+using Azure.AI.OpenAI;
+using Azure.Identity;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Azure;
@@ -29,22 +31,27 @@ public static class OpenAIWebJobsBuilderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        // Register the Azure Open AI Client
-        builder.Services.AddAzureClients(clientBuilder =>
+        // Register the client for Azure Open AI
+        Uri? azureOpenAIEndpoint = GetAzureOpenAIEndpoint();
+        string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
+        string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+        if (azureOpenAIEndpoint != null && !string.IsNullOrEmpty(azureOpenAIKey))
         {
-            // Use Azure OpenAI configuration
-            string key = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
-            var createUri = Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri);
-            if (string.IsNullOrEmpty(key) || !createUri)
-            {
-                throw new InvalidOperationException("Must set AZURE_OPENAI_KEY and AZURE_OPENAI_ENDPOINT environment variables. Visit <insert troubleshooting link> for more.");
-            }
-
-            // ToDo: Check how to add support for non-Azure OpenAI Client through dependency injection and update above exception message.
-
-            // ToDo: Add support for Azure Managed Identity
-            clientBuilder.AddOpenAIClient(uri, new AzureKeyCredential(key));
-        });
+            RegisterAzureOpenAIClient(builder.Services, azureOpenAIEndpoint, azureOpenAIKey);
+        }
+        else if (azureOpenAIEndpoint != null)
+        {
+            RegisterAzureOpenAIADAuthClient(builder.Services, azureOpenAIEndpoint);
+        }
+        else if (!string.IsNullOrEmpty(openAIKey))
+        {
+            RegisterOpenAIClient(builder.Services, openAIKey);
+        }
+        else
+        {
+            ThrowConfigurationNotFoundException();
+        }
 
         // ToDo: Remove below registration after migration of all converters to use Azure OpenAI Client
         // Register the OpenAI service, which we depend on.
@@ -59,11 +66,11 @@ public static class OpenAIWebJobsBuilderExtensions
             }
 
             // Try Azure connection first, which is preferred for privacy
-            string? azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-            if (!string.IsNullOrEmpty(azureOpenAIEndpoint))
+            string? azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!;
+            if (!string.IsNullOrEmpty(azureOpenAIEndpoint) && !string.IsNullOrEmpty(azureOpenAIKey))
             {
                 // Azure OpenAI configuration
-                settings.ApiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
+                settings.ApiKey = azureOpenAIKey!;
                 settings.ProviderType = ProviderType.Azure;
                 settings.BaseDomain = azureOpenAIEndpoint;
                 settings.DeploymentId = "placeholder"; // dummy value - this will be replaced at runtime
@@ -71,12 +78,12 @@ public static class OpenAIWebJobsBuilderExtensions
             else
             {
                 // Public OpenAI configuration
-                settings.ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+                settings.ApiKey = openAIKey;
                 settings.Organization = Environment.GetEnvironmentVariable("OPENAI_ORGANIZATION_ID");
             }
             if (string.IsNullOrEmpty(settings.ApiKey))
             {
-                throw new InvalidOperationException("Must set OPENAI_API_KEY or AZURE_OPENAI_KEY environment variable.");
+                throw new InvalidOperationException("Must set OPENAI_API_KEY or (AZURE_OPENAI_KEY and AZURE_OPENAI_ENDPOINT) environment variables.");
             }
         });
 
@@ -92,5 +99,40 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services.AddSingleton<IChatBotService, DefaultChatBotService>();
 
         return builder;
+    }
+
+    static Uri? GetAzureOpenAIEndpoint()
+    {
+        if (Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri))
+        {
+            return uri;
+        }
+
+        return null;
+    }
+
+    static void RegisterAzureOpenAIClient(IServiceCollection services, Uri azureOpenAIEndpoint, string azureOpenAIKey)
+    {
+        services.AddAzureClients(clientBuilder =>
+        {
+            clientBuilder.AddOpenAIClient(azureOpenAIEndpoint, new AzureKeyCredential(azureOpenAIKey));
+        });
+    }
+
+    static void RegisterAzureOpenAIADAuthClient(IServiceCollection services, Uri azureOpenAIEndpoint)
+    {
+        var managedIdentityClient = new OpenAIClient(azureOpenAIEndpoint, new DefaultAzureCredential());
+        services.AddSingleton<OpenAIClient>(managedIdentityClient);
+    }
+
+    static void RegisterOpenAIClient(IServiceCollection services, string openAIKey)
+    {
+        var openAIClient = new OpenAIClient(openAIKey);
+        services.AddSingleton<OpenAIClient>(openAIClient);
+    }
+
+    static void ThrowConfigurationNotFoundException()
+    {
+        throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables. Visit <insert troubleshooting link> for more.");
     }
 }

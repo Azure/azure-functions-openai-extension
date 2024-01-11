@@ -9,6 +9,8 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 class ChatBotBindingConverter :
     IConverter<ChatBotCreateAttribute, IAsyncCollector<ChatBotCreateRequest>>,
+    IConverter<ChatBotCreateAttribute, string>,
+    IConverter<ChatBotCreateAttribute, ChatBotCreateRequest>,
     IConverter<ChatBotPostAttribute, IAsyncCollector<ChatBotPostRequest>>,
     IAsyncConverter<ChatBotQueryAttribute, ChatBotState>,
     IAsyncConverter<ChatBotQueryAttribute, string>
@@ -82,6 +84,16 @@ class ChatBotBindingConverter :
     {
         this.logger.LogDebug("Creating chat bot post request from JSON string: {Text}", json);
         return JsonConvert.DeserializeObject<ChatBotPostRequest>(json) ?? throw new ArgumentException("Invalid chat bot post request");
+    }
+
+    string IConverter<ChatBotCreateAttribute, string>.Convert(ChatBotCreateAttribute input)
+    {
+        throw new NotImplementedException();
+    }
+
+    ChatBotCreateRequest IConverter<ChatBotCreateAttribute, ChatBotCreateRequest>.Convert(ChatBotCreateAttribute input)
+    {
+        throw new NotImplementedException();
     }
 
     class ChatBotCreateCollector : IAsyncCollector<ChatBotCreateRequest>

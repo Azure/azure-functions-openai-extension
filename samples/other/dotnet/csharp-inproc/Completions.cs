@@ -36,7 +36,7 @@ public static class Completions
     [FunctionName(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
-        [TextCompletion("{Prompt}", Model = "text-davinci-003")] CompletionCreateResponse response,
+        [TextCompletion("{Prompt}")] CompletionCreateResponse response,
         ILogger log)
     {
         if (!response.Successful)

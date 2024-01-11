@@ -1,3 +1,6 @@
+using System.ComponentModel;
+using Functions.Worker.Extensions.OpenAI;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
@@ -13,14 +16,18 @@ namespace CSharpIsolatedSamples;
 /// </summary>
 public static class TextCompletions
 {
+    public record CreateRequest(string Instructions);
+    public record EmbeddingsRequest(string RawText, string FilePath);
+
+    public record SemanticSearchRequest(string Prompt);
     /// <summary>
     /// This sample demonstrates the "templating" pattern, where the function takes a parameter
     /// and embeds it into a text prompt, which is then sent to the OpenAI completions API.
     /// </summary>
     [Function(nameof(WhoIs))]
     public static string WhoIs(
-        [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
-        [TextCompletionInput("Who is {name}?")] CompletionCreateResponse response)
+        [HttpTrigger(AuthorizationLevel.Anonymous, Route = "whois/{name}")] HttpRequestData req,
+        [TextCompletionInput("Who is {name}?", Model = "gpt-3.5-turbo-instruct")] CompletionCreateResponse response)
     {
         return response.Choices[0].Text;
     }
@@ -32,7 +39,7 @@ public static class TextCompletions
     [Function(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
-        [TextCompletionInput("{Prompt}", Model = "text-davinci-003")] CompletionCreateResponse response,
+        [TextCompletionInput("{Prompt}")] CompletionCreateResponse response,
         ILogger log)
     {
         if (!response.Successful)
@@ -44,6 +51,76 @@ public static class TextCompletions
         log.LogInformation("Prompt = {prompt}, Response = {response}", payload.Prompt, response);
         string text = response.Choices[0].Text;
         return new OkObjectResult(text);
+    }
+
+    [Function(nameof(CreateChatBot))]
+    public static async Task<CreateChatBotOutputType> CreateChatBot(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] CreateRequest req,
+            string chatId,
+            FunctionContext  context)
+    {
+        var responseJson = new { chatId };
+        return new CreateChatBotOutputType
+        { 
+            HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
+            ChatBotCreateRequest = new ChatBotCreateRequest2(chatId),
+
+        };
+    }
+
+    public class CreateChatBotOutputType
+    {
+
+        [ChatBotCreateOutput()]
+        public ChatBotCreateRequest2 ChatBotCreateRequest { get; set; }
+
+        public IActionResult HttpResponse { get; set; }
+    }
+
+    /*
+    [Function("PromptEmail")]
+    public static IActionResult PromptEmail(
+        [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
+        [SemanticSearchInput("KustoConnectionString", "Documents", Query = "{Prompt}")] SemanticSearchContext result)
+    {
+        return new ContentResult { Content = result.Response, ContentType = "text/plain" };
+    }
+    */
+
+    [Function(nameof(PostUserResponse))]
+    public static async Task<MyOutputType> PostUserResponse(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}")] HttpRequestData req,
+        string chatId)
+    {
+        string userMessage = await req.ReadAsStringAsync();
+        if (string.IsNullOrEmpty(userMessage))
+        {
+            return new MyOutputType { HttpResponse = new BadRequestObjectResult(new { message = "Request body is empty" }) };
+        }
+
+        return new MyOutputType
+        {
+            HttpResponse = new AcceptedResult(),
+            ChatBotPostRequest = new ChatBotPostRequest2 { UserMessage = userMessage, Id = chatId, Model = "gpt-3.5-turbo-instruct" }
+        };
+    }
+
+    public class MyOutputType
+    {
+        [ChatBotPostOutput("{chatId}", Model = "gpt-3.5-turbo-instruct")]
+        public ChatBotPostRequest2 ChatBotPostRequest { get; set; }
+
+        public IActionResult HttpResponse { get; set; }
+    }
+
+    [Function(nameof(GetChatState))]
+    public static ChatBotState2 GetChatState(
+       [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequest req,
+       string chatId,
+       [ChatBotQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] ChatBotState2 state,
+       FunctionContext context)
+    {
+        return state;
     }
 
     public record PromptPayload(string Prompt);

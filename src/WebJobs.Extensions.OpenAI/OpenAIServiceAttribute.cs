@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.Managers;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 

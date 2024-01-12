@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.ObjectModels;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
@@ -66,7 +66,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string EmbeddingsModel { get; set; } = Models.TextEmbeddingAdaV2;
+    public string EmbeddingsModel { get; set; } = OpenAIModels.text_embedding_ada_002;
 
     /// <summary>
     /// Gets or sets the name of the Large Language Model to invoke for chat responses.
@@ -76,7 +76,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string ChatModel { get; set; } = Models.Gpt_3_5_Turbo;
+    public string ChatModel { get; set; } = OpenAIModels.gpt_35_turbo;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.

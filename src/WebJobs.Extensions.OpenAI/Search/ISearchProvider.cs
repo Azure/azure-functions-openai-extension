@@ -35,7 +35,7 @@ public record ConnectionInfo(string ConnectionName, string CollectionName);
 
 public record SearchRequest(
     string Query,
-    IReadOnlyList<double> Embeddings,
+    ReadOnlyMemory<float> Embeddings,
     int MaxResults,
     ConnectionInfo ConnectionInfo);
 

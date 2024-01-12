@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Azure.AI.OpenAI;
+using Azure;
 using Microsoft.Extensions.Logging;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.ObjectModels.ResponseModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
@@ -14,28 +13,28 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 /// </summary>
 /// <param name="Embeddings">The embeddings context associated with the semantic search.</param>
 /// <param name="Chat">The chat response from the large language model.</param>
-public record SemanticSearchContext(EmbeddingsContext Embeddings, ChatCompletionCreateResponse Chat)
+public record SemanticSearchContext(EmbeddingsContext Embeddings, Response<ChatCompletions> Chat)
 {
     /// <summary>
     /// Gets the latest response message from the OpenAI Chat API.
     /// </summary>
-    public string Response => this.Chat.Choices.Last().Message.Content;
+    public string Response => this.Chat.Value.Choices.Last().Message.Content;
 }
 
 class SemanticSearchConverter :
     IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>,
     IAsyncConverter<SemanticSearchAttribute, IAsyncCollector<SearchableDocument>>
 {
-    readonly IOpenAIServiceProvider serviceProvider;
+    readonly OpenAIClient openAIClient;
     readonly ILogger logger;
     readonly ISearchProvider? searchProvider;
 
     public SemanticSearchConverter(
-        IOpenAIServiceProvider serviceProvider,
+        OpenAIClient openAIClient,
         ILoggerFactory loggerFactory,
         ISearchProvider searchProvider)
     {
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.logger = loggerFactory?.CreateLogger<SemanticSearchConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
 
         // This will be null if no search provider extension is configured
@@ -74,25 +73,11 @@ class SemanticSearchConverter :
         }
 
         // Get the embeddings for the query, which will be used for doing a semantic search
-        EmbeddingCreateRequest embeddingsRequest = new()
-        {
-            Input = attribute.Query,
-            Model = attribute.EmbeddingsModel,
-        };
-
-        IOpenAIService embeddingsService = this.serviceProvider.GetService(attribute.EmbeddingsModel);
+        EmbeddingsOptions embeddingsRequest = new(attribute.EmbeddingsModel, new List<string> { attribute.Query });
 
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", embeddingsRequest);
-        EmbeddingCreateResponse embeddingsResponse = await embeddingsService.Embeddings.CreateEmbedding(
-            embeddingsRequest,
-            cancellationToken);
+        Response<Embeddings> embeddingsResponse = await this.openAIClient.GetEmbeddingsAsync(embeddingsRequest, cancellationToken);
         this.logger.LogInformation("Received OpenAI embeddings response: {response}", embeddingsResponse);
-
-        if (attribute.ThrowOnError && embeddingsResponse.Error is not null)
-        {
-            throw new InvalidOperationException(
-                $"OpenAI returned an error of type '{embeddingsResponse.Error.Type}': {embeddingsResponse.Error.Message}");
-        }
 
         ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection);
         if (string.IsNullOrEmpty(connectionInfo.ConnectionName))
@@ -107,7 +92,7 @@ class SemanticSearchConverter :
         // Search for relevant document snippets using the original query and the embeddings
         SearchRequest searchRequest = new(
             attribute.Query,
-            embeddingsResponse.Data[0].Embedding,
+            embeddingsResponse.Value.Data[0].Embedding.ToArray(),
             attribute.MaxKnowledgeCount,
             connectionInfo);
         SearchResponse searchResponse = await this.searchProvider.SearchAsync(searchRequest);
@@ -121,23 +106,17 @@ class SemanticSearchConverter :
         }
 
         // Call the chat API with the new combined prompt to get a response back
-        ChatCompletionCreateRequest chatRequest = new()
+        ChatCompletionsOptions chatCompletionsOptions = new()
         {
-            Messages = new[]
+            DeploymentName = attribute.ChatModel,
+            Messages =
             {
-                ChatMessage.FromSystem(promptBuilder.ToString()),
-                ChatMessage.FromUser(attribute.Query),
-            },
-            Model = attribute.ChatModel,
+                new ChatRequestSystemMessage(promptBuilder.ToString()),
+                new ChatRequestUserMessage(attribute.Query),
+            }
         };
 
-        IOpenAIService chatService = this.serviceProvider.GetService(attribute.ChatModel);
-        ChatCompletionCreateResponse chatResponse = await chatService.ChatCompletion.CreateCompletion(chatRequest);
-        if (attribute.ThrowOnError && chatResponse.Error is not null)
-        {
-            throw new InvalidOperationException(
-                $"OpenAI returned an error of type '{chatResponse.Error.Type}': {chatResponse.Error.Message}");
-        }
+        Response<ChatCompletions> chatResponse = await this.openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
 
         // Give the user the full context, including the embeddings information as well as the chat info
         return new SemanticSearchContext(new EmbeddingsContext(embeddingsRequest, embeddingsResponse), chatResponse);

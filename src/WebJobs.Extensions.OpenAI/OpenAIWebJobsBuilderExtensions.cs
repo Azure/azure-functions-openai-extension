@@ -8,8 +8,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
-using OpenAI;
-using OpenAI.Extensions;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -50,48 +48,13 @@ public static class OpenAIWebJobsBuilderExtensions
         }
         else
         {
-            ThrowConfigurationNotFoundException();
+            throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables. Visit <insert troubleshooting link> for more.");
         }
-
-        // ToDo: Remove below registration after migration of all converters to use Azure OpenAI Client
-        // Register the OpenAI service, which we depend on.
-        builder.Services.AddOpenAIService(settings =>
-        {
-            // Common configuration.
-            // The Betalgo SDK has a default API version, but we support overriding it using an environment variable.
-            string? apiVersion = Environment.GetEnvironmentVariable("OPENAI_API_VERSION");
-            if (!string.IsNullOrEmpty(apiVersion))
-            {
-                settings.ApiVersion = apiVersion;
-            }
-
-            // Try Azure connection first, which is preferred for privacy
-            string? azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!;
-            if (!string.IsNullOrEmpty(azureOpenAIEndpoint) && !string.IsNullOrEmpty(azureOpenAIKey))
-            {
-                // Azure OpenAI configuration
-                settings.ApiKey = azureOpenAIKey!;
-                settings.ProviderType = ProviderType.Azure;
-                settings.BaseDomain = azureOpenAIEndpoint;
-                settings.DeploymentId = "placeholder"; // dummy value - this will be replaced at runtime
-            }
-            else
-            {
-                // Public OpenAI configuration
-                settings.ApiKey = openAIKey;
-                settings.Organization = Environment.GetEnvironmentVariable("OPENAI_ORGANIZATION_ID");
-            }
-            if (string.IsNullOrEmpty(settings.ApiKey))
-            {
-                throw new InvalidOperationException("Must set OPENAI_API_KEY or (AZURE_OPENAI_KEY and AZURE_OPENAI_ENDPOINT) environment variables.");
-            }
-        });
 
         // Register the WebJobs extension, which enables the bindings.
         builder.AddExtension<OpenAIExtension>();
 
         // Service objects that will be used by the extension
-        builder.Services.AddSingleton<IOpenAIServiceProvider, DefaultOpenAIServiceProvider>();
         builder.Services.AddSingleton<TextCompletionConverter>();
         builder.Services.AddSingleton<EmbeddingsConverter>();
         builder.Services.AddSingleton<SemanticSearchConverter>();
@@ -129,10 +92,5 @@ public static class OpenAIWebJobsBuilderExtensions
     {
         var openAIClient = new OpenAIClient(openAIKey);
         services.AddSingleton<OpenAIClient>(openAIClient);
-    }
-
-    static void ThrowConfigurationNotFoundException()
-    {
-        throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables. Visit <insert troubleshooting link> for more.");
     }
 }

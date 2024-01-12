@@ -9,8 +9,4 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Script.Abstractions" Version="1.0.0-preview" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Betalgo.OpenAI" Version="7.4.0" />
-  </ItemGroup>
-
 </Project>

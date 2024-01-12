@@ -1,33 +1,33 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Newtonsoft.Json.Linq;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels.ResponseModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 [Extension("OpenAI")]
 partial class OpenAIExtension : IExtensionConfigProvider
 {
-    readonly IOpenAIService service;
+    readonly OpenAIClient openAIClient;
     readonly TextCompletionConverter textCompletionConverter;
     readonly EmbeddingsConverter embeddingsConverter;
     readonly SemanticSearchConverter semanticSearchConverter;
     readonly ChatBotBindingConverter chatBotConverter;
 
     public OpenAIExtension(
-        IOpenAIService service,
+        OpenAIClient openAIClient,
         TextCompletionConverter textCompletionConverter,
         EmbeddingsConverter embeddingsConverter,
         SemanticSearchConverter semanticSearchConverter,
         ChatBotBindingConverter chatBotConverter)
     {
-        this.service = service ?? throw new ArgumentNullException(nameof(service));
+        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.textCompletionConverter = textCompletionConverter ?? throw new ArgumentNullException(nameof(textCompletionConverter));
         this.embeddingsConverter = embeddingsConverter ?? throw new ArgumentNullException(nameof(embeddingsConverter));
         this.semanticSearchConverter = semanticSearchConverter ?? throw new ArgumentNullException(nameof(semanticSearchConverter));
@@ -38,7 +38,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
     {
         // Completions input binding support
         var rule = context.AddBindingRule<TextCompletionAttribute>();
-        rule.BindToInput<CompletionCreateResponse>(this.textCompletionConverter);
+        rule.BindToInput<Response<Completions>>(this.textCompletionConverter);
         rule.BindToInput<string>(this.textCompletionConverter);
 
         // Embeddings input binding support
@@ -68,6 +68,6 @@ partial class OpenAIExtension : IExtensionConfigProvider
         chatBotQueryRule.BindToInput<string>(this.chatBotConverter);
 
         // OpenAI service input binding support (NOTE: This may be removed in a future version.)
-        context.AddBindingRule<OpenAIServiceAttribute>().BindToInput(_ => this.service);
+        context.AddBindingRule<OpenAIServiceAttribute>().BindToInput(_ => this.openAIClient);
     }
 }

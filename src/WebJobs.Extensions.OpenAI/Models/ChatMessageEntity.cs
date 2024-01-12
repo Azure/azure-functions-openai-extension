@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+
 public class ChatMessageEntity
 {
     public ChatMessageEntity(string content, string role, string? toolCallId = null, string? functionName = null)

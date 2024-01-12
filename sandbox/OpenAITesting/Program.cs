@@ -1,38 +1,38 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using OpenAI;
-using OpenAI.Managers;
-using OpenAI.ObjectModels;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.ObjectModels.ResponseModels;
+using Azure;
+using Azure.AI.OpenAI;
+using Azure.Identity;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
-OpenAIService openAiService = new(new OpenAiOptions()
+OpenAIClient openAIClient;
+Uri? azureOpenAIEndpoint = Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri) ? uri : null;
+string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
+string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+if (azureOpenAIEndpoint != null)
 {
-    ApiKey = (Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY") ?? Environment.GetEnvironmentVariable("OPENAI_API_KEY"))!,
-    BaseDomain = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")!,
-    ProviderType = ProviderType.Azure,
-    DeploymentId = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT")!,
-});
-
-CompletionCreateResponse completionResult = await openAiService.Completions.CreateCompletion(
-    new CompletionCreateRequest()
-    {
-        Prompt = "Once upon a time",
-        Model = Models.TextDavinciV3, // NOTE: The Model value is ignored when using Azure OpenAI
-        MaxTokens = 500,
-    });
-
-if (completionResult.Successful)
-{
-    Console.WriteLine(completionResult.Choices.FirstOrDefault());
+    openAIClient = azureOpenAIKey != null ? new (azureOpenAIEndpoint, new AzureKeyCredential(azureOpenAIKey)) : new (azureOpenAIEndpoint, new DefaultAzureCredential());
 }
-else //handle errors
+else
 {
-    if (completionResult.Error == null)
-    {
-        throw new Exception("Unknown Error");
-    }
+    openAIClient = new (openAIKey);
+}
 
-    Console.WriteLine($"{completionResult.Error.Code}: {completionResult.Error.Message}");
+try
+{
+    CompletionsOptions completionsOptions = new (OpenAIModels.gpt_35_turbo_instruct, new List<string> { "Once upon a time", })
+    {
+        MaxTokens = 500
+    };
+    Response<Completions> completionResult = await openAIClient.GetCompletionsAsync(completionsOptions);
+
+    string? content = completionResult?.Value?.Choices[0]?.Text;
+
+    Console.WriteLine(content);
+}
+catch (Exception ex)
+{
+    Console.WriteLine(ex.Message);
 }

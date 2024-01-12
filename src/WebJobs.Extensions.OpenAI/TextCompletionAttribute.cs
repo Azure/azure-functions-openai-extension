@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.ObjectModels.RequestModels;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -32,7 +33,7 @@ public sealed class TextCompletionAttribute : Attribute
     /// Gets or sets the ID of the model to use.
     /// </summary>
     [AutoResolve]
-    public string Model { get; set; } = "text-davinci-003";
+    public string Model { get; set; } = OpenAIModels.gpt_35_turbo_instruct;
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output
@@ -74,17 +75,9 @@ public sealed class TextCompletionAttribute : Attribute
     /// </remarks>
     public bool ThrowOnError { get; set; } = true;
 
-    internal CompletionCreateRequest BuildRequest()
+    internal CompletionsOptions BuildRequest()
     {
-        CompletionCreateRequest request = new()
-        {
-            Prompt = this.Prompt
-        };
-
-        if (this.Model is not null)
-        {
-            request.Model = this.Model;
-        }
+        CompletionsOptions request = new(this.Model, new List<string> { this.Prompt });
 
         if (int.TryParse(this.MaxTokens, out int maxTokens))
         {
@@ -96,10 +89,7 @@ public sealed class TextCompletionAttribute : Attribute
             request.Temperature = temperature;
         }
 
-        if (float.TryParse(this.TopP, out float topP))
-        {
-            request.TopP = topP;
-        }
+        // What's the replacement for top_P?
 
         return request;
     }

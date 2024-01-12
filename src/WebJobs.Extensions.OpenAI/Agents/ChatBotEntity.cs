@@ -4,6 +4,7 @@
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -100,11 +101,12 @@ class ChatBotEntity : IChatBotEntity
         this.State.ChatMessages ??= new List<MessageRecord>();
         this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString())));
 
-        var deploymentName = request.Model ?? "gpt-3.5-turbo";
+        var deploymentName = request.Model ?? OpenAIModels.gpt_35_turbo;
 
         // Get the next response from the LLM
-        ChatCompletionsOptions chatRequest = new ChatCompletionsOptions(deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity).ToList()).ToList());
+        ChatCompletionsOptions chatRequest = new ChatCompletionsOptions(deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
 
+        // Add error handling for below call
         Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
 
         // We don't normally expect more than one message, but just in case we get multiple messages,
@@ -127,7 +129,7 @@ class ChatBotEntity : IChatBotEntity
             this.State.ChatMessages.Count);
     }
 
-    internal IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IList<ChatMessageEntity> messages)
+    internal IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IEnumerable<ChatMessageEntity> messages)
     {
         Dictionary<string, Func<ChatMessageEntity, ChatRequestMessage>> messageFactories = new()
         {

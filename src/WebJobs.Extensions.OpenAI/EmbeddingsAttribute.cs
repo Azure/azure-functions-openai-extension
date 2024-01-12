@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.ObjectModels.RequestModels;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -33,7 +34,7 @@ public sealed class EmbeddingsAttribute : Attribute
     /// Gets or sets the ID of the model to use.
     /// </summary>
     [AutoResolve]
-    public string Model { get; set; } = "text-embedding-ada-002";
+    public string Model { get; set; } = OpenAIModels.text_embedding_ada_002;
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.
@@ -67,11 +68,11 @@ public sealed class EmbeddingsAttribute : Attribute
     /// </remarks>
     public bool ThrowOnError { get; set; } = true;
 
-    internal EmbeddingCreateRequest BuildRequest()
+    internal EmbeddingsOptions BuildRequest()
     {
         using TextReader reader = this.GetTextReader();
         List<string> chunks = GetTextChunks(reader, 0, this.MaxChunkLength).ToList();
-        return new EmbeddingCreateRequest { Model = this.Model, InputAsList = chunks };
+        return new EmbeddingsOptions(this.Model, chunks);
     }
 
     TextReader GetTextReader()

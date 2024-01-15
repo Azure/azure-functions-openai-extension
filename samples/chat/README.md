@@ -9,24 +9,17 @@ The sample is available in the following language stacks:
 
 ## Prerequisites
 
-You must have the following installed on your local machine in order to run these samples.
-
-* [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or newer
-* [Azure Functions Core Tools v4.x](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Ccsharp%2Cportal%2Cbash)
-* [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) with `AZURE_OPENAI_KEY`, `AZURE_OPENAI_ENDPOINT` and `AZURE_DEPLOYMENT_NAME` set in environment variables **or**
-* An [OpenAI API key](https://platform.openai.com/account/api-keys) saved into a `OPENAI_API_KEY` environment variable and set the Model in `PostUserResponse` function or just keep it null to use default model.
-* Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
-* The target language runtime (e.g. .NET, Node.js, etc.) installed on your machine
+Refer root level ReadMe for pre - requisites.
 
 ## Running the sample
 
-1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/chat/csharp-inproc`)
+1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/chat/`)
 2. Reference the table below for instructions on building and starting the app:
 
     | Language Worker | Command |
     | --------------- | ------- |
-    | .NET in-proc | `dotnet build && cd bin/debug/net6.0 && func start` |
-    | Node.js | `npm install && dotnet build --output bin && npm run build && npm run start` |
+    | .NET in-proc | `cd csharp-inproc dotnet build && cd bin/debug/net6.0 && func start` |
+    | Node.js | `cd nodejs npm install && dotnet build --output bin && npm run build && npm run start` |
 
     If successful, you should see the following output from the `func` command:
 
@@ -80,7 +73,7 @@ You must have the following installed on your local machine in order to run thes
 5. Use an HTTP client to get the latest chat history for the `test123` chat bot.
 
     ```http
-    GET http://localhost:7071/api/chats/test123?timestampUTC=2023-08-10T07:00:00
+    GET http://localhost:7071/api/chats/test123?timestampUTC=2024-01-15T22:00:00
     ```
 
     The response should look something like the following example, formatted for readability.
@@ -91,21 +84,28 @@ You must have the following installed on your local machine in order to run thes
       "id": "test123",
       "exists": true,
       "status": "Active",
-      "createdAt": "2023-08-10T07:24:53.201607Z",
-      "lastUpdatedAt": "2023-08-10T07:27:03.332001Z",
+      "createdAt": "2024-01-15T22:33:15.0664078Z",
+      "lastUpdatedAt": "2024-01-15T22:33:45.5591906Z",
+      "totalMessages": 3,
       "recentMessages": [
-        {
-          "role": "system",
-          "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare."
-        },
-        {
-          "role": "user",
-          "content": "Who won SuperBowl XLVIII in 2014?"
-        },
-        {
-          "role": "assistant",
-          "content": "Hark, good sir! The victor of SuperBowl XLVIII was none other than the fierce and indomitable Seattle Seahawks. They didst vanquish their adversaries, the Denver Broncos, with great mirth and skill upon the field of battle."
-        }
+          {
+              "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare.",
+              "role": "system",
+              "toolCallId": null,
+              "functionName": null
+          },
+          {
+              "content": "Who won the SuperBowl in 2014?",
+              "role": "user",
+              "toolCallId": null,
+              "functionName": null
+          },
+          {
+              "content": "Alas, in the year of our Lord 2014, the SuperBowl victor was the illustrious Seattle Seahawks. They demonstrated great prowess and prevailed over their worthy adversaries, the Denver Broncos.",
+              "role": "assistant",
+              "toolCallId": null,
+              "functionName": null
+          }
       ]
     }
     ```
@@ -127,7 +127,7 @@ You must have the following installed on your local machine in order to run thes
     You can then see the response by sending another `GET` request to the chatbot, as in the following example.
 
     ```http
-    GET http://localhost:7071/api/chats/test123?timestampUTC=2023-08-10T07:51:10Z
+    GET http://localhost:7071/api/chats/test123?timestampUTC=2024-01-15T22:36:00
     ```
 
     Assuming that the `timestampUTC` property correctly filters out all but the last message, you can expect to see a response similar to the following:
@@ -137,13 +137,16 @@ You must have the following installed on your local machine in order to run thes
       "id": "test123",
       "exists": true,
       "status": "Active",
-      "createdAt": "2023-08-10T07:24:53.201607Z",
-      "lastUpdatedAt": "2023-08-10T07:51:11.760825Z",
+      "createdAt": "2024-01-15T22:33:15.0664078Z",
+      "lastUpdatedAt": "2024-01-15T22:36:32.3760309Z",
+      "totalMessages": 5,
       "recentMessages": [
-        {
-          "role": "assistant",
-          "content": "Aye, fair question dost thou pose to me,\nThe minstrels who graced the halftime show at that decree,\n'Twas none other than the illustrious Bruno Mars,\nWhose voice and melodies did reach the stars."
-        }
+          {
+              "content": "Ah, verily! The halftime show at the SuperBowl of 2014 was graced by the presence of the fair enchantress known as Bruno Mars. With his dulcet voice and captivating melodies, he entertained the masses gathered with his musical prowess.",
+              "role": "assistant",
+              "toolCallId": null,
+              "functionName": null
+          }
       ]
     }
     ```

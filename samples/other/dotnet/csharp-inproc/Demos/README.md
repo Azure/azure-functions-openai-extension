@@ -2,12 +2,7 @@
 
 ## Prerequisites
 
-You must have the following installed on your local machine in order to run these samples.
-
-* [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or newer
-* [Azure Functions Core Tools v4.x](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Ccsharp%2Cportal%2Cbash)
-* An [OpenAI API key](https://platform.openai.com/account/api-keys) saved into a `OPENAI_API_KEY` environment variable
-* Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
+Refer root level ReadMe for pre - requisites.
 
 ## Running the sample
 

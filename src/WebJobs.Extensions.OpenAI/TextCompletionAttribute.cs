@@ -89,7 +89,10 @@ public sealed class TextCompletionAttribute : Attribute
             request.Temperature = temperature;
         }
 
-        // What's the replacement for top_P?
+        if (float.TryParse(this.TopP, out float topP))
+        {
+            request.NucleusSamplingFactor = topP;
+        }
 
         return request;
     }

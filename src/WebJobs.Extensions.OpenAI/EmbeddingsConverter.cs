@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -39,10 +40,22 @@ class EmbeddingsConverter :
         EmbeddingsAttribute attribute,
         CancellationToken cancellationToken)
     {
-        EmbeddingsOptions request = attribute.BuildRequest();
-        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
-        var response = await this.openAIClient.GetEmbeddingsAsync(request);
-        this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
+        EmbeddingsOptions request;
+        Response<Embeddings> response;
+        try
+        {
+            request = attribute.BuildRequest();
+            this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
+            response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
+            this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
+        }
+        catch (Exception ex) when (attribute.ThrowOnError)
+        {
+            this.logger.LogError(ex, "Error invoking OpenAI embeddings API");
+            throw new InvalidOperationException(
+                $"OpenAI returned an error: {ex.Message}");
+        }
+
         return new EmbeddingsContext(request, response);
     }
 }

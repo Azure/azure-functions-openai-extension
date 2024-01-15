@@ -74,10 +74,18 @@ class SemanticSearchConverter :
 
         // Get the embeddings for the query, which will be used for doing a semantic search
         EmbeddingsOptions embeddingsRequest = new(attribute.EmbeddingsModel, new List<string> { attribute.Query });
-
-        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", embeddingsRequest);
-        Response<Embeddings> embeddingsResponse = await this.openAIClient.GetEmbeddingsAsync(embeddingsRequest, cancellationToken);
-        this.logger.LogInformation("Received OpenAI embeddings response: {response}", embeddingsResponse);
+        Response<Embeddings> embeddingsResponse;
+        try
+        {
+            this.logger.LogInformation("Sending OpenAI embeddings request: {request}", embeddingsRequest);
+            embeddingsResponse = await this.openAIClient.GetEmbeddingsAsync(embeddingsRequest, cancellationToken);
+            this.logger.LogInformation("Received OpenAI embeddings response: {response}", embeddingsResponse);
+        }
+        catch (Exception ex) when (attribute.ThrowOnError)
+        {
+            this.logger.LogError(ex, $"Error getting embeddings from OpenAI, message: {ex.Message}");
+            throw new InvalidOperationException($"OpenAI returned an error: {ex.Message}");
+        }
 
         ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection);
         if (string.IsNullOrEmpty(connectionInfo.ConnectionName))
@@ -105,18 +113,28 @@ class SemanticSearchConverter :
             promptBuilder.AppendLine(result.ToString());
         }
 
-        // Call the chat API with the new combined prompt to get a response back
-        ChatCompletionsOptions chatCompletionsOptions = new()
+        Response<ChatCompletions> chatResponse;
+        try
         {
-            DeploymentName = attribute.ChatModel,
-            Messages =
+            // Call the chat API with the new combined prompt to get a response back
+            ChatCompletionsOptions chatCompletionsOptions = new()
             {
-                new ChatRequestSystemMessage(promptBuilder.ToString()),
-                new ChatRequestUserMessage(attribute.Query),
-            }
-        };
+                DeploymentName = attribute.ChatModel,
+                Messages =
+                {
+                    new ChatRequestSystemMessage(promptBuilder.ToString()),
+                    new ChatRequestUserMessage(attribute.Query),
+                }
+            };
 
-        Response<ChatCompletions> chatResponse = await this.openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
+            chatResponse = await this.openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
+        }
+        catch (Exception ex) when (attribute.ThrowOnError)
+        {
+            this.logger.LogError(ex, $"Error getting response from Chat Completion model, message: {ex.Message}");
+            throw new InvalidOperationException($"OpenAI returned an error: {ex.Message}");
+        }
+
 
         // Give the user the full context, including the embeddings information as well as the chat info
         return new SemanticSearchContext(new EmbeddingsContext(embeddingsRequest, embeddingsResponse), chatResponse);

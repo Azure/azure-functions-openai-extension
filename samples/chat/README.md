@@ -9,17 +9,17 @@ The sample is available in the following language stacks:
 
 ## Prerequisites
 
-Refer root level ReadMe for pre - requisites.
+Refer root level [README](../../README.md) for pre - requisites.
 
 ## Running the sample
 
-1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/chat/`)
+1. (In Visual Studio Code), For node js, press `F1` to open the command palette. In the command palette, search for and select `Azurite: Start`
 2. Reference the table below for instructions on building and starting the app:
 
     | Language Worker | Command |
     | --------------- | ------- |
-    | .NET in-proc | `cd csharp-inproc dotnet build && cd bin/debug/net6.0 && func start` |
-    | Node.js | `cd nodejs npm install && dotnet build --output bin && npm run build && npm run start` |
+    | .NET in-proc | `cd samples/chat/csharp-inproc && dotnet build && cd bin/debug/net6.0 && func start` |
+    | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
 
     If successful, you should see the following output from the `func` command:
 

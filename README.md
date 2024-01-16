@@ -246,7 +246,7 @@ public static IActionResult PromptEmail(
 
 1. Chat Completion - gpt-3.5-turbo
 1. Embeddings - text-embedding-ada-002
-1. Text COmpletion - gpt-3.5-turbo-instruct
+1. Text Completion - gpt-3.5-turbo-instruct
 
 While using non - Azure Open AI, skip the Model specification in attributes to use default models.
 

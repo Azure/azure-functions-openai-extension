@@ -107,9 +107,8 @@ class ChatBotEntity : IChatBotEntity
         Response<ChatCompletions> response;
         try
         {
-            ChatCompletionsOptions chatRequest = new ChatCompletionsOptions(deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
+            ChatCompletionsOptions chatRequest = new (deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
 
-            // Add error handling for below call
             response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
         }
         catch (Exception ex)

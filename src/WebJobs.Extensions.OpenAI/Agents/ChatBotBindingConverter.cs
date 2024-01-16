@@ -31,6 +31,7 @@ class ChatBotBindingConverter :
 
     public IAsyncCollector<ChatBotPostRequest> Convert(ChatBotPostAttribute input)
     {
+        System.Diagnostics.Debugger.Launch();
         return new ChatBotPostCollector(this.chatBotService, this.logger, input);
     }
 
@@ -38,6 +39,7 @@ class ChatBotBindingConverter :
         ChatBotQueryAttribute input,
         CancellationToken cancellationToken)
     {
+        System.Diagnostics.Debugger.Launch();
         string timestampString = Uri.UnescapeDataString(input.TimestampUtc);
         if (!DateTime.TryParse(timestampString, out DateTime timestamp))
         {

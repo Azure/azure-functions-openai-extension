@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-Refer root level [README](../../README.md) for pre - requisites.
+Please refer to the root level [README](../../README.md/#requirements) for prerequisites.
 
 ## Running the sample
 

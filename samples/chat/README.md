@@ -9,11 +9,11 @@ The sample is available in the following language stacks:
 
 ## Prerequisites
 
-Refer root level [README](../../README.md) for pre - requisites.
+Please refer to the root level [README](../../README.md/#requirements) for prerequisites.
 
 ## Running the sample
 
-1. (In Visual Studio Code), For node js, press `F1` to open the command palette. In the command palette, search for and select `Azurite: Start`
+1. Start Azurite for local development storage, [refer](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) doc for more details.
 2. Reference the table below for instructions on building and starting the app:
 
     | Language Worker | Command |
@@ -90,21 +90,15 @@ Refer root level [README](../../README.md) for pre - requisites.
       "recentMessages": [
           {
               "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare.",
-              "role": "system",
-              "toolCallId": null,
-              "functionName": null
+              "role": "system"
           },
           {
               "content": "Who won the SuperBowl in 2014?",
-              "role": "user",
-              "toolCallId": null,
-              "functionName": null
+              "role": "user"
           },
           {
               "content": "Alas, in the year of our Lord 2014, the SuperBowl victor was the illustrious Seattle Seahawks. They demonstrated great prowess and prevailed over their worthy adversaries, the Denver Broncos.",
-              "role": "assistant",
-              "toolCallId": null,
-              "functionName": null
+              "role": "assistant"
           }
       ]
     }
@@ -143,9 +137,7 @@ Refer root level [README](../../README.md) for pre - requisites.
       "recentMessages": [
           {
               "content": "Ah, verily! The halftime show at the SuperBowl of 2014 was graced by the presence of the fair enchantress known as Bruno Mars. With his dulcet voice and captivating melodies, he entertained the masses gathered with his musical prowess.",
-              "role": "assistant",
-              "toolCallId": null,
-              "functionName": null
+              "role": "assistant"
           }
       ]
     }

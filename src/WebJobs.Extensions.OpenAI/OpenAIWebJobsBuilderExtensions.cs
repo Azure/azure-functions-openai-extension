@@ -48,7 +48,7 @@ public static class OpenAIWebJobsBuilderExtensions
         }
         else
         {
-            throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables. Visit <insert troubleshooting link> for more.");
+            throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables.");
         }
 
         // Register the WebJobs extension, which enables the bindings.

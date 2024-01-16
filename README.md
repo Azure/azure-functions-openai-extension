@@ -44,7 +44,7 @@ The examples below define "who is" HTTP-triggered functions with a hardcoded `"w
 
 #### [C# example](./samples/other/dotnet/csharp-inproc/)
 
-Skip setting Model of non-Azure Open AI to use default models.
+Setting a model is optional for non-Azure Open AI, [refer](#default-open-ai-models) for default model values for Open AI.
 
 ```csharp
 [FunctionName(nameof(WhoIs))]

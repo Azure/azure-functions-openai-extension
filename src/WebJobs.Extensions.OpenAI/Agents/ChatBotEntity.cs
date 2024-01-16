@@ -47,6 +47,13 @@ class ChatBotEntity : IChatBotEntity
     readonly ILogger logger;
     readonly OpenAIClient openAIClient;
 
+    static readonly Dictionary<string, Func<ChatMessageEntity, ChatRequestMessage>> messageFactories = new()
+    {
+        { ChatRole.User.ToString(), msg => new ChatRequestUserMessage(msg.Content) },
+        { ChatRole.Assistant.ToString(), msg => new ChatRequestAssistantMessage(msg.Content) },
+        { ChatRole.System.ToString(), msg => new ChatRequestSystemMessage(msg.Content) }
+    };
+
     public ChatBotEntity(ILoggerFactory loggerFactory, OpenAIClient openAIClient)
     {
         // When initialized via dependency injection
@@ -139,15 +146,6 @@ class ChatBotEntity : IChatBotEntity
 
     internal IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IEnumerable<ChatMessageEntity> messages)
     {
-        Dictionary<string, Func<ChatMessageEntity, ChatRequestMessage>> messageFactories = new()
-        {
-            { ChatRole.User.ToString(), msg => new ChatRequestUserMessage(msg.Content) },
-            { ChatRole.Assistant.ToString(), msg => new ChatRequestAssistantMessage(msg.Content) },
-            { ChatRole.System.ToString(), msg => new ChatRequestSystemMessage(msg.Content) },
-            { ChatRole.Function.ToString(), msg => new ChatRequestFunctionMessage(msg.FunctionName, msg.Content)},
-            { ChatRole.Tool.ToString(), msg => new ChatRequestToolMessage(msg.ToolCallId, msg.Content)},
-        };
-
         foreach (ChatMessageEntity message in messages)
         {
             if (messageFactories.TryGetValue(message.Role, out var factory))

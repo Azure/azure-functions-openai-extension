@@ -4,7 +4,7 @@ This project contains sample code for using the OpenAI bindings with the Azure F
 
 ## Prerequisites
 
-Refer root level [README](../../README.md) for pre - requisites.
+Please refer to the root level [README](../../README.md/#requirements) for prerequisites.
 
 ## Installing the OpenAI extension
 

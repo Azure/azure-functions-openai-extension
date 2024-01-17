@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenAITesting", "sandbox\OpenAITesting\OpenAITesting.csproj", "{C000807F-9AF6-4544-8491-2CFBBE7D5444}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sandbox", "sandbox", "{CAEDF9E2-7B35-4889-9341-8417321A2575}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7A80B95C-AD57-4057-AED0-48629B75874F}"
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
@@ -50,10 +46,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C000807F-9AF6-4544-8491-2CFBBE7D5444}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2C15A452-14A2-4156-95E2-E6D709F383EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2C15A452-14A2-4156-95E2-E6D709F383EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C15A452-14A2-4156-95E2-E6D709F383EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,7 +79,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C000807F-9AF6-4544-8491-2CFBBE7D5444} = {CAEDF9E2-7B35-4889-9341-8417321A2575}
 		{46888A9D-8058-499C-9F2F-07800FF686EB} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{2C15A452-14A2-4156-95E2-E6D709F383EF} = {46888A9D-8058-499C-9F2F-07800FF686EB}
 		{B0F02F06-9124-4A91-9685-824C55E698BD} = {B99948E2-9853-4D9C-B784-19C2503CDA8B}

@@ -100,7 +100,7 @@ class SemanticSearchConverter :
         // Search for relevant document snippets using the original query and the embeddings
         SearchRequest searchRequest = new(
             attribute.Query,
-            embeddingsResponse.Value.Data[0].Embedding.ToArray(),
+            embeddingsResponse.Value.Data[0].Embedding,
             attribute.MaxKnowledgeCount,
             connectionInfo);
         SearchResponse searchResponse = await this.searchProvider.SearchAsync(searchRequest);

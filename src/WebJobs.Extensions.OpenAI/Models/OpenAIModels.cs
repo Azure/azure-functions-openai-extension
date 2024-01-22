@@ -19,10 +19,7 @@ static class OpenAIModels
     internal const string Gpt_35_Turbo_Instruct = "gpt-3.5-turbo-instruct";
 
     /// <summary>
-    /// Embeddings are a numerical representation of text that can be used to measure the relatedness between two pieces of text.
-    /// Our second generation embedding model, text-embedding-ada-002 is a designed to replace the previous 16 first-generation
-    /// embedding models at a fraction of the cost. Embeddings are useful for search, clustering, recommendations, 
-    /// anomaly detection, and classification tasks.
+    /// The default embeddings model, currently pointing to text-embedding-ada-002
     /// </summary>
-    internal const string Text_Embedding_Ada_002 = "text-embedding-ada-002";
+    internal const string DefaultEmbeddingsModel = "text-embedding-ada-002";
 }

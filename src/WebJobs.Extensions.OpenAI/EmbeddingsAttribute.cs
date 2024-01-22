@@ -34,7 +34,7 @@ public sealed class EmbeddingsAttribute : Attribute
     /// Gets or sets the ID of the model to use.
     /// </summary>
     [AutoResolve]
-    public string Model { get; set; } = OpenAIModels.text_embedding_ada_002;
+    public string Model { get; set; } = OpenAIModels.Text_Embedding_Ada_002;
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.

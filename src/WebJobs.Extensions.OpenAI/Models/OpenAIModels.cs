@@ -3,20 +3,20 @@
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
-public static class OpenAIModels
+static class OpenAIModels
 {
     // Reference - https://platform.openai.com/docs/models
 
     /// <summary>
     /// GPT 3 Turbo, refer to https://platform.openai.com/docs/models/continuous-model-upgrades for exact model being pointed to
     /// </summary>
-    public const string gpt_35_turbo = "gpt-3.5-turbo";
+    internal const string Gpt_35_Turbo = "gpt-3.5-turbo";
 
 
     /// <summary>
     /// Similar capabilities as GPT-3 era models. Compatible with legacy Completions endpoint and not Chat Completions.
     /// </summary>
-    public const string gpt_35_turbo_instruct = "gpt-3.5-turbo-instruct";
+    internal const string Gpt_35_Turbo_instruct = "gpt-3.5-turbo-instruct";
 
     /// <summary>
     /// Embeddings are a numerical representation of text that can be used to measure the relatedness between two pieces of text.
@@ -24,5 +24,5 @@ public static class OpenAIModels
     /// embedding models at a fraction of the cost. Embeddings are useful for search, clustering, recommendations, 
     /// anomaly detection, and classification tasks.
     /// </summary>
-    public const string text_embedding_ada_002 = "text-embedding-ada-002";
+    internal const string Text_Embedding_Ada_002 = "text-embedding-ada-002";
 }

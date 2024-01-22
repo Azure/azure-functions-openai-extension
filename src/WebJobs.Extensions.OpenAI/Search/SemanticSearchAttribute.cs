@@ -66,7 +66,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string EmbeddingsModel { get; set; } = OpenAIModels.text_embedding_ada_002;
+    public string EmbeddingsModel { get; set; } = OpenAIModels.Text_Embedding_Ada_002;
 
     /// <summary>
     /// Gets or sets the name of the Large Language Model to invoke for chat responses.
@@ -76,7 +76,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string ChatModel { get; set; } = OpenAIModels.gpt_35_turbo;
+    public string ChatModel { get; set; } = OpenAIModels.Gpt_35_Turbo;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.

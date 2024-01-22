@@ -13,7 +13,7 @@ Please refer to the root level [README](../../README.md/#requirements) for prere
 
 ## Running the sample
 
-1. Start Azurite for local development storage, [refer](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite) doc for more details.
+1. Start Azurite for local development storage. See [these instructions](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) for more information on how to work with Azurite.
 2. Reference the table below for instructions on building and starting the app:
 
     | Language Worker | Command |

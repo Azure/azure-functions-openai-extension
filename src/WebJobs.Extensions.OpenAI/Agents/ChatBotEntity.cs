@@ -108,10 +108,10 @@ class ChatBotEntity : IChatBotEntity
         this.State.ChatMessages ??= new List<MessageRecord>();
         this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString())));
 
-        string deploymentName = request.Model ?? OpenAIModels.gpt_35_turbo;
+        string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
 
         // Get the next response from the LLM
-        ChatCompletionsOptions chatRequest = new (deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
+        ChatCompletionsOptions chatRequest = new (deploymentName, PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
 
         Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
 
@@ -135,7 +135,7 @@ class ChatBotEntity : IChatBotEntity
             this.State.ChatMessages.Count);
     }
 
-    internal IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IEnumerable<ChatMessageEntity> messages)
+    internal static IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IEnumerable<ChatMessageEntity> messages)
     {
         foreach (ChatMessageEntity message in messages)
         {

@@ -7,7 +7,7 @@ This is an **experimental** project that adds support for [OpenAI](https://platf
 
 This extension depends on the [Azure Open AI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
 
-- Only Text Completion for dotnet isolated depends on [Betalgo.OpenAI](https://github.com/betalgo/openai) by [Betalgo](https://github.com/betalgo) (till a new nuget package is published and referred).
+- Only Text Completion for .NET Isolated currently depends on [Betalgo.OpenAI](https://github.com/betalgo/openai) by [Betalgo](https://github.com/betalgo).
 
 ## NuGet Packages
 
@@ -44,7 +44,7 @@ The examples below define "who is" HTTP-triggered functions with a hardcoded `"w
 
 #### [C# example](./samples/other/dotnet/csharp-inproc/)
 
-Setting a model is optional for non-Azure Open AI, [refer](#default-open-ai-models) for default model values for Open AI.
+Setting a model is optional for non-Azure Open AI, [see here](#default-open-ai-models) for default model values for Open AI.
 
 ```csharp
 [FunctionName(nameof(WhoIs))]
@@ -168,8 +168,8 @@ public record EmbeddingsRequest(string FilePath);
 [FunctionName("IngestEmail")]
 public static async Task<IActionResult> IngestEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-    [Embeddings("{FilePath}", InputType.FilePath, Model = "embedding-model")] EmbeddingsContext embeddings,
-    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "chat-model", EmbeddingsModel = "embedding-model")] IAsyncCollector<SearchableDocument> output)
+    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-ada-002")] EmbeddingsContext embeddings,
+    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] IAsyncCollector<SearchableDocument> output)
 {
     string title = Path.GetFileNameWithoutExtension(req.FilePath);
     await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -187,7 +187,7 @@ public record SemanticSearchRequest(string Prompt);
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "chat-model", EmbeddingsModel = "embedding-model")] SemanticSearchContext result)
+    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -248,7 +248,7 @@ public static IActionResult PromptEmail(
 1. Embeddings - text-embedding-ada-002
 1. Text Completion - gpt-3.5-turbo-instruct
 
-While using non - Azure Open AI, skip the Model specification in attributes to use default models.
+While using non-Azure Open AI, you can omit the Model specification in attributes to use the default models.
 
 ## Contributing
 

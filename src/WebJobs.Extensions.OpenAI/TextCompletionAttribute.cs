@@ -33,7 +33,7 @@ public sealed class TextCompletionAttribute : Attribute
     /// Gets or sets the ID of the model to use.
     /// </summary>
     [AutoResolve]
-    public string Model { get; set; } = OpenAIModels.Gpt_35_Turbo_instruct;
+    public string Model { get; set; } = OpenAIModels.Gpt_35_Turbo_Instruct;
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output

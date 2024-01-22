@@ -16,7 +16,7 @@ static class OpenAIModels
     /// <summary>
     /// Similar capabilities as GPT-3 era models. Compatible with legacy Completions endpoint and not Chat Completions.
     /// </summary>
-    internal const string Gpt_35_Turbo_instruct = "gpt-3.5-turbo-instruct";
+    internal const string Gpt_35_Turbo_Instruct = "gpt-3.5-turbo-instruct";
 
     /// <summary>
     /// Embeddings are a numerical representation of text that can be used to measure the relatedness between two pieces of text.

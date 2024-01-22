@@ -42,24 +42,13 @@ class TextCompletionConverter :
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
-        CompletionsOptions options;
-        Response<Completions> response;
-        try
-        {
-            options = attribute.BuildRequest();
-            this.logger.LogInformation("Sending OpenAI completion request: {request}", options);
+        CompletionsOptions options = attribute.BuildRequest();
+        this.logger.LogInformation("Sending OpenAI completion request: {request}", options);
 
-            response = await this.openAIClient.GetCompletionsAsync(
-                options,
-                cancellationToken);
-            this.logger.LogInformation("Received OpenAI completion response: {response}", response);
-        }
-        catch (Exception ex) when (attribute.ThrowOnError)
-        {
-            this.logger.LogError(ex, "Error invoking OpenAI completions API");
-            throw new InvalidOperationException(
-                               $"OpenAI returned an error: {ex.Message}");
-        }
+        Response<Completions> response = await this.openAIClient.GetCompletionsAsync(
+            options,
+            cancellationToken);
+        this.logger.LogInformation("Received OpenAI completion response: {response}", response);
 
         return response;
     }

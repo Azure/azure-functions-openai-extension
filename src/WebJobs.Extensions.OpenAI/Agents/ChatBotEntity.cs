@@ -111,18 +111,9 @@ class ChatBotEntity : IChatBotEntity
         string deploymentName = request.Model ?? OpenAIModels.gpt_35_turbo;
 
         // Get the next response from the LLM
-        Response<ChatCompletions> response;
-        try
-        {
-            ChatCompletionsOptions chatRequest = new (deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
+        ChatCompletionsOptions chatRequest = new (deploymentName, this.PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
 
-            response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, $"Error getting response from Chat Completion, message: {ex.Message}");
-            throw new ApplicationException($"OpenAI returned an error: {ex.Message}");
-        }
+        Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
 
         // We don't normally expect more than one message, but just in case we get multiple messages,
         // return all of them separated by two newlines.

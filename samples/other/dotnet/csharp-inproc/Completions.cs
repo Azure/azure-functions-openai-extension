@@ -40,11 +40,6 @@ public static class Completions
         [TextCompletion("{Prompt}", Model = "gpt-3.5-turbo-instruct")] Response<Azure.AI.OpenAI.Completions> response,
         ILogger log)
     {
-        if (response.GetRawResponse().Status != (int)HttpStatusCode.OK)
-        {
-            log.LogError("Error invoking OpenAI completions API: {status}", response.GetRawResponse().Status);
-            return new ObjectResult(response.GetRawResponse().Content) { StatusCode = (int)HttpStatusCode.InternalServerError };
-        }
         log.LogInformation("Prompt = {prompt}, Response = {response}", payload.Prompt, response);
         string text = response.Value.Choices[0].Text;
         return new OkObjectResult(text);

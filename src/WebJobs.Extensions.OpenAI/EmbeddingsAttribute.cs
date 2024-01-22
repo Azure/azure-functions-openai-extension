@@ -59,15 +59,6 @@ public sealed class EmbeddingsAttribute : Attribute
     /// </summary>
     public InputType InputType { get; }
 
-    /// <summary>
-    /// Gets or sets a value indicating whether the binding should throw if there is an error calling the OpenAI
-    /// endpoint.
-    /// </summary>
-    /// <remarks>
-    /// The default value is <c>true</c>. Set this to <c>false</c> to handle errors manually in the function code.
-    /// </remarks>
-    public bool ThrowOnError { get; set; } = true;
-
     internal EmbeddingsOptions BuildRequest()
     {
         using TextReader reader = this.GetTextReader();

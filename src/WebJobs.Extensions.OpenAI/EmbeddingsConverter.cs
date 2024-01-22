@@ -40,21 +40,10 @@ class EmbeddingsConverter :
         EmbeddingsAttribute attribute,
         CancellationToken cancellationToken)
     {
-        EmbeddingsOptions request;
-        Response<Embeddings> response;
-        try
-        {
-            request = attribute.BuildRequest();
-            this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
-            response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
-            this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
-        }
-        catch (Exception ex) when (attribute.ThrowOnError)
-        {
-            this.logger.LogError(ex, "Error invoking OpenAI embeddings API");
-            throw new InvalidOperationException(
-                $"OpenAI returned an error: {ex.Message}");
-        }
+        EmbeddingsOptions request = attribute.BuildRequest();
+        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
+        Response<Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
+        this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
 
         return new EmbeddingsContext(request, response);
     }

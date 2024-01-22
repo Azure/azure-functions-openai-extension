@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.ObjectModels.ResponseModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
@@ -27,7 +26,7 @@ public enum ChatBotStatus
     Expired,
 }
 
-record struct MessageRecord(DateTime Timestamp, ChatMessage Message);
+record struct MessageRecord(DateTime Timestamp, ChatMessageEntity ChatMessageEntity);
 
 [JsonObject(MemberSerialization.OptIn)]
 class ChatBotRuntimeState
@@ -46,13 +45,20 @@ class ChatBotRuntimeState
 class ChatBotEntity : IChatBotEntity
 {
     readonly ILogger logger;
-    readonly IOpenAIServiceProvider openAIServiceProvider;
+    readonly OpenAIClient openAIClient;
 
-    public ChatBotEntity(ILoggerFactory loggerFactory, IOpenAIServiceProvider openAIServiceProvider)
+    static readonly Dictionary<string, Func<ChatMessageEntity, ChatRequestMessage>> messageFactories = new()
+    {
+        { ChatRole.User.ToString(), msg => new ChatRequestUserMessage(msg.Content) },
+        { ChatRole.Assistant.ToString(), msg => new ChatRequestAssistantMessage(msg.Content) },
+        { ChatRole.System.ToString(), msg => new ChatRequestSystemMessage(msg.Content) }
+    };
+
+    public ChatBotEntity(ILoggerFactory loggerFactory, OpenAIClient openAIClient)
     {
         // When initialized via dependency injection
         this.logger = loggerFactory.CreateLogger<ChatBotEntity>();
-        this.openAIServiceProvider = openAIServiceProvider ?? throw new ArgumentNullException(nameof(openAIServiceProvider));
+        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
     }
 
     [JsonConstructor]
@@ -60,7 +66,7 @@ class ChatBotEntity : IChatBotEntity
     {
         // For deserialization
         this.logger = null!;
-        this.openAIServiceProvider = null!;
+        this.openAIClient = null!;
     }
 
     [JsonProperty("state")]
@@ -77,7 +83,7 @@ class ChatBotEntity : IChatBotEntity
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
                 new List<MessageRecord>() :
-                new List<MessageRecord>() { new(DateTime.UtcNow, ChatMessage.FromSystem(request.Instructions)) },
+                new List<MessageRecord>() { new(DateTime.UtcNow, new ChatMessageEntity(request.Instructions, ChatRole.System.ToString())) },
             ExpiresAt = request.ExpiresAt ?? DateTime.UtcNow.AddHours(24),
             Status = ChatBotStatus.Active,
         };
@@ -100,42 +106,47 @@ class ChatBotEntity : IChatBotEntity
         this.logger.LogInformation("[{Id}] Received message: {Text}", Entity.Current.EntityId, request.UserMessage);
 
         this.State.ChatMessages ??= new List<MessageRecord>();
-        this.State.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromUser(request.UserMessage)));
+        this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString())));
+
+        string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
 
         // Get the next response from the LLM
-        ChatCompletionCreateRequest chatRequest = new()
-        {
-            Messages = this.State.ChatMessages.Select(item => item.Message).ToList(),
-            Model = request.Model ?? Models.Gpt_3_5_Turbo,
-        };
+        ChatCompletionsOptions chatRequest = new (deploymentName, PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
 
-        IOpenAIService service = this.openAIServiceProvider.GetService(chatRequest.Model);
-        ChatCompletionCreateResponse response = await service.ChatCompletion.CreateCompletion(chatRequest);
-        if (!response.Successful)
-        {
-            // Throwing an exception will cause the entity to abort the current operation.
-            // Any changes to the entity state will be discarded.
-            Error error = response.Error ?? new Error() { Code = "Unspecified", MessageObject = "Unspecified error" };
-            throw new ApplicationException($"The OpenAI {chatRequest.Model} engine returned a '{error.Code}' error: {error.Message}");
-        }
+        Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
 
         // We don't normally expect more than one message, but just in case we get multiple messages,
         // return all of them separated by two newlines.
         string replyMessage = string.Join(
             Environment.NewLine + Environment.NewLine,
-            response.Choices.Select(choice => choice.Message.Content));
+            response.Value.Choices.Select(choice => choice.Message.Content));
 
         this.logger.LogInformation(
             "[{Id}] Got LLM response consisting of {Count} tokens: {Text}",
             Entity.Current.EntityId,
-            response.Usage.CompletionTokens,
+            response.Value.Usage.CompletionTokens,
             replyMessage);
 
-        this.State.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromAssistant(replyMessage)));
+        this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(replyMessage, ChatRole.Assistant.ToString())));
 
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",
             Entity.Current.EntityId,
             this.State.ChatMessages.Count);
+    }
+
+    internal static IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IEnumerable<ChatMessageEntity> messages)
+    {
+        foreach (ChatMessageEntity message in messages)
+        {
+            if (messageFactories.TryGetValue(message.Role, out var factory))
+            {
+                yield return factory.Invoke(message);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unknown chat role '{message.Role}'");
+            }
+        }
     }
 }

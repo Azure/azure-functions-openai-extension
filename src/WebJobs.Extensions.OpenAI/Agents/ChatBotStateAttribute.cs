@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.ObjectModels.RequestModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
@@ -36,4 +35,4 @@ public record ChatBotState(
     DateTime CreatedAt,
     DateTime LastUpdatedAt,
     int TotalMessages,
-    IReadOnlyList<ChatMessage> RecentMessages);
+    IReadOnlyList<ChatMessageEntity> RecentMessages);

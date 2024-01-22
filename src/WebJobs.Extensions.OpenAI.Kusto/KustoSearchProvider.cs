@@ -3,6 +3,7 @@
 
 using System.Collections.Concurrent;
 using System.Data;
+using System.Text;
 using Kusto.Cloud.Platform.Data;
 using Kusto.Data;
 using Kusto.Data.Common;
@@ -76,13 +77,13 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         table.AppendColumn("Embeddings", typeof(object));
         table.AppendColumn("Timestamp", typeof(DateTime));
 
-        for (int i = 0; i < document.Embeddings.Response.Data.Count; i++)
+        for (int i = 0; i < document.Embeddings.Response.Value.Data.Count; i++)
         {
             table.Rows.Add(
                 Guid.NewGuid().ToString("N"),
                 Path.GetFileNameWithoutExtension(document.Title),
-                document.Embeddings.Request.Input ?? document.Embeddings.Request.InputAsList![i],
-                document.Embeddings.Response.Data[i].Embedding,
+                document.Embeddings.Request.Input![i],
+                GetEmbeddingsString(document.Embeddings.Response.Value.Data[i].Embedding),
                 DateTime.UtcNow);
         }
 
@@ -108,7 +109,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         // https://learn.microsoft.com/azure/data-explorer/kusto/query/queryparametersstatement
         // NOTE: Vector similarity reference:
         // https://techcommunity.microsoft.com/t5/azure-data-explorer-blog/azure-data-explorer-for-vector-similarity-search/ba-p/3819626
-        string embeddingsList = string.Join(',', request.Embeddings);
+        string embeddingsList = GetEmbeddingsString(request.Embeddings);
         string? tableName = request.ConnectionInfo.CollectionName?.Trim();
         if (string.IsNullOrEmpty(tableName) ||
             tableName.Contains('/') ||
@@ -165,5 +166,19 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         }
 
         return new KustoConnectionStringBuilder(connectionString);
+    }
+
+    static string GetEmbeddingsString(ReadOnlyMemory<float> embedding)
+    {
+        ReadOnlySpan<float> span = embedding.Span;
+        StringBuilder builder = new(span.Length * 10); // 9 is the longest string length of a float + 1 for comma
+
+        for (int i = 0; i < span.Length; i++)
+        {
+            builder.Append(span[i]).Append(',');
+        }
+        builder.Remove(builder.Length - 1, 1);
+
+        return builder.ToString();
     }
 }

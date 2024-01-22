@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.ObjectModels.ResponseModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -13,12 +12,12 @@ class EmbeddingsConverter :
     IAsyncConverter<EmbeddingsAttribute, EmbeddingsContext>,
     IAsyncConverter<EmbeddingsAttribute, string>
 {
-    readonly IOpenAIServiceProvider serviceProvider;
+    readonly OpenAIClient openAIClient;
     readonly ILogger logger;
 
-    public EmbeddingsConverter(IOpenAIServiceProvider serviceProvider, ILoggerFactory loggerFactory)
+    public EmbeddingsConverter(OpenAIClient openAIClient, ILoggerFactory loggerFactory)
     {
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.logger = loggerFactory?.CreateLogger<EmbeddingsConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -41,20 +40,10 @@ class EmbeddingsConverter :
         EmbeddingsAttribute attribute,
         CancellationToken cancellationToken)
     {
-        IOpenAIService service = this.serviceProvider.GetService(attribute.Model);
-
-        EmbeddingCreateRequest request = attribute.BuildRequest();
+        EmbeddingsOptions request = attribute.BuildRequest();
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
-        EmbeddingCreateResponse response = await service.Embeddings.CreateEmbedding(
-            request,
-            cancellationToken);
+        Response<Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
         this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
-
-        if (attribute.ThrowOnError && response.Error is not null)
-        {
-            throw new InvalidOperationException(
-                $"OpenAI returned an error of type '{response.Error.Type}': {response.Error.Message}");
-        }
 
         return new EmbeddingsContext(request, response);
     }

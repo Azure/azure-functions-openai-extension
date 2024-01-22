@@ -1,29 +1,28 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.ObjectModels.ResponseModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 class TextCompletionConverter :
-    IAsyncConverter<TextCompletionAttribute, CompletionCreateResponse>,
+    IAsyncConverter<TextCompletionAttribute, Response<Completions>>,
     IAsyncConverter<TextCompletionAttribute, string>
 {
-    readonly IOpenAIServiceProvider serviceProvider;
+    readonly OpenAIClient openAIClient;
     readonly ILogger logger;
 
-    public TextCompletionConverter(IOpenAIServiceProvider serviceProvider, ILoggerFactory loggerFactory)
+    public TextCompletionConverter(OpenAIClient openAIClient, ILoggerFactory loggerFactory)
     {
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.logger = loggerFactory?.CreateLogger<TextCompletionConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     // Intended for use with .NET in-proc functions
-    Task<CompletionCreateResponse> IAsyncConverter<TextCompletionAttribute, CompletionCreateResponse>.ConvertAsync(
+    Task<Response<Completions>> IAsyncConverter<TextCompletionAttribute, Response<Completions>>.ConvertAsync(
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
@@ -35,29 +34,21 @@ class TextCompletionConverter :
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
-        CompletionCreateResponse response = await this.ConvertCoreAsync(attribute, cancellationToken);
+        Response<Completions> response = await this.ConvertCoreAsync(attribute, cancellationToken);
         return JsonConvert.SerializeObject(response);
     }
 
-    async Task<CompletionCreateResponse> ConvertCoreAsync(
+    async Task<Response<Completions>> ConvertCoreAsync(
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
-        CompletionCreateRequest request = attribute.BuildRequest();
-        this.logger.LogInformation("Sending OpenAI completion request: {request}", request);
+        CompletionsOptions options = attribute.BuildRequest();
+        this.logger.LogInformation("Sending OpenAI completion request: {request}", options);
 
-        IOpenAIService service = this.serviceProvider.GetService(attribute.Model);
-        CompletionCreateResponse response = await service.Completions.CreateCompletion(
-            request,
-            modelId: null,
+        Response<Completions> response = await this.openAIClient.GetCompletionsAsync(
+            options,
             cancellationToken);
         this.logger.LogInformation("Received OpenAI completion response: {response}", response);
-
-        if (attribute.ThrowOnError && response.Error is not null)
-        {
-            throw new InvalidOperationException(
-                $"OpenAI returned an error of type '{response.Error.Type}': {response.Error.Message}");
-        }
 
         return response;
     }

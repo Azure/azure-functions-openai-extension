@@ -5,8 +5,8 @@ This project contains sample code for using the OpenAI bindings with Azure Funct
 ## Prerequisites
 
 * [Node.js v18+](https://nodejs.org/en/download)
-* [Azure Functions Core Tools v4.x](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Cnode%2Cportal%2Cbash)
 * [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) (this requirement will be removed in the future)
+* Please refer to the root level [README](../../README.md/#requirements) for prerequisites.
 
 ## Installing the OpenAI extension
 

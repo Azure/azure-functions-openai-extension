@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.ObjectModels;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
@@ -66,7 +66,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string EmbeddingsModel { get; set; } = Models.TextEmbeddingAdaV2;
+    public string EmbeddingsModel { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 
     /// <summary>
     /// Gets or sets the name of the Large Language Model to invoke for chat responses.
@@ -76,7 +76,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string ChatModel { get; set; } = Models.Gpt_3_5_Turbo;
+    public string ChatModel { get; set; } = OpenAIModels.Gpt_35_Turbo;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.
@@ -107,13 +107,4 @@ public class SemanticSearchAttribute : Attribute
     /// Gets or sets the number of knowledge items to inject into the <see cref="SystemPrompt"/>.
     /// </summary>
     public int MaxKnowledgeCount { get; set; } = 1;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the binding should throw if there is an error calling the OpenAI
-    /// endpoint.
-    /// </summary>
-    /// <remarks>
-    /// The default value is <c>true</c>. Set this to <c>false</c> to handle errors manually in the function code.
-    /// </remarks>
-    public bool ThrowOnError { get; set; } = true;
 }

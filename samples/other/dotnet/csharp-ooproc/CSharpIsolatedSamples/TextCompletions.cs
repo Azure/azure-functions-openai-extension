@@ -63,7 +63,7 @@ public static class TextCompletions
         return new CreateChatBotOutputType
         { 
             HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
-            ChatBotCreateRequest = new ChatBotCreateRequest2(chatId),
+            ChatBotCreateRequest = new ChatBotCreateRequest2(chatId, req.Instructions),
 
         };
     }
@@ -101,13 +101,13 @@ public static class TextCompletions
         return new MyOutputType
         {
             HttpResponse = new AcceptedResult(),
-            ChatBotPostRequest = new ChatBotPostRequest2 { UserMessage = userMessage, Id = chatId, Model = "gpt-3.5-turbo-instruct" }
+            ChatBotPostRequest = new ChatBotPostRequest2 { UserMessage = userMessage, Id = chatId }
         };
     }
 
     public class MyOutputType
     {
-        [ChatBotPostOutput("{chatId}", Model = "gpt-3.5-turbo-instruct")]
+        [ChatBotPostOutput("{chatId}")]
         public ChatBotPostRequest2 ChatBotPostRequest { get; set; }
 
         public IActionResult HttpResponse { get; set; }

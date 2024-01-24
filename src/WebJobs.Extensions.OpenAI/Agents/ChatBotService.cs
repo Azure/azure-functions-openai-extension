@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask.ContextImplementations;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask.Options;
+using System.Text;
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using OpenAI.Interfaces;
+using OpenAI.ObjectModels;
 using OpenAI.ObjectModels.RequestModels;
+using OpenAI.ObjectModels.ResponseModels;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
@@ -17,24 +20,22 @@ public interface IChatBotService
     Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken);
 }
 
-public class DefaultChatBotService : IChatBotService
+    public class DefaultChatBotService : IChatBotService
 {
-    readonly IDurableClient durableClient;
+    public BlobServiceClient blobClient { get; set; }
+
+    public IOpenAIServiceProvider openAiServiceProvider { get; set; }
     readonly ILogger logger;
 
+    ChatBotRuntimeState? State { get; set; }
+
     public DefaultChatBotService(
-        IDurableClientFactory durableClient,
-        IOptions<DurableTaskOptions> durableOptions,
+        IOpenAIServiceProvider openAIServiceProvider,
         ILoggerFactory loggerFactory)
     {
-        if (durableClient is null)
+        if (openAIServiceProvider is null)
         {
-            throw new ArgumentNullException(nameof(durableClient));
-        }
-
-        if (durableOptions is null)
-        {
-            throw new ArgumentNullException(nameof(durableOptions));
+            throw new ArgumentNullException(nameof(openAIServiceProvider));
         }
 
         if (loggerFactory is null)
@@ -43,46 +44,85 @@ public class DefaultChatBotService : IChatBotService
         }
 
         this.logger = loggerFactory.CreateLogger<DefaultChatBotService>();
-        this.logger.LogInformation("Creating durable client for hub '{TaskHub}'", durableOptions.Value.HubName);
 
-        DurableClientOptions clientOptions = new()
+        this.blobClient = new BlobServiceClient(
+            new Uri("https://aibhandaritabletest.blob.core.windows.net"),
+            new DefaultAzureCredential());
+
+        this.openAiServiceProvider = openAIServiceProvider;
+    }
+
+    public void Initialize(ChatBotCreateRequest request)
+    {
+        this.logger.LogInformation(
+            "[{Id}] Creating new chat session with expiration = {Timestamp} and instructions = \"{Text}\"",
+            request.Id,
+            request.ExpiresAt?.ToString("o") ?? "never",
+            request.Instructions ?? "(none)");
+
+        this.State = new ChatBotRuntimeState
         {
-            TaskHub = durableOptions.Value.HubName,
-            ConnectionName = "AzureWebJobsStorage",
-            IsExternalClient = true,
+            ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
+                new List<MessageRecord>() :
+                new List<MessageRecord>() { new(DateTime.UtcNow, ChatMessage.FromSystem(request.Instructions)) },
+            ExpiresAt = request.ExpiresAt ?? DateTime.UtcNow.AddHours(24),
+            Status = ChatBotStatus.Active,
         };
-
-        this.durableClient = durableClient?.CreateClient(clientOptions) ?? throw new ArgumentNullException(nameof(durableClient));
     }
 
     public async Task CreateChatBotAsync(ChatBotCreateRequest request, CancellationToken cancellationToken)
     {
         this.logger.LogInformation("Creating chat bot durable entity with id '{Id}'", request.Id);
-        EntityId entityId = GetEntityId(request.Id);
-        await this.durableClient.SignalEntityAsync<IChatBotEntity>(entityId, entity => entity.Initialize(request));
+
+        // Create the container and return a container client object
+        BlobContainerClient containerClient = this.blobClient.GetBlobContainerClient(request.Id);
+
+        this.Initialize(request);
+
+        // Create the container if it does not exist
+        if (!containerClient.Exists())
+        {
+            await containerClient.CreateAsync();
+
+            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.State))))
+            {
+                var blob = this.blobClient.GetBlobContainerClient(request.Id).GetBlobClient("chatbotstate.json");
+                await blob.UploadAsync(ms);
+            }
+        }
     }
 
     public async Task<ChatBotState> GetStateAsync(string id, DateTime after, CancellationToken cancellationToken)
-    {
-        EntityId entityId = GetEntityId(id);
-
+    { 
         this.logger.LogInformation(
             "Reading state for chat bot entity '{Id}' and getting chat messages after {Timestamp}",
-            entityId,
+            id,
             after.ToString("o"));
 
-        EntityStateResponse<ChatBotEntity> entityState =
-            await this.durableClient.ReadEntityStateAsync<ChatBotEntity>(entityId);
-        if (!entityState.EntityExists)
+        BlobContainerClient containerClient = this.blobClient.GetBlobContainerClient(id);
+
+        // Create the container if it does not exist
+        if (!containerClient.Exists())
         {
-            this.logger.LogInformation("Entity does not exist with ID '{Id}'", entityId);
+            this.logger.LogInformation("Entity does not exist with ID '{Id}'", id);
             return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessage>());
         }
 
-        ChatBotRuntimeState? runtimeState = entityState.EntityState?.State;
+        ChatBotRuntimeState runtimeState = null;
+
+        var blob = this.blobClient.GetBlobContainerClient(id).GetBlobClient("chatbotstate.json");
+
+        var response = await blob.DownloadAsync();
+
+        using (var streamReader = new StreamReader(response.Value.Content))
+        {
+            var content = await streamReader.ReadToEndAsync();
+            runtimeState = JsonConvert.DeserializeObject<ChatBotRuntimeState>(content);
+        }
+
         if (runtimeState == null)
         {
-            this.logger.LogWarning("Chat bot state is null for entity '{Id}'", entityId);
+            this.logger.LogWarning("Chat bot state is null for entity '{Id}'", id);
             return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessage>());
         }
 
@@ -93,11 +133,12 @@ public class DefaultChatBotService : IChatBotService
             .Where(item => item.Timestamp > after)
             .Select(item => item.Message)
             .ToList();
-
+        
         this.logger.LogInformation(
             "Returning {Count}/{Total} chat messages from entity '{Id}'",
             filteredMessages.Count,
-            allChatMessages.Count, entityId);
+            allChatMessages.Count, id);
+        
 
         ChatBotState state = new(
             id,
@@ -110,17 +151,88 @@ public class DefaultChatBotService : IChatBotService
         return state;
     }
 
-    public Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken)
+    public async Task PostAsync(ChatBotPostRequest request)
+    {
+
+        ChatBotRuntimeState runtimeState = null;
+
+        var blob = this.blobClient.GetBlobContainerClient(request.Id).GetBlobClient("chatbotstate.json");
+
+        var blobResponse = await blob.DownloadAsync();
+
+        using (var streamReader = new StreamReader(blobResponse.Value.Content))
+        {
+            var content = await streamReader.ReadToEndAsync();
+            runtimeState = JsonConvert.DeserializeObject<ChatBotRuntimeState>(content);
+        }
+
+        if (runtimeState is null || runtimeState.Status != ChatBotStatus.Active)
+        {
+            this.logger.LogWarning("[{Id}] Ignoring message sent to an uninitialized or expired chat bot.", request.Id);
+            return;
+        }
+
+        if (request == null || string.IsNullOrWhiteSpace(request.UserMessage))
+        {
+            this.logger.LogWarning("[{Id}] Ignoring empty message.", request.Id);
+            return;
+        }
+
+        this.logger.LogInformation("[{Id}] Received message: {Text}", request.Id, request.UserMessage);
+
+        runtimeState.ChatMessages ??= new List<MessageRecord>();
+        runtimeState.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromUser(request.UserMessage)));
+
+        // Get the next response from the LLM
+        ChatCompletionCreateRequest chatRequest = new()
+        {
+            Messages = runtimeState.ChatMessages.Select(item => item.Message).ToList(),
+            Model = request.Model ?? Models.Gpt_3_5_Turbo,
+        };
+
+        IOpenAIService service = this.openAiServiceProvider.GetService(chatRequest.Model);
+        ChatCompletionCreateResponse response = await service.ChatCompletion.CreateCompletion(chatRequest);
+        if (!response.Successful)
+        {
+            // Throwing an exception will cause the entity to abort the current operation.
+            // Any changes to the entity state will be discarded.
+            Error error = response.Error ?? new Error() { Code = "Unspecified", MessageObject = "Unspecified error" };
+            throw new ApplicationException($"The OpenAI {chatRequest.Model} engine returned a '{error.Code}' error: {error.Message}");
+        }
+
+        // We don't normally expect more than one message, but just in case we get multiple messages,
+        // return all of them separated by two newlines.
+        string replyMessage = string.Join(
+            Environment.NewLine + Environment.NewLine,
+            response.Choices.Select(choice => choice.Message.Content));
+
+        this.logger.LogInformation(
+            "[{Id}] Got LLM response consisting of {Count} tokens: {Text}",
+            request.Id,
+            response.Usage.CompletionTokens,
+            replyMessage);
+
+        runtimeState.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromAssistant(replyMessage)));
+
+        using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(runtimeState))))
+        {
+            var newBlob = this.blobClient.GetBlobContainerClient(request.Id).GetBlobClient("chatbotstate.json");
+            await newBlob.UploadAsync(ms, overwrite: true);
+        }
+
+        this.logger.LogInformation(
+            "[{Id}] Chat length is now {Count} messages",
+            request.Id,
+            runtimeState.ChatMessages.Count);
+    }
+    public  Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.Id))
         {
             throw new ArgumentException("The chat bot ID must be specified.", nameof(request));
         }
 
-        EntityId entityId = GetEntityId(request.Id);
-        this.logger.LogInformation("Posting message to chat bot entity '{Id}'", entityId);
-        return this.durableClient.SignalEntityAsync<IChatBotEntity>(entityId, entity => entity.PostAsync(request));
+        this.logger.LogInformation("Posting message to chat bot entity '{Id}'", request.Id);
+        return this.PostAsync(request);
     }
-
-    static EntityId GetEntityId(string id) => new("OpenAI::ChatBotEntity", id);
 }

@@ -9,7 +9,7 @@ using OpenAI.Managers;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
-interface IOpenAIServiceProvider
+public interface IOpenAIServiceProvider
 {
     IOpenAIService GetService(string deploymentId);
 }

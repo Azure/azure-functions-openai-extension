@@ -3,6 +3,6 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "KustoConnectionString": "Data Source=https://openai.eastus.kusto.windows.net;Initial Catalog=openai;Fed=True"
+    "KustoConnectionString": "Data Source=https://YOUR-CLUSTER-HOSTNAME;Initial Catalog=YOUR-DATABASE-NAME;Fed=True"
   }
 }

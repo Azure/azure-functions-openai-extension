@@ -7,7 +7,7 @@ using OpenAI.ObjectModels.RequestModels;
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 [Binding]
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
+[AttributeUsage(AttributeTargets.Parameter)]
 public class ChatBotQueryAttribute : Attribute
 {
     public ChatBotQueryAttribute(string id)

@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
 using System.Text;
+using Azure;
+using Azure.Core;
+using Azure.Data.Tables;
+using Azure.Data.Tables.Models;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
@@ -10,6 +15,7 @@ using OpenAI.Interfaces;
 using OpenAI.ObjectModels;
 using OpenAI.ObjectModels.RequestModels;
 using OpenAI.ObjectModels.ResponseModels;
+using WebJobs.Extensions.OpenAI.Agents;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
@@ -22,12 +28,14 @@ public interface IChatBotService
 
     public class DefaultChatBotService : IChatBotService
 {
+    public TableServiceClient tableServiceClient { get; set; }
+
     public BlobServiceClient blobClient { get; set; }
 
     public IOpenAIServiceProvider openAiServiceProvider { get; set; }
     readonly ILogger logger;
 
-    ChatBotRuntimeState? State { get; set; }
+    ChatBotRuntimeState? InitialState { get; set; }
 
     public DefaultChatBotService(
         IOpenAIServiceProvider openAIServiceProvider,
@@ -45,9 +53,10 @@ public interface IChatBotService
 
         this.logger = loggerFactory.CreateLogger<DefaultChatBotService>();
 
-        this.blobClient = new BlobServiceClient(
-            new Uri("https://aibhandaritabletest.blob.core.windows.net"),
-            new DefaultAzureCredential());
+        // TODO make a table service client provider to handle auth
+        this.tableServiceClient = new TableServiceClient(
+            new Uri("https://aibhandaritabletest.table.core.windows.net/?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-07-20T02:15:16Z&st=2024-01-25T19:15:16Z&spr=https&sig=Gomjmn0SRnc6artAX6d0E9B1%2FHr7rTU%2BiDzhc2tALHw%3D"),
+            new TableClientOptions());
 
         this.openAiServiceProvider = openAIServiceProvider;
     }
@@ -60,12 +69,12 @@ public interface IChatBotService
             request.ExpiresAt?.ToString("o") ?? "never",
             request.Instructions ?? "(none)");
 
-        this.State = new ChatBotRuntimeState
+        this.InitialState = new ChatBotRuntimeState
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
                 new List<MessageRecord>() :
-                new List<MessageRecord>() { new(DateTime.UtcNow, ChatMessage.FromSystem(request.Instructions)) },
-            ExpiresAt = request.ExpiresAt ?? DateTime.UtcNow.AddHours(24),
+                new List<MessageRecord>() { new(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc), ChatMessage.FromSystem(request.Instructions)) },
+            ExpiresAt = request.ExpiresAt ?? DateTime.SpecifyKind(DateTime.UtcNow.AddHours(24), DateTimeKind.Utc),
             Status = ChatBotStatus.Active,
         };
     }
@@ -74,22 +83,45 @@ public interface IChatBotService
     {
         this.logger.LogInformation("Creating chat bot durable entity with id '{Id}'", request.Id);
 
-        // Create the container and return a container client object
-        BlobContainerClient containerClient = this.blobClient.GetBlobContainerClient(request.Id);
+        // Create the table if it doesn't exist
+        this.tableServiceClient.CreateTableIfNotExists("ChatBotRequests");
+        var tableClient = this.tableServiceClient.GetTableClient("ChatBotRequests");
 
+        // Check to see if the chat bot has already been initialized
+        Pageable<TableEntity> queryResultsFilter = tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
+
+        if (queryResultsFilter.Any())
+        {
+            return;
+        }
+
+        // Get chatbot runtime state
         this.Initialize(request);
 
-        // Create the container if it does not exist
-        if (!containerClient.Exists())
+        // Add first chat message entity to table
+        if (this.InitialState.ChatMessages.Count > 0)
         {
-            await containerClient.CreateAsync();
-
-            using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(this.State))))
+            var chatMessageEntity = new ChatMessageEntity
             {
-                var blob = this.blobClient.GetBlobContainerClient(request.Id).GetBlobClient("chatbotstate.json");
-                await blob.UploadAsync(ms);
-            }
+                RowKey = "ChatMessage0",
+                PartitionKey = request.Id,
+                ChatMessage = JsonConvert.SerializeObject(this.InitialState.ChatMessages[0]),
+            };
+
+            await tableClient.AddEntityAsync(chatMessageEntity);
         }
+
+        // Add chat bot state entity to table
+        var chatBotStateEntity = new ChatBotStateEntity()
+        {
+            RowKey = "ChatBotState",
+            PartitionKey = request.Id,
+            Status = this.InitialState.Status,
+            CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+            LastUpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+        };
+        await tableClient.AddEntityAsync(chatBotStateEntity);
+        
     }
 
     public async Task<ChatBotState> GetStateAsync(string id, DateTime after, CancellationToken cancellationToken)
@@ -99,74 +131,59 @@ public interface IChatBotService
             id,
             after.ToString("o"));
 
-        BlobContainerClient containerClient = this.blobClient.GetBlobContainerClient(id);
+        var tableClient = this.tableServiceClient.GetTableClient("ChatBotRequests");
 
-        // Create the container if it does not exist
-        if (!containerClient.Exists())
-        {
-            this.logger.LogInformation("Entity does not exist with ID '{Id}'", id);
-            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessage>());
-        }
+        //Check to see if ChatBotState entity exists with partition id
+        var chatBotStateEntity = tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{id}'");
 
-        ChatBotRuntimeState runtimeState = null;
-
-        var blob = this.blobClient.GetBlobContainerClient(id).GetBlobClient("chatbotstate.json");
-
-        var response = await blob.DownloadAsync();
-
-        using (var streamReader = new StreamReader(response.Value.Content))
-        {
-            var content = await streamReader.ReadToEndAsync();
-            runtimeState = JsonConvert.DeserializeObject<ChatBotRuntimeState>(content);
-        }
-
-        if (runtimeState == null)
+        if (chatBotStateEntity.Count() == 0)
         {
             this.logger.LogWarning("Chat bot state is null for entity '{Id}'", id);
             return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessage>());
         }
 
-        IList<MessageRecord>? allChatMessages = runtimeState.ChatMessages;
-        allChatMessages ??= Array.Empty<MessageRecord>();
-
-        List<ChatMessage> filteredMessages = allChatMessages
-            .Where(item => item.Timestamp > after)
-            .Select(item => item.Message)
+        // Get all chat messages for this chat bot
+        var allChatMessages = tableClient
+            .Query<ChatMessageEntity>()
+            .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == id)
             .ToList();
-        
+
+        // Filter the chat messages by the after timestamp
+        DateTimeOffset afterOffset = new DateTimeOffset(after);
+        var chatMessageEntity = allChatMessages.Where(entity => entity.Timestamp > afterOffset);
+
+        IList<MessageRecord>? filteredChatMessages = new List<MessageRecord>();
+        foreach (var chatMessage in chatMessageEntity)
+        {
+            filteredChatMessages.Add(JsonConvert.DeserializeObject<MessageRecord>(chatMessage.ChatMessage));
+        }
+
         this.logger.LogInformation(
             "Returning {Count}/{Total} chat messages from entity '{Id}'",
-            filteredMessages.Count,
-            allChatMessages.Count, id);
-        
+            filteredChatMessages.Count,
+            allChatMessages.Count(), id);
+
+        var recentMessages = filteredChatMessages.Select(filteredChatMessages => filteredChatMessages.Message).ToList();
 
         ChatBotState state = new(
             id,
             true,
-            runtimeState.Status,
-            allChatMessages.First().Timestamp,
-            allChatMessages.Last().Timestamp,
-            allChatMessages.Count,
-            filteredMessages);
+            chatBotStateEntity.First().Status,
+            allChatMessages.First().Timestamp.Value.UtcDateTime,
+            allChatMessages.Last().Timestamp.Value.UtcDateTime,
+            allChatMessages.Count(),
+            recentMessages);
         return state;
     }
 
     public async Task PostAsync(ChatBotPostRequest request)
     {
+        var tableClient = this.tableServiceClient.GetTableClient("ChatBotRequests");
 
-        ChatBotRuntimeState runtimeState = null;
+        //Check to see if ChatBotState entity exists with partition id
+        var chatBotStateEntity = tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{request.Id}'");
 
-        var blob = this.blobClient.GetBlobContainerClient(request.Id).GetBlobClient("chatbotstate.json");
-
-        var blobResponse = await blob.DownloadAsync();
-
-        using (var streamReader = new StreamReader(blobResponse.Value.Content))
-        {
-            var content = await streamReader.ReadToEndAsync();
-            runtimeState = JsonConvert.DeserializeObject<ChatBotRuntimeState>(content);
-        }
-
-        if (runtimeState is null || runtimeState.Status != ChatBotStatus.Active)
+        if (chatBotStateEntity.Count() == 0 || chatBotStateEntity.First().Status != ChatBotStatus.Active)
         {
             this.logger.LogWarning("[{Id}] Ignoring message sent to an uninitialized or expired chat bot.", request.Id);
             return;
@@ -180,13 +197,34 @@ public interface IChatBotService
 
         this.logger.LogInformation("[{Id}] Received message: {Text}", request.Id, request.UserMessage);
 
-        runtimeState.ChatMessages ??= new List<MessageRecord>();
-        runtimeState.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromUser(request.UserMessage)));
+        // Get all chat messages for this chat bot
+        var allChatMessages = tableClient
+            .Query<ChatMessageEntity>()
+            .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == request.Id)
+            .ToList();
+
+        // Deserialize the chat messages
+        var chatMessageList = new List<MessageRecord>();
+        foreach (var chatMessage in allChatMessages)
+        {
+            chatMessageList.Add(JsonConvert.DeserializeObject<MessageRecord>(chatMessage.ChatMessage));
+        }
+        var chatMessageToSend = new MessageRecord(DateTime.UtcNow, ChatMessage.FromUser(request.UserMessage));
+        chatMessageList.Add(chatMessageToSend);
+
+        // Add the user message as a new Chat message entity
+        var chatMessageEntity = new ChatMessageEntity
+        {
+            RowKey = "ChatMessage" + allChatMessages.Count(),
+            PartitionKey = request.Id,
+            ChatMessage = JsonConvert.SerializeObject(chatMessageToSend),
+        };
+        await tableClient.AddEntityAsync(chatMessageEntity);
 
         // Get the next response from the LLM
         ChatCompletionCreateRequest chatRequest = new()
         {
-            Messages = runtimeState.ChatMessages.Select(item => item.Message).ToList(),
+            Messages = chatMessageList.Select(item => item.Message).ToList(),
             Model = request.Model ?? Models.Gpt_3_5_Turbo,
         };
 
@@ -212,18 +250,21 @@ public interface IChatBotService
             response.Usage.CompletionTokens,
             replyMessage);
 
-        runtimeState.ChatMessages.Add(new(DateTime.UtcNow, ChatMessage.FromAssistant(replyMessage)));
+        var replyFromAssistant = new MessageRecord(DateTime.UtcNow, ChatMessage.FromAssistant(replyMessage));
 
-        using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(runtimeState))))
+        // Add the user message as a new Chat message entity
+        var replyFromAssistantEntity = new ChatMessageEntity
         {
-            var newBlob = this.blobClient.GetBlobContainerClient(request.Id).GetBlobClient("chatbotstate.json");
-            await newBlob.UploadAsync(ms, overwrite: true);
-        }
+            RowKey = "ChatMessage" + (allChatMessages.Count() + 1),
+            PartitionKey = request.Id,
+            ChatMessage = JsonConvert.SerializeObject(replyFromAssistant),
+        };
+        await tableClient.AddEntityAsync(replyFromAssistantEntity);
 
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",
             request.Id,
-            runtimeState.ChatMessages.Count);
+            allChatMessages.Count() + 2);
     }
     public  Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken)
     {

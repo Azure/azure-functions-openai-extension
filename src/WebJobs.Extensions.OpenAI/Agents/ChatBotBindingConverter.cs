@@ -46,6 +46,7 @@ class ChatBotBindingConverter :
         {
             timestamp = timestamp.ToUniversalTime();
         }
+        timestamp = DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
 
         return this.chatBotService.GetStateAsync(input.Id, timestamp, cancellationToken);
     }

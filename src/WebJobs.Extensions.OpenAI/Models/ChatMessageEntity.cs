@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 /// <summary>
 /// Chat Message Entity which contains the content of the message and the role of the chat agent (“system”, “user”, "assistant", "function" or "tool").

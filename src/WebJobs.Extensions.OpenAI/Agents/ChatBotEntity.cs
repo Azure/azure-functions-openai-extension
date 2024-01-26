@@ -39,6 +39,9 @@ class ChatBotRuntimeState
 
     [JsonProperty("status")]
     public ChatBotStatus Status { get; set; } = ChatBotStatus.Uninitialized;
+
+    [JsonProperty("totalTokens")]
+    public int TotalTokens { get; set; } = 0;
 }
 
 [JsonObject(MemberSerialization.OptIn)]
@@ -111,7 +114,7 @@ class ChatBotEntity : IChatBotEntity
         string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
 
         // Get the next response from the LLM
-        ChatCompletionsOptions chatRequest = new (deploymentName, PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
+        ChatCompletionsOptions chatRequest = new(deploymentName, PopulateChatRequestMessages(this.State.ChatMessages.Select(x => x.ChatMessageEntity)));
 
         Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
 
@@ -128,7 +131,7 @@ class ChatBotEntity : IChatBotEntity
             replyMessage);
 
         this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(replyMessage, ChatRole.Assistant.ToString())));
-
+        this.State.TotalTokens = response.Value.Usage.TotalTokens;
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",
             Entity.Current.EntityId,

@@ -5,6 +5,7 @@ using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Newtonsoft.Json.Linq;
@@ -38,7 +39,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
     {
         // Completions input binding support
         var rule = context.AddBindingRule<TextCompletionAttribute>();
-        rule.BindToInput<Response<Completions>>(this.textCompletionConverter);
+        rule.BindToInput<TextCompletionResponse>(this.textCompletionConverter);
         rule.BindToInput<string>(this.textCompletionConverter);
 
         // Embeddings input binding support

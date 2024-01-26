@@ -7,8 +7,6 @@ This is an **experimental** project that adds support for [OpenAI](https://platf
 
 This extension depends on the [Azure Open AI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
 
-- Only Text Completion for .NET Isolated currently depends on [Betalgo.OpenAI](https://github.com/betalgo/openai) by [Betalgo](https://github.com/betalgo).
-
 ## NuGet Packages
 
 The following NuGet packages are available as part of this project.
@@ -38,7 +36,7 @@ The following features are currently available. More features will be slowly add
 
 ### Text completion input binding
 
-The `textCompletion` input binding can be used to invoke the [OpenAI Text Completions API](https://platform.openai.com/docs/guides/completion) and return the results to the function.
+The `textCompletion` input binding can be used to invoke the [OpenAI Chat Completions API](https://platform.openai.com/docs/guides/text-generation/chat-completions-vs-completions) and return the results to the function.
 
 The examples below define "who is" HTTP-triggered functions with a hardcoded `"who is {name}?"` prompt, where `{name}` is the substituted with the value in the HTTP request path. The OpenAI input binding invokes the OpenAI GPT endpoint to surface the answer to the prompt to the function, which then returns the result text as the response content.
 
@@ -50,9 +48,9 @@ Setting a model is optional for non-Azure Open AI, [see here](#default-open-ai-m
 [FunctionName(nameof(WhoIs))]
 public static string WhoIs(
     [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo-instruct")] Response<Azure.AI.OpenAI.Completions> response)
+    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
 {
-    return response.Choices[0].Text;
+    return response.Content;
 }
 ```
 
@@ -66,7 +64,7 @@ const openAICompletionInput = input.generic({
     prompt: 'Who is {name}?',
     maxTokens: '100',
     type: 'textCompletion',
-    model: 'gpt-35-turbo-instruct' // skip this for Open AI or provide exact model name to override.
+    model: 'gpt-35-turbo'
 })
 
 app.http('whois', {
@@ -76,7 +74,7 @@ app.http('whois', {
     extraInputs: [openAICompletionInput],
     handler: async (_request, context) => {
         var response: any = context.extraInputs.get(openAICompletionInput)
-        return { body: response.choices[0].text.trim() }
+        return { body: response.content.trim() }
     }
 });
 ```
@@ -219,13 +217,13 @@ There is no clear decision made on whether to officially release an OpenAI bindi
 All samples in this project rely on default model selection, which assumes the models are named after the OpenAI models. If you want to use an Azure OpenAI deployment, you'll want to configure the `Model`, `ChatModel` and `EmbeddingsModel` properties explicitly in your binding configuration. Here are a couple examples:
 
 ```csharp
-// "my-gpt-4" is the name of an Azure OpenAI deployment
+// "gpt-35-turbo" is the name of an Azure OpenAI deployment
 [FunctionName(nameof(WhoIs))]
 public static string WhoIs(
     [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo-instruct")] Response<Azure.AI.OpenAI.Completions> response)
+    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
 {
-    return response.Choices[0].Text;
+    return response.Content;
 }
 ```
 
@@ -246,7 +244,7 @@ public static IActionResult PromptEmail(
 
 1. Chat Completion - gpt-3.5-turbo
 1. Embeddings - text-embedding-ada-002
-1. Text Completion - gpt-3.5-turbo-instruct
+1. Text Completion - gpt-3.5-turbo
 
 While using non-Azure Open AI, you can omit the Model specification in attributes to use the default models.
 

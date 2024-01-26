@@ -3,13 +3,14 @@
 
 using Azure;
 using Azure.AI.OpenAI;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 class TextCompletionConverter :
-    IAsyncConverter<TextCompletionAttribute, Response<Completions>>,
+    IAsyncConverter<TextCompletionAttribute, TextCompletionResponse>,
     IAsyncConverter<TextCompletionAttribute, string>
 {
     readonly OpenAIClient openAIClient;
@@ -22,7 +23,7 @@ class TextCompletionConverter :
     }
 
     // Intended for use with .NET in-proc functions
-    Task<Response<Completions>> IAsyncConverter<TextCompletionAttribute, Response<Completions>>.ConvertAsync(
+    Task<TextCompletionResponse> IAsyncConverter<TextCompletionAttribute, TextCompletionResponse>.ConvertAsync(
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
@@ -34,22 +35,26 @@ class TextCompletionConverter :
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
-        Response<Completions> response = await this.ConvertCoreAsync(attribute, cancellationToken);
+        TextCompletionResponse response = await this.ConvertCoreAsync(attribute, cancellationToken);
         return JsonConvert.SerializeObject(response);
     }
 
-    async Task<Response<Completions>> ConvertCoreAsync(
+    async Task<TextCompletionResponse> ConvertCoreAsync(
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
-        CompletionsOptions options = attribute.BuildRequest();
+        ChatCompletionsOptions options = attribute.BuildRequest();
         this.logger.LogInformation("Sending OpenAI completion request: {request}", options);
 
-        Response<Completions> response = await this.openAIClient.GetCompletionsAsync(
+        Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(
             options,
             cancellationToken);
-        this.logger.LogInformation("Received OpenAI completion response: {response}", response);
 
-        return response;
+        string text = string.Join(
+            Environment.NewLine + Environment.NewLine,
+            response.Value.Choices.Select(choice => choice.Message.Content));
+        TextCompletionResponse textCompletionResponse = new(text, response.Value.Usage.TotalTokens);
+        
+        return textCompletionResponse;
     }
 }

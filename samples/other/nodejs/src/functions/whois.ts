@@ -14,6 +14,6 @@ app.http('whois', {
     extraInputs: [openAICompletionInput],
     handler: async (_request, context) => {
         var response: any = context.extraInputs.get(openAICompletionInput)
-        return { body: response.Value.Choices[0].Text.trim() }
+        return { body: response.content.trim() }
     }
 });

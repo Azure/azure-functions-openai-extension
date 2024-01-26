@@ -5,7 +5,7 @@ using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 
 // TODO: Move this somewhere else and update the package to use Microsoft.Azure.WebJobs.Extensions.OpenAI
-[assembly: ExtensionInformation("Microsoft.Azure.WebJobs.Extensions.OpenAI", "0.5.0-alpha")]
+[assembly: ExtensionInformation("Microsoft.Azure.WebJobs.Extensions.OpenAI", "0.7.0-alpha")]
 
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
@@ -32,7 +32,7 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
-    public string Model { get; set; } = "text-davinci-003";
+    public string Model { get; set; } = "gpt-3.5-turbo";
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output
@@ -61,13 +61,4 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
     /// </remarks>
     public string? MaxTokens { get; set; } = "100";
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the binding should throw if there is an error calling the OpenAI
-    /// endpoint.
-    /// </summary>
-    /// <remarks>
-    /// The default value is <c>true</c>. Set this to <c>false</c> to handle errors manually in the function code.
-    /// </remarks>
-    public bool ThrowOnError { get; set; } = true;
 }

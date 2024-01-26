@@ -40,8 +40,8 @@ class ChatBotRuntimeState
     [JsonProperty("status")]
     public ChatBotStatus Status { get; set; } = ChatBotStatus.Uninitialized;
 
-    [JsonProperty("usage")]
-    public int Usage { get; set; } = 0;
+    [JsonProperty("totalTokens")]
+    public int TotalTokens { get; set; } = 0;
 }
 
 [JsonObject(MemberSerialization.OptIn)]
@@ -131,7 +131,7 @@ class ChatBotEntity : IChatBotEntity
             replyMessage);
 
         this.State.ChatMessages.Add(new(DateTime.UtcNow, new ChatMessageEntity(replyMessage, ChatRole.Assistant.ToString())));
-        this.State.Usage = response.Value.Usage.TotalTokens;
+        this.State.TotalTokens = response.Value.Usage.TotalTokens;
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",
             Entity.Current.EntityId,

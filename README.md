@@ -64,7 +64,7 @@ const openAICompletionInput = input.generic({
     prompt: 'Who is {name}?',
     maxTokens: '100',
     type: 'textCompletion',
-    model: 'gpt-35-turbo' // skip this for Open AI or provide exact model name to override.
+    model: 'gpt-35-turbo'
 })
 
 app.http('whois', {

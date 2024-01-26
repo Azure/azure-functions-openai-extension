@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 
 - Text Completion using Chat Completion at the backend with default model as GPT 3.5 Turbo
-- Added property usage - total token usage to Chat Bot and Text Completion.
+- Added property totalTokens - total token usage to Chat Bot and Text Completion.
 
 ## v0.6.0 - 2024/01/22
 

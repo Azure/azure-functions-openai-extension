@@ -16,11 +16,11 @@ public class TextCompletionResponse
     /// Initiliazes a new instance of the <see cref="TextCompletionResponse"/> class.
     /// </summary>
     /// <param name="content">The text completion message content.</param>
-    /// <param name="usage">The total token usage.</param>
-    public TextCompletionResponse(string content, int usage)
+    /// <param name="totalTokens">The total token usage.</param>
+    public TextCompletionResponse(string content, int totalTokens)
     {
         this.Content = content;
-        this.Usage = usage;
+        this.TotalTokens = totalTokens;
     }
 
     /// <summary>
@@ -32,6 +32,6 @@ public class TextCompletionResponse
     /// <summary>
     /// The total token usage.
     /// </summary>
-    [JsonProperty("usage")]
-    public int Usage{ get; set; }
+    [JsonProperty("totalTokens")]
+    public int TotalTokens{ get; set; }
 }

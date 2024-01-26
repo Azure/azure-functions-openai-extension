@@ -106,7 +106,7 @@ public class DefaultChatBotService : IChatBotService
             allChatMessages.First().Timestamp,
             allChatMessages.Last().Timestamp,
             allChatMessages.Count,
-            runtimeState.Usage,
+            runtimeState.TotalTokens,
             filteredMessages);
         return state;
     }

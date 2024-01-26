@@ -4,6 +4,7 @@
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask.ContextImplementations;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask.Options;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -75,14 +76,14 @@ public class DefaultChatBotService : IChatBotService
         if (!entityState.EntityExists)
         {
             this.logger.LogInformation("Entity does not exist with ID '{Id}'", entityId);
-            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessageEntity>());
+            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, 0, Array.Empty<ChatMessageEntity>());
         }
 
         ChatBotRuntimeState? runtimeState = entityState.EntityState?.State;
         if (runtimeState == null)
         {
             this.logger.LogWarning("Chat bot state is null for entity '{Id}'", entityId);
-            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessageEntity>());
+            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, 0, Array.Empty<ChatMessageEntity>());
         }
 
         IList<MessageRecord>? allChatMessages = runtimeState.ChatMessages;
@@ -105,6 +106,7 @@ public class DefaultChatBotService : IChatBotService
             allChatMessages.First().Timestamp,
             allChatMessages.Last().Timestamp,
             allChatMessages.Count,
+            runtimeState.Usage,
             filteredMessages);
         return state;
     }

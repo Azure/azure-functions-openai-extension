@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Net;
-using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CSharpInProcSamples;
@@ -25,9 +24,9 @@ public static class Completions
     [FunctionName(nameof(WhoIs))]
     public static string WhoIs(
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-        [TextCompletion("Who is {name}?")] Response<Azure.AI.OpenAI.Completions> response)
+        [TextCompletion("Who is {name}?")] TextCompletionResponse response)
     {
-        return response.Value.Choices[0].Text;
+        return response.Content;
     }
 
     /// <summary>
@@ -37,11 +36,11 @@ public static class Completions
     [FunctionName(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
-        [TextCompletion("{Prompt}", Model = "gpt-3.5-turbo-instruct")] Response<Azure.AI.OpenAI.Completions> response,
+        [TextCompletion("{Prompt}", Model = "gpt-3.5-turbo")] TextCompletionResponse response,
         ILogger log)
     {
         log.LogInformation("Prompt = {prompt}, Response = {response}", payload.Prompt, response);
-        string text = response.Value.Choices[0].Text;
+        string text = response.Content;
         return new OkObjectResult(text);
     }
 

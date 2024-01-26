@@ -87,6 +87,7 @@ Please refer to the root level [README](../../README.md/#requirements) for prere
       "createdAt": "2024-01-15T22:33:15.0664078Z",
       "lastUpdatedAt": "2024-01-15T22:33:45.5591906Z",
       "totalMessages": 3,
+      "usage": 139,
       "recentMessages": [
           {
               "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare.",
@@ -134,6 +135,7 @@ Please refer to the root level [README](../../README.md/#requirements) for prere
       "createdAt": "2024-01-15T22:33:15.0664078Z",
       "lastUpdatedAt": "2024-01-15T22:36:32.3760309Z",
       "totalMessages": 5,
+      "usage": 178,
       "recentMessages": [
           {
               "content": "Ah, verily! The halftime show at the SuperBowl of 2014 was graced by the presence of the fair enchantress known as Bruno Mars. With his dulcet voice and captivating melodies, he entertained the masses gathered with his musical prowess.",

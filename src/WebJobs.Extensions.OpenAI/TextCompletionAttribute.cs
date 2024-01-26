@@ -33,7 +33,7 @@ public sealed class TextCompletionAttribute : Attribute
     /// Gets or sets the ID of the model to use.
     /// </summary>
     [AutoResolve]
-    public string Model { get; set; } = OpenAIModels.Gpt_35_Turbo_Instruct;
+    public string Model { get; set; } = OpenAIModels.Gpt_35_Turbo;
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output
@@ -66,9 +66,16 @@ public sealed class TextCompletionAttribute : Attribute
     [AutoResolve]
     public string? MaxTokens { get; set; } = "100";
 
-    internal CompletionsOptions BuildRequest()
+    internal ChatCompletionsOptions BuildRequest()
     {
-        CompletionsOptions request = new(this.Model, new List<string> { this.Prompt });
+        ChatCompletionsOptions request = new()
+        {
+            DeploymentName = this.Model,
+            Messages =
+            {
+                new ChatRequestUserMessage(this.Prompt),
+            }
+        };
 
         if (int.TryParse(this.MaxTokens, out int maxTokens))
         {

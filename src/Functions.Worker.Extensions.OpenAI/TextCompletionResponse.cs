@@ -1,14 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Newtonsoft.Json;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 
 /// <summary>
 /// Text Completion Response Class
 /// </summary>
-[JsonObject(MemberSerialization.OptIn)]
 public class TextCompletionResponse
 {
     /// <summary>
@@ -25,12 +23,10 @@ public class TextCompletionResponse
     /// <summary>
     /// The text completion message content.
     /// </summary>
-    [JsonProperty("content")]
     public string Content { get; set; }
 
     /// <summary>
     /// The total token usage.
     /// </summary>
-    [JsonProperty("totalTokens")]
     public int TotalTokens { get; set; }
 }

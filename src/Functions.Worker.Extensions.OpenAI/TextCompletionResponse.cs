@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 
 /// <summary>
 /// Text Completion Response Class

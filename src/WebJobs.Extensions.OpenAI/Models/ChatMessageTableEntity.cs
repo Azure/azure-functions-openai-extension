@@ -4,8 +4,8 @@
 using Azure;
 using Azure.Data.Tables;
 
-namespace WebJobs.Extensions.OpenAI.Agents;
-public class ChatMessageTableEntity: ITableEntity
+namespace WebJobs.Extensions.OpenAI.Models;
+public class ChatMessageTableEntity : ITableEntity
 {
     public string PartitionKey { get; set; }
     public string RowKey { get; set; }

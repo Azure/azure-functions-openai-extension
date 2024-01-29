@@ -8,7 +8,7 @@ using Azure.Data.Tables;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using WebJobs.Extensions.OpenAI.Agents;
+using WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
@@ -19,7 +19,7 @@ public interface IChatBotService
     Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken);
 }
 
-    public class DefaultChatBotService : IChatBotService
+public class DefaultChatBotService : IChatBotService
 {
     public TableServiceClient tableServiceClient { get; set; }
 

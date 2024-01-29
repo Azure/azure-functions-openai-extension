@@ -8,8 +8,9 @@ using Azure;
 using Azure.Data.Tables;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
-namespace WebJobs.Extensions.OpenAI.Agents;
-public class ChatBotStateEntity: ITableEntity
+namespace WebJobs.Extensions.OpenAI.Models;
+
+public class ChatBotStateEntity : ITableEntity
 {
     public string PartitionKey { get; set; }
     public string RowKey { get; set; }

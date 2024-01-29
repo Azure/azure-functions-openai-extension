@@ -1,24 +1,22 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
-
 namespace Functions.Worker.Extensions.OpenAI;
 
 /// <summary>
-/// Chat bot post output attribute which is used to update the chat bot.
+/// Chat bot post request which is used to relay post requests.
 /// </summary>
-public class ChatBotPostOutputAttribute : OutputBindingAttribute
+public class ChatBotPostRequest
 {
-    public ChatBotPostOutputAttribute(string id)
-    {
-        this.Id = id;
-    }
+    /// <summary>
+    /// Gets user message that user has entered for chatbot to respond to.
+    /// </summary>
+    public string UserMessage { get; set; }
 
     /// <summary>
     /// Gets the ID of the chat bot to update.
     /// </summary>
-    public string Id { get; }
+    public string Id { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the OpenAI chat model to use.
@@ -28,3 +26,4 @@ public class ChatBotPostOutputAttribute : OutputBindingAttribute
     /// </remarks>
     public string? Model { get; set; }
 }
+

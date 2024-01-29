@@ -1,16 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 namespace Functions.Worker.Extensions.OpenAI;
+
+/// <summary>
+/// Chat bot create output binding attribute which is used to create a chat bot.
+/// </summary>
 public sealed class ChatBotCreateOutputAttribute : OutputBindingAttribute
 {
-    public ChatBotCreateOutputAttribute()
-    {
-        
-    }
 }

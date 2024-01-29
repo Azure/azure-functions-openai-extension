@@ -1,25 +1,25 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Functions.Worker.Extensions.OpenAI;
-public class ChatBotCreateRequest2
+
+/// <summary>
+/// Chat bot create request which is used to create a chat bot.
+/// </summary>
+public class ChatBotCreateRequest
 {
-    public ChatBotCreateRequest2()
+    public ChatBotCreateRequest()
     {
         // For deserialization
         this.Id = string.Empty;
     }
 
-    public ChatBotCreateRequest2(string id)
+    public ChatBotCreateRequest(string id)
     {
         this.Id = id;
     }
 
-    public ChatBotCreateRequest2(string id, string? instructions)
+    public ChatBotCreateRequest(string id, string? instructions)
     {
         this.Id = id;
 
@@ -29,7 +29,18 @@ public class ChatBotCreateRequest2
         }
     }
 
+    /// <summary>
+    /// Gets the ID of the chat bot to create.
+    /// </summary>
     public string Id { get; set; }
+
+    /// <summary>
+    /// Instructions that are provided to chat bot to follow.
+    /// </summary>
     public string Instructions { get; set; } = "You are a helpful chat bot.";
+
+    /// <summary>
+    /// Gets time when chat bot request is set to expire.
+    /// </summary>
     public DateTime? ExpiresAt { get; set; }
 }

@@ -7,6 +7,10 @@ using System.Text;
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 namespace Functions.Worker.Extensions.OpenAI;
+
+/// <summary>
+/// Chat bot query input attribute which is used query the chatbot to get current state.
+/// </summary>
 public sealed class ChatBotQueryInputAttribute : InputBindingAttribute
 {
     public ChatBotQueryInputAttribute(string id)

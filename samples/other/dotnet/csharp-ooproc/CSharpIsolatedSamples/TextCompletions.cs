@@ -1,6 +1,3 @@
-using System.ComponentModel;
-using Functions.Worker.Extensions.OpenAI;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
@@ -22,8 +19,8 @@ public static class TextCompletions
     /// </summary>
     [Function(nameof(WhoIs))]
     public static string WhoIs(
-        [HttpTrigger(AuthorizationLevel.Anonymous, Route = "whois/{name}")] HttpRequestData req,
-        [TextCompletionInput("Who is {name}?", Model = "gpt-3.5-turbo-instruct")] CompletionCreateResponse response)
+        [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
+        [TextCompletionInput("Who is {name}?")] CompletionCreateResponse response)
     {
         return response.Choices[0].Text;
     }
@@ -35,7 +32,7 @@ public static class TextCompletions
     [Function(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
-        [TextCompletionInput("{Prompt}")] CompletionCreateResponse response,
+        [TextCompletionInput("{Prompt}", Model = "text-davinci-003")] CompletionCreateResponse response,
         ILogger log)
     {
         if (!response.Successful)

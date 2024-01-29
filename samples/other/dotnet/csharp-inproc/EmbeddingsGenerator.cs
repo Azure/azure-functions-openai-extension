@@ -4,6 +4,7 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 
 namespace CSharpInProcSamples;
@@ -27,7 +28,7 @@ public class EmbeddingsGenerator
     {
         logger.LogInformation(
             "Received {count} embedding(s) for input text containing {length} characters.",
-            embeddings.Response.Data.Count,
+            embeddings.Response.Value.Data.Count,
             req.RawText.Length);
 
         // TODO: Store the embeddings into a database or other storage.
@@ -45,7 +46,7 @@ public class EmbeddingsGenerator
     {
         logger.LogInformation(
             "Received {count} embedding(s) for input file '{path}'.",
-            embeddings.Response.Data.Count,
+            embeddings.Response.Value.Data.Count,
             req.FilePath);
 
         // TODO: Store the embeddings into a database or other storage.

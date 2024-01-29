@@ -19,6 +19,7 @@ public class ChatBotStateEntity: ITableEntity
     public DateTime CreatedAt { get; set; }
     public DateTime LastUpdatedAt { get; set; }
     public int TotalMessages { get; set; }
+    public int TotalTokens { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ETag ETag { get; set; }
 }

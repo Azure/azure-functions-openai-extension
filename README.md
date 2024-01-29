@@ -3,9 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml)
 
-This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/). It is not currently endorsed or supported by Microsoft.
+This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
-This extension depends on the [Betalgo.OpenAI](https://github.com/betalgo/openai) by [Betalgo](https://github.com/betalgo).
+This extension depends on the [Azure Open AI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
 
 ## NuGet Packages
 
@@ -18,7 +18,12 @@ The following NuGet packages are available as part of this project.
 
 * [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or greater (Visual Studio 2022 recommended)
 * [Azure Functions Core Tools v4.x](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Cnode%2Cportal%2Cbash)
-* An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a `OPENAI_API_KEY` environment variable, **OR** an [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) with `AZURE_OPENAI_KEY` and `AZURE_OPENAI_ENDPOINT` set. Learn more in [.env readme](./env/README.md).
+* [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) with `AZURE_OPENAI_ENDPOINT` (e.g. `https://***.openai.azure.com/`) set. For authentication, use one of the below option:
+    - System Managed Identity - assign the user/function app `Cognitive Services OpenAI User` role on the Azure Open AI resource.
+    - set `AZURE_OPENAI_KEY` environment variable.
+* **OR** Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a `OPENAI_API_KEY` environment variable. Learn more in [.env readme](./env/README.md).
+* Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
+* The target language runtime (e.g. .NET, Node.js, etc.) installed on your machine
 
 ## Features
 
@@ -31,19 +36,21 @@ The following features are currently available. More features will be slowly add
 
 ### Text completion input binding
 
-The `textCompletion` input binding can be used to invoke the [OpenAI Text Completions API](https://platform.openai.com/docs/guides/completion) and return the results to the function.
+The `textCompletion` input binding can be used to invoke the [OpenAI Chat Completions API](https://platform.openai.com/docs/guides/text-generation/chat-completions-vs-completions) and return the results to the function.
 
 The examples below define "who is" HTTP-triggered functions with a hardcoded `"who is {name}?"` prompt, where `{name}` is the substituted with the value in the HTTP request path. The OpenAI input binding invokes the OpenAI GPT endpoint to surface the answer to the prompt to the function, which then returns the result text as the response content.
 
 #### [C# example](./samples/other/dotnet/csharp-inproc/)
 
+Setting a model is optional for non-Azure Open AI, [see here](#default-open-ai-models) for default model values for Open AI.
+
 ```csharp
 [FunctionName(nameof(WhoIs))]
 public static string WhoIs(
     [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-    [TextCompletion("Who is {name}?")] CompletionCreateResponse response)
+    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
 {
-    return response.Choices[0].Text;
+    return response.Content;
 }
 ```
 
@@ -56,7 +63,8 @@ import { app, input } from "@azure/functions";
 const openAICompletionInput = input.generic({
     prompt: 'Who is {name}?',
     maxTokens: '100',
-    type: 'textCompletion'
+    type: 'textCompletion',
+    model: 'gpt-35-turbo'
 })
 
 app.http('whois', {
@@ -66,7 +74,7 @@ app.http('whois', {
     extraInputs: [openAICompletionInput],
     handler: async (_request, context) => {
         var response: any = context.extraInputs.get(openAICompletionInput)
-        return { body: response.choices[0].text.trim() }
+        return { body: response.content.trim() }
     }
 });
 ```
@@ -156,10 +164,10 @@ This HTTP trigger function takes a path to a local file as input, generates embe
 public record EmbeddingsRequest(string FilePath);
 
 [FunctionName("IngestEmail")]
-public static async Task<IActionResult> IngestEmail_Better(
+public static async Task<IActionResult> IngestEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-    [Embeddings("{FilePath}", InputType.FilePath)] EmbeddingsContext embeddings,
-    [SemanticSearch("KustoConnectionString", "Documents")] IAsyncCollector<SearchableDocument> output)
+    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-ada-002")] EmbeddingsContext embeddings,
+    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] IAsyncCollector<SearchableDocument> output)
 {
     string title = Path.GetFileNameWithoutExtension(req.FilePath);
     await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -177,7 +185,7 @@ public record SemanticSearchRequest(string Prompt);
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}")] SemanticSearchContext result)
+    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -204,27 +212,18 @@ Content-Type: text/plain
 There is no clear decision made on whether to officially release an OpenAI binding for Azure Functions as per the email "Thoughts on Functions+AI conversation" sent by Bilal. However, he suggests that the team should figure out if they are able to free developers from needing to know the details of AI/LLM APIs by sufficiently/elegantly designing bindings to let them do the "main work" they need to do. Reference: Thoughts on Functions+AI conversation.
 ```
 
-## Azure OpenAI
+**IMPORTANT:** Azure OpenAI requires you to specify a *deployment* when making API calls instead of a *model*. The *deployment* is a specific instance of a model that you have deployed to your Azure OpenAI resource. In order to make code more portable across OpenAI and Azure OpenAI, the bindings in this extension use the `Model`, `ChatModel` and `EmbeddingsModel` to refer to either the OpenAI model or the Azure OpenAI deployment ID, depending on whether you're using OpenAI or Azure OpenAI.
 
-As of v0.3.0, this extension also supports using OpenAI models deployed to the Azure OpenAI service. To use this feature, you must have an Azure OpenAI resource provisioned in your Azure subscription. You can find more information about how to provision an Azure OpenAI resource [here](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal).
-
-To use Azure OpenAI with these bindings, you must set the following environment variables:
-
-* `AZURE_OPENAI_KEY` - The API key for your Azure OpenAI resource.
-* `AZURE_OPENAI_ENDPOINT` - The endpoint for your Azure OpenAI resource - e.g., `https://***.openai.azure.com/`.
-
-**IMPORTANT:** Azure OpenAI requires you to specify a *deployment* when making API calls instead of a *model*. The *deployment* is a specific instance of a model that you have deployed to your Azure OpenAI resource. In order to make code more portable across OpenAI and Azure OpenAI, the bindings in this extension use the `Model` and `EmbeddingsModel` to refer to either the OpenAI model or the Azure OpenAI deployment ID, depending on whether you're using OpenAI or Azure OpenAI.
-
-All samples in this project rely on default model selection, which assumes the models are named after the OpenAI models. If you want to use an Azure OpenAI deployment, you'll want to configure the `Model` and `EmbeddingsModel` properties explicitly in your binding configuration. Here are a couple examples:
+All samples in this project rely on default model selection, which assumes the models are named after the OpenAI models. If you want to use an Azure OpenAI deployment, you'll want to configure the `Model`, `ChatModel` and `EmbeddingsModel` properties explicitly in your binding configuration. Here are a couple examples:
 
 ```csharp
-// "my-gpt-4" is the name of an Azure OpenAI deployment
+// "gpt-35-turbo" is the name of an Azure OpenAI deployment
 [FunctionName(nameof(WhoIs))]
 public static string WhoIs(
     [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-    [TextCompletion("Who is {name}?", Model = "my-gpt-4")] CompletionCreateResponse response)
+    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
 {
-    return response.Choices[0].Text;
+    return response.Content;
 }
 ```
 
@@ -240,6 +239,14 @@ public static IActionResult PromptEmail(
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
 ```
+
+## Default Open AI models
+
+1. Chat Completion - gpt-3.5-turbo
+1. Embeddings - text-embedding-ada-002
+1. Text Completion - gpt-3.5-turbo
+
+While using non-Azure Open AI, you can omit the Model specification in attributes to use the default models.
 
 ## Contributing
 

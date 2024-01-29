@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
+using Azure.AI.OpenAI;
+using Azure.Identity;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
-using OpenAI;
-using OpenAI.Extensions;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -27,45 +29,32 @@ public static class OpenAIWebJobsBuilderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        // Register the OpenAI service, which we depend on.
-        builder.Services.AddOpenAIService(settings =>
+        // Register the client for Azure Open AI
+        Uri? azureOpenAIEndpoint = GetAzureOpenAIEndpoint();
+        string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
+        string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+        if (azureOpenAIEndpoint != null && !string.IsNullOrEmpty(azureOpenAIKey))
         {
-            // Common configuration.
-            // The Betalgo SDK has a default API version, but we support overriding it using an environment variable.
-            string? apiVersion = Environment.GetEnvironmentVariable("OPENAI_API_VERSION");
-            if (!string.IsNullOrEmpty(apiVersion))
-            {
-                settings.ApiVersion = apiVersion;
-            }
-
-            // Try Azure connection first, which is preferred for privacy
-            string? azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-            if (!string.IsNullOrEmpty(azureOpenAIEndpoint))
-            {
-                // Azure OpenAI configuration
-                settings.ApiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY")!;
-                settings.ProviderType = ProviderType.Azure;
-                settings.BaseDomain = azureOpenAIEndpoint;
-                settings.DeploymentId = "placeholder"; // dummy value - this will be replaced at runtime
-            }
-            else
-            {
-                // Public OpenAI configuration
-                settings.ApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-                settings.Organization = Environment.GetEnvironmentVariable("OPENAI_ORGANIZATION_ID");
-            }
-
-            if (string.IsNullOrEmpty(settings.ApiKey))
-            {
-                throw new InvalidOperationException("Must set OPENAI_API_KEY or AZURE_OPENAI_KEY environment variable.");
-            }
-        });
+            RegisterAzureOpenAIClient(builder.Services, azureOpenAIEndpoint, azureOpenAIKey);
+        }
+        else if (azureOpenAIEndpoint != null)
+        {
+            RegisterAzureOpenAIADAuthClient(builder.Services, azureOpenAIEndpoint);
+        }
+        else if (!string.IsNullOrEmpty(openAIKey))
+        {
+            RegisterOpenAIClient(builder.Services, openAIKey);
+        }
+        else
+        {
+            throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables.");
+        }
 
         // Register the WebJobs extension, which enables the bindings.
         builder.AddExtension<OpenAIExtension>();
 
         // Service objects that will be used by the extension
-        builder.Services.AddSingleton<IOpenAIServiceProvider, DefaultOpenAIServiceProvider>();
         builder.Services.AddSingleton<TextCompletionConverter>();
         builder.Services.AddSingleton<EmbeddingsConverter>();
         builder.Services.AddSingleton<SemanticSearchConverter>();
@@ -73,5 +62,35 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services.AddSingleton<IChatBotService, DefaultChatBotService>();
 
         return builder;
+    }
+
+    static Uri? GetAzureOpenAIEndpoint()
+    {
+        if (Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri))
+        {
+            return uri;
+        }
+
+        return null;
+    }
+
+    static void RegisterAzureOpenAIClient(IServiceCollection services, Uri azureOpenAIEndpoint, string azureOpenAIKey)
+    {
+        services.AddAzureClients(clientBuilder =>
+        {
+            clientBuilder.AddOpenAIClient(azureOpenAIEndpoint, new AzureKeyCredential(azureOpenAIKey));
+        });
+    }
+
+    static void RegisterAzureOpenAIADAuthClient(IServiceCollection services, Uri azureOpenAIEndpoint)
+    {
+        var managedIdentityClient = new OpenAIClient(azureOpenAIEndpoint, new DefaultAzureCredential());
+        services.AddSingleton<OpenAIClient>(managedIdentityClient);
+    }
+
+    static void RegisterOpenAIClient(IServiceCollection services, string openAIKey)
+    {
+        var openAIClient = new OpenAIClient(openAIKey);
+        services.AddSingleton<OpenAIClient>(openAIClient);
     }
 }

@@ -1,20 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
-using System.Text;
 using Azure;
+using Azure.AI.OpenAI;
 using Azure.Core;
 using Azure.Data.Tables;
-using Azure.Data.Tables.Models;
-using Azure.Identity;
-using Azure.Storage.Blobs;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using OpenAI.Interfaces;
-using OpenAI.ObjectModels;
-using OpenAI.ObjectModels.RequestModels;
-using OpenAI.ObjectModels.ResponseModels;
 using WebJobs.Extensions.OpenAI.Agents;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
@@ -30,20 +23,18 @@ public interface IChatBotService
 {
     public TableServiceClient tableServiceClient { get; set; }
 
-    public BlobServiceClient blobClient { get; set; }
-
-    public IOpenAIServiceProvider openAiServiceProvider { get; set; }
+    public OpenAIClient openAIClient { get; set; }
     readonly ILogger logger;
 
     ChatBotRuntimeState? InitialState { get; set; }
 
     public DefaultChatBotService(
-        IOpenAIServiceProvider openAIServiceProvider,
+        OpenAIClient openAiClient,
         ILoggerFactory loggerFactory)
     {
-        if (openAIServiceProvider is null)
+        if (openAiClient is null)
         {
-            throw new ArgumentNullException(nameof(openAIServiceProvider));
+            throw new ArgumentNullException(nameof(openAiClient));
         }
 
         if (loggerFactory is null)
@@ -55,10 +46,10 @@ public interface IChatBotService
 
         // TODO make a table service client provider to handle auth
         this.tableServiceClient = new TableServiceClient(
-            new Uri("https://aibhandaritabletest.table.core.windows.net/?sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-07-20T02:15:16Z&st=2024-01-25T19:15:16Z&spr=https&sig=Gomjmn0SRnc6artAX6d0E9B1%2FHr7rTU%2BiDzhc2tALHw%3D"),
+            new Uri("https://aibhandaritabletest.table.core.windows.net/?SAS_TOKEN"),
             new TableClientOptions());
 
-        this.openAiServiceProvider = openAIServiceProvider;
+        this.openAIClient = openAiClient;
     }
 
     public void Initialize(ChatBotCreateRequest request)
@@ -73,7 +64,7 @@ public interface IChatBotService
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
                 new List<MessageRecord>() :
-                new List<MessageRecord>() { new(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc), ChatMessage.FromSystem(request.Instructions)) },
+                new List<MessageRecord>() { new(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc), new ChatMessageEntity(request.Instructions, ChatRole.System.ToString())) },
             ExpiresAt = request.ExpiresAt ?? DateTime.SpecifyKind(DateTime.UtcNow.AddHours(24), DateTimeKind.Utc),
             Status = ChatBotStatus.Active,
         };
@@ -101,7 +92,7 @@ public interface IChatBotService
         // Add first chat message entity to table
         if (this.InitialState.ChatMessages.Count > 0)
         {
-            var chatMessageEntity = new ChatMessageEntity
+            var chatMessageEntity = new ChatMessageTableEntity
             {
                 RowKey = "ChatMessage0",
                 PartitionKey = request.Id,
@@ -119,6 +110,7 @@ public interface IChatBotService
             Status = this.InitialState.Status,
             CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
             LastUpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+            Exists = true,
         };
         await tableClient.AddEntityAsync(chatBotStateEntity);
         
@@ -133,18 +125,18 @@ public interface IChatBotService
 
         var tableClient = this.tableServiceClient.GetTableClient("ChatBotRequests");
 
-        //Check to see if ChatBotState entity exists with partition id
+        // Check to see if ChatBotState entity exists with partition id
         var chatBotStateEntity = tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{id}'");
 
         if (chatBotStateEntity.Count() == 0)
         {
             this.logger.LogWarning("Chat bot state is null for entity '{Id}'", id);
-            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, Array.Empty<ChatMessage>());
+            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, 0, Array.Empty<ChatMessageEntity>());
         }
 
         // Get all chat messages for this chat bot
         var allChatMessages = tableClient
-            .Query<ChatMessageEntity>()
+            .Query<ChatMessageTableEntity>()
             .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == id)
             .ToList();
 
@@ -163,7 +155,7 @@ public interface IChatBotService
             filteredChatMessages.Count,
             allChatMessages.Count(), id);
 
-        var recentMessages = filteredChatMessages.Select(filteredChatMessages => filteredChatMessages.Message).ToList();
+        var recentMessages = filteredChatMessages.Select(filteredChatMessages => filteredChatMessages.ChatMessageEntity).ToList();
 
         ChatBotState state = new(
             id,
@@ -172,6 +164,7 @@ public interface IChatBotService
             allChatMessages.First().Timestamp.Value.UtcDateTime,
             allChatMessages.Last().Timestamp.Value.UtcDateTime,
             allChatMessages.Count(),
+            chatBotStateEntity.First().TotalTokens,
             recentMessages);
         return state;
     }
@@ -199,7 +192,7 @@ public interface IChatBotService
 
         // Get all chat messages for this chat bot
         var allChatMessages = tableClient
-            .Query<ChatMessageEntity>()
+            .Query<ChatMessageTableEntity>()
             .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == request.Id)
             .ToList();
 
@@ -209,11 +202,11 @@ public interface IChatBotService
         {
             chatMessageList.Add(JsonConvert.DeserializeObject<MessageRecord>(chatMessage.ChatMessage));
         }
-        var chatMessageToSend = new MessageRecord(DateTime.UtcNow, ChatMessage.FromUser(request.UserMessage));
+        var chatMessageToSend = new MessageRecord(DateTime.UtcNow, new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString()));
         chatMessageList.Add(chatMessageToSend);
 
         // Add the user message as a new Chat message entity
-        var chatMessageEntity = new ChatMessageEntity
+        var chatMessageEntity = new ChatMessageTableEntity
         {
             RowKey = "ChatMessage" + allChatMessages.Count(),
             PartitionKey = request.Id,
@@ -221,39 +214,28 @@ public interface IChatBotService
         };
         await tableClient.AddEntityAsync(chatMessageEntity);
 
+        string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
         // Get the next response from the LLM
-        ChatCompletionCreateRequest chatRequest = new()
-        {
-            Messages = chatMessageList.Select(item => item.Message).ToList(),
-            Model = request.Model ?? Models.Gpt_3_5_Turbo,
-        };
+        ChatCompletionsOptions chatRequest = new(deploymentName, PopulateChatRequestMessages(chatMessageList.Select(x => x.ChatMessageEntity)));
 
-        IOpenAIService service = this.openAiServiceProvider.GetService(chatRequest.Model);
-        ChatCompletionCreateResponse response = await service.ChatCompletion.CreateCompletion(chatRequest);
-        if (!response.Successful)
-        {
-            // Throwing an exception will cause the entity to abort the current operation.
-            // Any changes to the entity state will be discarded.
-            Error error = response.Error ?? new Error() { Code = "Unspecified", MessageObject = "Unspecified error" };
-            throw new ApplicationException($"The OpenAI {chatRequest.Model} engine returned a '{error.Code}' error: {error.Message}");
-        }
+        Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
 
         // We don't normally expect more than one message, but just in case we get multiple messages,
         // return all of them separated by two newlines.
         string replyMessage = string.Join(
             Environment.NewLine + Environment.NewLine,
-            response.Choices.Select(choice => choice.Message.Content));
+            response.Value.Choices.Select(choice => choice.Message.Content));
 
         this.logger.LogInformation(
             "[{Id}] Got LLM response consisting of {Count} tokens: {Text}",
             request.Id,
-            response.Usage.CompletionTokens,
+            response.Value.Usage.CompletionTokens,
             replyMessage);
 
-        var replyFromAssistant = new MessageRecord(DateTime.UtcNow, ChatMessage.FromAssistant(replyMessage));
+        var replyFromAssistant = new MessageRecord(DateTime.UtcNow, new ChatMessageEntity(replyMessage, ChatRole.Assistant.ToString()));
 
         // Add the user message as a new Chat message entity
-        var replyFromAssistantEntity = new ChatMessageEntity
+        var replyFromAssistantEntity = new ChatMessageTableEntity
         {
             RowKey = "ChatMessage" + (allChatMessages.Count() + 1),
             PartitionKey = request.Id,
@@ -275,5 +257,27 @@ public interface IChatBotService
 
         this.logger.LogInformation("Posting message to chat bot entity '{Id}'", request.Id);
         return this.PostAsync(request);
+    }
+
+    static readonly Dictionary<string, Func<ChatMessageEntity, ChatRequestMessage>> messageFactories = new()
+    {
+        { ChatRole.User.ToString(), msg => new ChatRequestUserMessage(msg.Content) },
+        { ChatRole.Assistant.ToString(), msg => new ChatRequestAssistantMessage(msg.Content) },
+        { ChatRole.System.ToString(), msg => new ChatRequestSystemMessage(msg.Content) }
+    };
+
+    internal static IEnumerable<ChatRequestMessage> PopulateChatRequestMessages(IEnumerable<ChatMessageEntity> messages)
+    {
+        foreach (ChatMessageEntity message in messages)
+        {
+            if (messageFactories.TryGetValue(message.Role, out var factory))
+            {
+                yield return factory.Invoke(message);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Unknown chat role '{message.Role}'");
+            }
+        }
     }
 }

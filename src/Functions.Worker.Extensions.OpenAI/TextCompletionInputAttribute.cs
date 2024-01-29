@@ -33,7 +33,7 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
-    public string Model { get; set; } = "gpt-3.5-turbo-instruct";
+    public string Model { get; set; } = "text-davinci-003";
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output

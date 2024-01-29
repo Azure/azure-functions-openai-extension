@@ -1,8 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
-using OpenAI.ObjectModels.RequestModels;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -32,7 +33,7 @@ public sealed class TextCompletionAttribute : Attribute
     /// Gets or sets the ID of the model to use.
     /// </summary>
     [AutoResolve]
-    public string Model { get; set; } = "gpt-3.5-turbo-instruct";
+    public string Model { get; set; } = OpenAIModels.Gpt_35_Turbo;
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output
@@ -65,26 +66,16 @@ public sealed class TextCompletionAttribute : Attribute
     [AutoResolve]
     public string? MaxTokens { get; set; } = "100";
 
-    /// <summary>
-    /// Gets or sets a value indicating whether the binding should throw if there is an error calling the OpenAI
-    /// endpoint.
-    /// </summary>
-    /// <remarks>
-    /// The default value is <c>true</c>. Set this to <c>false</c> to handle errors manually in the function code.
-    /// </remarks>
-    public bool ThrowOnError { get; set; } = true;
-
-    internal CompletionCreateRequest BuildRequest()
+    internal ChatCompletionsOptions BuildRequest()
     {
-        CompletionCreateRequest request = new()
+        ChatCompletionsOptions request = new()
         {
-            Prompt = this.Prompt
+            DeploymentName = this.Model,
+            Messages =
+            {
+                new ChatRequestUserMessage(this.Prompt),
+            }
         };
-
-        if (this.Model is not null)
-        {
-            request.Model = this.Model;
-        }
 
         if (int.TryParse(this.MaxTokens, out int maxTokens))
         {
@@ -98,7 +89,7 @@ public sealed class TextCompletionAttribute : Attribute
 
         if (float.TryParse(this.TopP, out float topP))
         {
-            request.TopP = topP;
+            request.NucleusSamplingFactor = topP;
         }
 
         return request;

@@ -1,15 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Azure;
 using Azure.Data.Tables;
-using OpenAI.ObjectModels.RequestModels;
 
 namespace WebJobs.Extensions.OpenAI.Agents;
-public class ChatMessageEntity: ITableEntity
+public class ChatMessageTableEntity: ITableEntity
 {
     public string PartitionKey { get; set; }
     public string RowKey { get; set; }

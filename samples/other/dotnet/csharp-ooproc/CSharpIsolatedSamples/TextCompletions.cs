@@ -1,9 +1,11 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using OpenAI.ObjectModels.ResponseModels;
 
 namespace CSharpIsolatedSamples;
 
@@ -20,9 +22,9 @@ public static class TextCompletions
     [Function(nameof(WhoIs))]
     public static string WhoIs(
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
-        [TextCompletionInput("Who is {name}?")] CompletionCreateResponse response)
+        [TextCompletionInput("Who is {name}?")] TextCompletionResponse response)
     {
-        return response.Choices[0].Text;
+        return response.Content;
     }
 
     /// <summary>
@@ -32,17 +34,12 @@ public static class TextCompletions
     [Function(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
-        [TextCompletionInput("{Prompt}", Model = "text-davinci-003")] CompletionCreateResponse response,
+        [TextCompletionInput("{Prompt}", Model = "gpt-35-turbo")] TextCompletionResponse response,
         ILogger log)
     {
-        if (!response.Successful)
-        {
-            Error error = response.Error ?? new Error() { MessageObject = "OpenAI returned an unspecified error" };
-            return new ObjectResult(error) { StatusCode = 500 };
-        }
-
-        log.LogInformation("Prompt = {prompt}, Response = {response}", payload.Prompt, response);
-        string text = response.Choices[0].Text;
+        // ToDo: Investigate payload null reference exception
+        // log.LogInformation("Prompt = {prompt}, Response = {response}", payload?.Prompt, response);
+        string text = response.Content;
         return new OkObjectResult(text);
     }
 

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 
+using System.Text.Json.Serialization;
+
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 
 /// <summary>
@@ -23,10 +25,12 @@ public class TextCompletionResponse
     /// <summary>
     /// The text completion message content.
     /// </summary>
+    [JsonPropertyName("content")]
     public string Content { get; set; }
 
     /// <summary>
     /// The total token usage.
     /// </summary>
+    [JsonPropertyName("totalTokens")]
     public int TotalTokens { get; set; }
 }

@@ -5,6 +5,7 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Core;
 using Azure.Data.Tables;
+using Azure.Identity;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -21,7 +22,7 @@ public interface IChatBotService
 
 public class DefaultChatBotService : IChatBotService
 {
-    public TableServiceClient tableServiceClient { get; set; }
+    public TableClient tableClient { get; set; }
 
     public OpenAIClient openAIClient { get; set; }
     readonly ILogger logger;
@@ -44,10 +45,8 @@ public class DefaultChatBotService : IChatBotService
 
         this.logger = loggerFactory.CreateLogger<DefaultChatBotService>();
 
-        // TODO make a table service client provider to handle auth
-        this.tableServiceClient = new TableServiceClient(
-            new Uri("https://aibhandaritabletest.table.core.windows.net/?SAS_TOKEN"),
-            new TableClientOptions());
+        var credential = new DefaultAzureCredential();
+        this.tableClient = new TableClient(new Uri("https://aibhandaritabletest.table.core.windows.net"), "ChatBotRequests", credential);
 
         this.openAIClient = openAiClient;
     }
@@ -75,11 +74,10 @@ public class DefaultChatBotService : IChatBotService
         this.logger.LogInformation("Creating chat bot durable entity with id '{Id}'", request.Id);
 
         // Create the table if it doesn't exist
-        this.tableServiceClient.CreateTableIfNotExists("ChatBotRequests");
-        var tableClient = this.tableServiceClient.GetTableClient("ChatBotRequests");
+        await this.tableClient.CreateIfNotExistsAsync();
 
         // Check to see if the chat bot has already been initialized
-        Pageable<TableEntity> queryResultsFilter = tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
+        Pageable<TableEntity> queryResultsFilter = this.tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
 
         if (queryResultsFilter.Any())
         {
@@ -99,7 +97,7 @@ public class DefaultChatBotService : IChatBotService
                 ChatMessage = JsonConvert.SerializeObject(this.InitialState.ChatMessages[0]),
             };
 
-            await tableClient.AddEntityAsync(chatMessageEntity);
+            await this.tableClient.AddEntityAsync(chatMessageEntity);
         }
 
         // Add chat bot state entity to table
@@ -112,7 +110,7 @@ public class DefaultChatBotService : IChatBotService
             LastUpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
             Exists = true,
         };
-        await tableClient.AddEntityAsync(chatBotStateEntity);
+        await this.tableClient.AddEntityAsync(chatBotStateEntity);
         
     }
 
@@ -122,8 +120,6 @@ public class DefaultChatBotService : IChatBotService
             "Reading state for chat bot entity '{Id}' and getting chat messages after {Timestamp}",
             id,
             after.ToString("o"));
-
-        var tableClient = this.tableServiceClient.GetTableClient("ChatBotRequests");
 
         // Check to see if ChatBotState entity exists with partition id
         var chatBotStateEntity = tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{id}'");
@@ -135,7 +131,7 @@ public class DefaultChatBotService : IChatBotService
         }
 
         // Get all chat messages for this chat bot
-        var allChatMessages = tableClient
+        var allChatMessages = this.tableClient
             .Query<ChatMessageTableEntity>()
             .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == id)
             .ToList();
@@ -171,10 +167,8 @@ public class DefaultChatBotService : IChatBotService
 
     public async Task PostAsync(ChatBotPostRequest request)
     {
-        var tableClient = this.tableServiceClient.GetTableClient("ChatBotRequests");
-
         //Check to see if ChatBotState entity exists with partition id
-        var chatBotStateEntity = tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{request.Id}'");
+        var chatBotStateEntity = this.tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{request.Id}'");
 
         if (chatBotStateEntity.Count() == 0 || chatBotStateEntity.First().Status != ChatBotStatus.Active)
         {
@@ -191,7 +185,7 @@ public class DefaultChatBotService : IChatBotService
         this.logger.LogInformation("[{Id}] Received message: {Text}", request.Id, request.UserMessage);
 
         // Get all chat messages for this chat bot
-        var allChatMessages = tableClient
+        var allChatMessages = this.tableClient
             .Query<ChatMessageTableEntity>()
             .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == request.Id)
             .ToList();
@@ -212,7 +206,7 @@ public class DefaultChatBotService : IChatBotService
             PartitionKey = request.Id,
             ChatMessage = JsonConvert.SerializeObject(chatMessageToSend),
         };
-        await tableClient.AddEntityAsync(chatMessageEntity);
+        await this.tableClient.AddEntityAsync(chatMessageEntity);
 
         string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
         // Get the next response from the LLM
@@ -241,7 +235,7 @@ public class DefaultChatBotService : IChatBotService
             PartitionKey = request.Id,
             ChatMessage = JsonConvert.SerializeObject(replyFromAssistant),
         };
-        await tableClient.AddEntityAsync(replyFromAssistantEntity);
+        await this.tableClient.AddEntityAsync(replyFromAssistantEntity);
 
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",

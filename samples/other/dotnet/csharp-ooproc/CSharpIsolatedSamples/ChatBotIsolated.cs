@@ -9,8 +9,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 namespace CSharpIsolatedSamples;
 
 /// <summary>
-/// These samples show how to use the OpenAI Completions APIs. For more details on the Completions APIs, see
-/// https://platform.openai.com/docs/guides/completion.
+/// The ChatBot sample allows you to create chat bots with a specified set of initial instructions.
 /// </summary>
 public static class ChatBotIsolated
 {

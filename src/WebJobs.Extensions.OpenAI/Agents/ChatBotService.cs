@@ -7,8 +7,11 @@ using Azure.Core;
 using Azure.Data.Tables;
 using Azure.Identity;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using WebJobs.Extensions.OpenAI;
 using WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
@@ -22,15 +25,14 @@ public interface IChatBotService
 
 public class DefaultChatBotService : IChatBotService
 {
-    public TableClient tableClient { get; set; }
-
-    public OpenAIClient openAIClient { get; set; }
-    readonly ILogger logger;
-
+    TableClient tableClient { get; set; }
+    OpenAIClient openAIClient { get; set; }
     ChatBotRuntimeState? InitialState { get; set; }
+    readonly ILogger logger;
 
     public DefaultChatBotService(
         OpenAIClient openAiClient,
+        IOptions<OpenAIConfigOptions> openAiConfigOptions,
         ILoggerFactory loggerFactory)
     {
         if (openAiClient is null)
@@ -43,15 +45,32 @@ public class DefaultChatBotService : IChatBotService
             throw new ArgumentNullException(nameof(loggerFactory));
         }
 
+        if (openAiConfigOptions is null)
+        {
+            throw new ArgumentNullException(nameof(openAiConfigOptions));
+        }
+
         this.logger = loggerFactory.CreateLogger<DefaultChatBotService>();
 
-        var credential = new DefaultAzureCredential();
-        this.tableClient = new TableClient(new Uri("https://aibhandaritabletest.table.core.windows.net"), "ChatBotRequests", credential);
+        var connectionString = openAiConfigOptions.Value.StorageConnectionName;
 
+        // Throw an error if connection string is null or empty
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new ArgumentNullException(nameof(connectionString));
+        }
+
+        if (connectionString == "AzureWebJobsStorage")
+        {
+            this.logger.LogInformation("Using AzureWebJobsStorage for table storage connection string");
+            connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
+        }
+        
+        this.tableClient = new TableClient(connectionString, openAiConfigOptions.Value.CollectionName);
         this.openAIClient = openAiClient;
     }
 
-    public void Initialize(ChatBotCreateRequest request)
+    private void Initialize(ChatBotCreateRequest request)
     {
         this.logger.LogInformation(
             "[{Id}] Creating new chat session with expiration = {Timestamp} and instructions = \"{Text}\"",
@@ -165,7 +184,7 @@ public class DefaultChatBotService : IChatBotService
         return state;
     }
 
-    public async Task PostAsync(ChatBotPostRequest request)
+    private async Task PostAsync(ChatBotPostRequest request)
     {
         //Check to see if ChatBotState entity exists with partition id
         var chatBotStateEntity = this.tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{request.Id}'");
@@ -242,7 +261,7 @@ public class DefaultChatBotService : IChatBotService
             request.Id,
             allChatMessages.Count() + 2);
     }
-    public  Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken)
+    public Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.Id))
         {

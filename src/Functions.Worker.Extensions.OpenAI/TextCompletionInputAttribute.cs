@@ -4,9 +4,8 @@
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 
-// TODO: Move this somewhere else and update the package to use Microsoft.Azure.WebJobs.Extensions.OpenAI
-[assembly: ExtensionInformation("Microsoft.Azure.WebJobs.Extensions.OpenAI", "39.0.1-alpha")]
-//[assembly: ExtensionInformation("CGillum.WebJobs.Extensions.OpenAI", "0.3.1-alpha")]
+// TODO: Update this package to be 0.8.0-alpha when the next version of the OpenAI SDK is released.
+[assembly: ExtensionInformation("Microsoft.Azure.WebJobs.Extensions.OpenAI", "0.7.0-alpha")]
 
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;

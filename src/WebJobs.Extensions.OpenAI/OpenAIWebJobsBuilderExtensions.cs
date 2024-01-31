@@ -7,7 +7,9 @@ using Azure.Identity;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WebJobs.Extensions.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -59,6 +61,13 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services.AddSingleton<EmbeddingsConverter>();
         builder.Services.AddSingleton<SemanticSearchConverter>();
         builder.Services.AddSingleton<ChatBotBindingConverter>();
+
+        builder.Services.AddOptions<OpenAIConfigOptions>()
+            .Configure<IConfiguration>((options, config) =>
+            {
+                config.GetSection("azurefunctionsjobhost:extensions:openai").Bind(options);
+            });
+
         builder.Services.AddSingleton<IChatBotService, DefaultChatBotService>();
 
         return builder;

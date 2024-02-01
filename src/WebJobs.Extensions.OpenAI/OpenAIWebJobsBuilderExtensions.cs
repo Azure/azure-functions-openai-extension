@@ -65,7 +65,10 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services.AddOptions<OpenAIConfigOptions>()
             .Configure<IConfiguration>((options, config) =>
             {
+                // For in-proc
                 config.GetSection("azurefunctionsjobhost:extensions:openai").Bind(options);
+                //  For OOP
+                config.GetSection("azurefunctionsjobhost:logging:extensions:openai").Bind(options);
             });
 
         builder.Services.AddSingleton<IChatBotService, DefaultChatBotService>();

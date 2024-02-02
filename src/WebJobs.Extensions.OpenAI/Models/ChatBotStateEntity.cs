@@ -13,7 +13,7 @@ namespace WebJobs.Extensions.OpenAI.Models;
 /// <summary>
 /// The ChatBotStateEntity class represents the state of a chat bot to interact with Table Storage.
 /// </summary>
-public class ChatBotStateEntity : ITableEntity
+class ChatBotStateEntity : ITableEntity
 {
     /// <summary>
     /// Partition key.

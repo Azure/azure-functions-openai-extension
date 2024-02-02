@@ -9,7 +9,7 @@ namespace WebJobs.Extensions.OpenAI.Models;
 /// <summary>
 /// The ChatMessageTableEntity class represents each chat message to interact with table storage.
 /// </summary>
-public class ChatMessageTableEntity : ITableEntity
+class ChatMessageTableEntity : ITableEntity
 {
     /// <summary>
     /// Partition key.

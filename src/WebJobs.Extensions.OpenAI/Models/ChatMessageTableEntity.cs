@@ -26,6 +26,11 @@ public class ChatMessageTableEntity : ITableEntity
     /// </summary>
     public string ChatMessage { get; set; }
 
+    /// <summary>
+    /// Role of who sent message.
+    /// </summary>
+    public string Role { get; set; }
+
     // <summary>
     /// Gets timestamp of table entity.
     /// </summary>

@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure;
-using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -16,7 +13,6 @@ public enum ChatBotStatus
 {
     Uninitialized,
     Active,
-    Expired,
 }
 
 record struct MessageRecord(DateTime Timestamp, ChatMessageEntity ChatMessageEntity);
@@ -25,10 +21,7 @@ record struct MessageRecord(DateTime Timestamp, ChatMessageEntity ChatMessageEnt
 class ChatBotRuntimeState
 {
     [JsonProperty("messages")]
-    public List<MessageRecord>? ChatMessages { get; set; }
-
-    [JsonProperty("expiresAt")]
-    public DateTime ExpiresAt { get; set; }
+    public List<ChatMessageEntity>? ChatMessages { get; set; }
 
     [JsonProperty("status")]
     public ChatBotStatus Status { get; set; } = ChatBotStatus.Uninitialized;

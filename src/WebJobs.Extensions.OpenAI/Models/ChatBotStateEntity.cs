@@ -26,11 +26,6 @@ public class ChatBotStateEntity : ITableEntity
     public string RowKey { get; set; }
 
     // <summary>
-    /// ID of chatbot.
-    /// </summary>
-    public string Id { get; set; }
-
-    // <summary>
     /// Gets if chatbot exists or not.
     /// </summary>
     public bool Exists { get; set; }

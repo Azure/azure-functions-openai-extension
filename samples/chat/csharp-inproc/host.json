@@ -8,8 +8,8 @@
   },
   "extensions": {
     "openai": {
-      "StorageConnectionName": "AzureWebJobsStorage",
-      "CollectionName": "ChatBotRequests"
+      "storageConnectionName": "AzureWebJobsStorage",
+      "collectionName": "ChatBotRequests"
     }
   }
 }

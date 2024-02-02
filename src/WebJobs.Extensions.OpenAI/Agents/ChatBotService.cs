@@ -3,14 +3,11 @@
 
 using Azure;
 using Azure.AI.OpenAI;
-using Azure.Core;
 using Azure.Data.Tables;
-using Azure.Identity;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using WebJobs.Extensions.OpenAI;
 using WebJobs.Extensions.OpenAI.Models;
 
@@ -25,14 +22,16 @@ public interface IChatBotService
 
 public class DefaultChatBotService : IChatBotService
 {
-    TableClient tableClient { get; set; }
-    OpenAIClient openAIClient { get; set; }
+    readonly TableClient tableClient;
+    readonly TableServiceClient tableServiceClient;
+    readonly OpenAIClient openAIClient;
     ChatBotRuntimeState? InitialState { get; set; }
     readonly ILogger logger;
 
     public DefaultChatBotService(
         OpenAIClient openAiClient,
         IOptions<OpenAIConfigOptions> openAiConfigOptions,
+        IConfiguration configuration,
         ILoggerFactory loggerFactory)
     {
         if (openAiClient is null)
@@ -52,38 +51,35 @@ public class DefaultChatBotService : IChatBotService
 
         this.logger = loggerFactory.CreateLogger<DefaultChatBotService>();
 
-        var connectionString = openAiConfigOptions.Value.StorageConnectionName;
+        string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
 
-        // Throw an error if connection string is null or empty
-        if (string.IsNullOrEmpty(connectionString))
+        // Set connection string name to be AzureWebJobsStorage if it's null or empty
+        if (string.IsNullOrEmpty(connectionStringName))
         {
-            throw new ArgumentNullException(nameof(connectionString));
+            connectionStringName = "AzureWebJobsStorage";
         }
 
-        if (connectionString == "AzureWebJobsStorage")
-        {
-            this.logger.LogInformation("Using AzureWebJobsStorage for table storage connection string");
-            connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-        }
-        
-        this.tableClient = new TableClient(connectionString, openAiConfigOptions.Value.CollectionName);
+        this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
+
+        string connectionString = configuration.GetValue<string>(connectionStringName);
+
+        this.tableServiceClient = new TableServiceClient(connectionString);
+        this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
         this.openAIClient = openAiClient;
     }
 
-    private void Initialize(ChatBotCreateRequest request)
+    void Initialize(ChatBotCreateRequest request)
     {
         this.logger.LogInformation(
-            "[{Id}] Creating new chat session with expiration = {Timestamp} and instructions = \"{Text}\"",
+            "[{Id}] Creating new chat session with instructions = \"{Text}\"",
             request.Id,
-            request.ExpiresAt?.ToString("o") ?? "never",
             request.Instructions ?? "(none)");
 
         this.InitialState = new ChatBotRuntimeState
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
-                new List<MessageRecord>() :
-                new List<MessageRecord>() { new(DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc), new ChatMessageEntity(request.Instructions, ChatRole.System.ToString())) },
-            ExpiresAt = request.ExpiresAt ?? DateTime.SpecifyKind(DateTime.UtcNow.AddHours(24), DateTimeKind.Utc),
+                new List<ChatMessageEntity>() :
+                new List<ChatMessageEntity>() { new ChatMessageEntity(request.Instructions, ChatRole.System.ToString()) },
             Status = ChatBotStatus.Active,
         };
     }
@@ -98,25 +94,32 @@ public class DefaultChatBotService : IChatBotService
         // Check to see if the chat bot has already been initialized
         Pageable<TableEntity> queryResultsFilter = this.tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
 
-        if (queryResultsFilter.Any())
+        // Delete all entities with the same partition key
+        foreach (var entity in queryResultsFilter)
         {
-            return;
+            this.logger.LogInformation("Deleting already existing entity with partition id {partitionKey} and row key {rowKey}", entity.PartitionKey, entity.RowKey);
+            await this.tableClient.DeleteEntityAsync(entity.PartitionKey, entity.RowKey);
         }
 
         // Get chatbot runtime state
         this.Initialize(request);
 
+        // Create a batch of table transaction actions
+        List<TableTransactionAction> batch = new List<TableTransactionAction>();
+
         // Add first chat message entity to table
-        if (this.InitialState.ChatMessages.Count > 0)
+        if (this.InitialState?.ChatMessages?.Count > 0)
         {
+            var firstInstruction = this.InitialState.ChatMessages![0];
             var chatMessageEntity = new ChatMessageTableEntity
             {
-                RowKey = "ChatMessage0",
+                RowKey = "ChatMessage00001",
                 PartitionKey = request.Id,
-                ChatMessage = JsonConvert.SerializeObject(this.InitialState.ChatMessages[0]),
+                ChatMessage = firstInstruction.Content,
+                Role = firstInstruction.Role,
             };
 
-            await this.tableClient.AddEntityAsync(chatMessageEntity);
+            batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
         }
 
         // Add chat bot state entity to table
@@ -124,12 +127,17 @@ public class DefaultChatBotService : IChatBotService
         {
             RowKey = "ChatBotState",
             PartitionKey = request.Id,
-            Status = this.InitialState.Status,
-            CreatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
-            LastUpdatedAt = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+            Status = ChatBotStatus.Active,
+            CreatedAt = DateTime.UtcNow,
+            LastUpdatedAt = DateTime.UtcNow,
             Exists = true,
+            TotalMessages = 1,
         };
-        await this.tableClient.AddEntityAsync(chatBotStateEntity);
+
+        batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatBotStateEntity));
+
+        // Add the batch of table transaction actions to the table
+        await this.tableClient.SubmitTransactionAsync(batch);
         
     }
 
@@ -138,98 +146,151 @@ public class DefaultChatBotService : IChatBotService
         this.logger.LogInformation(
             "Reading state for chat bot entity '{Id}' and getting chat messages after {Timestamp}",
             id,
-            after.ToString("o"));
+        after.ToString("o"));
 
-        // Check to see if ChatBotState entity exists with partition id
-        var chatBotStateEntity = tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{id}'");
+        string afterString = after.ToString("o");
 
-        if (chatBotStateEntity.Count() == 0)
+        // Check to see if any entity exists with partition id
+        var itemsWithPartitionKey = this.tableClient.QueryAsync<TableEntity>(filter: $"PartitionKey eq '{id}' and (RowKey eq 'ChatBotState' or Timestamp gt datetime'{afterString}')");
+
+        ChatBotStateEntity chatBotStateEntity = new();
+
+        IList<ChatMessageEntity>? filteredChatMessages = new List<ChatMessageEntity>();
+        await foreach (var chatMessage in itemsWithPartitionKey)
         {
-            this.logger.LogWarning("Chat bot state is null for entity '{Id}'", id);
-            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, 0, Array.Empty<ChatMessageEntity>());
+            if (chatMessage.RowKey.StartsWith("ChatMessage"))
+            {
+               filteredChatMessages.Add(new ChatMessageEntity(chatMessage["ChatMessage"].ToString(), chatMessage["Role"].ToString()));
+            }
+
+            if (chatMessage.RowKey == "ChatBotState")
+            {
+                Enum.TryParse(chatMessage["Status"].ToString(), out ChatBotStatus status);
+                chatBotStateEntity = new ChatBotStateEntity
+                {
+                    RowKey = chatMessage.RowKey,
+                    PartitionKey = chatMessage.PartitionKey,
+                    ETag = chatMessage.ETag,
+                    Timestamp = chatMessage.Timestamp,
+                    Status = status,
+                    CreatedAt = DateTime.Parse(chatMessage["CreatedAt"].ToString()),
+                    LastUpdatedAt = DateTime.Parse(chatMessage["LastUpdatedAt"].ToString()),
+                    TotalMessages = int.Parse(chatMessage["TotalMessages"].ToString()),
+                    TotalTokens = int.Parse(chatMessage["TotalTokens"].ToString()),
+                    Exists = bool.Parse(chatMessage["Exists"].ToString()),
+                };
+            }
         }
 
-        // Get all chat messages for this chat bot
-        var allChatMessages = this.tableClient
-            .Query<ChatMessageTableEntity>()
-            .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == id)
-            .ToList();
-
-        // Filter the chat messages by the after timestamp
-        DateTimeOffset afterOffset = new DateTimeOffset(after);
-        var chatMessageEntity = allChatMessages.Where(entity => entity.Timestamp > afterOffset);
-
-        IList<MessageRecord>? filteredChatMessages = new List<MessageRecord>();
-        foreach (var chatMessage in chatMessageEntity)
+        if (chatBotStateEntity == null)
         {
-            filteredChatMessages.Add(JsonConvert.DeserializeObject<MessageRecord>(chatMessage.ChatMessage));
+            this.logger.LogWarning("No chat bot exists with ID = '{Id}'", id);
+            return new ChatBotState(id, false, ChatBotStatus.Uninitialized, default, default, 0, 0, Array.Empty<ChatMessageEntity>());
         }
 
         this.logger.LogInformation(
             "Returning {Count}/{Total} chat messages from entity '{Id}'",
             filteredChatMessages.Count,
-            allChatMessages.Count(), id);
+            chatBotStateEntity?.TotalMessages, id);
 
-        var recentMessages = filteredChatMessages.Select(filteredChatMessages => filteredChatMessages.ChatMessageEntity).ToList();
+        var recentMessages = filteredChatMessages.ToList();
 
         ChatBotState state = new(
             id,
             true,
-            chatBotStateEntity.First().Status,
-            allChatMessages.First().Timestamp.Value.UtcDateTime,
-            allChatMessages.Last().Timestamp.Value.UtcDateTime,
-            allChatMessages.Count(),
-            chatBotStateEntity.First().TotalTokens,
+            chatBotStateEntity!.Status,
+            chatBotStateEntity.CreatedAt,
+            chatBotStateEntity.LastUpdatedAt,
+            chatBotStateEntity.TotalMessages,
+            chatBotStateEntity.TotalTokens,
             recentMessages);
         return state;
     }
 
-    private async Task PostAsync(ChatBotPostRequest request)
+    async Task PostAsync(ChatBotPostRequest request)
     {
-        //Check to see if ChatBotState entity exists with partition id
-        var chatBotStateEntity = this.tableClient.Query<ChatBotStateEntity>(filter: $"RowKey eq 'ChatBotState' and PartitionKey eq '{request.Id}'");
-
-        if (chatBotStateEntity.Count() == 0 || chatBotStateEntity.First().Status != ChatBotStatus.Active)
+        // Throw errors if the user input is invalid
+        if (string.IsNullOrEmpty(request.Id))
         {
-            this.logger.LogWarning("[{Id}] Ignoring message sent to an uninitialized or expired chat bot.", request.Id);
-            return;
+            throw new ArgumentException("The chat bot ID must be specified.", nameof(request));
         }
 
-        if (request == null || string.IsNullOrWhiteSpace(request.UserMessage))
+        if (string.IsNullOrEmpty(request.UserMessage))
         {
-            this.logger.LogWarning("[{Id}] Ignoring empty message.", request.Id);
+            throw new ArgumentException("The chat bot must have a user message", nameof(request));
+        }
+
+        // Check to see if any entity exists with partition id
+        var itemsWithPartitionKey = this.tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
+
+        // No entities exist at with the partition key
+        if (!itemsWithPartitionKey.Any())
+        {
+            this.logger.LogWarning("[{Id}] Ignoring message sent to chat bot that does not exist.", request.Id);
             return;
         }
 
         this.logger.LogInformation("[{Id}] Received message: {Text}", request.Id, request.UserMessage);
 
-        // Get all chat messages for this chat bot
-        var allChatMessages = this.tableClient
-            .Query<ChatMessageTableEntity>()
-            .Where(entity => entity.RowKey.StartsWith("ChatMessage") && entity.PartitionKey == request.Id)
-            .ToList();
-
         // Deserialize the chat messages
-        var chatMessageList = new List<MessageRecord>();
-        foreach (var chatMessage in allChatMessages)
+        var chatMessageList = new List<ChatMessageEntity>();
+        ChatBotStateEntity chatBotStateEntity = new();
+
+        foreach (var chatMessage in itemsWithPartitionKey)
         {
-            chatMessageList.Add(JsonConvert.DeserializeObject<MessageRecord>(chatMessage.ChatMessage));
+            // Add chat message to list
+            if (chatMessage.RowKey.StartsWith("ChatMessage"))
+            {
+                chatMessageList.Add(new ChatMessageEntity(chatMessage["ChatMessage"].ToString(), chatMessage["Role"].ToString()));
+            }
+
+            // Get chat bot state
+            if (chatMessage.RowKey == "ChatBotState")
+            {
+                Enum.TryParse(chatMessage["Status"].ToString(), out ChatBotStatus status);
+                chatBotStateEntity = new ChatBotStateEntity
+                {
+                    RowKey = chatMessage.RowKey,
+                    PartitionKey = chatMessage.PartitionKey,
+                    ETag = chatMessage.ETag,
+                    Status = status,
+                    CreatedAt = DateTime.SpecifyKind(DateTime.Parse(chatMessage["CreatedAt"].ToString()), DateTimeKind.Utc),
+                    LastUpdatedAt = DateTime.SpecifyKind(DateTime.Parse(chatMessage["LastUpdatedAt"].ToString()), DateTimeKind.Utc),
+                    TotalMessages = int.Parse(chatMessage["TotalMessages"].ToString()),
+                    TotalTokens = int.Parse(chatMessage["TotalTokens"].ToString()),
+                    Exists = bool.Parse(chatMessage["Exists"].ToString()),
+                };
+            }
         }
-        var chatMessageToSend = new MessageRecord(DateTime.UtcNow, new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString()));
+
+        // Check if chat bot has been deactivated
+        if (chatBotStateEntity == null || chatBotStateEntity!.Status != ChatBotStatus.Active)
+        {
+            this.logger.LogWarning("[{Id}] Ignoring message sent to chat bot that has been deactivated. Current state of chat bot is {}.", request.Id, chatBotStateEntity.Status);
+            return;
+        }
+
+        var chatMessageToSend = new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString());
         chatMessageList.Add(chatMessageToSend);
+
+        // Create a batch of table transaction actions
+        List<TableTransactionAction> batch = new List<TableTransactionAction>();
 
         // Add the user message as a new Chat message entity
         var chatMessageEntity = new ChatMessageTableEntity
         {
-            RowKey = "ChatMessage" + allChatMessages.Count(),
+            RowKey = "ChatMessage" + (chatBotStateEntity!.TotalMessages + 1).ToString("D5"),
             PartitionKey = request.Id,
-            ChatMessage = JsonConvert.SerializeObject(chatMessageToSend),
+            ChatMessage = request.UserMessage,
+            Role = ChatRole.User.ToString()
         };
-        await this.tableClient.AddEntityAsync(chatMessageEntity);
+
+        // Add the chat message to the batch
+        batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
 
         string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
         // Get the next response from the LLM
-        ChatCompletionsOptions chatRequest = new(deploymentName, PopulateChatRequestMessages(chatMessageList.Select(x => x.ChatMessageEntity)));
+        ChatCompletionsOptions chatRequest = new(deploymentName, PopulateChatRequestMessages(chatMessageList));
 
         Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(chatRequest);
 
@@ -245,22 +306,34 @@ public class DefaultChatBotService : IChatBotService
             response.Value.Usage.CompletionTokens,
             replyMessage);
 
-        var replyFromAssistant = new MessageRecord(DateTime.UtcNow, new ChatMessageEntity(replyMessage, ChatRole.Assistant.ToString()));
-
         // Add the user message as a new Chat message entity
         var replyFromAssistantEntity = new ChatMessageTableEntity
         {
-            RowKey = "ChatMessage" + (allChatMessages.Count() + 1),
+            RowKey = "ChatMessage" + (chatBotStateEntity!.TotalMessages + 2).ToString("D5"),
             PartitionKey = request.Id,
-            ChatMessage = JsonConvert.SerializeObject(replyFromAssistant),
+            ChatMessage = replyMessage,
+            Role = ChatRole.Assistant.ToString()
         };
-        await this.tableClient.AddEntityAsync(replyFromAssistantEntity);
+
+        // Add the reply from assistant chat message to the batch
+        batch.Add(new TableTransactionAction(TableTransactionActionType.Add, replyFromAssistantEntity));
 
         this.logger.LogInformation(
             "[{Id}] Chat length is now {Count} messages",
             request.Id,
-            allChatMessages.Count() + 2);
+            chatBotStateEntity!.TotalMessages + 2);
+
+        chatBotStateEntity.LastUpdatedAt = DateTime.UtcNow;
+        chatBotStateEntity.TotalMessages += 2;
+
+
+        // Update the chat bot state entity
+        batch.Add(new TableTransactionAction(TableTransactionActionType.UpdateMerge, chatBotStateEntity));
+
+        // Add the batch of table transaction actions to the table
+        await this.tableClient.SubmitTransactionAsync(batch);
     }
+
     public Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.Id))

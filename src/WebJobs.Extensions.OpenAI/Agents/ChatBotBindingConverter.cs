@@ -42,12 +42,6 @@ class ChatBotBindingConverter :
             throw new ArgumentException($"Invalid timestamp '{timestampString}'");
         }
 
-        if (timestamp.Kind != DateTimeKind.Utc)
-        {
-            timestamp = timestamp.ToUniversalTime();
-        }
-        timestamp = DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
-
         return this.chatBotService.GetStateAsync(input.Id, timestamp, cancellationToken);
     }
 

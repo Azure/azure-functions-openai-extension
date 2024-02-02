@@ -28,6 +28,12 @@ public static class ChatBotIsolated
         var request = await new StreamReader(req.Body).ReadToEndAsync();
 
         var createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
+
+        if (createRequestBody == null)
+        {
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
+        }
+
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },

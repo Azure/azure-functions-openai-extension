@@ -7,7 +7,7 @@
       "name": "Request",
       "route": "chats/{chatId}",
       "methods": [
-        "put"
+        "get"
       ]
     },
     {
@@ -16,9 +16,11 @@
       "name": "Response"
     },
     {
-      "type": "chatBotCreate",
-      "direction": "out",
-      "name": "ChatBotCreate"
+      "type": "chatBotQuery",
+      "direction": "in",
+      "name": "ChatBotState",
+      "id": "{chatId}",
+      "timeStampUtc": "{Query.timestampUTC}"
     }
   ]
 }

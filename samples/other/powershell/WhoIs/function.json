@@ -5,9 +5,9 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "Request",
-      "route": "chats/{chatId}",
+      "route": "whois/{name}",
       "methods": [
-        "put"
+        "get"
       ]
     },
     {
@@ -16,9 +16,12 @@
       "name": "Response"
     },
     {
-      "type": "chatBotCreate",
-      "direction": "out",
-      "name": "ChatBotCreate"
+      "type": "textCompletion",
+      "direction": "in",
+      "name": "TextCompletionResponse",
+      "prompt": "Who is {name}?",
+      "maxTokens": "100",
+      "model": "gpt-3.5-turbo"
     }
   ]
 }

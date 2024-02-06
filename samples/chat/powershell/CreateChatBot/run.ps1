@@ -2,21 +2,20 @@ using namespace System.Net
 
 param($Request, $TriggerMetadata)
 
-$chatID = $Request.Query.ChatId
+$chatID = $Request.params.ChatId
 $inputJson = $Request.Body
-Wait-Debugger
 Write-Host "Creating chat $chatID from input parameters $($inputJson)"
 
 $createRequest = @{
-    id = $chatID
+    id           = $chatID
     instructions = $inputJson.Instructions
 }
 
-$Response.SetContent([PSCustomObject]@{
-    status = 202
-    jsonBody = @{
-        chatId = $chatID
-    }
-})
+Push-OutputBinding -Name ChatBotCreate -Value $createRequest
 
-Push-OutputBinding -Name Response -Value $createRequest
+Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+        StatusCode = [HttpStatusCode]::Accepted
+        Body       = @{
+            chatId = $chatID
+        }
+    })

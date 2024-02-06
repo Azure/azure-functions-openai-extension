@@ -79,6 +79,35 @@ app.http('whois', {
 });
 ```
 
+#### PowerShell example(./samples/other/powershell/)
+
+```PowerShell
+    using namespace System.Net
+
+    param($Request, $TriggerMetadata, $TextCompletionResponse)
+
+    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+            StatusCode = [HttpStatusCode]::OK
+            Body       = $TextCompletionResponse.Content
+        })
+```
+
+1. Define the bindings in function.json
+1. If using Azure Open AI, pass the deployment name to model property in function.json for textCompletion input binding or use it override the default model value for Open AI.
+
+    ```json
+        {
+        "type": "textCompletion",
+        "direction": "in",
+        "name": "TextCompletionResponse",
+        "prompt": "Who is {name}?",
+        "maxTokens": "100",
+        "model": "gpt-3.5-turbo"
+        }
+    ``
+
+#### Running local
+
 You can run the above function locally using the Azure Functions Core Tools and sending an HTTP request, similar to the following:
 
 ```http

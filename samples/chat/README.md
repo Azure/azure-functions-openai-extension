@@ -6,10 +6,11 @@ The sample is available in the following language stacks:
 
 * [C# on the in-process worker](csharp-inproc)
 * [TypeScript on the Node.js worker](nodejs)
+* [Powershell](powershell)
 
 ## Prerequisites
 
-Please refer to the root level [README](../../README.md/#requirements) for prerequisites.
+Please refer to the root level [README](../../README.md#requirements) for prerequisites.
 
 ## Running the sample
 
@@ -20,6 +21,7 @@ Please refer to the root level [README](../../README.md/#requirements) for prere
     | --------------- | ------- |
     | .NET in-proc | `cd samples/chat/csharp-inproc && dotnet build && cd bin/debug/net6.0 && func start` |
     | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
+    | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
 
     If successful, you should see the following output from the `func` command:
 

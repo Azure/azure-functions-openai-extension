@@ -11,7 +11,7 @@ This project contains sample code for using the OpenAI bindings with Azure Funct
 ## Running the Function App
 
 1. Start Azurite for local development storage. See [these instructions](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) for more information on how to work with Azurite.
-1. Run the following command
+1. Run the following command to start the function app.
 
     ```bash
     cd samples/other/nodejs && npm install && dotnet build --output bin && npm run build && npm run start

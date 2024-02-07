@@ -5,7 +5,7 @@ This project contains sample code for using the OpenAI bindings with Azure Funct
 ## Prerequisites
 
 * [PowerShell 7](https://github.com/PowerShell/PowerShell/releases)
-* Please refer to the root level [README](../../README.md#requirements) for prerequisites.
+* Please refer to the root level [README](../../../README.md#requirements) for prerequisites.
 
 ## Configure the Function App
 

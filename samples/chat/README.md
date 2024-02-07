@@ -10,7 +10,7 @@ The sample is available in the following language stacks:
 
 ## Prerequisites
 
-Please refer to the root level [README](../../README.md/#requirements) for prerequisites.
+Please refer to the root level [README](../../README.md#requirements) for prerequisites.
 
 ## Running the sample
 

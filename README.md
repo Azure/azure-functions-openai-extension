@@ -5,7 +5,7 @@
 
 This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
-This extension depends on the [Azure Open AI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
+This extension depends on the [Azure OpenAI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
 
 ## NuGet Packages
 
@@ -42,7 +42,7 @@ The examples below define "who is" HTTP-triggered functions with a hardcoded `"w
 
 #### [C# example](./samples/other/dotnet/csharp-inproc/)
 
-Setting a model is optional for non-Azure Open AI, [see here](#default-open-ai-models) for default model values for Open AI.
+Setting a model is optional for non-Azure OpenAI, [see here](#default-open-ai-models) for default model values for OpenAI.
 
 ```csharp
 [FunctionName(nameof(WhoIs))]
@@ -79,32 +79,32 @@ app.http('whois', {
 });
 ```
 
-#### PowerShell example(./samples/other/powershell/)
+#### [PowerShell example](./samples/other/powershell/)
 
 ```PowerShell
-    using namespace System.Net
+using namespace System.Net
 
-    param($Request, $TriggerMetadata, $TextCompletionResponse)
+param($Request, $TriggerMetadata, $TextCompletionResponse)
 
-    Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-            StatusCode = [HttpStatusCode]::OK
-            Body       = $TextCompletionResponse.Content
-        })
+Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+        StatusCode = [HttpStatusCode]::OK
+        Body       = $TextCompletionResponse.Content
+    })
 ```
 
-1. Define the bindings in function.json
-1. If using Azure Open AI, pass the deployment name to model property in function.json for textCompletion input binding or use it override the default model value for Open AI.
+Define the bindings in function.json
+If using Azure OpenAI, update the deployment name to model property in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
 
-    ```json
-        {
-        "type": "textCompletion",
-        "direction": "in",
-        "name": "TextCompletionResponse",
-        "prompt": "Who is {name}?",
-        "maxTokens": "100",
-        "model": "gpt-3.5-turbo"
-        }
-    ``
+```json
+{
+    "type": "textCompletion",
+    "direction": "in",
+    "name": "TextCompletionResponse",
+    "prompt": "Who is {name}?",
+    "maxTokens": "100",
+    "model": "gpt-3.5-turbo"
+}
+```
 
 #### Running local
 
@@ -269,13 +269,13 @@ public static IActionResult PromptEmail(
 }
 ```
 
-## Default Open AI models
+## Default OpenAI models
 
 1. Chat Completion - gpt-3.5-turbo
 1. Embeddings - text-embedding-ada-002
 1. Text Completion - gpt-3.5-turbo
 
-While using non-Azure Open AI, you can omit the Model specification in attributes to use the default models.
+While using non-Azure OpenAI, you can omit the Model specification in attributes to use the default models.
 
 ## Contributing
 

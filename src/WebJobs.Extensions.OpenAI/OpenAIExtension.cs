@@ -20,19 +20,22 @@ partial class OpenAIExtension : IExtensionConfigProvider
     readonly EmbeddingsConverter embeddingsConverter;
     readonly SemanticSearchConverter semanticSearchConverter;
     readonly ChatBotBindingConverter chatBotConverter;
+    readonly AssistantSkillTriggerBindingProvider assistantskillTriggerBindingProvider;
 
     public OpenAIExtension(
         OpenAIClient openAIClient,
         TextCompletionConverter textCompletionConverter,
         EmbeddingsConverter embeddingsConverter,
         SemanticSearchConverter semanticSearchConverter,
-        ChatBotBindingConverter chatBotConverter)
+        ChatBotBindingConverter chatBotConverter,
+        AssistantSkillTriggerBindingProvider assistantTriggerBindingProvider)
     {
         this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.textCompletionConverter = textCompletionConverter ?? throw new ArgumentNullException(nameof(textCompletionConverter));
         this.embeddingsConverter = embeddingsConverter ?? throw new ArgumentNullException(nameof(embeddingsConverter));
         this.semanticSearchConverter = semanticSearchConverter ?? throw new ArgumentNullException(nameof(semanticSearchConverter));
         this.chatBotConverter = chatBotConverter ?? throw new ArgumentNullException(nameof(chatBotConverter));
+        this.assistantskillTriggerBindingProvider = assistantTriggerBindingProvider ?? throw new ArgumentNullException(nameof(assistantTriggerBindingProvider));
     }
 
     void IExtensionConfigProvider.Initialize(ExtensionConfigContext context)
@@ -67,6 +70,10 @@ partial class OpenAIExtension : IExtensionConfigProvider
         var chatBotQueryRule = context.AddBindingRule<ChatBotQueryAttribute>();
         chatBotQueryRule.BindToInput<ChatBotState>(this.chatBotConverter);
         chatBotQueryRule.BindToInput<string>(this.chatBotConverter);
+
+        // Assistant skill trigger support
+        context.AddBindingRule<AssistantSkillTriggerAttribute>()
+            .BindToTrigger(this.assistantskillTriggerBindingProvider);
 
         // OpenAI service input binding support (NOTE: This may be removed in a future version.)
         context.AddBindingRule<OpenAIServiceAttribute>().BindToInput(_ => this.openAIClient);

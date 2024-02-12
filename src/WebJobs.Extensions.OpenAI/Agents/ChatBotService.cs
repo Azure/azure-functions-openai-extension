@@ -267,7 +267,8 @@ public class DefaultChatBotService : IChatBotService
         // Check if chat bot has been deactivated
         if (chatBotStateEntity == null || chatBotStateEntity.Exists == false)
         {
-            throw new NullReferenceException($"[{ request.Id }] Ignoring message sent to chat bot that has been deactivated.");
+            this.logger.LogWarning("[{Id}] Ignoring message sent to chat bot that has been deactivated.", request.Id);
+            return;
         }
 
         ChatMessageEntity chatMessageToSend = new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString());

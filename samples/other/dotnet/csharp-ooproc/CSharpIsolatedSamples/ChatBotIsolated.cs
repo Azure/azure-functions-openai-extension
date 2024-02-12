@@ -25,21 +25,25 @@ public static class ChatBotIsolated
             string chatId)
     {
         var responseJson = new { chatId };
-        var request = await new StreamReader(req.Body).ReadToEndAsync();
 
-        var createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
-
-        if (createRequestBody == null)
+        using (StreamReader reader = new StreamReader(req.Body))
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
+            string request = await reader.ReadToEndAsync();
+
+            CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
+
+            if (createRequestBody == null)
+            {
+                throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
+            }
+
+            return new CreateChatBotOutput
+            {
+                HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
+                ChatBotCreateRequest = new ChatBotCreateRequest(chatId, createRequestBody.Instructions),
+
+            };
         }
-
-        return new CreateChatBotOutput
-        {
-            HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
-            ChatBotCreateRequest = new ChatBotCreateRequest(chatId, createRequestBody.Instructions),
-
-        };
     }
 
     public class CreateChatBotOutput
@@ -55,7 +59,7 @@ public static class ChatBotIsolated
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId)
     {
-        string userMessage = await req.ReadAsStringAsync();
+        string? userMessage = await req.ReadAsStringAsync();
         if (string.IsNullOrEmpty(userMessage))
         {
             return new PostResponseOutput { HttpResponse = new BadRequestObjectResult(new { message = "Request body is empty" }) };

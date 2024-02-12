@@ -31,11 +31,6 @@ class ChatBotStateEntity : ITableEntity
     public bool Exists { get; set; }
 
     // <summary>
-    /// Gets status of ChatBot (uninitialized, active, or expired).
-    /// </summary>
-    public ChatBotStatus Status { get; set; }
-
-    // <summary>
     /// Gets when chat bot was created.
     /// </summary>
     public DateTime CreatedAt { get; set; }

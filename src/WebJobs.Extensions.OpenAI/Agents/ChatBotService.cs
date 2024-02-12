@@ -100,15 +100,23 @@ public class DefaultChatBotService : IChatBotService
         // Check to see if the chat bot has already been initialized
         Pageable<TableEntity> queryResultsFilter = this.tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
 
+        if (queryResultsFilter.Any())
+        {
+            // Create a batch of table transaction actions for deleting entities
+            List<TableTransactionAction> deleteBatch = new List<TableTransactionAction>();
+
+            // Get all entities with the same partition key and add to batch for deletion
+            foreach (TableEntity entity in queryResultsFilter)
+            {
+                this.logger.LogInformation("Deleting already existing entity with partition id {partitionKey} and row key {rowKey}", entity.PartitionKey, entity.RowKey);
+                deleteBatch.Add(new TableTransactionAction(TableTransactionActionType.Delete, entity));
+            }
+
+            await this.tableClient.SubmitTransactionAsync(deleteBatch);
+        }
+        
         // Create a batch of table transaction actions
         List<TableTransactionAction> batch = new List<TableTransactionAction>();
-
-        // Get all entities with the same partition key and add to batch for deletion
-        foreach (TableEntity entity in queryResultsFilter)
-        {
-            this.logger.LogInformation("Deleting already existing entity with partition id {partitionKey} and row key {rowKey}", entity.PartitionKey, entity.RowKey);
-            batch.Add(new TableTransactionAction(TableTransactionActionType.Delete, entity));
-        }
 
         // Get chatbot runtime state
         this.Initialize(request);

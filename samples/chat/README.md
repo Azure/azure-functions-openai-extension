@@ -9,6 +9,7 @@ The sample is available in the following language stacks:
 * [TypeScript on the Node.js worker](nodejs)
 * [Powershell](powershell)
 * [Python](python)
+* [Java](java)
 
 ## Prerequisites
 
@@ -25,6 +26,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/chat/python && dotnet build --output bin && func start` |
+    | Java | `cd samples/chat/java && mvn clean package && dotnet build && mvn azure-functions:run` |
 
     If successful, you should see the following output from the `func` command:
 

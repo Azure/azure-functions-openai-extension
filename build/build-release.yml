@@ -95,7 +95,7 @@ steps:
     inputs:
       ConnectedServiceName: 'ESRP Service'
       FolderPath: 'packages'
-      Pattern: 'Microsoft.Azure.WebJobs.Extensions.OpenAI*.nupkg'
+      Pattern: '^Microsoft\.Azure\.(WebJobs\.Extensions\.OpenAI|Functions\.Worker\.Extensions\.OpenAI).*\.nupkg$'
       signConfigType: inlineSignParams
       inlineOperation: |
         [

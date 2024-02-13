@@ -27,22 +27,21 @@ public static class ChatBotIsolated
         var responseJson = new { chatId };
 
         using StreamReader reader = new StreamReader(req.Body);
+        
+        string request = await reader.ReadToEndAsync();
+
+        CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
+
+        if (createRequestBody == null)
         {
-            string request = await reader.ReadToEndAsync();
-
-            CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
-
-            if (createRequestBody == null)
-            {
-                throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
-            }
-
-            return new CreateChatBotOutput
-            {
-                HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
-                ChatBotCreateRequest = new ChatBotCreateRequest(chatId, createRequestBody.Instructions),
-            };
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
         }
+
+        return new CreateChatBotOutput
+        {
+            HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
+            ChatBotCreateRequest = new ChatBotCreateRequest(chatId, createRequestBody.Instructions),
+        };
     }
 
     public class CreateChatBotOutput

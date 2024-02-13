@@ -86,7 +86,7 @@ public class DefaultChatBotService : IChatBotService
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
                 new() :
-                new() { new ChatMessageEntity(request.Instructions, ChatRole.System.ToString()) },
+                new List<ChatMessageEntity>() { new ChatMessageEntity(request.Instructions, ChatRole.System.ToString()) },
         };
     }
 
@@ -103,22 +103,17 @@ public class DefaultChatBotService : IChatBotService
         // Create a batch of table transaction actions for deleting entities
         List<TableTransactionAction> deleteBatch = new();
 
-        // Count of entities to delete to keep track of
-        int count = 0;
-
         await foreach (TableEntity entity in queryResultsFilter)
         {
             // If the count is greater than or equal to 100, submit the transaction and clear the batch
-            if (count >= 100)
+            if (deleteBatch.Count >= 100)
             {
-                this.logger.LogInformation("Deleting {Count} entities", count);
+                this.logger.LogInformation("Deleting batch entities");
                 await this.tableClient.SubmitTransactionAsync(deleteBatch);
                 deleteBatch.Clear();
-                count = 0;
             }
             this.logger.LogInformation("Deleting already existing entity with partition id {partitionKey} and row key {rowKey}", entity.PartitionKey, entity.RowKey);
             deleteBatch.Add(new TableTransactionAction(TableTransactionActionType.Delete, entity));
-            count += 1;
         }
 
         if (deleteBatch.Any())
@@ -142,7 +137,6 @@ public class DefaultChatBotService : IChatBotService
                 PartitionKey = request.Id,
                 ChatMessage = firstInstruction.Content,
                 Role = firstInstruction.Role,
-                CreatedAt = DateTime.UtcNow,
             };
 
             batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
@@ -184,7 +178,7 @@ public class DefaultChatBotService : IChatBotService
         {
             if (chatMessage.RowKey.StartsWith("ChatMessage"))
             {
-                if (chatMessage.GetDateTime("CreatedAt") > afterUtc)
+                if (chatMessage.Timestamp > afterUtc)
                 {
                     filteredChatMessages.Add(new ChatMessageEntity(chatMessage.GetString("ChatMessage"), chatMessage.GetString("Role")));
                 }
@@ -296,7 +290,6 @@ public class DefaultChatBotService : IChatBotService
             PartitionKey = request.Id,
             ChatMessage = request.UserMessage,
             Role = ChatRole.User.ToString(),
-            CreatedAt = DateTime.UtcNow,
         };
 
         // Add the chat message to the batch
@@ -327,7 +320,6 @@ public class DefaultChatBotService : IChatBotService
             PartitionKey = request.Id,
             ChatMessage = replyMessage,
             Role = ChatRole.Assistant.ToString(),
-            CreatedAt = DateTime.UtcNow,
         };
 
         // Add the reply from assistant chat message to the batch

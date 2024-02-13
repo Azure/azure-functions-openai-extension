@@ -34,7 +34,7 @@ public static class TextCompletions
     [Function(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
-        [TextCompletionInput("{Prompt}", Model = "gpt-35-turbo")] TextCompletionResponse response,
+        [TextCompletionInput("{Prompt}")] TextCompletionResponse response,
         ILogger log)
     {
         // ToDo: Investigate payload null reference exception

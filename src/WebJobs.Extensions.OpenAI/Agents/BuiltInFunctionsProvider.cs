@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using System.Reflection;
-using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Azure.WebJobs.Script.Description;
 using Newtonsoft.Json.Linq;
 
@@ -24,11 +23,6 @@ class BuiltInFunctionsProvider : IFunctionProvider
     ImmutableDictionary<string, ImmutableArray<string>> IFunctionProvider.FunctionErrors =>
         new Dictionary<string, ImmutableArray<string>>().ToImmutableDictionary();
 
-    [FunctionName("ChatBotEntity")]
-    public static Task ChatBotEntity([EntityTrigger] IDurableEntityContext context)
-    {
-        return context.DispatchAsync<ChatBotEntity>();
-    }
 
     internal static string GetBuiltInFunctionName(string functionName)
     {
@@ -61,29 +55,7 @@ class BuiltInFunctionsProvider : IFunctionProvider
             // so that we can register them with the Functions runtime.
             foreach (ParameterInfo parameter in method.GetParameters())
             {
-                if (parameter.GetCustomAttribute<OrchestrationTriggerAttribute>() is not null)
-                {
-                    // NOTE: We assume each orchestrator function in this file defines the parameter name as "context".
-                    metadata.Bindings.Add(BindingMetadata.Create(new JObject(
-                        new JProperty("type", "orchestrationTrigger"),
-                        new JProperty("name", "context"))));
-                }
-                else if (parameter.GetCustomAttribute<ActivityTriggerAttribute>() is not null)
-                {
-                    // NOTE: We assume each activity function in this file binds to IDurableActivityContext
-                    //       and defines the parameter name as "context".
-                    metadata.Bindings.Add(BindingMetadata.Create(new JObject(
-                        new JProperty("type", "activityTrigger"),
-                        new JProperty("name", "context"))));
-                }
-                else if (parameter.GetCustomAttribute<EntityTriggerAttribute>() is not null)
-                {
-                    // NOTE: We assume each orchestrator function in this file defines the parameter name as "context".
-                    metadata.Bindings.Add(BindingMetadata.Create(new JObject(
-                        new JProperty("type", "entityTrigger"),
-                        new JProperty("name", "context"))));
-                }
-                else if (parameter.GetCustomAttribute<OpenAIServiceAttribute>() is not null)
+                if (parameter.GetCustomAttribute<OpenAIServiceAttribute>() is not null)
                 {
                     // NOTE: We assume each OpenAI service function in this file defines the parameter name as "service".
                     metadata.Bindings.Add(BindingMetadata.Create(new JObject(

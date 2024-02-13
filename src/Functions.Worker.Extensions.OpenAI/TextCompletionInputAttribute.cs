@@ -3,11 +3,6 @@
 
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-
-// TODO: Move this somewhere else and update the package to use Microsoft.Azure.WebJobs.Extensions.OpenAI
-[assembly: ExtensionInformation("Microsoft.Azure.WebJobs.Extensions.OpenAI", "0.7.0-alpha")]
-
-
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 
 /// <summary>

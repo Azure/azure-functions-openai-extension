@@ -22,18 +22,18 @@ public interface IChatBotService
 
 public class DefaultChatBotService : IChatBotService
 {
-    readonly TableClient tableClient;
-    readonly TableServiceClient tableServiceClient;
-    readonly OpenAIClient openAIClient;
-    readonly ILogger logger;
-
-    ChatBotRuntimeState? InitialState;
     static readonly Dictionary<string, Func<ChatMessageEntity, ChatRequestMessage>> MessageFactories = new()
     {
         { ChatRole.User.ToString(), msg => new ChatRequestUserMessage(msg.Content) },
         { ChatRole.Assistant.ToString(), msg => new ChatRequestAssistantMessage(msg.Content) },
         { ChatRole.System.ToString(), msg => new ChatRequestSystemMessage(msg.Content) }
     };
+
+    readonly TableClient tableClient;
+    readonly TableServiceClient tableServiceClient;
+    readonly OpenAIClient openAIClient;
+    readonly ILogger logger;
+    ChatBotRuntimeState? initialState;
 
     public DefaultChatBotService(
         OpenAIClient openAiClient,
@@ -82,11 +82,11 @@ public class DefaultChatBotService : IChatBotService
             request.Id,
             request.Instructions ?? "(none)");
 
-        this.InitialState = new ChatBotRuntimeState
+        this.initialState = new ChatBotRuntimeState
         {
             ChatMessages = string.IsNullOrEmpty(request.Instructions) ?
-                new List<ChatMessageEntity>() :
-                new List<ChatMessageEntity>() { new ChatMessageEntity(request.Instructions, ChatRole.System.ToString()) },
+                new() :
+                new() { new ChatMessageEntity(request.Instructions, ChatRole.System.ToString()) },
         };
     }
 
@@ -98,39 +98,51 @@ public class DefaultChatBotService : IChatBotService
         await this.tableClient.CreateIfNotExistsAsync();
 
         // Check to see if the chat bot has already been initialized
-        Pageable<TableEntity> queryResultsFilter = this.tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
+        AsyncPageable<TableEntity> queryResultsFilter = this.tableClient.QueryAsync<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
 
-        if (queryResultsFilter.Any())
+        // Create a batch of table transaction actions for deleting entities
+        List<TableTransactionAction> deleteBatch = new();
+
+        // Count of entities to delete to keep track of
+        int count = 0;
+
+        await foreach (TableEntity entity in queryResultsFilter)
         {
-            // Create a batch of table transaction actions for deleting entities
-            List<TableTransactionAction> deleteBatch = new List<TableTransactionAction>();
-
-            // Get all entities with the same partition key and add to batch for deletion
-            foreach (TableEntity entity in queryResultsFilter)
+            // If the count is greater than or equal to 100, submit the transaction and clear the batch
+            if (count >= 100)
             {
-                this.logger.LogInformation("Deleting already existing entity with partition id {partitionKey} and row key {rowKey}", entity.PartitionKey, entity.RowKey);
-                deleteBatch.Add(new TableTransactionAction(TableTransactionActionType.Delete, entity));
+                this.logger.LogInformation("Deleting {Count} entities", count);
+                await this.tableClient.SubmitTransactionAsync(deleteBatch);
+                deleteBatch.Clear();
+                count = 0;
             }
+            this.logger.LogInformation("Deleting already existing entity with partition id {partitionKey} and row key {rowKey}", entity.PartitionKey, entity.RowKey);
+            deleteBatch.Add(new TableTransactionAction(TableTransactionActionType.Delete, entity));
+            count += 1;
+        }
 
+        if (deleteBatch.Any())
+        {
             await this.tableClient.SubmitTransactionAsync(deleteBatch);
         }
         
         // Create a batch of table transaction actions
-        List<TableTransactionAction> batch = new List<TableTransactionAction>();
+        List<TableTransactionAction> batch = new();
 
         // Get chatbot runtime state
         this.Initialize(request);
 
         // Add first chat message entity to table
-        if (this.InitialState?.ChatMessages?.Count > 0)
+        if (this.initialState?.ChatMessages?.Count > 0)
         {
-            ChatMessageEntity firstInstruction = this.InitialState.ChatMessages![0];
+            ChatMessageEntity firstInstruction = this.initialState.ChatMessages[0];
             ChatMessageTableEntity chatMessageEntity = new ChatMessageTableEntity
             {
                 RowKey = this.GetRowKey(1), // ChatMessage00001
                 PartitionKey = request.Id,
                 ChatMessage = firstInstruction.Content,
                 Role = firstInstruction.Role,
+                CreatedAt = DateTime.UtcNow,
             };
 
             batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
@@ -155,27 +167,26 @@ public class DefaultChatBotService : IChatBotService
     }
 
     public async Task<ChatBotState> GetStateAsync(string id, DateTime after, CancellationToken cancellationToken)
-    { 
+    {
+        DateTime afterUtc = after.ToUniversalTime();
         this.logger.LogInformation(
             "Reading state for chat bot entity '{Id}' and getting chat messages after {Timestamp}",
             id,
-        after.ToString("o"));
-
-        string afterString = after.ToString("o");
+        afterUtc.ToString("o"));
 
         // Check to see if any entity exists with partition id
         AsyncPageable<TableEntity> itemsWithPartitionKey = this.tableClient.QueryAsync<TableEntity>(filter: $"PartitionKey eq '{id}'");
 
         ChatBotStateEntity chatBotStateEntity = new();
 
-        List<ChatMessageEntity> filteredChatMessages = new List<ChatMessageEntity>();
+        List<ChatMessageEntity> filteredChatMessages = new();
         await foreach (TableEntity chatMessage in itemsWithPartitionKey)
         {
             if (chatMessage.RowKey.StartsWith("ChatMessage"))
             {
-                if (DateTimeOffset.Parse(chatMessage.Timestamp.ToString()).DateTime > after)
+                if (chatMessage.GetDateTime("CreatedAt") > afterUtc)
                 {
-                    filteredChatMessages.Add(new ChatMessageEntity(chatMessage["ChatMessage"].ToString(), chatMessage["Role"].ToString()));
+                    filteredChatMessages.Add(new ChatMessageEntity(chatMessage.GetString("ChatMessage"), chatMessage.GetString("Role")));
                 }
             }
 
@@ -187,11 +198,11 @@ public class DefaultChatBotService : IChatBotService
                     PartitionKey = chatMessage.PartitionKey,
                     ETag = chatMessage.ETag,
                     Timestamp = chatMessage.Timestamp,
-                    CreatedAt = ((DateTimeOffset)chatMessage["CreatedAt"]).DateTime,
-                    LastUpdatedAt = ((DateTimeOffset)chatMessage["LastUpdatedAt"]).DateTime,
-                    TotalMessages = (int)chatMessage["TotalMessages"],
-                    TotalTokens = (int)chatMessage["TotalTokens"],
-                    Exists = (bool)chatMessage["Exists"],
+                    CreatedAt = chatMessage.GetDateTime("CreatedAt").GetValueOrDefault(),
+                    LastUpdatedAt = chatMessage.GetDateTime("LastUpdatedAt").GetValueOrDefault(),
+                    TotalMessages = chatMessage.GetInt32("TotalMessages").GetValueOrDefault(),
+                    TotalTokens = chatMessage.GetInt32("TotalTokens").GetValueOrDefault(),
+                    Exists = chatMessage.GetBoolean("Exists").GetValueOrDefault(),
                 };
             }
         }
@@ -232,27 +243,18 @@ public class DefaultChatBotService : IChatBotService
         }
 
         // Check to see if any entity exists with partition id
-        Pageable<TableEntity> itemsWithPartitionKey = this.tableClient.Query<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
-
-        // No entities exist at with the partition key
-        if (!itemsWithPartitionKey.Any())
-        {
-            this.logger.LogWarning("[{Id}] Ignoring message sent to chat bot that does not exist.", request.Id);
-            return;
-        }
-
-        this.logger.LogInformation("[{Id}] Received message: {Text}", request.Id, request.UserMessage);
+        AsyncPageable<TableEntity> itemsWithPartitionKey = this.tableClient.QueryAsync<TableEntity>(filter: $"PartitionKey eq '{request.Id}'");
 
         // Deserialize the chat messages
-        List<ChatMessageEntity> chatMessageList = new List<ChatMessageEntity>();
+        List<ChatMessageEntity> chatMessageList = new();
         ChatBotStateEntity chatBotStateEntity = new();
 
-        foreach (TableEntity chatMessage in itemsWithPartitionKey)
+        await foreach (TableEntity chatMessage in itemsWithPartitionKey)
         {
             // Add chat message to list
             if (chatMessage.RowKey.StartsWith("ChatMessage"))
             {
-                chatMessageList.Add(new ChatMessageEntity(chatMessage["ChatMessage"].ToString(), chatMessage["Role"].ToString()));
+                chatMessageList.Add(new ChatMessageEntity(chatMessage.GetString("ChatMessage"), chatMessage.GetString("Role")));
             }
 
             // Get chat bot state
@@ -263,11 +265,11 @@ public class DefaultChatBotService : IChatBotService
                     RowKey = chatMessage.RowKey,
                     PartitionKey = chatMessage.PartitionKey,
                     ETag = chatMessage.ETag,
-                    CreatedAt = DateTime.SpecifyKind(((DateTimeOffset)chatMessage["CreatedAt"]).DateTime, DateTimeKind.Utc),
-                    LastUpdatedAt = DateTime.SpecifyKind(((DateTimeOffset)chatMessage["LastUpdatedAt"]).DateTime, DateTimeKind.Utc),
-                    TotalMessages = (int)chatMessage["TotalMessages"],
-                    TotalTokens = (int)chatMessage["TotalTokens"],
-                    Exists = (bool)chatMessage["Exists"],
+                    CreatedAt = DateTime.SpecifyKind(chatMessage.GetDateTime("CreatedAt").GetValueOrDefault(), DateTimeKind.Utc),
+                    LastUpdatedAt = DateTime.SpecifyKind(chatMessage.GetDateTime("LastUpdatedAt").GetValueOrDefault(), DateTimeKind.Utc),
+                    TotalMessages = chatMessage.GetInt32("TotalMessages").GetValueOrDefault(),
+                    TotalTokens = chatMessage.GetInt32("TotalTokens").GetValueOrDefault(),
+                    Exists = chatMessage.GetBoolean("Exists").GetValueOrDefault(),
                 };
             }
         }
@@ -279,11 +281,13 @@ public class DefaultChatBotService : IChatBotService
             return;
         }
 
+        this.logger.LogInformation("[{Id}] Received message: {Text}", request.Id, request.UserMessage);
+
         ChatMessageEntity chatMessageToSend = new ChatMessageEntity(request.UserMessage, ChatRole.User.ToString());
         chatMessageList.Add(chatMessageToSend);
 
         // Create a batch of table transaction actions
-        List<TableTransactionAction> batch = new List<TableTransactionAction>();
+        List<TableTransactionAction> batch = new();
 
         // Add the user message as a new Chat message entity
         ChatMessageTableEntity chatMessageEntity = new ChatMessageTableEntity
@@ -291,7 +295,8 @@ public class DefaultChatBotService : IChatBotService
             RowKey = this.GetRowKey(chatBotStateEntity.TotalMessages + 1), // Example: ChatMessage00012
             PartitionKey = request.Id,
             ChatMessage = request.UserMessage,
-            Role = ChatRole.User.ToString()
+            Role = ChatRole.User.ToString(),
+            CreatedAt = DateTime.UtcNow,
         };
 
         // Add the chat message to the batch
@@ -321,7 +326,8 @@ public class DefaultChatBotService : IChatBotService
             RowKey = this.GetRowKey(chatBotStateEntity.TotalMessages + 2), // Example: ChatMessage00013
             PartitionKey = request.Id,
             ChatMessage = replyMessage,
-            Role = ChatRole.Assistant.ToString()
+            Role = ChatRole.Assistant.ToString(),
+            CreatedAt = DateTime.UtcNow,
         };
 
         // Add the reply from assistant chat message to the batch
@@ -334,7 +340,6 @@ public class DefaultChatBotService : IChatBotService
 
         chatBotStateEntity.LastUpdatedAt = DateTime.UtcNow;
         chatBotStateEntity.TotalMessages += 2;
-
 
         // Update the chat bot state entity
         batch.Add(new TableTransactionAction(TableTransactionActionType.UpdateMerge, chatBotStateEntity));

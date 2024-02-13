@@ -26,7 +26,7 @@ public static class ChatBotIsolated
     {
         var responseJson = new { chatId };
 
-        using (StreamReader reader = new StreamReader(req.Body))
+        using StreamReader reader = new StreamReader(req.Body);
         {
             string request = await reader.ReadToEndAsync();
 
@@ -41,7 +41,6 @@ public static class ChatBotIsolated
             {
                 HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
                 ChatBotCreateRequest = new ChatBotCreateRequest(chatId, createRequestBody.Instructions),
-
             };
         }
     }

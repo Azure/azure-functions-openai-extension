@@ -137,6 +137,7 @@ public class DefaultChatBotService : IChatBotService
                 PartitionKey = request.Id,
                 ChatMessage = firstInstruction.Content,
                 Role = firstInstruction.Role,
+                CreatedAt = DateTime.UtcNow,
             };
 
             batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
@@ -178,7 +179,7 @@ public class DefaultChatBotService : IChatBotService
         {
             if (chatMessage.RowKey.StartsWith("ChatMessage"))
             {
-                if (chatMessage.Timestamp > afterUtc)
+                if (chatMessage.GetDateTime("CreatedAt").GetValueOrDefault() > afterUtc)
                 {
                     filteredChatMessages.Add(new ChatMessageEntity(chatMessage.GetString("ChatMessage"), chatMessage.GetString("Role")));
                 }
@@ -290,6 +291,7 @@ public class DefaultChatBotService : IChatBotService
             PartitionKey = request.Id,
             ChatMessage = request.UserMessage,
             Role = ChatRole.User.ToString(),
+            CreatedAt = DateTime.UtcNow,
         };
 
         // Add the chat message to the batch
@@ -320,6 +322,7 @@ public class DefaultChatBotService : IChatBotService
             PartitionKey = request.Id,
             ChatMessage = replyMessage,
             Role = ChatRole.Assistant.ToString(),
+            CreatedAt = DateTime.UtcNow,
         };
 
         // Add the reply from assistant chat message to the batch

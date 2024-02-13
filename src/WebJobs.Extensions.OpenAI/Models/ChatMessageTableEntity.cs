@@ -40,4 +40,9 @@ class ChatMessageTableEntity : ITableEntity
     /// Gets ETag of table entity.
     /// </summary>
     public ETag ETag { get; set; }
+
+    // <summary>
+    /// Gets when table entity was created at.
+    /// </summary>
+    public DateTime CreatedAt { get; set; }
 }

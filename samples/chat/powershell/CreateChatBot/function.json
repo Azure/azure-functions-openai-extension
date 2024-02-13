@@ -1,0 +1,24 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "route": "chats/{chatId}",
+      "methods": [
+        "put"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "type": "chatBotCreate",
+      "direction": "out",
+      "name": "ChatBotCreate"
+    }
+  ]
+}

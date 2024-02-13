@@ -1,0 +1,27 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "route": "whois/{name}",
+      "methods": [
+        "get"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "type": "textCompletion",
+      "direction": "in",
+      "name": "TextCompletionResponse",
+      "prompt": "Who is {name}?",
+      "maxTokens": "100",
+      "model": "gpt-3.5-turbo"
+    }
+  ]
+}

@@ -3,9 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml)
 
-This is an **experimental** project that adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
+This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
-This extension depends on the [Azure Open AI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
+This extension depends on the [Azure AI OpenAI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
 
 ## NuGet Packages
 
@@ -18,12 +18,14 @@ The following NuGet packages are available as part of this project.
 
 * [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or greater (Visual Studio 2022 recommended)
 * [Azure Functions Core Tools v4.x](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Cnode%2Cportal%2Cbash)
-* [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) with `AZURE_OPENAI_ENDPOINT` (e.g. `https://***.openai.azure.com/`) set. For authentication, use one of the below option:
-    - System Managed Identity - assign the user/function app `Cognitive Services OpenAI User` role on the Azure Open AI resource.
-    - set `AZURE_OPENAI_KEY` environment variable.
-* **OR** Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a `OPENAI_API_KEY` environment variable. Learn more in [.env readme](./env/README.md).
+* Update settings in Azure Function or the `local.settings.json` file for local development with the following keys:
+    1. `AZURE_OPENAI_ENDPOINT` - [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) (e.g. `https://***.openai.azure.com/`) set. For authentication, use one of the below two options:
+        * System Managed Identity - assign the user/function app `Cognitive Services OpenAI User` role on the Azure OpenAI resource. **OR**
+        * `AZURE_OPENAI_KEY` - Key of the Azure OpenAI resource as a setting.
+    1. **OR** `OPENAI_API_KEY` -  Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
+    If using environment variables, Learn more in [.env readme](./env/README.md).
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
-* The target language runtime (e.g. .NET, Node.js, etc.) installed on your machine
+* The target language runtime (e.g. .NET, Node.js, PowerShell etc.) installed on your machine
 
 ## Features
 
@@ -42,7 +44,7 @@ The examples below define "who is" HTTP-triggered functions with a hardcoded `"w
 
 #### [C# example](./samples/other/dotnet/csharp-inproc/)
 
-Setting a model is optional for non-Azure Open AI, [see here](#default-open-ai-models) for default model values for Open AI.
+Setting a model is optional for non-Azure OpenAI, [see here](#default-open-ai-models) for default model values for OpenAI.
 
 ```csharp
 [FunctionName(nameof(WhoIs))]
@@ -78,6 +80,36 @@ app.http('whois', {
     }
 });
 ```
+
+#### [PowerShell example](./samples/other/powershell/)
+
+```PowerShell
+using namespace System.Net
+
+param($Request, $TriggerMetadata, $TextCompletionResponse)
+
+Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
+        StatusCode = [HttpStatusCode]::OK
+        Body       = $TextCompletionResponse.Content
+    })
+```
+
+In the same directory as the PowerShell function, define the bindings in a function.json file.  
+
+If using Azure OpenAI, update the deployment name to model property in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
+
+```json
+{
+    "type": "textCompletion",
+    "direction": "in",
+    "name": "TextCompletionResponse",
+    "prompt": "Who is {name}?",
+    "maxTokens": "100",
+    "model": "gpt-3.5-turbo"
+}
+```
+
+#### Running locally
 
 You can run the above function locally using the Azure Functions Core Tools and sending an HTTP request, similar to the following:
 
@@ -240,13 +272,13 @@ public static IActionResult PromptEmail(
 }
 ```
 
-## Default Open AI models
+## Default OpenAI models
 
 1. Chat Completion - gpt-3.5-turbo
 1. Embeddings - text-embedding-ada-002
 1. Text Completion - gpt-3.5-turbo
 
-While using non-Azure Open AI, you can omit the Model specification in attributes to use the default models.
+While using non-Azure OpenAI, you can omit the Model specification in attributes to use the default models.
 
 ## Contributing
 

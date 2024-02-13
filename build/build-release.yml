@@ -51,7 +51,7 @@ steps:
     inputs:
       ConnectedServiceName: 'ESRP Service'
       FolderPath: 'src'
-      Pattern: WebJobs.Extensions.OpenAI*.dll
+      Pattern: WebJobs.Extensions.OpenAI*.dll | Functions.Worker.Extensions.OpenAI*.dll
       signConfigType: inlineSignParams
       inlineOperation: |
         [
@@ -88,7 +88,7 @@ steps:
       command: 'custom'
       custom: 'pack'
       arguments: '--no-build -c Release -o packages -p:ContinuousIntegrationBuild=true'
-      projects: src/*/WebJobs.Extensions.OpenAI*.csproj
+      projects: src/*/WebJobs.Extensions.OpenAI*.csproj | src/*/Functions.Worker.Extensions.OpenAI*.csproj
 
   - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
     displayName: 'ESRP CodeSigning: Nupkg'

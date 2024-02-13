@@ -202,7 +202,7 @@ public class DefaultChatBotService : IChatBotService
             }
         }
 
-        if (chatBotStateEntity == null)
+        if (!chatBotStateEntity.Exists)
         {
             this.logger.LogWarning("No chat bot exists with ID = '{Id}'", id);
             return new ChatBotState(id, false, default, default, 0, 0, Array.Empty<ChatMessageEntity>());

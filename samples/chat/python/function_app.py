@@ -31,7 +31,7 @@ def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
 
 @app.function_name("PostUserResponse")
 @app.route(route="chats/{chatID}", methods=["POST"])
-@app.generic_output_binding(arg_name="messages", type="chatBotPost", data_type=func.DataType.STRING, id="{chatID}", model = "%AZURE_DEPLOYMENT_NAME%")
+@app.generic_output_binding(arg_name="messages", type="chatBotPost", data_type=func.DataType.STRING, id="{chatID}", model = "gpt-3.5-turbo")
 def post_user_response(req: func.HttpRequest, messages: func.Out[str]) -> func.HttpResponse:
     userMessage = req.get_body().decode("utf-8")
     if not userMessage:
@@ -44,24 +44,3 @@ def post_user_response(req: func.HttpRequest, messages: func.Out[str]) -> func.H
         f"Creating post request with parameters: ${json.dumps(chat_post_request)}")
     messages.set(json.dumps(chat_post_request))
     return func.HttpResponse(status_code=202)
-
-@app.route(route="http_trigger", auth_level=func.AuthLevel.ANONYMOUS)
-def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
-
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
-
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )

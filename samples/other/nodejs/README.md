@@ -26,7 +26,7 @@ POST http://localhost:7071/api/whois/pikachu
 The HTTP response should look something like the following example (with newlines added for readability):
 
 ```text
-Pikachu is a fictional creature from the Pok�mon franchise. It is a yellow
+Pikachu is a fictional creature from the Pokemon franchise. It is a yellow
 mouse-like creature with powerful electrical abilities and a mischievous
 personality. Pikachu is one of the most iconic and recognizable characters
 from the franchise, and is featured in numerous video games, anime series,

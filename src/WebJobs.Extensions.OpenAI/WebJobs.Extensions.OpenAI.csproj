@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Microsoft Azure WebJobs SDK OpenAI Extension</Description>
+    <Description>Microsoft Azure WebJobs SDK Extension for OpenAI</Description>
   </PropertyGroup>
 
   <ItemGroup>

@@ -32,7 +32,6 @@ public class ChatBotQueryAttribute : Attribute
 public record ChatBotState(
     string Id,
     bool Exists,
-    ChatBotStatus Status,
     DateTime CreatedAt,
     DateTime LastUpdatedAt,
     int TotalMessages,

@@ -25,7 +25,7 @@ The following NuGet packages are available as part of this project.
     1. **OR** `OPENAI_API_KEY` -  Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
     If using environment variables, Learn more in [.env readme](./env/README.md).
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
-* The target language runtime (e.g. .NET, Node.js, PowerShell etc.) installed on your machine
+* The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
 
 ## Features
 
@@ -44,7 +44,7 @@ The examples below define "who is" HTTP-triggered functions with a hardcoded `"w
 
 #### [C# example](./samples/other/dotnet/csharp-inproc/)
 
-Setting a model is optional for non-Azure OpenAI, [see here](#default-open-ai-models) for default model values for OpenAI.
+Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
 
 ```csharp
 [FunctionName(nameof(WhoIs))]
@@ -109,6 +109,18 @@ If using Azure OpenAI, update the deployment name to model property in function.
 }
 ```
 
+#### [Python example](./samples/other/python/)
+
+Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
+
+```python
+@app.route(route="whois/{name}", methods=["GET"])
+@app.generic_input_binding(arg_name="response", type="textCompletion", data_type=func.DataType.STRING, prompt="Who is {name}?", maxTokens="100", model = "gpt-3.5-turbo")
+def whois(req: func.HttpRequest, response: str) -> func.HttpResponse:
+    response_json = json.loads(response)
+    return func.HttpResponse(response_json["content"], status_code=200)
+```
+
 #### Running locally
 
 You can run the above function locally using the Azure Functions Core Tools and sending an HTTP request, similar to the following:
@@ -126,7 +138,7 @@ Date: Tue, 28 Mar 2023 18:25:40 GMT
 Server: Kestrel
 Transfer-Encoding: chunked
 
-Pikachu is a fictional creature from the Pok�mon franchise. It is a yellow
+Pikachu is a fictional creature from the Pokemon franchise. It is a yellow
 mouse-like creature with powerful electrical abilities and a mischievous
 personality. Pikachu is one of the most iconic and recognizable characters
 from the franchise, and is featured in numerous video games, anime series,

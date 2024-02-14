@@ -5,5 +5,11 @@
       "default": "Warning",
       "WebJobs": "Information"
     }
+  },
+  "extensions": {
+    "openai": {
+      "storageConnectionName": "AzureWebJobsStorage",
+      "collectionName": "ChatBotRequests"
+    }
   }
 }

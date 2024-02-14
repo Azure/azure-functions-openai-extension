@@ -92,7 +92,6 @@ public class Chat
 
                 if (totalMessages > 0)
                 {
-                    Assert.Equal("Active", json!["status"]?.GetValue<string>());
                     Assert.True(json!["exists"]?.GetValue<bool>());
                 }
 

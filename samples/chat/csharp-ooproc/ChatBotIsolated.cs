@@ -72,7 +72,7 @@ public static class ChatBotIsolated
 
     public class PostResponseOutput
     {
-        [ChatBotPostOutput("{chatId}")]
+        [ChatBotPostOutput("{chatId}", Model = "gpt-3.5-turbo")]
         public ChatBotPostRequest? ChatBotPostRequest { get; set; }
 
         public IActionResult? HttpResponse { get; set; }

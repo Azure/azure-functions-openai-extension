@@ -72,7 +72,10 @@ public static class OpenAIWebJobsBuilderExtensions
             });
 
         builder.Services.AddSingleton<IChatBotService, DefaultChatBotService>();
-
+        builder.Services
+            .AddSingleton<AssistantSkillManager>()
+            .AddSingleton<IAssistantSkillInvoker>(p => p.GetRequiredService<AssistantSkillManager>());
+        builder.Services.AddSingleton<AssistantSkillTriggerBindingProvider>();
         return builder;
     }
 

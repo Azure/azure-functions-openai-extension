@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.AI.OpenAI;
-
 namespace Functions.Worker.Extensions.OpenAI;
 
 /// <summary>
@@ -15,7 +13,7 @@ public class ChatMessage
     /// </summary>
     /// <param name="content">The content of the message.</param>
     /// <param name="role">The role of the chat agent.</param>
-    public ChatMessage(string content, ChatRole role)
+    public ChatMessage(string content, string role)
     {
         this.Content = content;
         this.Role = role;
@@ -29,5 +27,5 @@ public class ChatMessage
     /// <summary>
     /// Gets or sets the role of the chat agent.
     /// </summary>
-    public ChatRole Role { get; set; }
+    public string Role { get; set; }
 }

@@ -6,7 +6,6 @@ using System.Runtime.ExceptionServices;
 using System.Text;
 using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Host.Executors;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -14,8 +13,8 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
 
 public interface IAssistantSkillInvoker
 {
-    IList<FunctionDefinition>? GetFunctionsDefinitions();
-    Task<string?> InvokeAsync(FunctionCall call);
+    IList<ChatCompletionsFunctionToolDefinition>? GetFunctionsDefinitions();
+    Task<string?> InvokeAsync(ChatCompletionsFunctionToolCall call, CancellationToken cancellationToken);
 }
 
 public class AssistantSkillManager : IAssistantSkillInvoker
@@ -26,7 +25,6 @@ public class AssistantSkillManager : IAssistantSkillInvoker
         ParameterInfo Parameter,
         ITriggeredFunctionExecutor Executor);
 
-    readonly IApplicationLifetime hostLifetime;
     readonly ILogger logger;
 
     readonly Dictionary<string, Skill> skills = new(StringComparer.OrdinalIgnoreCase);
@@ -37,9 +35,8 @@ public class AssistantSkillManager : IAssistantSkillInvoker
     /// <remarks>
     /// This constructor is called by the dependency management container in the Functions (WebJobs) runtime.
     /// </remarks>
-    public AssistantSkillManager(IApplicationLifetime hostLifetime, ILoggerFactory loggerFactory)
+    public AssistantSkillManager(ILoggerFactory loggerFactory)
     {
-        this.hostLifetime = hostLifetime;
         this.logger = loggerFactory.CreateLogger<AssistantSkillManager>();
     }
 
@@ -59,14 +56,14 @@ public class AssistantSkillManager : IAssistantSkillInvoker
         this.skills.Remove(name);
     }
 
-    IList<FunctionDefinition>? IAssistantSkillInvoker.GetFunctionsDefinitions()
+    IList<ChatCompletionsFunctionToolDefinition>? IAssistantSkillInvoker.GetFunctionsDefinitions()
     {
         if (this.skills.Count == 0)
         {
             return null;
         }
 
-        List<FunctionDefinition> functions = new(capacity: this.skills.Count);
+        List<ChatCompletionsFunctionToolDefinition> functions = new(capacity: this.skills.Count);
         foreach (Skill skill in this.skills.Values)
         {
             // The parameters can be defined in the attribute JSON or can be inferred from
@@ -74,8 +71,9 @@ public class AssistantSkillManager : IAssistantSkillInvoker
             string parametersJson = skill.Attribute.ParameterDescriptionJson ??
                 JsonConvert.SerializeObject(GetParameterDefinition(skill));
 
-            functions.Add(new FunctionDefinition(skill.Name)
+            functions.Add(new ChatCompletionsFunctionToolDefinition
             {
+                Name = skill.Name,
                 Description = skill.Attribute.FunctionDescription,
                 Parameters = BinaryData.FromBytes(Encoding.UTF8.GetBytes(parametersJson)),
             });
@@ -117,13 +115,19 @@ public class AssistantSkillManager : IAssistantSkillInvoker
         }
 
         // key = name, value = object{type (string), enum (list), description (string)}
-        return new Dictionary<string, object>()
+        return new Dictionary<string, object>
         {
-            [skill.Parameter.Name] = new { type }
+            ["type"] = "object",
+            ["properties"] = new Dictionary<string, object>
+            {
+                [skill.Parameter.Name] = new { type }
+            }
         };
     }
 
-    async Task<string?> IAssistantSkillInvoker.InvokeAsync(FunctionCall call)
+    async Task<string?> IAssistantSkillInvoker.InvokeAsync(
+        ChatCompletionsFunctionToolCall call,
+        CancellationToken cancellationToken)
     {
         if (call is null)
         {
@@ -167,7 +171,7 @@ public class AssistantSkillManager : IAssistantSkillInvoker
                 }
 #pragma warning restore CS0618
             },
-            this.hostLifetime.ApplicationStopping);
+            cancellationToken);
 
         // If the function threw an exception, rethrow it here. This will cause the caller (e.g., the
         // chat bot entity) to receive an error response, which it should be prepared to catch and handle.

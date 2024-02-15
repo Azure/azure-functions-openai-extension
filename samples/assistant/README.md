@@ -41,9 +41,6 @@ The sample is available in the following language stacks:
 
 * [C# on the in-process worker](csharp-inproc)
 
-> **NOTE:** This sample is unfortunately incompatible with the .NET "Isolated" out-of-process worker.
-Issue [#21](https://github.com/cgillum/azure-functions-openai-extension/issues/21) is currently tracking this support gap.
-
 You must have the following installed on your local machine in order to run these samples.
 
 * [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or newer

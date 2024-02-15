@@ -22,8 +22,8 @@ public static class EmailPromptDemo
     [FunctionName("IngestEmail")]
     public static async Task<IActionResult> IngestEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-        [Embeddings("{FilePath}", InputType.FilePath)] EmbeddingsContext embeddings,
-        [SemanticSearch("KustoConnectionString", "Documents")] IAsyncCollector<SearchableDocument> output)
+        [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-ada-002")] EmbeddingsContext embeddings,
+        [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] IAsyncCollector<SearchableDocument> output)
     {
         string title = Path.GetFileNameWithoutExtension(req.FilePath);
         await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -33,7 +33,7 @@ public static class EmailPromptDemo
     [FunctionName("PromptEmail")]
     public static IActionResult PromptEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-        [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}")] SemanticSearchContext result)
+        [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] SemanticSearchContext result)
     {
         return new ContentResult { Content = result.Response, ContentType = "text/plain" };
     }

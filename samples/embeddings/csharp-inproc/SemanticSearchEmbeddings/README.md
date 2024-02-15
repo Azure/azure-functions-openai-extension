@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-Please refer to the root level [README](../../README.md/#requirements) for prerequisites.
+Please refer to the root level [README](../../../../README.md#requirements) for prerequisites.
 
 ## Running the sample
 
@@ -20,7 +20,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
 1. Use a terminal window to navigate to the sample directory
 
     ```sh
-    cd samples/other/dotnet/csharp-inproc
+    cd samples/embeddings/csharp-inproc
     ```
 
 1. Build and start the app

@@ -14,7 +14,7 @@ This project contains sample code for using the OpenAI bindings with Azure Funct
 1. Run the following command to start the function app.
 
     ```bash
-    cd samples/other/nodejs && npm install && dotnet build --output bin && npm run build && npm run start
+    cd samples/textcompletion/nodejs && npm install && dotnet build --output bin && npm run build && npm run start
     ```
 
 1. Use a tool like [Postman](https://www.postman.com/) to send a request to the `WhoIs` function. The following is an example request:

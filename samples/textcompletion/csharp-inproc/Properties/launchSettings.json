@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "TextCompletion": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7093",
+      "launchBrowser": false
+    }
+  }
+}

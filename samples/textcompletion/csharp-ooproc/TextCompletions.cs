@@ -10,8 +10,8 @@ using Microsoft.Extensions.Logging;
 namespace CSharpIsolatedSamples;
 
 /// <summary>
-/// These samples show how to use the OpenAI Completions APIs. For more details on the Completions APIs, see
-/// https://platform.openai.com/docs/guides/completion.
+/// These samples show how to use the OpenAI Chat Completions API for Text Completion. For more details on the Completions APIs, see
+/// https://platform.openai.com/docs/guides/text-generation/chat-completions-vs-completions.
 /// </summary>
 public static class TextCompletions
 {

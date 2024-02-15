@@ -1,16 +1,18 @@
-# OpenAI Bindings - .NET in-proc samples
+# Text Completion in-proc samples
 
 This project contains sample code for using the OpenAI bindings with the Azure Functions .NET in-proc experience. The examples are written in C#.
 
 ## Prerequisites
 
-Please refer to the root level [README](../../../../README.md#requirements) for prerequisites.
-
-## Installing the OpenAI extension
-
-The OpenAI extension isn't yet available on nuget.org and therefore must be built locally. This is handled automatically by the build process.
+Please refer to the root level [README](../../../README.md#requirements) for prerequisites.
 
 ## Running the Function app
+
+Navigate to folder
+
+```bash
+cd samples/textcompletion/csharp-inproc
+```
 
 Use the following command to build the project:
 

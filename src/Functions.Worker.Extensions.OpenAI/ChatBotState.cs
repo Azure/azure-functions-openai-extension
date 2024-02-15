@@ -11,7 +11,7 @@ public class ChatBotState
     /// <summary>
     /// Gets the ID of the chat bot.
     /// </summary>
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     /// <summary>
     /// Gets if chat bot exists.
@@ -21,7 +21,7 @@ public class ChatBotState
     /// <summary>
     /// Gets status of chat bot. Options are Uninitialzied, Active, or Expired.
     /// </summary>
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
     /// <summary>
     /// Gets timestamp of when chat bot is created.
@@ -46,5 +46,5 @@ public class ChatBotState
     /// <summary>
     /// Gets a list of the recent messages from the chatbot.
     /// </summary>
-    public IReadOnlyList<ChatMessageEntity> RecentMessages { get; set; }
+    public IReadOnlyList<ChatMessage> RecentMessages { get; set; } = Array.Empty<ChatMessage>();
 }

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <Nullable>enable</Nullable>
+    <LangVersion>11.0</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Link="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.37.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- OPTIONAL: Replace this with a package reference to Microsoft.Azure.WebJobs.Extensions.OpenAI -->
+    <ProjectReference Include="..\..\..\src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="host.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+</Project>

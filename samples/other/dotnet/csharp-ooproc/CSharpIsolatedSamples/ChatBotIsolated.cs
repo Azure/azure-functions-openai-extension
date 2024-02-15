@@ -47,9 +47,9 @@ public static class ChatBotIsolated
     public class CreateChatBotOutput
     {
         [ChatBotCreateOutput()]
-        public ChatBotCreateRequest ChatBotCreateRequest { get; set; }
+        public ChatBotCreateRequest? ChatBotCreateRequest { get; set; }
 
-        public IActionResult HttpResponse { get; set; }
+        public IActionResult? HttpResponse { get; set; }
     }
 
     [Function(nameof(PostUserResponse))]
@@ -73,9 +73,9 @@ public static class ChatBotIsolated
     public class PostResponseOutput
     {
         [ChatBotPostOutput("{chatId}")]
-        public ChatBotPostRequest ChatBotPostRequest { get; set; }
+        public ChatBotPostRequest? ChatBotPostRequest { get; set; }
 
-        public IActionResult HttpResponse { get; set; }
+        public IActionResult? HttpResponse { get; set; }
     }
 
     [Function(nameof(GetChatState))]

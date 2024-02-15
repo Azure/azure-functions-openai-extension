@@ -163,7 +163,7 @@ class DefaultChatBotService : IChatBotService
         }
 
         List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
-            .Where(msg => msg.Timestamp > afterUtc)
+            .Where(msg => msg.CreatedAt > afterUtc)
             .ToList();
 
         this.logger.LogInformation(

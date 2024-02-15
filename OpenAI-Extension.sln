@@ -46,6 +46,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextCompletionIsolated", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpIsolatedSamples", "samples\chat\csharp-ooproc\CSharpIsolatedSamples.csproj", "{6701A54D-E00F-46E8-9344-B1547805459E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assistant", "assistant", "{C5578BE5-AAC7-4616-9A35-41CA5903882A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-inproc\AssistantSample.csproj", "{76836E7D-CBEE-4845-B44A-4634B4E57471}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +92,10 @@ Global
 		{6701A54D-E00F-46E8-9344-B1547805459E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6701A54D-E00F-46E8-9344-B1547805459E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6701A54D-E00F-46E8-9344-B1547805459E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76836E7D-CBEE-4845-B44A-4634B4E57471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76836E7D-CBEE-4845-B44A-4634B4E57471}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76836E7D-CBEE-4845-B44A-4634B4E57471}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76836E7D-CBEE-4845-B44A-4634B4E57471}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -105,6 +113,8 @@ Global
 		{C6AD2FDE-F1BF-40E4-AB28-36A3A29FB518} = {4B55F637-B067-43B4-B6FC-65171654315C}
 		{8C478DB0-2F1E-40B2-82E9-7E89DFF2495D} = {066E5306-2BBF-4C3F-BEDD-9529AE2FB60C}
 		{6701A54D-E00F-46E8-9344-B1547805459E} = {46888A9D-8058-499C-9F2F-07800FF686EB}
+		{C5578BE5-AAC7-4616-9A35-41CA5903882A} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{76836E7D-CBEE-4845-B44A-4634B4E57471} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

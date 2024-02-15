@@ -1,0 +1,28 @@
+### Create a new assistant - instructions are hardcoded in the function
+PUT http://localhost:7168/api/assistants/assistant123
+
+
+### Reminder #1
+POST http://localhost:7168/api/assistants/assistant123
+Content-Type: text/plain
+
+Remind me to call my dad
+
+
+### Reminder #2
+POST http://localhost:7168/api/assistants/assistant123
+Content-Type: text/plain
+
+Oh, and to take out the trash
+
+
+### Get the list of tasks
+POST http://localhost:7168/api/assistants/assistant123
+Content-Type: text/plain
+
+What do I need to do today?
+
+
+### Query the chat history
+GET http://localhost:7168/api/assistants/assistant123?timestampUTC=2023-01-01T00:00:00Z
+Accept: application/json

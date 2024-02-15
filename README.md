@@ -33,6 +33,7 @@ The following features are currently available. More features will be slowly add
 
 * [Text completions](#text-completion-input-binding)
 * [Chat bots](#chat-bots)
+* [Assistants](#assistants)
 * [Embeddings generators](#embeddings-generator)
 * [Semantic search](#semantic-search)
 
@@ -158,6 +159,49 @@ There are three bindings you can use to interact with the chat bot:
 1. The `chatBotQuery` input binding fetches the chat bot history and passes it to the function.
 
 You can find samples in multiple languages with instructions [in the chat samples directory](./samples/chat/).
+
+### Assistants
+
+Assistants build on top of the chat bot functionality to provide chat bots with custom skills defined as functions.
+This internally uses the [function calling](https://platform.openai.com/docs/guides/function-calling) feature of OpenAIs GPT models to select which functions to invoke and when.
+
+You can define functions that can be triggered by chat bots by using the `assistantSkillTrigger` trigger binding.
+These functions are invoked by the extension when a chat bot signals that it would like to invoke a function in response to a user prompt.
+
+The name of the function, the description provided by the trigger, and the parameter name are all hints that the underlying language model use to determine when and how to invoke an assistant function.
+
+#### [C# example](./samples/assistant/csharp-inproc)
+
+```csharp
+public class AssistantSkills
+{
+    readonly ITodoManager todoManager;
+
+    // This constructor is called by the Azure Functions runtime's dependency injection container.
+    public AssistantSkills(ITodoManager todoManager)
+    {
+        this.todoManager = todoManager ?? throw new ArgumentNullException(nameof(todoManager));
+    }
+
+    // Called by the assistant to create new todo tasks.
+    [FunctionName(nameof(AddTodo))]
+    public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription)
+    {
+        string todoId = Guid.NewGuid().ToString()[..6];
+        return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
+    }
+
+    // Called by the assistant to fetch the list of previously created todo tasks.
+    [FunctionName(nameof(GetTodos))]
+    public Task<IReadOnlyList<TodoItem>> GetTodos(
+        [AssistantSkillTrigger("Fetch the list of previously created todo tasks")] object inputIgnored)
+    {
+        return this.todoManager.GetTodosAsync();
+    }
+}
+```
+
+You can find samples with instructions [in the assistant samples directory](./samples/assistant/).
 
 ### Embeddings Generator
 

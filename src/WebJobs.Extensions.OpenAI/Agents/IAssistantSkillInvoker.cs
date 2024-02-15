@@ -114,7 +114,7 @@ public class AssistantSkillManager : IAssistantSkillInvoker
                 break;
         }
 
-        // key = name, value = object{type (string), enum (list), description (string)}
+        // Schema reference: https://platform.openai.com/docs/api-reference/chat/create#chat-create-tools
         return new Dictionary<string, object>
         {
             ["type"] = "object",

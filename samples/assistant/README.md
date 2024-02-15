@@ -1,6 +1,6 @@
 # Assistants
 
-This sample demonstrates how to build an AI assistant chatbot with custom skills using Azure Functions and a local build of the experimental OpenAI extension.
+This sample demonstrates how to build an AI assistant chatbot with custom skills using Azure Functions and a local build of the OpenAI extension.
 It builds upon the concepts [chatbot](../chatbot) sample, which demonstrates how to create a simple chatbot.
 
 ## Introduction
@@ -32,8 +32,7 @@ The name of the function parameter (e.g., `taskDescription`) is also an importan
 > **NOTE:** The `AssistantSkillTrigger` attribute only supports primitive types as function parameters, such as `string`, `int`, `bool`, etc. Function return values can be of any JSON-serializable type.
 
 Any function that uses the `AssistantSkillTrigger` binding will be automatically registered as a skill that can be invoked by any AI assistant.
-The assistant will invoke a skill function whenever it decides to do so to satisfy a user prompt, and will provide function parameters based on
-the context of the conversation. The skill function can then return a response to the assistant, which will be used to satisfy the user prompt.
+The assistant will invoke a skill function whenever it decides to do so to satisfy a user prompt, and will provide function parameters based on the context of the conversation. The skill function can then return a response to the assistant, which will be used to satisfy the user prompt.
 
 ## Prerequisites
 
@@ -41,16 +40,12 @@ The sample is available in the following language stacks:
 
 * [C# on the in-process worker](csharp-inproc)
 
-You must have the following installed on your local machine in order to run these samples.
+Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
-* [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or newer
-* [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Ccsharp%2Cportal%2Cbash) v4.0.5455 or newer
-* An [OpenAI API key](https://platform.openai.com/account/api-keys) saved into a `OPENAI_API_KEY` environment variable
-* Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
+Additionally, if you want to run the sample with Cosmos DB, then you must also do the following:
 
-If you want to run the sample with Cosmos DB, then you must also have the following installed:
-
-* [Azure Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator) or a connection string to a real Azure Cosmos DB resource
+* Install the [Azure Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator), or get a connection string to a real Azure Cosmos DB resource.
+* Uncomment the `CosmosDbConnectionString` setting in the `local.settings.json` file and configure it with the connection string to your Cosmos DB resource (local or Azure).
 
 ## Running the sample
 

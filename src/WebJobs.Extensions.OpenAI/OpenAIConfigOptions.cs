@@ -14,7 +14,7 @@ public class OpenAIConfigOptions
     public string StorageConnectionName { get; set; } = "AzureWebJobsStorage";
 
     /// <summary>
-    /// Gets the storage collection name, which will be the name of the table. Default to "ChatBotRequests".
+    /// Gets the storage collection name, which will be the name of the table. Default to "OpenAIChatState".
     /// </summary>
-    public string? CollectionName { get; set; } = "ChatBotRequests";
+    public string? CollectionName { get; set; } = "OpenAIChatState";
 }

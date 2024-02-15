@@ -120,9 +120,8 @@ class AssistantSkillTriggerBindingProvider : ITriggerBindingProvider
             if (!string.IsNullOrEmpty(argumentsText))
             {
                 JObject argsJson = JObject.Parse(argumentsText);
-                JToken? paramValue = argsJson[this.parameterInfo.Name] ?? 
-                    throw new InvalidOperationException($"The parameter '{this.parameterInfo.Name}' was not found in the arguments.");
-                convertedValue = paramValue.ToObject(destinationType);
+                JToken? paramValue = argsJson[this.parameterInfo.Name];
+                convertedValue = paramValue?.ToObject(destinationType);
             }
             else
             {

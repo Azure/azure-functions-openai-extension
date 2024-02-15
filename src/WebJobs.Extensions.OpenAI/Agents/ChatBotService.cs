@@ -222,14 +222,13 @@ class DefaultChatBotService : IChatBotService
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
 
         string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
+        IList<ChatCompletionsFunctionToolDefinition>? functions = this.skillInvoker.GetFunctionsDefinitions();
 
         // We loop if the model returns function calls. Otherwise, we break after receiving a response.
         while (true)
         {
             // Get the next response from the LLM
-            ChatCompletionsOptions chatRequest = new(deploymentName, ToOpenAIChatRequestMessages(chatState.Messages)); ;
-
-            IList<ChatCompletionsFunctionToolDefinition>? functions = this.skillInvoker.GetFunctionsDefinitions();
+            ChatCompletionsOptions chatRequest = new(deploymentName, ToOpenAIChatRequestMessages(chatState.Messages));
             if (functions is not null)
             {
                 foreach (ChatCompletionsFunctionToolDefinition fn in functions)

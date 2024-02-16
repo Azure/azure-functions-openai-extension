@@ -7,7 +7,7 @@ on:
   pull_request_target:
     types: [assigned, opened, synchronize, reopened]
     branches: [ "main" ]
-    paths-ignore: [ '**.md', '**/nodejs/**', '**/java/**', '**/powershell/**', '**/python/**' ]
+    paths-ignore: [ '**.md', 'samples/*/nodejs/**', 'samples/*/java/**', 'samples/*/powershell/**', 'samples/*/python/**' ]
 
 env:
   config: Release

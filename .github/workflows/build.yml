@@ -4,10 +4,9 @@ on:
   push:
     branches: [ "main" ]
     paths-ignore: [ '**.md' ]
-  pull_request_target:
-    types: [assigned, opened, synchronize, reopened]
+  pull_request:
     branches: [ "main" ]
-    paths-ignore: [ '**.md', 'samples/*/nodejs/**', 'samples/*/java/**', 'samples/*/powershell/**', 'samples/*/python/**' ]
+    paths-ignore: [ '**.md' ]
 
 env:
   config: Release

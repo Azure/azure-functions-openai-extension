@@ -11,7 +11,7 @@ public class ChatBotPostRequest
     /// <summary>
     /// Gets user message that user has entered for chatbot to respond to.
     /// </summary>
-    public string UserMessage { get; set; }
+    public string? UserMessage { get; set; }
 
     /// <summary>
     /// Gets the ID of the chat bot to update.

@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// NOTE: This is using the new programming model, which is currently in preview.
-//       More information at https://aka.ms/AzFuncNodeV4.
-
 import { HttpRequest, InvocationContext, app, input, output } from "@azure/functions";
 
 

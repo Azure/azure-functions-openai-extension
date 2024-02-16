@@ -5,8 +5,9 @@ on:
     branches: [ "main" ]
     paths-ignore: [ '**.md' ]
   pull_request_target:
+    types: [assigned, opened, synchronize, reopened]
     branches: [ "main" ]
-    paths-ignore: [ '**.md' ]
+    paths-ignore: [ '**.md', '**/nodejs/**', '**/java/**', '**/powershell/**', '**/python/**' ]
 
 env:
   config: Release

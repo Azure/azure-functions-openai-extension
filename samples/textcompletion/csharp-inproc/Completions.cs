@@ -22,11 +22,11 @@ public static class Completions
     /// and embeds it into a text prompt, which is then sent to the OpenAI completions API.
     /// </summary>
     [FunctionName(nameof(WhoIs))]
-    public static string WhoIs(
+    public static IActionResult WhoIs(
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
         [TextCompletion("Who is {name}?")] TextCompletionResponse response)
     {
-        return response.Content;
+        return new OkObjectResult(response.Content); ;
     }
 
     /// <summary>

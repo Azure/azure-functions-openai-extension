@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
@@ -20,11 +21,13 @@ public static class TextCompletions
     /// and embeds it into a text prompt, which is then sent to the OpenAI completions API.
     /// </summary>
     [Function(nameof(WhoIs))]
-    public static string WhoIs(
+    public static HttpResponseData WhoIs(
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
         [TextCompletionInput("Who is {name}?")] TextCompletionResponse response)
     {
-        return response.Content;
+        HttpResponseData responseData = req.CreateResponse(HttpStatusCode.OK);
+        responseData.WriteString(response.Content);
+        return responseData;
     }
 
     /// <summary>

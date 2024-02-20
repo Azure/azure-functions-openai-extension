@@ -21,8 +21,8 @@ public static class ChatBotIsolated
 
     [Function(nameof(CreateChatBot))]
     public static async Task<CreateChatBotOutput> CreateChatBot(
-                [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] HttpRequestData req,
-                string chatId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] HttpRequestData req,
+        string chatId)
     {
         var responseJson = new { chatId };
 

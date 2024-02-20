@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json.Serialization;
+
 namespace Functions.Worker.Extensions.OpenAI;
 
 /// <summary>
@@ -22,10 +24,12 @@ public class ChatMessage
     /// <summary>
     /// Gets or sets the content of the message.
     /// </summary>
+    [JsonPropertyName("content")]
     public string Content { get; set; }
 
     /// <summary>
     /// Gets or sets the role of the chat agent.
     /// </summary>
+    [JsonPropertyName("role")]
     public string Role { get; set; }
 }

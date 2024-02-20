@@ -86,12 +86,14 @@ public static class ChatBotIsolated
     }
 
     [Function(nameof(GetChatState))]
-    public static ChatBotState GetChatState(
-       [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequest req,
+    public static async Task<HttpResponseData> GetChatState(
+       [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequestData req,
        string chatId,
        [ChatBotQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] ChatBotState state,
        FunctionContext context)
     {
-        return state;
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(state);
+        return response;
     }
 }

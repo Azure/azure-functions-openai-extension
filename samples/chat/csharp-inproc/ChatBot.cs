@@ -26,7 +26,7 @@ public static class ChatBot
     {
         await createRequests.AddAsync(new ChatBotCreateRequest(chatId, req.Instructions));
         var responseJson = new { chatId };
-        return new ObjectResult(responseJson) { StatusCode = 202 };
+        return new ObjectResult(new { StatusCode = (int)HttpStatusCode.Created });
     }
 
     [FunctionName(nameof(GetChatState))]

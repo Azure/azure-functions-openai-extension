@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -50,6 +51,6 @@ public static class ChatBot
         }
 
         newMessages.Add(new ChatBotPostRequest(userMessage));
-        return new AcceptedResult();
+        return new ObjectResult(new { StatusCode = (int)HttpStatusCode.Created });
     }
 }

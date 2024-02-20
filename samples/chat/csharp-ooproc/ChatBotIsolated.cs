@@ -1,8 +1,8 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Functions.Worker.Extensions.OpenAI;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -21,13 +21,13 @@ public static class ChatBotIsolated
 
     [Function(nameof(CreateChatBot))]
     public static async Task<CreateChatBotOutput> CreateChatBot(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] HttpRequestData req,
-            string chatId)
+                [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] HttpRequestData req,
+                string chatId)
     {
         var responseJson = new { chatId };
 
-        using StreamReader reader = new StreamReader(req.Body);
-        
+        using StreamReader reader = new(req.Body);
+
         string request = await reader.ReadToEndAsync();
 
         CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
@@ -37,9 +37,12 @@ public static class ChatBotIsolated
             throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
         }
 
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
+        await response.WriteAsJsonAsync(responseJson);
+
         return new CreateChatBotOutput
         {
-            HttpResponse = new ObjectResult(responseJson) { StatusCode = 202 },
+            HttpResponse = response,
             ChatBotCreateRequest = new ChatBotCreateRequest(chatId, createRequestBody.Instructions),
         };
     }
@@ -49,7 +52,7 @@ public static class ChatBotIsolated
         [ChatBotCreateOutput()]
         public ChatBotCreateRequest? ChatBotCreateRequest { get; set; }
 
-        public IActionResult? HttpResponse { get; set; }
+        public HttpResponseData? HttpResponse { get; set; }
     }
 
     [Function(nameof(PostUserResponse))]
@@ -60,12 +63,16 @@ public static class ChatBotIsolated
         string? userMessage = await req.ReadAsStringAsync();
         if (string.IsNullOrEmpty(userMessage))
         {
-            return new PostResponseOutput { HttpResponse = new BadRequestObjectResult(new { message = "Request body is empty" }) };
+            HttpResponseData badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+            await badResponse.WriteStringAsync("Request body is empty");
+            return new PostResponseOutput { HttpResponse = badResponse };
         }
+
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
 
         return new PostResponseOutput
         {
-            HttpResponse = new AcceptedResult(),
+            HttpResponse = response,
             ChatBotPostRequest = new ChatBotPostRequest { UserMessage = userMessage, Id = chatId }
         };
     }
@@ -75,7 +82,7 @@ public static class ChatBotIsolated
         [ChatBotPostOutput("{chatId}", Model = "gpt-3.5-turbo")]
         public ChatBotPostRequest? ChatBotPostRequest { get; set; }
 
-        public IActionResult? HttpResponse { get; set; }
+        public HttpResponseData? HttpResponse { get; set; }
     }
 
     [Function(nameof(GetChatState))]

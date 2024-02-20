@@ -1,0 +1,8 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "KustoConnectionString": "Data Source=https://YOUR-CLUSTER-HOSTNAME;Initial Catalog=YOUR-DATABASE-NAME;Fed=True"
+  }
+}

@@ -41,7 +41,7 @@ public class Chat
             requestUri: $"{baseAddress}/api/chats/{chatId}",
             createRequest,
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Accepted, createResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         Assert.StartsWith("application/json", createResponse.Content.Headers.ContentType?.MediaType);
 
         // Expected: {"chatId":"superbowl-<random>"}
@@ -58,7 +58,7 @@ public class Chat
             requestUri: $"{baseAddress}/api/chats/{chatId}",
             new StringContent("Who won the Superbowl in 2014?"),
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Accepted, questionResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
 
         // Ensure that the model responded and mentioned the Seahawks as the 2014 Superbowl winners.
         await ValidateChatBotResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks");
@@ -67,7 +67,7 @@ public class Chat
             requestUri: $"{baseAddress}/api/chats/{chatId}",
             new StringContent("Who performed the halftime show?"),
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Accepted, questionResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
 
         // Ensure that the model responded with Bruno Mars as the halftime show performer.
         await ValidateChatBotResponseAsync(expectedMessageCount: 5, expectedContent: "Bruno Mars");

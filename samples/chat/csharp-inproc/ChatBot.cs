@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,17 +24,16 @@ public static class ChatBot
         [ChatBotCreate] IAsyncCollector<ChatBotCreateRequest> createRequests)
     {
         await createRequests.AddAsync(new ChatBotCreateRequest(chatId, req.Instructions));
-        var responseJson = new { chatId };
-        return new ObjectResult(new { StatusCode = (int)HttpStatusCode.Created });
+        return new CreatedResult("chats/{chatId}", new { chatId });
     }
 
     [FunctionName(nameof(GetChatState))]
-    public static ChatBotState GetChatState(
+    public static IActionResult GetChatState(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequest req,
         string chatId,
         [ChatBotQuery("{chatId}", TimestampUtc = "{Query.timestampUTC}")] ChatBotState state)
     {
-        return state;
+        return new OkObjectResult(state);
     }
 
     [FunctionName(nameof(PostUserResponse))]
@@ -51,6 +49,6 @@ public static class ChatBot
         }
 
         newMessages.Add(new ChatBotPostRequest(userMessage));
-        return new ObjectResult(new { StatusCode = (int)HttpStatusCode.Created });
+        return new CreatedResult("chats/{chatId}", null);
     }
 }

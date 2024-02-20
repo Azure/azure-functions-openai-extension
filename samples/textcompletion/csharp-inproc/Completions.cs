@@ -26,7 +26,7 @@ public static class Completions
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
         [TextCompletion("Who is {name}?")] TextCompletionResponse response)
     {
-        return new OkObjectResult(response.Content); ;
+        return new OkObjectResult(response.Content);
     }
 
     /// <summary>

@@ -35,16 +35,13 @@ public static class TextCompletions
     /// response as the output.
     /// </summary>
     [Function(nameof(GenericCompletion))]
-    public static IActionResult GenericCompletion(
-        [HttpTrigger(AuthorizationLevel.Function, "post")] PromptPayload payload,
+    public static HttpResponseData GenericCompletion(
+        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
         [TextCompletionInput("{Prompt}")] TextCompletionResponse response,
         ILogger log)
     {
-        // ToDo: Investigate payload null reference exception
-        // log.LogInformation("Prompt = {prompt}, Response = {response}", payload?.Prompt, response);
-        string text = response.Content;
-        return new OkObjectResult(text);
+        HttpResponseData responseData = req.CreateResponse(HttpStatusCode.OK);
+        responseData.WriteString(response.Content);
+        return responseData;
     }
-
-    public record PromptPayload(string Prompt);
 }

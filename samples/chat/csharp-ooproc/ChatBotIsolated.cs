@@ -37,8 +37,8 @@ public static class ChatBotIsolated
             throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
         }
 
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
-        await response.WriteAsJsonAsync(responseJson);
+        HttpResponseData response = req.CreateResponse();
+        await response.WriteAsJsonAsync(responseJson, HttpStatusCode.Created);
 
         return new CreateChatBotOutput
         {

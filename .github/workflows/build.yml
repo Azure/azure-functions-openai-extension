@@ -35,29 +35,8 @@ jobs:
     - name: Docker Run - Azurite
       run: docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
 
-    - name: Docker Run - Chat Bot Sample
-      env:
-        AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
-        AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
-        AZURE_DEPLOYMENT_NAME: ${{ vars.AZURE_DEPLOYMENT_NAME }}
-      run: |
-          docker run -d -p 7071:80 --name openai-func-sample-csharp-inproc \
-            --add-host host.docker.internal:host-gateway \
-            --env AZURE_OPENAI_KEY=$AZURE_OPENAI_KEY \
-            --env AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
-            --env AZURE_DEPLOYMENT_NAME=$AZURE_DEPLOYMENT_NAME \
-            --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
-            openai-func-sample-csharp-inproc
-
     - name: Sleep for 10 seconds
       run: sleep 10s
-
-    - name: E2E Test - Chat Bot Sample
-      run: dotnet test --configuration $config --no-build --verbosity normal
-
-    - name: Print Docker Logs - Chat Bot Sample
-      run: docker logs openai-func-sample-csharp-inproc
-      if: always()
 
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts

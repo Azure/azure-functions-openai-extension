@@ -12,6 +12,10 @@ app.generic('AddTodo', {
         functionDescription: 'Create a new todo task'
     }),
     handler: async (taskDescription: string, context: InvocationContext) => {
+        if (!taskDescription) {
+            throw new Error('Task description cannot be empty')
+        }
+
         context.log(`Adding todo: ${taskDescription}`)
 
         const todoId = crypto.randomUUID().substring(0, 6)

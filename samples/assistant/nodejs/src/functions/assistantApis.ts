@@ -31,8 +31,7 @@ app.http('CreateAssistant', {
 
 const chatBotPostOutput = output.generic({
     type: 'chatBotPost',
-    id: '{assistantId}',
-    model: 'gpt-4'
+    id: '{assistantId}'
 })
 app.http('PostUserQuery', {
     methods: ['POST'],

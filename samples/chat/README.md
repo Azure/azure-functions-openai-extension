@@ -5,6 +5,7 @@ This sample demonstrates how to build a chatbot using Azure Functions and a loca
 The sample is available in the following language stacks:
 
 * [C# on the in-process worker](csharp-inproc)
+* [C# on the out of process worker](csharp-ooproc)
 * [TypeScript on the Node.js worker](nodejs)
 * [Powershell](powershell)
 * [Python](python)
@@ -21,6 +22,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | Language Worker | Command |
     | --------------- | ------- |
     | .NET in-proc | `cd samples/chat/csharp-inproc && dotnet build && cd bin/debug/net6.0 && func start` |
+    | .NET oo-proc | `cd samples/chat/csharp-ooproc && dotnet build && cd bin/debug/net6.0 && func start` |
     | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/chat/python && dotnet build --output bin && func start` |

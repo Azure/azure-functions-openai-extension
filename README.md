@@ -48,7 +48,7 @@ The `textCompletion` input binding can be used to invoke the [OpenAI Chat Comple
 
 The examples below define "who is" HTTP-triggered functions with a hardcoded `"who is {name}?"` prompt, where `{name}` is the substituted with the value in the HTTP request path. The OpenAI input binding invokes the OpenAI GPT endpoint to surface the answer to the prompt to the function, which then returns the result text as the response content.
 
-#### [C# example](./samples/other/dotnet/csharp-inproc/)
+#### [C# example](./samples/textcompletion/csharp-inproc/)
 
 Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
 
@@ -62,7 +62,7 @@ public static string WhoIs(
 }
 ```
 
-#### [TypeScript example](./samples/other/nodejs/)
+#### [TypeScript example](./samples/textcompletion/nodejs/)
 
 ```typescript
 import { app, input } from "@azure/functions";
@@ -87,7 +87,7 @@ app.http('whois', {
 });
 ```
 
-#### [PowerShell example](./samples/other/powershell/)
+#### [PowerShell example](./samples/textcompletion/powershell/)
 
 ```PowerShell
 using namespace System.Net
@@ -115,7 +115,7 @@ If using Azure OpenAI, update the deployment name to model property in function.
 }
 ```
 
-#### [Python example](./samples/other/python/)
+#### [Python example](./samples/textcompletion/python/)
 
 Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
 
@@ -155,7 +155,7 @@ You can find more instructions for running the samples in the corresponding proj
 
 ### Chat bots
 
-[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered chat bots. This extension adds a built-in `OpenAI::ChatBotEntity` function that's powered by the [Durable Functions](https://learn.microsoft.com/azure/azure-functions/durable/durable-functions-overview) extension to implement a long-running chat bot entity.
+[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered chat bots.
 
 There are three bindings you can use to interact with the chat bot:
 
@@ -221,7 +221,7 @@ OpenAI's [text embeddings](https://platform.openai.com/docs/guides/embeddings) m
 
 Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use.
 
-#### [C# embeddings generator example](./samples/other/dotnet/csharp-inproc/EmbeddingsGenerator.cs)
+#### [C# embeddings generator example](./samples/embeddings/csharp-inproc/EmbeddingsGenerator.cs)
 
 ```csharp
 [FunctionName(nameof(GenerateEmbeddings_Http_Request))]
@@ -249,7 +249,7 @@ The semantic search feature allows you to import documents into a vector databas
 
  More may be added over time.
 
-#### [C# document storage example](./samples/other/dotnet/csharp-inproc/Demos/EmailPromptDemo.cs)
+#### [C# document storage example](./samples/embeddings/csharp-inproc/SemanticSearchEmbeddings/EmailPromptDemo.cs)
 
 This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) (a.k.a. Kusto).
 
@@ -268,7 +268,7 @@ public static async Task<IActionResult> IngestEmail(
 }
 ```
 
-#### [C# document query example](./samples/other/dotnet/csharp-inproc/Demos/EmailPromptDemo.cs)
+#### [C# document query example](./samples/embeddings/csharp-inproc/SemanticSearchEmbeddings/EmailPromptDemo.cs)
 
 This HTTP trigger function takes a query prompt as input, pulls in semantically similar document chunks into a prompt, and then sends the combined prompt to OpenAI. The results are then made available to the function, which simply returns that chat response to the caller.
 

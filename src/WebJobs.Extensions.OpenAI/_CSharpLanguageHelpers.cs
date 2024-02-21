@@ -1,5 +1,5 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 // This file defines several classes and methods that exist in .NET Core but not in .NET Standard.
 // They are defined here to enable certain C# features that otherwise require higher framework versions.

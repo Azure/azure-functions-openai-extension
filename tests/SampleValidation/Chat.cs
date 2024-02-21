@@ -41,7 +41,7 @@ public class Chat
             requestUri: $"{baseAddress}/api/chats/{chatId}",
             createRequest,
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Accepted, createResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
         Assert.StartsWith("application/json", createResponse.Content.Headers.ContentType?.MediaType);
 
         // Expected: {"chatId":"superbowl-<random>"}
@@ -58,22 +58,22 @@ public class Chat
             requestUri: $"{baseAddress}/api/chats/{chatId}",
             new StringContent("Who won the Superbowl in 2014?"),
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Accepted, questionResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
 
         // Ensure that the model responded and mentioned the Seahawks as the 2014 Superbowl winners.
-        await ValidateChatBotResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks");
+        await ValidateChatBotResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
 
         using HttpResponseMessage followupResponse = await client.PostAsync(
             requestUri: $"{baseAddress}/api/chats/{chatId}",
             new StringContent("Who performed the halftime show?"),
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Accepted, questionResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
 
         // Ensure that the model responded with Bruno Mars as the halftime show performer.
-        await ValidateChatBotResponseAsync(expectedMessageCount: 5, expectedContent: "Bruno Mars");
+        await ValidateChatBotResponseAsync(expectedMessageCount: 5, expectedContent: "Bruno Mars", hasTotalTokens: true);
 
         // Local function to validate each chat bot response
-        async Task ValidateChatBotResponseAsync(int expectedMessageCount, string expectedContent)
+        async Task ValidateChatBotResponseAsync(int expectedMessageCount, string expectedContent, bool hasTotalTokens = false)
         {
             // It may take a few seconds for the chat bot response to appear
             while (!cts.IsCancellationRequested)
@@ -93,6 +93,12 @@ public class Chat
                 if (totalMessages > 0)
                 {
                     Assert.True(json!["exists"]?.GetValue<bool>());
+                }
+
+                if (hasTotalTokens)
+                {
+                    int totalTokens = json!["totalTokens"]?.GetValue<int>() ?? -1;
+                    Assert.True(totalTokens > 0, "Field 'totalTokens' is not set.");
                 }
 
                 JsonArray? messageArray = json!["recentMessages"]?.AsArray();

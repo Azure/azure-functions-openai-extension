@@ -1,6 +1,8 @@
 variables:
   buildConfiguration: Release
 
+pr: none
+
 # Batch builds
 trigger:
   branches:
@@ -8,7 +10,8 @@ trigger:
       - main
   paths:
     include:
-      - src/WebJobs.Extensions.OpenAI*/*
+      - src/Directory.Build.props
+      - src/Functions.Worker.Extensions.OpenAI/AssemblyInfo.cs
     exclude:
       - '**.md'
 

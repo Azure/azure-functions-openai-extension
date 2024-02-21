@@ -29,7 +29,7 @@ jobs:
     - name: Main Build
       run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER
 
-    - name: Docker Build - Chat Bot Sample
+    - name: Docker Build - Chat Bot Sample In Proc
       run: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
 
     - name: Docker Run - Azurite
@@ -61,6 +61,26 @@ jobs:
 
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Docker Build - Chat Bot Sample Out of proc
+      run: docker build -f samples/chat/csharp-ooproc/Dockerfile -t openai-func-sample-csharp-ooproc .
+
+    - name: Docker Run - Chat Bot Sample Out of Proc
+      env:
+        AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
+        AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+        AZURE_DEPLOYMENT_NAME: ${{ vars.AZURE_DEPLOYMENT_NAME }}
+      run: |
+          docker run -d -p 7071:80 --name openai-func-sample-csharp-ooproc \
+            --add-host host.docker.internal:host-gateway \
+            --env AZURE_OPENAI_KEY=$AZURE_OPENAI_KEY \
+            --env AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
+            --env AZURE_DEPLOYMENT_NAME=$AZURE_DEPLOYMENT_NAME \
+            --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
+            openai-func-sample-csharp-ooproc
 
     - name: Upload
       uses: actions/upload-artifact@v3

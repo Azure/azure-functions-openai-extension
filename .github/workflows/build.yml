@@ -74,7 +74,7 @@ jobs:
         AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
         AZURE_DEPLOYMENT_NAME: ${{ vars.AZURE_DEPLOYMENT_NAME }}
       run: |
-          docker run -d -p 7071:80 --name openai-func-sample-csharp-ooproc \
+          docker run -d -p 7072:80 --name openai-func-sample-csharp-ooproc \
             --add-host host.docker.internal:host-gateway \
             --env AZURE_OPENAI_KEY=$AZURE_OPENAI_KEY \
             --env AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \

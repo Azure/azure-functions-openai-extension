@@ -402,3 +402,10 @@ __blobstorage__
 __queuestorage__
 __azurite_db*__.json
 .python_packages
+
+# Visual Studio Code auto-generated files
+**/.vscode/*
+.idea/*
+
+# node js dist folder
+**/dist/*

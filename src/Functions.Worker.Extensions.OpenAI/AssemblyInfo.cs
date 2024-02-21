@@ -4,4 +4,4 @@
 
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-[assembly: ExtensionInformation("Microsoft.Azure.WebJobs.Extensions.OpenAI", "0.8.0-alpha")]
+[assembly: ExtensionInformation("Microsoft.Azure.WebJobs.Extensions.OpenAI", "0.9.0-alpha")]

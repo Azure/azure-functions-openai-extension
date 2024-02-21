@@ -24,17 +24,16 @@ public static class ChatBot
         [ChatBotCreate] IAsyncCollector<ChatBotCreateRequest> createRequests)
     {
         await createRequests.AddAsync(new ChatBotCreateRequest(chatId, req.Instructions));
-        var responseJson = new { chatId };
-        return new ObjectResult(responseJson) { StatusCode = 202 };
+        return new CreatedResult("chats/{chatId}", new { chatId });
     }
 
     [FunctionName(nameof(GetChatState))]
-    public static ChatBotState GetChatState(
+    public static IActionResult GetChatState(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequest req,
         string chatId,
         [ChatBotQuery("{chatId}", TimestampUtc = "{Query.timestampUTC}")] ChatBotState state)
     {
-        return state;
+        return new OkObjectResult(state);
     }
 
     [FunctionName(nameof(PostUserResponse))]
@@ -50,6 +49,6 @@ public static class ChatBot
         }
 
         newMessages.Add(new ChatBotPostRequest(userMessage));
-        return new AcceptedResult();
+        return new CreatedResult("chats/{chatId}", null);
     }
 }

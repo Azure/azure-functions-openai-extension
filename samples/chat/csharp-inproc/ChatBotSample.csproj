@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
@@ -8,14 +8,11 @@
     <None Include="..\demo.http" Link="demo.http" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <!-- OPTIONAL: Replace this with a package reference to Microsoft.Azure.WebJobs.Extensions.OpenAI -->
     <ProjectReference Include="..\..\..\src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="7.0.*" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

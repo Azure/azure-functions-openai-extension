@@ -2,8 +2,13 @@
   "version": "2.0",
   "logging": {
     "logLevel": {
-      "default": "Warning",
-      "WebJobs": "Information"
+      "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
+    }
+  },
+  "extensions": {
+    "openai": {
+      "storageConnectionName": "AzureWebJobsStorage",
+      "collectionName": "ChatBotRequests"
     }
   }
 }

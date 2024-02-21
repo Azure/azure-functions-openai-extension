@@ -122,7 +122,7 @@ class DefaultChatBotService : IChatBotService
             // delete any remaining
             await DeleteBatch();
         }
-        
+
         // Create a batch of table transaction actions
         List<TableTransactionAction> batch = new();
 
@@ -270,6 +270,9 @@ class DefaultChatBotService : IChatBotService
                     request.Id,
                     chatState.Metadata.TotalMessages);
             }
+
+            // Set the total tokens that have been consumed.
+            chatState.Metadata.TotalTokens = response.Value.Usage.TotalTokens;
 
             // Check for function calls (which are described in the API as tools)
             List<ChatCompletionsFunctionToolCall> functionCalls = response.Value.Choices

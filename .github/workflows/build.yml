@@ -68,10 +68,10 @@ jobs:
       run: mkdir NuGetPackagesLocal
 
     - name: Copy artifact
-      run: cp /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.10.0-alpha.nupkg NuGetPackagesLocal
+      run: cp /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.11.0-alpha.nupkg NuGetPackagesLocal
 
     - name: Set up local-packages Nuget source
-      run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.10.0-alpha.nupkg -Source /NuGetPackagesLocal
+      run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.11.0-alpha.nupkg -Source /NuGetPackagesLocal
 
     - name: Restore dependencies
       run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"

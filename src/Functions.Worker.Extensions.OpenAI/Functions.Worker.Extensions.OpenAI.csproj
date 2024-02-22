@@ -3,11 +3,19 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Microsoft Azure Functions .NET Isolated Worker Extension for OpenAI</Description>
+    <Version>0.10.0-alpha</Version>
+    <OOPWorkerSupportedExtensionVersion>0.10.0-alpha</OOPWorkerSupportedExtensionVersion>
   </PropertyGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Abstractions" Version="1.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="Microsoft.Azure.Functions.Worker.Extensions.Abstractions.ExtensionInformationAttribute">
+      <_Parameter1>Microsoft.Azure.WebJobs.Extensions.OpenAI</_Parameter1>
+      <_Parameter2>$(OOPWorkerSupportedExtensionVersion)</_Parameter2>
+    </AssemblyAttribute>
   </ItemGroup>
 </Project>

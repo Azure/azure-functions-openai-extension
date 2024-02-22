@@ -58,6 +58,12 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts
 
+    - name: PropertyValue
+      run: propertyValue=$(sed -n 's/.*<OOPWorkerSupportedExtensionVersion>\(.*\)<\/OOPWorkerSupportedExtensionVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+
+    - name: Append dev
+      run: propertyValue+="-dev"
+
     - name: Create new directory
       run: mkdir NuGetPackagesLocal
 
@@ -71,7 +77,7 @@ jobs:
       run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
 
     - name: Build with Nuget package
-      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER
+      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:OOPWorkerSupportedExtensionVersion=${{}}
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

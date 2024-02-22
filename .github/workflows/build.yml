@@ -54,9 +54,12 @@ jobs:
 
     - name: Sleep for 10 seconds
       run: sleep 10s
+      
+    - name: Pack
+      run: dotnet pack --configuration $config --no-build --output artifacts
 
     - name: Set up local-packages Nuget source
-      run: nuget add source -n test $(Build.SourcesDirectory)/local-packages
+      run: nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.9.0-alpha.nupkg -Source $(Build.SourcesDirectory)/local-packages
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal
@@ -64,9 +67,6 @@ jobs:
     - name: Print Docker Logs - Out of Proc Chat Bot Sample
       run: docker logs openai-func-sample-csharp-ooproc
       if: always()
-
-    - name: Pack
-      run: dotnet pack --configuration $config --no-build --output artifacts
 
     - name: Upload
       uses: actions/upload-artifact@v3

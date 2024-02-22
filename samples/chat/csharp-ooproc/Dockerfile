@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 # Add support for .NET 6 (required for Azure Functions build process)
 COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet/shared /usr/share/dotnet/shared
 
- Install Azure Functions Core Tools
+# Install Azure Functions Core Tools
 RUN npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
 # Need to build the full repo to get the samples to work

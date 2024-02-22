@@ -16,6 +16,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    variables:
+      propertyValue: $(sed -n 's/.*<OOPWorkerSupportedExtensionVersion>\(.*\)<\/OOPWorkerSupportedExtensionVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -59,7 +62,7 @@ jobs:
       run: dotnet pack --configuration $config --no-build --output artifacts
 
     - name: PropertyValue
-      run: PropertyValue=$(sed -n 's/.*<OOPWorkerSupportedExtensionVersion>\(.*\)<\/OOPWorkerSupportedExtensionVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+      run: PropertyValue=
 
     - name: Append dev
       run: PropertyValue+="-dev"

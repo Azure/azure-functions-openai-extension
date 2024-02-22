@@ -68,7 +68,7 @@ jobs:
       run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.10.0-alpha.nupkg -Source /NuGetPackagesLocal
 
     - name: Restore dependencies
-      run: dotnet restore --source "https://api.nuget.org/v3/index.json" --source "NuGetPackagesLocal"
+      run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
 
     - name: Build with Nuget package
       run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER

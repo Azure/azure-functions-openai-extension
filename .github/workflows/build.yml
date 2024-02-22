@@ -24,7 +24,7 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore --source
 
     - name: Main Build
       run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER
@@ -58,8 +58,11 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts
 
+    - name: Create new directory
+      run: mkdir NuGetPackagesLocal
+
     - name: Set up local-packages Nuget source
-      run: nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.9.0-alpha.nupkg -Source $(Build.SourcesDirectory)/local-packages
+      run: nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.9.0-alpha.nupkg -Source /NuGetPackagesLocal
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

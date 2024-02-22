@@ -24,7 +24,7 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Restore dependencies
-      run: dotnet restore --source
+      run: dotnet restore
 
     - name: Main Build
       run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER

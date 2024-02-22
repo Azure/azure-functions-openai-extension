@@ -67,6 +67,12 @@ jobs:
     - name: Set up local-packages Nuget source
       run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.10.0-alpha.nupkg -Source /NuGetPackagesLocal
 
+    - name: Restore dependencies
+      run: dotnet restore --source "NuGetPackagesLocal"
+
+    - name: Build with Nuget package
+      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER
+
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal
 

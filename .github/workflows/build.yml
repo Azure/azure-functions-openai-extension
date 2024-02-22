@@ -61,8 +61,11 @@ jobs:
     - name: Create new directory
       run: mkdir NuGetPackagesLocal
 
+    - name: Copy artifact
+      run: cp /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.10.0-alpha.nupkg NuGetPackagesLocal
+
     - name: Set up local-packages Nuget source
-      run: nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.10.0-alpha.nupkg -Source /NuGetPackagesLocal
+      run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.10.0-alpha.nupkg -Source /NuGetPackagesLocal
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

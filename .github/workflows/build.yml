@@ -69,16 +69,12 @@ jobs:
         newVersion="${version}-test"
         echo "$test"
         echo "$newVersion"
-        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
+
+        dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Microsoft.Azure.WebJobs.Extensions.OpenAI/Microsoft.Azure.WebJobs.Extensions.OpenAI.csproj --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
         cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" NuGetPackagesLocal
-
-    - name: Set up local-packages Nuget source
-      run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.11.0-alpha-test.nupkg -Source /NuGetPackagesLocal
-    
-    - name: Restore dependencies
-      run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
-
-
+        dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
+        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion
+       
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal
 

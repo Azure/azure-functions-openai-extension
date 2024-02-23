@@ -74,7 +74,8 @@ jobs:
     - name: Get version
       run: |
         version=$(sed -n 's/.*<WebJobsVersion>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
-        version="${version}-dev"
+        version="${version}-test"
+        echo "$test"
         echo "$version"
         dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$version
 

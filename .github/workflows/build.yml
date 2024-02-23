@@ -10,6 +10,7 @@ on:
 
 env:
   config: Release
+  version: ''
   
 jobs:
   build:
@@ -55,17 +56,18 @@ jobs:
     - name: Sleep for 10 seconds
       run: sleep 10s
       
+      
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts
 
-    - name: PropertyValue
-      run: PropertyValue=$(sed -n 's/.*<OOPWorkerSupportedExtensionVersion>\(.*\)<\/OOPWorkerSupportedExtensionVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+    - name: Get version
+      run: version=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
 
     - name: Append dev
-      run: PropertyValue+="-dev"
+      run: version+="-dev"
 
     - name: Print it out
-      run: echo "$(PropertyValue)"
+      run: echo "$(version)"
 
     - name: Create new directory
       run: mkdir NuGetPackagesLocal
@@ -80,7 +82,7 @@ jobs:
       run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
 
     - name: Build with Nuget package
-      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:OOPWorkerSupportedExtensionVersion=$(PropertyValue)
+      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:OOPWorkerSupportedExtensionVersion=$(version)
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

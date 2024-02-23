@@ -67,7 +67,7 @@ jobs:
       run: version+="-dev"
 
     - name: Print it out
-      run: echo "$(version)"
+      run: echo $version
 
     - name: Create new directory
       run: mkdir NuGetPackagesLocal
@@ -82,7 +82,7 @@ jobs:
       run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
 
     - name: Build with Nuget package
-      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:OOPWorkerSupportedExtensionVersion=$(version)
+      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$version
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

@@ -74,10 +74,10 @@ jobs:
     - name: Get version
       run: |
         version=$(sed -n 's/.*<WebJobsVersion>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
-        version="${version}-test"
+        newVersion="${version}-test"
         echo "$test"
-        echo "$version"
-        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$version
+        echo "$newVersion"
+        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

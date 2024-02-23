@@ -10,7 +10,6 @@ on:
 
 env:
   config: Release
-  version: ''
   
 jobs:
   build:
@@ -56,12 +55,13 @@ jobs:
     - name: Sleep for 10 seconds
       run: sleep 10s
       
-      
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts
 
     - name: Get version
-      run: version=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+      run: |
+        version=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+        echo "##vso[task.setvariable variable=version]$version"
 
     - name: Append dev
       run: version+="-dev"

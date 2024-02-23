@@ -71,7 +71,7 @@ jobs:
         echo "$newVersion"
 
         dotnet nuget locals all --clear
-        dotnet new nugetconfig 
+        dotnet new nugetconfig --force
         dotnet nuget add source /NuGetPackagesLocal
         dotnet nuget add source "https://www.nuget.org/api/v2/"
         dotnet nuget list source

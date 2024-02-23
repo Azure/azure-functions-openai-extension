@@ -69,7 +69,7 @@ jobs:
         newVersion="${version}-test"
         echo "$test"
         echo "$newVersion"
-        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion
+        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
         cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" NuGetPackagesLocal
 
     - name: Set up local-packages Nuget source

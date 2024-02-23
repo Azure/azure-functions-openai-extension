@@ -62,15 +62,6 @@ jobs:
     - name: Create new directory
       run: mkdir NuGetPackagesLocal
 
-    - name: Copy artifact
-      run: cp /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.11.0-alpha.nupkg NuGetPackagesLocal
-
-    - name: Set up local-packages Nuget source
-      run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.11.0-alpha.nupkg -Source /NuGetPackagesLocal
-
-    - name: Restore dependencies
-      run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
-
     - name: Get version
       run: |
         version=$(sed -n 's/.*<WebJobsVersion>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
@@ -78,7 +69,15 @@ jobs:
         newVersion="${version}-test"
         echo "$test"
         echo "$newVersion"
-        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
+        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion
+        cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" NuGetPackagesLocal
+
+    - name: Set up local-packages Nuget source
+      run: sudo nuget add /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/artifacts/Microsoft.Azure.WebJobs.Extensions.OpenAI.0.11.0-alpha-test.nupkg -Source /NuGetPackagesLocal
+    
+    - name: Restore dependencies
+      run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
+
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

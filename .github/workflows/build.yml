@@ -58,17 +58,6 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration $config --no-build --output artifacts
 
-    - name: Get version
-      run: |
-        version=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
-        echo "##vso[task.setvariable variable=version]$version"
-
-    - name: Append dev
-      run:  echo "##vso[task.setvariable variable=version]$version-dev"
-
-    - name: Print it out
-      run: echo "$version"
-
     - name: Create new directory
       run: mkdir NuGetPackagesLocal
 
@@ -81,8 +70,12 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore --source "NuGetPackagesLocal" --source "https://api.nuget.org/v3/index.json"
 
-    - name: Build with Nuget package
-      run: dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$version
+    - name: Get version
+      run: |
+        version=$(sed -n 's/.*<WebJobsVersion>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+        version += "-dev"
+        echo "$version"
+        dotnet build --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$version
 
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

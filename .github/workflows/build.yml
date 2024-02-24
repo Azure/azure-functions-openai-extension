@@ -10,7 +10,6 @@ on:
 
 env:
   config: Release
-  test: $(sed -n 's/.*<WebJobsVersion>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
   
 jobs:
   build:
@@ -58,10 +57,11 @@ jobs:
         version=$(sed -n 's/.*<WebJobsVersion>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
         echo "$version"
         newVersion="${version}-test"
-        echo "$test"
         echo "$newVersion"
 
+        pwd
         dotnet nuget locals all --clear
+        dotnet new nuget.config --force 
         dotnet nuget add source /NuGetPackagesLocal
         dotnet nuget list source
         dotnet restore -v n

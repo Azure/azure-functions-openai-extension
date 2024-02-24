@@ -59,7 +59,7 @@ jobs:
         newVersion="${version}-test"
         echo "$newVersion"
 
-        dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
+        dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
         sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" ~/NuGetPackagesLocal
         ls ~/NuGetPackagesLocal
 

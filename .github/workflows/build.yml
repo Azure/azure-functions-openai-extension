@@ -50,7 +50,7 @@ jobs:
       run: sleep 10s
 
     - name: Create new directory
-      run: mkdir NuGetPackagesLocal
+      run: mkdir ~/NuGetPackagesLocal
 
     - name: Get version
       run: |
@@ -60,13 +60,13 @@ jobs:
         echo "$newVersion"
 
         dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config --no-restore -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:Version=$newVersion
-        sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" /NuGetPackagesLocal
-        ls /NuGetPackagesLocal
+        sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" ~/NuGetPackagesLocal
+        ls ~/NuGetPackagesLocal
 
         pwd
         dotnet nuget locals all --clear
         dotnet new nuget.config --force 
-        dotnet nuget add source /NuGetPackagesLocal
+        dotnet nuget add source ~/NuGetPackagesLocal
         dotnet nuget list source
         dotnet restore -v n
         

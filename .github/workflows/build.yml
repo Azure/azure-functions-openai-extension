@@ -23,6 +23,7 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
+        
 
     - name: Docker Build - Chat Bot Sample Out of proc
       run: docker build -f samples/chat/csharp-ooproc/Dockerfile -t openai-func-sample-csharp-ooproc .

@@ -7,11 +7,11 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.DependencyInjection;
 
 // Reference: https://docs.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection
-[assembly: FunctionsStartup(typeof(OpenAIKustoStartup))]
+[assembly: FunctionsStartup(typeof(OpenAIKusto))]
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto;
 
-class OpenAIKustoStartup : FunctionsStartup
+class OpenAIKusto : FunctionsStartup
 {
     public override void Configure(IFunctionsHostBuilder builder)
     {

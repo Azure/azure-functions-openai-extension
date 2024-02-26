@@ -72,13 +72,13 @@ public static class ChatBotIsolated
         return new PostResponseOutput
         {
             HttpResponse = response,
-            ChatBotPostRequest = new ChatBotPostRequest { UserMessage = userMessage, Id = chatId, Model = "%AZURE_DEPLOYMENT_NAME%" }
+            ChatBotPostRequest = new ChatBotPostRequest { UserMessage = userMessage, Id = chatId }
         };
     }
 
     public class PostResponseOutput
     {
-        [ChatBotPostOutput("{chatId}", Model = "gpt-3.5-turbo")]
+        [ChatBotPostOutput("{chatId}", Model = "%AZURE_DEPLOYMENT_NAME%")]
         public ChatBotPostRequest? ChatBotPostRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }

@@ -56,6 +56,8 @@ jobs:
       run: |
         version=$(sed -n 's/.*<WebJobsVersion Condition='\''$'\''(\''$(WebJobsVersion)'\'') == '\'''\''>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
         echo "$version"
+        anotherTest = $(VersionPrefix)
+        echo "$anotherTest"
         test="${VersionPrefix}-${VersionSuffix}"
         echo "$test"
         newVersion="${version}-test"

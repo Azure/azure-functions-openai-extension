@@ -2,7 +2,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Functions.Worker.Extensions.OpenAI;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -73,7 +72,7 @@ public static class ChatBotIsolated
         return new PostResponseOutput
         {
             HttpResponse = response,
-            ChatBotPostRequest = new ChatBotPostRequest { UserMessage = userMessage, Id = chatId }
+            ChatBotPostRequest = new ChatBotPostRequest { UserMessage = userMessage, Id = chatId, Model = "%AZURE_DEPLOYMENT_NAME%" }
         };
     }
 

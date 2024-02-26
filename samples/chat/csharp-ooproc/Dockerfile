@@ -7,8 +7,11 @@ COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet/shared /usr/share
 COPY . /root
 RUN cd /root/samples/chat/csharp-ooproc && \
     mkdir -p /home/site/wwwroot && \
-    dotnet restore --verbosity normal && \
-    dotnet build --no-restore -c Release && \
+    mkdir ~/NuGetPackagesLocal && \
+    dotnet build ../../../src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj -p:WebJobsVersion=99.99.99-test -p:Version=99.99.99-test && \
+    cp "/root/src/WebJobs.Extensions.OpenAI/bin/Debug/Microsoft.Azure.WebJobs.Extensions.OpenAI.99.99.99-test.nupkg" ~/NuGetPackagesLocal && \
+    dotnet nuget add source ~/NuGetPackagesLocal && \
+    dotnet build -c Release -p:WebJobsVersion=99.99.99-test -v && \
     dotnet publish --no-restore -c Release -o /home/site/wwwroot
 
 # The final image is based on the Azure Functions 4.0 runtime image

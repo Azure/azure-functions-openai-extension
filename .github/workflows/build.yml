@@ -56,7 +56,7 @@ jobs:
       run: |
         version=$(sed -n "s/.*<WebJobsVersion[^>]*>\([^<]*\)<\/WebJobsVersion>.*/\1/p" /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
         echo "$version"
-        newVersion="${version}-test"
+        newVersion="99.99.99-test"
         echo "$newVersion"
 
         dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion -p:Version=$newVersion
@@ -67,9 +67,7 @@ jobs:
         dotnet nuget add source ~/NuGetPackagesLocal
         dotnet nuget list source
         pwd
-        ls
         
-        dotnet build OpenAI-Extension.sln --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=0.11.0-alpha-test -p:Version=$newVersion
         dotnet build OpenAI-Extension.sln --configuration $config /p:WebJobsVersion=$newVersion;FileVersionRevision=$GITHUB_RUN_NUMBER
        
     - name: E2E Test - Out of Proc Chat Bot Sample

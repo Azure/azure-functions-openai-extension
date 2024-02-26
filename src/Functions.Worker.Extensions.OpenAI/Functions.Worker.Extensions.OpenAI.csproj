@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Description>Microsoft Azure Functions .NET Isolated Worker Extension for OpenAI</Description>
-    <WebJobsVersion Condition="'$(WebJobsVersion)' == ''">0.11.0-alpha</WebJobsVersion>
+    <WebJobsVersion>0.11.0-alpha</WebJobsVersion>
   </PropertyGroup>
 
   <ItemGroup>

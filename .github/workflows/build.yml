@@ -69,6 +69,7 @@ jobs:
         dotnet nuget add source ~/NuGetPackagesLocal
         dotnet nuget list source
         pwd
+        ls
         
         dotnet build OpenAI-Extension.sln --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=0.11.0-alpha-test -p:Version=$newVersion
         dotnet build OpenAI-Extension.sln --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion -p:Version=$newVersion

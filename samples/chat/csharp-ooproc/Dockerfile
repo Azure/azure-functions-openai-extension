@@ -5,24 +5,25 @@ COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet/shared /usr/share
 
 # Need to build the full repo to get the samples to work
 COPY . /root
-RUN version=$(sed -n "s/.*<WebJobsVersion[^>]*>\([^<]*\)<\/WebJobsVersion>.*/\1/p" /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj) && \
-        echo "$version" && \
-        newVersion="${version}-test" && \
-        echo "$newVersion" && \
-        dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion -p:Version=$newVersion && \
-        sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" ~/NuGetPackagesLocal && \
-        ls ~/NuGetPackagesLocal && \
-        pwd && \
-        dotnet nuget locals all --clear && \
-        dotnet new nuget.config --force && \
-        dotnet nuget add source ~/NuGetPackagesLocal && \
-        dotnet nuget list source && \
-        pwd && \
-        dotnet build OpenAI-Extension.sln --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=0.11.0-alpha-test -p:Version=$newVersion && \
-        dotnet build OpenAI-Extension.sln --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion -p:Version=$newVersion && \
 RUN cd /root/samples/chat/csharp-ooproc && \
     mkdir -p /home/site/wwwroot && \
-    dotnet restore --verbosity normal && \
+    version=$(sed -n "s/.*<WebJobsVersion[^>]*>\([^<]*\)<\/WebJobsVersion>.*/\1/p" /app/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj) \
+    && echo "$version" \
+    && newVersion="${version}-test" \
+    && echo "$newVersion" \
+    && dotnet build /app/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion -p:Version=$newVersion \
+    && cp "/app/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" /NuGetPackagesLocal \
+    && ls /NuGetPackagesLocal \
+    && pwd \
+    && dotnet nuget locals all --clear \
+    && dotnet new nuget.config --force \
+    && dotnet nuget add source /NuGetPackagesLocal \
+    && dotnet nuget list source \
+    && pwd \
+    && dotnet build OpenAI-Extension.sln --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=0.11.0-alpha-test -p:Version=$newVersion \
+    && dotnet build OpenAI-Extension.sln --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion -p:Version=$newVersion
+
+RUN dotnet restore --verbosity normal && \
     dotnet build --no-restore -c Release && \
     dotnet publish --no-restore -c Release -o /home/site/wwwroot
 

@@ -10,6 +10,7 @@ on:
 
 env:
   config: Release
+  newVersion: 99.99.99-test
   
 jobs:
   build:

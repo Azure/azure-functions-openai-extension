@@ -68,8 +68,7 @@ class DefaultChatBotService : IChatBotService
 
         this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
 
-        string connectionString = "";
-        // string connectionString = configuration.GetValue<string>(connectionStringName);
+        string connectionString = configuration.GetValue<string>(connectionStringName);
 
         this.tableServiceClient = new TableServiceClient(connectionString);
         this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);

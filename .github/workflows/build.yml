@@ -54,7 +54,7 @@ jobs:
 
     - name: Get version
       run: |
-        version=$(sed -n 's/.*<WebJobsVersion>\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
+        version=$(sed -n 's/.*<WebJobsVersion Condition="'$(WebJobsVersion)' == ''">\(.*\)<\/WebJobsVersion>.*/\1/p' /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/Functions.Worker.Extensions.OpenAI/Functions.Worker.Extensions.OpenAI.csproj)
         echo "$version"
         newVersion="${version}-test"
         echo "$newVersion"

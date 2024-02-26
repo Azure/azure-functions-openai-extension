@@ -54,7 +54,7 @@ jobs:
 
     - name: Get version
       run: |
-        dotnet build OpenAI-Extension.sln --configuration $config /p:WebJobsVersion=99.99.99;FileVersionRevision=$GITHUB_RUN_NUMBER
+        dotnet build OpenAI-Extension.sln --configuration $config /p:WebJobsVersion=99.99.99-test;FileVersionRevision=$GITHUB_RUN_NUMBER
        
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

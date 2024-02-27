@@ -48,7 +48,7 @@ steps:
     inputs:
       command: 'build'
       arguments: '--configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true'
-      projects: '**.csproj'
+      projects: '**/*.csproj'
 
   - script: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
     displayName: Docker Build - Chat Bot Sample

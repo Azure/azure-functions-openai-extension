@@ -10,7 +10,7 @@ on:
 
 env:
   config: Release
-  newVersion: 99.99.99-test
+  fakeWebJobsPackageVersion: 99.99.99-test
   
 jobs:
   build:
@@ -30,9 +30,6 @@ jobs:
     - name: Docker Run - Azurite
       run: docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
 
-    - name: Docker Build - Chat Bot Sample Out of proc
-      run: docker build -f samples/chat/csharp-ooproc/Dockerfile -t openai-func-sample-csharp-ooproc .
-
     - name: Docker Run - Chat Bot Sample Out of Proc
       env:
         AZURE_OPENAI_KEY: ${{ secrets.AZURE_OPENAI_KEY }}
@@ -49,19 +46,6 @@ jobs:
 
     - name: Sleep for 10 seconds
       run: sleep 10s
-
-    - name: Create new directory
-      run: mkdir ~/NuGetPackagesLocal
-
-    - name: Create/Copy NuGet Package to local directory and Build
-      run: |
-        dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$newVersion -p:Version=$newVersion
-        sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${newVersion}.nupkg" ~/NuGetPackagesLocal
-
-        dotnet nuget add source ~/NuGetPackagesLocal
-        dotnet nuget list source
-
-        dotnet build --configuration $config /p:WebJobsVersion=$newVersion;FileVersionRevision=$GITHUB_RUN_NUMBER
        
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

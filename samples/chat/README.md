@@ -21,7 +21,6 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 
     | Language Worker | Command |
     | --------------- | ------- |
-    | .NET in-proc | `cd samples/chat/csharp-inproc && dotnet build && cd bin/debug/net6.0 && func start` |
     | .NET oo-proc | `cd samples/chat/csharp-ooproc && dotnet build && cd bin/debug/net6.0 && func start` |
     | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
@@ -37,9 +36,9 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
         GetChatState: [GET] http://localhost:7071/api/chats/{chatId}
 
         PostUserResponse: [POST] http://localhost:7071/api/chats/{chatId}
-
-        OpenAI::ChatBotEntity: entityTrigger
     ```
+
+    Note for running the post user response function provided in the sample, please specify a model name in the environment variable `AZURE_DEPLOYMENT_NAME`. This value can be an Azure deployment name or a GPT model name.
 
 3. Use an HTTP client tool to send a request to the `CreateChatBot` function. The following is an example request:
 

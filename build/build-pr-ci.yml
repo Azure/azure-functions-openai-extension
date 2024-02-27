@@ -1,0 +1,45 @@
+variables:
+  buildConfiguration: Release
+
+# Batch builds
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - '**.md'
+
+continueOnError: false
+pool:
+  name: 1ES-Hosted-Azfunc
+  demands:
+    - ImageOverride -equals MMS2019TLS
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET 6'
+    inputs:
+      version: 6.0.x
+      packageType: sdk
+
+  - task: UseDotNet@2
+    displayName: 'Install .NET 2.1'
+    inputs:
+      packageType: 'sdk'
+      version: '2.1.x'
+      performMultiLevelLookup: true
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Dotnet Restore'
+    inputs:
+      command: 'restore'
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'
+
+  - task: DotNetCoreCLI@2
+    displayName: Build project
+    inputs:
+      command: 'build'
+      arguments: '--configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true'
+      projects: '**.csproj'

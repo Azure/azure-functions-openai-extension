@@ -9,7 +9,6 @@ pr:
     exclude:
       - '**.md'
 
-# Batch builds
 trigger:
   branches:
     include:
@@ -59,9 +58,9 @@ steps:
   - script: |
       docker run -d -p 7071:80 --name openai-func-sample-csharp-inproc \
             --add-host host.docker.internal:host-gateway \
-            --env AZURE_OPENAI_KEY=$AZURE_OPENAI_KEY \
-            --env AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
-            --env AZURE_DEPLOYMENT_NAME=$AZURE_DEPLOYMENT_NAME \
+            --env AZURE_OPENAI_KEY=$(AZURE_OPENAI_KEY) \
+            --env AZURE_OPENAI_ENDPOINT=$(AZURE_OPENAI_ENDPOINT) \
+            --env AZURE_DEPLOYMENT_NAME=$(AZURE_DEPLOYMENT_NAME) \
             --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
             openai-func-sample-csharp-inproc
     displayName: Docker Run - Chat Bot Sample

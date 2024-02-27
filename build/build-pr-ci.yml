@@ -69,7 +69,7 @@ steps:
   - script: sleep 10s
     displayName: Sleep for 10 seconds
 
-  - script: dotnet test --configuration $buildConfiguration --no-build --verbosity normal
+  - script: dotnet test --configuration $(buildConfiguration) --no-build --verbosity normal
     displayName: E2E Test - Chat Bot Sample
 
   - script: docker logs openai-func-sample-csharp-inproc

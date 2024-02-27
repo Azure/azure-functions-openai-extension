@@ -54,6 +54,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag", "rag", "{4CD51D81-D33
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticSearchEmbeddings", "samples\rag\csharp-inproc\SemanticSearchEmbeddings.csproj", "{BD2064F5-6F56-45D4-A2E9-5C276FDAF4B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssistantSampleOutOfProc", "samples\assistant\csharp-ooproc\AssistantSampleOutOfProc\AssistantSampleOutOfProc.csproj", "{8573FE76-9920-4A95-9D29-911FD6B0AB25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{BD2064F5-6F56-45D4-A2E9-5C276FDAF4B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD2064F5-6F56-45D4-A2E9-5C276FDAF4B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD2064F5-6F56-45D4-A2E9-5C276FDAF4B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8573FE76-9920-4A95-9D29-911FD6B0AB25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8573FE76-9920-4A95-9D29-911FD6B0AB25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8573FE76-9920-4A95-9D29-911FD6B0AB25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8573FE76-9920-4A95-9D29-911FD6B0AB25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -125,6 +131,7 @@ Global
 		{76836E7D-CBEE-4845-B44A-4634B4E57471} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
 		{4CD51D81-D334-4FBC-A82B-8E2408913B7D} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{BD2064F5-6F56-45D4-A2E9-5C276FDAF4B1} = {4CD51D81-D334-4FBC-A82B-8E2408913B7D}
+		{8573FE76-9920-4A95-9D29-911FD6B0AB25} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

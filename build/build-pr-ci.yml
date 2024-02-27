@@ -20,7 +20,7 @@ trigger:
 
 continueOnError: false
 pool:
-  image: "ubuntu-latest"
+  vmImage: ubuntu-latest
 
 steps:
   - task: UseDotNet@2

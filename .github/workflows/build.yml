@@ -46,6 +46,19 @@ jobs:
 
     - name: Sleep for 10 seconds
       run: sleep 10s
+
+    - name: Create new directory
+      run: mkdir ~/NuGetPackagesLocal
+
+    - name: Create/Copy NuGet Package to local directory and Build
+      run: |
+        dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$fakeWebJobsPackageVersion -p:Version=$fakeWebJobsPackageVersion
+        sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${fakeWebJobsPackageVersion}.nupkg" ~/NuGetPackagesLocal
+
+        dotnet nuget add source ~/NuGetPackagesLocal
+        dotnet nuget list source
+
+        dotnet build --configuration $config /p:WebJobsVersion=$fakeWebJobsPackageVersion;FileVersionRevision=$GITHUB_RUN_NUMBER
        
     - name: E2E Test - Out of Proc Chat Bot Sample
       run: dotnet test --configuration $config --no-build --verbosity normal

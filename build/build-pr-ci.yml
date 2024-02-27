@@ -29,6 +29,13 @@ steps:
       version: 6.0.x
       packageType: sdk
 
+  - task: UseDotNet@2
+    displayName: 'Install .NET 2.1'
+    inputs:
+      packageType: 'sdk'
+      version: '2.1.x'
+      performMultiLevelLookup: true
+
   - task: DotNetCoreCLI@2
     displayName: 'Dotnet Restore'
     inputs:
@@ -41,7 +48,7 @@ steps:
     inputs:
       command: 'build'
       arguments: '--configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true'
-      projects: 'OpenAI-Extension.sln'
+      projects: '**/**.csproj'
 
   - script: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
     displayName: Docker Build - Chat Bot Sample

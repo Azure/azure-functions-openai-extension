@@ -29,13 +29,6 @@ steps:
       version: 6.0.x
       packageType: sdk
 
-  - task: UseDotNet@2
-    displayName: 'Install .NET 2.1'
-    inputs:
-      packageType: 'sdk'
-      version: '2.1.x'
-      performMultiLevelLookup: true
-
   - task: DotNetCoreCLI@2
     displayName: 'Dotnet Restore'
     inputs:

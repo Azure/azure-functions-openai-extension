@@ -1,6 +1,14 @@
 variables:
   buildConfiguration: Release
 
+pr:
+  branches:
+    include:
+    - main
+  paths:
+    exclude:
+      - '**.md'
+
 # Batch builds
 trigger:
   branches:
@@ -12,9 +20,7 @@ trigger:
 
 continueOnError: false
 pool:
-  name: 1ES-Hosted-Azfunc
-  demands:
-    - ImageOverride -equals MMS2019TLS
+  image: "ubuntu-latest"
 
 steps:
   - task: UseDotNet@2
@@ -43,3 +49,29 @@ steps:
       command: 'build'
       arguments: '--configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true'
       projects: '**.csproj'
+
+  - script: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
+    displayName: Docker Build - Chat Bot Sample
+      
+  - script: docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
+    displayName: Docker Run - Azurite
+
+  - script: |
+      docker run -d -p 7071:80 --name openai-func-sample-csharp-inproc \
+            --add-host host.docker.internal:host-gateway \
+            --env AZURE_OPENAI_KEY=$AZURE_OPENAI_KEY \
+            --env AZURE_OPENAI_ENDPOINT=$AZURE_OPENAI_ENDPOINT \
+            --env AZURE_DEPLOYMENT_NAME=$AZURE_DEPLOYMENT_NAME \
+            --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
+            openai-func-sample-csharp-inproc
+    displayName: Docker Run - Chat Bot Sample
+
+  - script: sleep 10s
+    displayName: Sleep for 10 seconds
+
+  - script: dotnet test --configuration $config --no-build --verbosity normal
+    displayName: E2E Test - Chat Bot Sample
+
+  - script: docker logs openai-func-sample-csharp-inproc
+    displayName: Print Docker Logs - Chat Bot Sample
+    condition: always()

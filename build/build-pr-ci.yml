@@ -4,7 +4,7 @@ variables:
 pr:
   branches:
     include:
-    - main
+      - main
   paths:
     exclude:
       - '**.md'
@@ -20,7 +20,9 @@ trigger:
 
 continueOnError: false
 pool:
-  vmImage: ubuntu-latest
+  name: 1ES-Hosted-Azfunc
+  demands:
+    - ImageOverride -equals MMS2019TLS
 
 steps:
   - task: UseDotNet@2
@@ -48,11 +50,11 @@ steps:
     inputs:
       command: 'build'
       arguments: '--configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true'
-      projects: '**/**.csproj'
+      projects: 'OpenAI-Extension.sln'
 
   - script: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
     displayName: Docker Build - Chat Bot Sample
-      
+
   - script: docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
     displayName: Docker Run - Azurite
 

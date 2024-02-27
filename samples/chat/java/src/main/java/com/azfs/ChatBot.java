@@ -75,4 +75,26 @@ public class ChatBot {
         }
     }
 
+    
+    @FunctionName("GetChatState")
+    public HttpResponseMessage getChatState(
+        @HttpTrigger(
+            name = "req",
+            methods = {HttpMethod.GET}, 
+            authLevel = AuthorizationLevel.ANONYMOUS,
+            route = "chats/{chatId}") 
+            HttpRequestMessage<Optional<String>> request,
+        @BindingName("chatId") String chatId,
+        @CustomBinding(direction = "in", name = "ChatBotState", type = "chatBotQuery", id = "{chatId}") OutputBinding<ChatBotState> message,
+        final ExecutionContext context) {
+            // ChatBotCreateRequest chatBotCreateRequest = new ChatBotCreateRequest(chatId, request.getBody().get().getInstructions());
+            // message.setValue(chatBotCreateRequest);
+            JSONObject response = new JSONObject();
+            response.put("chatId", chatId);
+            return request.createResponseBuilder(HttpStatus.OK)
+                .header("Content-Type", "application/json")
+                .body(response.toString())
+                .build();
+    }
+
 }

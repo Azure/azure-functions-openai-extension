@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 # Need to build the full repo to get the samples to work
 COPY . /root
 RUN cd /root/samples/chat/csharp-inproc && \
-    mkdir -p /home/site/wwwroot && \
+    mkdir '/home/site/wwwroot' && \
     dotnet restore --verbosity normal && \
     dotnet build --no-restore -c Release && \
     dotnet publish --no-restore -c Release -o /home/site/wwwroot

@@ -66,8 +66,6 @@ class DefaultChatBotService : IChatBotService
             connectionStringName = "AzureWebJobsStorage";
         }
 
-        connectionStringName = "test";
-
         this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
 
         string connectionString = configuration.GetValue<string>(connectionStringName);

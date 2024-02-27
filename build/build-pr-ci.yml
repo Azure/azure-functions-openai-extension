@@ -48,7 +48,7 @@ steps:
 
   - task: DockerInstaller@0
     inputs:
-      dockerVersion: '25.0.3-ce'
+      dockerVersion: '25.0.3'
 
   - script: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
     displayName: Docker Build - Chat Bot Sample

@@ -20,9 +20,7 @@ trigger:
 
 continueOnError: false
 pool:
-  name: 1ES-Hosted-Azfunc
-  demands:
-    - ImageOverride -equals MMS2019TLS
+  vmImage: 'ubuntu-latest'
 
 steps:
   - task: UseDotNet@2
@@ -45,12 +43,23 @@ steps:
       feedsToUse: 'config'
       nugetConfigPath: 'nuget.config'
 
+  - task: VSBuild@1
+    inputs:
+      solution: 'OpenAI-Extension.sln'
+      msbuildArgs: '--no-restore -p:ContinuousIntegrationBuild=true'
+      configuration: '$(buildConfiguration)'
+
   - task: DotNetCoreCLI@2
     displayName: Build project
+    enabled: false
     inputs:
       command: 'build'
       arguments: '--configuration $(buildConfiguration) --no-restore -p:ContinuousIntegrationBuild=true'
       projects: 'OpenAI-Extension.sln'
+
+  - task: DockerInstaller@0
+    inputs:
+      dockerVersion: '17.09.0-ce'
 
   - script: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
     displayName: Docker Build - Chat Bot Sample

@@ -1,9 +1,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 
+# Add support for .NET 6 (required for Azure Functions build process)
+COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet/shared /usr/share/dotnet/shared
+
 # Need to build the full repo to get the samples to work
 COPY . /root
 RUN cd /root/samples/chat/csharp-inproc && \
-    mkdir '/home/site/wwwroot' && \
+    mkdir -p /home/site/wwwroot && \
     dotnet restore --verbosity normal && \
     dotnet build --no-restore -c Release && \
     dotnet publish --no-restore -c Release -o /home/site/wwwroot

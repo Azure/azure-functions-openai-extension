@@ -2,7 +2,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Functions.Worker.Extensions.OpenAI;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -79,7 +78,7 @@ public static class ChatBotIsolated
 
     public class PostResponseOutput
     {
-        [ChatBotPostOutput("{chatId}", Model = "gpt-3.5-turbo")]
+        [ChatBotPostOutput("{chatId}", Model = "%AZURE_DEPLOYMENT_NAME%")]
         public ChatBotPostRequest? ChatBotPostRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }

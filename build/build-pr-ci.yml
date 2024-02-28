@@ -1,5 +1,5 @@
 variables:
-  buildConfiguration: Release
+  config: Release
   fakeWebJobsPackageVersion: 99.99.99-test
 
 pr:
@@ -60,16 +60,16 @@ steps:
     displayName: Create new directory
 
   - script: |
-      dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$fakeWebJobsPackageVersion -p:Version=$fakeWebJobsPackageVersion
-      sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${fakeWebJobsPackageVersion}.nupkg" ~/NuGetPackagesLocal
+      dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $(config) -p:WebJobsVersion=$(fakeWebJobsPackageVersion) -p:Version=$(fakeWebJobsPackageVersion)
+      sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
 
       dotnet nuget add source ~/NuGetPackagesLocal
       dotnet nuget list source
 
-      dotnet build --configuration $(buildConfiguration) /p:WebJobsVersion=$(fakeWebJobsPackageVersion)
+      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion)
     displayName: Create/Copy NuGet Package to local directory and Build
 
-  - script: dotnet test --configuration $(buildConfiguration) --no-build --verbosity normal
+  - script: dotnet test --configuration $(config) --no-build --verbosity normal
     displayName: E2E Test - Chat Bot Sample Out of Proc
 
   - script: docker logs openai-func-sample-csharp-ooproc

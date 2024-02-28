@@ -1,5 +1,6 @@
 variables:
   buildConfiguration: Release
+  fakeWebJobsPackageVersion: 99.99.99-test
 
 pr:
   branches:
@@ -32,45 +33,45 @@ steps:
     inputs:
       version: '8.x'
 
-  - task: DotNetCoreCLI@2
-    displayName: '.NET Restore'
-    inputs:
-      command: restore
-      projects: 'OpenAI-Extension.sln'
-      verbosityRestore: Quiet
-
-  - task: DotNetCoreCLI@2
-    displayName: '.NET Build'
-    inputs:
-      projects: 'OpenAI-Extension.sln'
-      arguments: '--configuration $(buildConfiguration)'
-
   - task: DockerInstaller@0
     inputs:
       dockerVersion: '25.0.3'
 
-  - script: docker build -f samples/chat/csharp-inproc/Dockerfile -t openai-func-sample-csharp-inproc .
-    displayName: Docker Build - Chat Bot Sample
+  - script: docker build -f samples/chat/csharp-ooproc/Dockerfile -t openai-func-sample-csharp-ooproc .
+    displayName: Docker Build - Chat Bot Sample Out of Proc
 
   - script: docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
     displayName: Docker Run - Azurite
 
   - script: |
-      docker run -d -p 7071:80 --name openai-func-sample-csharp-inproc \
+      docker run -d -p 7071:80 --name openai-func-sample-csharp-ooproc \
             --add-host host.docker.internal:host-gateway \
             --env AZURE_OPENAI_KEY=$(AZURE_OPENAI_KEY) \
             --env AZURE_OPENAI_ENDPOINT=$(AZURE_OPENAI_ENDPOINT) \
             --env AZURE_DEPLOYMENT_NAME=$(AZURE_DEPLOYMENT_NAME) \
             --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
-            openai-func-sample-csharp-inproc
-    displayName: Docker Run - Chat Bot Sample
+            openai-func-sample-csharp-ooproc
+    displayName: Docker Run - Chat Bot Sample Out of Proc
 
   - script: sleep 10s
     displayName: Sleep for 10 seconds
 
-  - script: dotnet test --configuration $(buildConfiguration) --no-build --verbosity normal
-    displayName: E2E Test - Chat Bot Sample
+  - script: mkdir ~/NuGetPackagesLocal
+    displayName: Create new directory
 
-  - script: docker logs openai-func-sample-csharp-inproc
-    displayName: Print Docker Logs - Chat Bot Sample
+  - script: |
+      dotnet build /home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $config -p:FileVersionRevision=$GITHUB_RUN_NUMBER -p:WebJobsVersion=$fakeWebJobsPackageVersion -p:Version=$fakeWebJobsPackageVersion
+      sudo cp "/home/runner/work/azure-functions-openai-extension/azure-functions-openai-extension/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.${fakeWebJobsPackageVersion}.nupkg" ~/NuGetPackagesLocal
+
+      dotnet nuget add source ~/NuGetPackagesLocal
+      dotnet nuget list source
+
+      dotnet build --configuration $(buildConfiguration) /p:WebJobsVersion=$(fakeWebJobsPackageVersion)
+    displayName: Create/Copy NuGet Package to local directory and Build
+
+  - script: dotnet test --configuration $(buildConfiguration) --no-build --verbosity normal
+    displayName: E2E Test - Chat Bot Sample Out of Proc
+
+  - script: docker logs openai-func-sample-csharp-ooproc
+    displayName: Print Docker Logs - Chat Bot Sample Out of Proc
     condition: always()

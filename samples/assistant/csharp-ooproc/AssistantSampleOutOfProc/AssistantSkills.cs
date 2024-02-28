@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Functions.Worker.Extensions.OpenAI;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -13,6 +10,7 @@ namespace AssistantSample;
 public class AssistantSkills
 {
     readonly ITodoManager todoManager;
+    readonly ILogger<AssistantSkills> logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AssistantSkills"/> class.
@@ -20,23 +18,24 @@ public class AssistantSkills
     /// <remarks>
     /// This constructor is called by the Azure Functions runtime's dependency injection container.
     /// </remarks>
-    public AssistantSkills(ITodoManager todoManager)
+    public AssistantSkills(ITodoManager todoManager, ILogger<AssistantSkills> logger)
     {
         this.todoManager = todoManager ?? throw new ArgumentNullException(nameof(todoManager));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
     /// Called by the assistant to create new todo tasks.
     /// </summary>
     [Function(nameof(AddTodo))]
-    public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription, ILogger log)
+    public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription)
     {
         if (string.IsNullOrEmpty(taskDescription))
         {
             throw new ArgumentException("Task description cannot be empty");
         }
 
-        log.LogInformation("Adding todo: {task}", taskDescription);
+        this.logger.LogInformation("Adding todo: {task}", taskDescription);
 
         string todoId = Guid.NewGuid().ToString()[..6];
         return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
@@ -47,10 +46,9 @@ public class AssistantSkills
     /// </summary>
     [Function(nameof(GetTodos))]
     public Task<IReadOnlyList<TodoItem>> GetTodos(
-        [AssistantSkillTrigger("Fetch the list of previously created todo tasks")] object inputIgnored,
-        ILogger log)
+        [AssistantSkillTrigger("Fetch the list of previously created todo tasks")] object inputIgnored)
     {
-        log.LogInformation("Fetching list of todos");
+        this.logger.LogInformation("Fetching list of todos");
 
         return this.todoManager.GetTodosAsync();
     }

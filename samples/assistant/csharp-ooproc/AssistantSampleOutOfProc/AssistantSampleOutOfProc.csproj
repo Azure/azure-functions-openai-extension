@@ -7,17 +7,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <None Include="..\..\README.md" Link="README.md" />
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.20.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.4" />
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.21.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.37.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Core" Version="3.0.39" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Functions.Worker.Extensions.OpenAI\Functions.Worker.Extensions.OpenAI.csproj" />

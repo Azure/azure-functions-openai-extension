@@ -2,12 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Functions.Worker.Extensions.OpenAI;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -18,11 +14,6 @@ namespace AssistantSample;
 /// </summary>
 static class AssistantApis
 {
-    public class CreateRequest
-    {
-        [JsonPropertyName("instructions")]
-        public string? Instructions { get; set; }
-    }
 
     /// <summary>
     /// HTTP PUT function that creates a new assistant chat bot with the specified ID.
@@ -34,16 +25,15 @@ static class AssistantApis
     {
         var responseJson = new { assistantId };
 
+        string instructions =
+           """
+            Don't make assumptions about what values to plug into functions.
+            Ask for clarification if a user request is ambiguous.
+            """;
+
         using StreamReader reader = new(req.Body);
 
         string request = await reader.ReadToEndAsync();
-
-        CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
-
-        if (createRequestBody == null)
-        {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
-        }
 
         HttpResponseData response = req.CreateResponse();
         await response.WriteAsJsonAsync(responseJson, HttpStatusCode.Created);
@@ -51,7 +41,7 @@ static class AssistantApis
         return new CreateChatBotOutput
         {
             HttpResponse = response,
-            ChatBotCreateRequest = new ChatBotCreateRequest(assistantId, createRequestBody.Instructions),
+            ChatBotCreateRequest = new ChatBotCreateRequest(assistantId, instructions),
         };
     }
 
@@ -79,7 +69,7 @@ static class AssistantApis
             return new PostResponseOutput { HttpResponse = badResponse };
         }
 
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.Accepted);
 
         return new PostResponseOutput
         {

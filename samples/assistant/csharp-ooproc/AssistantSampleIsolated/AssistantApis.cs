@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net;
-using Functions.Worker.Extensions.OpenAI;
+using Functions.Worker.Extensions.OpenAI.ChatBot;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;

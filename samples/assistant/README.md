@@ -17,9 +17,16 @@ This OpenAI extension internally uses the [function calling](https://platform.op
 You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following C# in-proc example shows a skill that adds a todo item to a database:
 
 ```csharp
-[FunctionName(nameof(AddTodo))]
+[Function(nameof(AddTodo))]
 public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription)
 {
+    if (string.IsNullOrEmpty(taskDescription))
+    {
+        throw new ArgumentException("Task description cannot be empty");
+    }
+
+    this.logger.LogInformation("Adding todo: {task}", taskDescription);
+
     string todoId = Guid.NewGuid().ToString()[..6];
     return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
 }
@@ -38,7 +45,7 @@ The assistant will invoke a skill function whenever it decides to do so to satis
 
 The sample is available in the following language stacks:
 
-* [C# on the in-process worker](csharp-inproc)
+* [C# on the out-of-process worker](https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=windows)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

@@ -3,7 +3,7 @@
 
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-namespace Functions.Worker.Extensions.OpenAI;
+namespace Functions.Worker.Extensions.OpenAI.AssistantSkill;
 
 public class AssistantSkillTriggerAttribute : TriggerBindingAttribute
 {

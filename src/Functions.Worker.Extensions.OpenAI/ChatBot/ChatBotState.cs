@@ -3,7 +3,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace Functions.Worker.Extensions.OpenAI;
+namespace Functions.Worker.Extensions.OpenAI.ChatBot;
 
 /// <summary>
 /// Chat bot state.

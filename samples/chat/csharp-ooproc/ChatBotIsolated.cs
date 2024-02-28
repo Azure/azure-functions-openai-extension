@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Functions.Worker.Extensions.OpenAI;
+using Functions.Worker.Extensions.OpenAI.ChatBot;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 

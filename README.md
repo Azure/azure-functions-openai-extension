@@ -175,32 +175,43 @@ These functions are invoked by the extension when a chat bot signals that it wou
 
 The name of the function, the description provided by the trigger, and the parameter name are all hints that the underlying language model use to determine when and how to invoke an assistant function.
 
-#### [C# example](./samples/assistant/csharp-inproc)
+#### [C# example](./samples/assistant/csharp-ooproc)
 
 ```csharp
 public class AssistantSkills
 {
     readonly ITodoManager todoManager;
+    readonly ILogger<AssistantSkills> logger;
 
     // This constructor is called by the Azure Functions runtime's dependency injection container.
-    public AssistantSkills(ITodoManager todoManager)
+    public AssistantSkills(ITodoManager todoManager, ILogger<AssistantSkills> logger)
     {
         this.todoManager = todoManager ?? throw new ArgumentNullException(nameof(todoManager));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     // Called by the assistant to create new todo tasks.
-    [FunctionName(nameof(AddTodo))]
+    [Function(nameof(AddTodo))]
     public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription)
     {
+        if (string.IsNullOrEmpty(taskDescription))
+        {
+            throw new ArgumentException("Task description cannot be empty");
+        }
+
+        this.logger.LogInformation("Adding todo: {task}", taskDescription);
+
         string todoId = Guid.NewGuid().ToString()[..6];
         return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
     }
 
     // Called by the assistant to fetch the list of previously created todo tasks.
-    [FunctionName(nameof(GetTodos))]
+    [Function(nameof(GetTodos))]
     public Task<IReadOnlyList<TodoItem>> GetTodos(
         [AssistantSkillTrigger("Fetch the list of previously created todo tasks")] object inputIgnored)
     {
+        this.logger.LogInformation("Fetching list of todos");
+
         return this.todoManager.GetTodosAsync();
     }
 }

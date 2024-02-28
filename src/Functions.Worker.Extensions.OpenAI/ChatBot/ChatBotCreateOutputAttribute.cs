@@ -3,7 +3,7 @@
 
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-namespace Functions.Worker.Extensions.OpenAI;
+namespace Functions.Worker.Extensions.OpenAI.ChatBot;
 
 /// <summary>
 /// Chat bot create output binding attribute which is used to create a chat bot.

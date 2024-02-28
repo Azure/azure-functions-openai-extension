@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Functions.Worker.Extensions.OpenAI;
+namespace Functions.Worker.Extensions.OpenAI.ChatBot;
 
 /// <summary>
 /// Chat bot create request which is used to create a chat bot.

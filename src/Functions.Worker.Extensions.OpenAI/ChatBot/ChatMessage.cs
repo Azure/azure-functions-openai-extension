@@ -3,7 +3,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace Functions.Worker.Extensions.OpenAI;
+namespace Functions.Worker.Extensions.OpenAI.ChatBot;
 
 /// <summary>
 /// Chat Message Entity which contains the content of the message and the role of the chat agent.

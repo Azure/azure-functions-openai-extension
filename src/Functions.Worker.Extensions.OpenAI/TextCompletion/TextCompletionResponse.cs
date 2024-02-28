@@ -4,7 +4,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
+namespace Functions.Worker.Extensions.OpenAI.TextCompletion;
 
 /// <summary>
 /// Text Completion Response Class

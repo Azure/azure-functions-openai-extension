@@ -37,7 +37,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
 The following features are currently available. More features will be slowly added over time.
 
 * [Text completions](#text-completion-input-binding)
-* [Chat bots](#chat-bots)
+* [assistants](#chat-bots)
 * [Assistants](#assistants)
 * [Embeddings generators](#embeddings-generator)
 * [Semantic search](#semantic-search)
@@ -153,25 +153,25 @@ movies, and other media.
 
 You can find more instructions for running the samples in the corresponding project directories. The goal is to have samples for all languages supported by Azure Functions.
 
-### Chat bots
+### Assistants
 
-[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered chat bots.
+[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered assistants.
 
-There are three bindings you can use to interact with the chat bot:
+There are three bindings you can use to interact with the assistant:
 
-1. The `chatBotCreate` output binding creates a new chat bot with a specified system prompt.
-1. The `chatBotPost` output binding sends a message to the chat bot and saves the response in its internal state.
-1. The `chatBotQuery` input binding fetches the chat bot history and passes it to the function.
+1. The `assistantCreate` output binding creates a new assistant with a specified system prompt.
+1. The `assistantPost` output binding sends a message to the assistant and saves the response in its internal state.
+1. The `assistantQuery` input binding fetches the assistant history and passes it to the function.
 
 You can find samples in multiple languages with instructions [in the chat samples directory](./samples/chat/).
 
 ### Assistants
 
-Assistants build on top of the chat bot functionality to provide chat bots with custom skills defined as functions.
+Assistants build on top of the chat functionality to provide assistants with custom skills defined as functions.
 This internally uses the [function calling](https://platform.openai.com/docs/guides/function-calling) feature of OpenAIs GPT models to select which functions to invoke and when.
 
-You can define functions that can be triggered by chat bots by using the `assistantSkillTrigger` trigger binding.
-These functions are invoked by the extension when a chat bot signals that it would like to invoke a function in response to a user prompt.
+You can define functions that can be triggered by assistants by using the `assistantSkillTrigger` trigger binding.
+These functions are invoked by the extension when a assistant signals that it would like to invoke a function in response to a user prompt.
 
 The name of the function, the description provided by the trigger, and the parameter name are all hints that the underlying language model use to determine when and how to invoke an assistant function.
 

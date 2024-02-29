@@ -1,10 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
 using System.Text.Json.Serialization;
 
-namespace Functions.Worker.Extensions.OpenAI.TextCompletion;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.TextCompletion;
 
 /// <summary>
 /// Text Completion Response Class

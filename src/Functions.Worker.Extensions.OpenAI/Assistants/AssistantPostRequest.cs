@@ -1,20 +1,20 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Functions.Worker.Extensions.OpenAI.ChatBot;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 /// <summary>
-/// Chat bot post request which is used to relay post requests.
+/// Assistant post request which is used to relay post requests.
 /// </summary>
-public class ChatBotPostRequest
+public class AssistantPostRequest
 {
     /// <summary>
-    /// Gets user message that user has entered for chatbot to respond to.
+    /// Gets user message that user has entered for assistant to respond to.
     /// </summary>
     public string? UserMessage { get; set; }
 
     /// <summary>
-    /// Gets the ID of the chat bot to update.
+    /// Gets the ID of the assistant to update.
     /// </summary>
     public string Id { get; set; } = string.Empty;
 

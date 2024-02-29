@@ -1,25 +1,25 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Functions.Worker.Extensions.OpenAI.ChatBot;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 /// <summary>
-/// Chat bot create request which is used to create a chat bot.
+/// Assistant create request which is used to create a assistant.
 /// </summary>
-public class ChatBotCreateRequest
+public class AssistantCreateRequest
 {
-    public ChatBotCreateRequest()
+    public AssistantCreateRequest()
     {
         // For deserialization
         this.Id = string.Empty;
     }
 
-    public ChatBotCreateRequest(string id)
+    public AssistantCreateRequest(string id)
     {
         this.Id = id;
     }
 
-    public ChatBotCreateRequest(string id, string? instructions)
+    public AssistantCreateRequest(string id, string? instructions)
     {
         this.Id = id;
 
@@ -30,17 +30,17 @@ public class ChatBotCreateRequest
     }
 
     /// <summary>
-    /// Gets the ID of the chat bot to create.
+    /// Gets the ID of the assistant to create.
     /// </summary>
     public string Id { get; set; }
 
     /// <summary>
-    /// Instructions that are provided to chat bot to follow.
+    /// Instructions that are provided to assistant to follow.
     /// </summary>
-    public string Instructions { get; set; } = "You are a helpful chat bot.";
+    public string Instructions { get; set; } = "You are a helpful assistant.";
 
     /// <summary>
-    /// Gets time when chat bot request is set to expire.
+    /// Gets time when assistant request is set to expire.
     /// </summary>
     public DateTime? ExpiresAt { get; set; }
 }

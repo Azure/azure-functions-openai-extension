@@ -4,7 +4,7 @@
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Azure.WebJobs.Host.Config;
@@ -19,7 +19,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
     readonly TextCompletionConverter textCompletionConverter;
     readonly EmbeddingsConverter embeddingsConverter;
     readonly SemanticSearchConverter semanticSearchConverter;
-    readonly ChatBotBindingConverter chatBotConverter;
+    readonly AssistantBindingConverter chatBotConverter;
     readonly AssistantSkillTriggerBindingProvider assistantskillTriggerBindingProvider;
 
     public OpenAIExtension(
@@ -27,7 +27,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
         TextCompletionConverter textCompletionConverter,
         EmbeddingsConverter embeddingsConverter,
         SemanticSearchConverter semanticSearchConverter,
-        ChatBotBindingConverter chatBotConverter,
+        AssistantBindingConverter chatBotConverter,
         AssistantSkillTriggerBindingProvider assistantTriggerBindingProvider)
     {
         this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
@@ -57,18 +57,18 @@ partial class OpenAIExtension : IExtensionConfigProvider
         semanticSearchRule.BindToCollector<SearchableDocument>(this.semanticSearchConverter);
 
         // ChatBot support
-        var chatBotCreateRule = context.AddBindingRule<ChatBotCreateAttribute>();
-        chatBotCreateRule.BindToCollector<ChatBotCreateRequest>(this.chatBotConverter);
-        context.AddConverter<JObject, ChatBotCreateRequest>(this.chatBotConverter.ToChatBotCreateRequest);
-        context.AddConverter<string, ChatBotCreateRequest>(this.chatBotConverter.ToChatBotCreateRequest);
+        var chatBotCreateRule = context.AddBindingRule<AssistantCreateAttribute>();
+        chatBotCreateRule.BindToCollector<AssistantCreateRequest>(this.chatBotConverter);
+        context.AddConverter<JObject, AssistantCreateRequest>(this.chatBotConverter.ToAssistantCreateRequest);
+        context.AddConverter<string, AssistantCreateRequest>(this.chatBotConverter.ToAssistantCreateRequest);
 
-        var chatBotPostRule = context.AddBindingRule<ChatBotPostAttribute>();
-        chatBotPostRule.BindToCollector<ChatBotPostRequest>(this.chatBotConverter);
-        context.AddConverter<JObject, ChatBotPostRequest>(this.chatBotConverter.ToChatBotPostRequest);
-        context.AddConverter<string, ChatBotPostRequest>(this.chatBotConverter.ToChatBotPostRequest);
+        var chatBotPostRule = context.AddBindingRule<AssistantPostAttribute>();
+        chatBotPostRule.BindToCollector<AssistantPostRequest>(this.chatBotConverter);
+        context.AddConverter<JObject, AssistantPostRequest>(this.chatBotConverter.ToAssistantPostRequest);
+        context.AddConverter<string, AssistantPostRequest>(this.chatBotConverter.ToAssistantPostRequest);
 
-        var chatBotQueryRule = context.AddBindingRule<ChatBotQueryAttribute>();
-        chatBotQueryRule.BindToInput<ChatBotState>(this.chatBotConverter);
+        var chatBotQueryRule = context.AddBindingRule<AssistantQueryAttribute>();
+        chatBotQueryRule.BindToInput<AssistantState>(this.chatBotConverter);
         chatBotQueryRule.BindToInput<string>(this.chatBotConverter);
 
         // Assistant skill trigger support

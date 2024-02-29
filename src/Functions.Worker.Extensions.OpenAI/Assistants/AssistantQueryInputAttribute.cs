@@ -1,25 +1,22 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-namespace Functions.Worker.Extensions.OpenAI.ChatBot;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 /// <summary>
-/// Chat bot query input attribute which is used query the chatbot to get current state.
+/// Assistant query input attribute which is used query the Assistant to get current state.
 /// </summary>
-public sealed class ChatBotQueryInputAttribute : InputBindingAttribute
+public sealed class AssistantQueryInputAttribute : InputBindingAttribute
 {
-    public ChatBotQueryInputAttribute(string id)
+    public AssistantQueryInputAttribute(string id)
     {
         this.Id = id;
     }
 
     /// <summary>
-    /// Gets the ID of the chat bot to query.
+    /// Gets the ID of the Assistant to query.
     /// </summary>
     public string Id { get; }
 

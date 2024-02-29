@@ -3,20 +3,20 @@
 
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-namespace Functions.Worker.Extensions.OpenAI.ChatBot;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 /// <summary>
-/// Chat bot post output attribute which is used to update the chat bot.
+/// Assistant post output attribute which is used to update the assistant.
 /// </summary>
-public class ChatBotPostOutputAttribute : OutputBindingAttribute
+public class AssistantPostOutputAttribute : OutputBindingAttribute
 {
-    public ChatBotPostOutputAttribute(string id)
+    public AssistantPostOutputAttribute(string id)
     {
         this.Id = id;
     }
 
     /// <summary>
-    /// Gets the ID of the chat bot to update.
+    /// Gets the ID of the assistant to update.
     /// </summary>
     public string Id { get; }
 

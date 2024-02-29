@@ -3,19 +3,19 @@
 
 using Microsoft.Azure.WebJobs.Description;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class ChatBotPostAttribute : Attribute
+public class AssistantPostAttribute : Attribute
 {
-    public ChatBotPostAttribute(string id)
+    public AssistantPostAttribute(string id)
     {
         this.Id = id;
     }
 
     /// <summary>
-    /// Gets the ID of the chat bot to update.
+    /// Gets the ID of the assistant to update.
     /// </summary>
     [AutoResolve]
     public string Id { get; }
@@ -30,7 +30,7 @@ public class ChatBotPostAttribute : Attribute
     public string? Model { get; set; }
 }
 
-public record ChatBotPostRequest(string UserMessage)
+public record AssistantPostRequest(string UserMessage)
 {
     public string Id { get; set; } = string.Empty;
 

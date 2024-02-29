@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net;
-using Functions.Worker.Extensions.OpenAI.ChatBot;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 
@@ -41,14 +40,14 @@ static class AssistantApis
         return new CreateChatBotOutput
         {
             HttpResponse = response,
-            ChatBotCreateRequest = new ChatBotCreateRequest(assistantId, instructions),
+            ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions),
         };
     }
 
     public class CreateChatBotOutput
     {
-        [ChatBotCreateOutput()]
-        public ChatBotCreateRequest? ChatBotCreateRequest { get; set; }
+        [AssistantCreateOutput()]
+        public AssistantCreateRequest? ChatBotCreateRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }
@@ -74,14 +73,14 @@ static class AssistantApis
         return new PostResponseOutput
         {
             HttpResponse = response,
-            ChatBotPostRequest = new ChatBotPostRequest { UserMessage = userMessage, Id = assistantId }
+            ChatBotPostRequest = new AssistantPostRequest { UserMessage = userMessage, Id = assistantId }
         };
     }
 
     public class PostResponseOutput
     {
-        [ChatBotPostOutput("{assistantId}", Model = "gpt-3.5-turbo")]
-        public ChatBotPostRequest? ChatBotPostRequest { get; set; }
+        [AssistantPostOutput("{assistantId}", Model = "gpt-3.5-turbo")]
+        public AssistantPostRequest? ChatBotPostRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }
@@ -91,10 +90,9 @@ static class AssistantApis
     /// </summary>
     [Function(nameof(GetChatState))]
     public static async Task<HttpResponseData> GetChatState(
-   [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "assistants/{assistantId}")] HttpRequestData req,
-   string assistantId,
-   [ChatBotQueryInput("{assistantId}", TimestampUtc = "{Query.timestampUTC}")] ChatBotState state,
-   FunctionContext context)
+       [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "assistants/{assistantId}")] HttpRequestData req,
+       string assistantId,
+       [AssistantQueryInput("{assistantId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state)
     {
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(state);

@@ -4,12 +4,12 @@
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Newtonsoft.Json;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 record struct MessageRecord(DateTime Timestamp, ChatMessage ChatMessageEntity);
 
 [JsonObject(MemberSerialization.OptIn)]
-class ChatBotRuntimeState
+class AssistantRuntimeState
 {
     [JsonProperty("messages")]
     public List<ChatMessage>? ChatMessages { get; set; }

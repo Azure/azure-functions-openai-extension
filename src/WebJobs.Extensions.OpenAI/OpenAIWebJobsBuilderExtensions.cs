@@ -4,7 +4,7 @@
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
@@ -60,7 +60,7 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services.AddSingleton<TextCompletionConverter>();
         builder.Services.AddSingleton<EmbeddingsConverter>();
         builder.Services.AddSingleton<SemanticSearchConverter>();
-        builder.Services.AddSingleton<ChatBotBindingConverter>();
+        builder.Services.AddSingleton<AssistantBindingConverter>();
 
         builder.Services.AddOptions<OpenAIConfigOptions>()
             .Configure<IConfiguration>((options, config) =>
@@ -71,7 +71,7 @@ public static class OpenAIWebJobsBuilderExtensions
                 config.GetSection("azurefunctionsjobhost:logging:extensions:openai").Bind(options);
             });
 
-        builder.Services.AddSingleton<IChatBotService, DefaultChatBotService>();
+        builder.Services.AddSingleton<IAssistantService, DefaultAssistantService>();
         builder.Services
             .AddSingleton<AssistantSkillManager>()
             .AddSingleton<IAssistantSkillInvoker>(p => p.GetRequiredService<AssistantSkillManager>());

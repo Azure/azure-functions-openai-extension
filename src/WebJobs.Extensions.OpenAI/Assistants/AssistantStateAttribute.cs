@@ -4,19 +4,19 @@
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class ChatBotQueryAttribute : Attribute
+public class AssistantQueryAttribute : Attribute
 {
-    public ChatBotQueryAttribute(string id)
+    public AssistantQueryAttribute(string id)
     {
         this.Id = id;
     }
 
     /// <summary>
-    /// Gets the ID of the chat bot to query.
+    /// Gets the ID of the assistant to query.
     /// </summary>
     [AutoResolve]
     public string Id { get; }
@@ -29,7 +29,7 @@ public class ChatBotQueryAttribute : Attribute
     public string TimestampUtc { get; set; } = string.Empty;
 }
 
-public record ChatBotState(
+public record AssistantState(
     string Id,
     bool Exists,
     DateTime CreatedAt,

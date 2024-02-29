@@ -1,13 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-namespace Functions.Worker.Extensions.OpenAI.TextCompletion;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.TextCompletion;
 
 /// <summary>
 /// Input binding attribute for capturing OpenAI completions in function executions.

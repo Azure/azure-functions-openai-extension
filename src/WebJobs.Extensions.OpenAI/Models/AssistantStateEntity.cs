@@ -7,14 +7,14 @@ using Azure.Data.Tables;
 namespace WebJobs.Extensions.OpenAI.Models;
 
 /// <summary>
-/// The ChatBotStateEntity class represents the state of a chat bot to interact with Table Storage.
+/// The AssistantStateEntity class represents the state of a assistant to interact with Table Storage.
 /// </summary>
-class ChatBotStateEntity : ITableEntity
+class AssistantStateEntity : ITableEntity
 {
     // WARNING: Changing this value is a breaking change!
     internal const string FixedRowKeyValue = "state";
 
-    public ChatBotStateEntity(string partitionKey)
+    public AssistantStateEntity(string partitionKey)
     {
         this.PartitionKey = partitionKey;
         this.RowKey = FixedRowKeyValue;
@@ -23,7 +23,7 @@ class ChatBotStateEntity : ITableEntity
         this.Exists = true;
     }
 
-    public ChatBotStateEntity(TableEntity entity)
+    public AssistantStateEntity(TableEntity entity)
     {
         this.PartitionKey = entity.PartitionKey;
         this.RowKey = entity.RowKey;
@@ -36,9 +36,6 @@ class ChatBotStateEntity : ITableEntity
         this.Exists = entity.GetBoolean(nameof(this.Exists)).GetValueOrDefault();
     }
 
-    // TODO: Confirm whether this is necessary
-    //// public ChatBotStateEntity() { }
-
     /// <summary>
     /// Partition key.
     /// </summary>
@@ -50,22 +47,22 @@ class ChatBotStateEntity : ITableEntity
     public string RowKey { get; set; }
 
     /// <summary>
-    /// Gets if chatbot exists or not.
+    /// Gets if assistant exists or not.
     /// </summary>
     public bool Exists { get; set; }
 
     /// <summary>
-    /// Gets when chat bot was created.
+    /// Gets when assistant was created.
     /// </summary>
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
-    /// Gets when chatbot was last updated.
+    /// Gets when assistant was last updated.
     /// </summary>
     public DateTime LastUpdatedAt { get; set; }
 
     /// <summary>
-    /// Gets total messages in chat bot.
+    /// Gets total messages in assistant.
     /// </summary>
     public int TotalMessages { get; set; }
 

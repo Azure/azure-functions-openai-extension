@@ -1,6 +1,7 @@
-using Functions.Worker.Extensions.OpenAI.AssistantSkill;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 namespace AssistantSample;
 

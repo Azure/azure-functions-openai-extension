@@ -3,58 +3,58 @@
 
 using System.Text.Json.Serialization;
 
-namespace Functions.Worker.Extensions.OpenAI.ChatBot;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 /// <summary>
-/// Chat bot state.
+/// Assistant state.
 /// </summary>
-public class ChatBotState
+public class AssistantState
 {
     /// <summary>
-    /// Gets the ID of the chat bot.
+    /// Gets the ID of the assistant.
     /// </summary>
     [JsonPropertyName("id")]
     public string? Id { get; set; }
 
     /// <summary>
-    /// Gets if chat bot exists.
+    /// Gets if assistant exists.
     /// </summary>
     [JsonPropertyName("exists")]
     public bool Exists { get; set; }
 
     /// <summary>
-    /// Gets status of chat bot. Options are Uninitialzied, Active, or Expired.
+    /// Gets status of assistant. Options are Uninitialzied, Active, or Expired.
     /// </summary>
     [JsonPropertyName("status")]
     public string? Status { get; set; }
 
     /// <summary>
-    /// Gets timestamp of when chat bot is created.
+    /// Gets timestamp of when assistant is created.
     /// </summary>
     [JsonPropertyName("createdAt")]
     public DateTime CreatedAt { get; set; }
 
     /// <summary>
-    /// Gets timestamp of when chat bot is last updated.
+    /// Gets timestamp of when assistant is last updated.
     /// </summary>
     [JsonPropertyName("lastUpdatedAt")]
     public DateTime LastUpdatedAt { get; set; }
 
     /// <summary>
-    /// Gets number of total messages for chat bot.
+    /// Gets number of total messages for assistant.
     /// </summary>
     [JsonPropertyName("totalMessages")]
     public int TotalMessages { get; set; }
 
     /// <summary>
-    /// Gets number of total tokens for chatbot.
+    /// Gets number of total tokens for assistant.
     /// </summary>
     [JsonPropertyName("totalTokens")]
     public int TotalTokens { get; set; }
 
     /// <summary>
-    /// Gets a list of the recent messages from the chatbot.
+    /// Gets a list of the recent messages from the assistant.
     /// </summary>
     [JsonPropertyName("recentMessages")]
-    public IReadOnlyList<ChatMessage> RecentMessages { get; set; } = Array.Empty<ChatMessage>();
+    public IReadOnlyList<AssistantMessage> RecentMessages { get; set; } = Array.Empty<AssistantMessage>();
 }

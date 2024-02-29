@@ -9,7 +9,7 @@ using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 public interface IAssistantSkillInvoker
 {
@@ -174,7 +174,7 @@ public class AssistantSkillManager : IAssistantSkillInvoker
             cancellationToken);
 
         // If the function threw an exception, rethrow it here. This will cause the caller (e.g., the
-        // chat bot entity) to receive an error response, which it should be prepared to catch and handle.
+        // assistant entity) to receive an error response, which it should be prepared to catch and handle.
         if (result.Exception is not null)
         {
             ExceptionDispatchInfo.Throw(result.Exception);

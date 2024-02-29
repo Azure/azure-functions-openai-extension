@@ -11,18 +11,18 @@ using Microsoft.Extensions.Options;
 using WebJobs.Extensions.OpenAI;
 using WebJobs.Extensions.OpenAI.Models;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
-public interface IChatBotService
+public interface IAssistantService
 {
-    Task CreateChatBotAsync(ChatBotCreateRequest request, CancellationToken cancellationToken);
-    Task<ChatBotState> GetStateAsync(string id, DateTime since, CancellationToken cancellationToken);
-    Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken);
+    Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken);
+    Task<AssistantState> GetStateAsync(string id, DateTime since, CancellationToken cancellationToken);
+    Task PostMessageAsync(AssistantPostRequest request, CancellationToken cancellationToken);
 }
 
-class DefaultChatBotService : IChatBotService
+class DefaultAssistantService : IAssistantService
 {
-    record InternalChatState(string Id, ChatBotStateEntity Metadata, List<ChatMessageTableEntity> Messages);
+    record InternalChatState(string Id, AssistantStateEntity Metadata, List<ChatMessageTableEntity> Messages);
 
     /// <summary>
     /// The maximum number of messages we allow in a function call loop.
@@ -36,7 +36,7 @@ class DefaultChatBotService : IChatBotService
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
 
-    public DefaultChatBotService(
+    public DefaultAssistantService(
         OpenAIClient openAIClient,
         IOptions<OpenAIConfigOptions> openAiConfigOptions,
         IConfiguration configuration,
@@ -56,7 +56,7 @@ class DefaultChatBotService : IChatBotService
         this.skillInvoker = skillInvoker ?? throw new ArgumentNullException(nameof(skillInvoker));
         this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
 
-        this.logger = loggerFactory.CreateLogger<DefaultChatBotService>();
+        this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
 
         string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
 
@@ -74,7 +74,7 @@ class DefaultChatBotService : IChatBotService
         this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
     }
 
-    public async Task CreateChatBotAsync(ChatBotCreateRequest request, CancellationToken cancellationToken)
+    public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)
     {
         this.logger.LogInformation(
             "[{Id}] Creating new chat session with instructions = \"{Text}\"",
@@ -84,7 +84,7 @@ class DefaultChatBotService : IChatBotService
         // Create the table if it doesn't exist
         await this.tableClient.CreateIfNotExistsAsync();
 
-        // Check to see if the chat bot has already been initialized
+        // Check to see if the assistant has already been initialized
         AsyncPageable<TableEntity> queryResultsFilter = this.tableClient.QueryAsync<TableEntity>(
             filter: $"PartitionKey eq '{request.Id}'",
             cancellationToken: cancellationToken);
@@ -92,13 +92,13 @@ class DefaultChatBotService : IChatBotService
         // Create a batch of table transaction actions for deleting entities
         List<TableTransactionAction> deleteBatch = new(capacity: 100);
 
-        // Local function for deleting batches of chat bot state
+        // Local function for deleting batches of assistant state
         async Task DeleteBatch()
         {
             if (deleteBatch.Count > 0)
             {
                 this.logger.LogInformation(
-                    "Deleting {Count} record(s) for chat bot '{Id}'.",
+                    "Deleting {Count} record(s) for assistant '{Id}'.",
                     deleteBatch.Count,
                     request.Id);
                 await this.tableClient.SubmitTransactionAsync(deleteBatch);
@@ -138,28 +138,28 @@ class DefaultChatBotService : IChatBotService
             batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
         }
 
-        // Add chat bot state entity to table
-        ChatBotStateEntity chatBotStateEntity = new(request.Id) { TotalMessages = batch.Count };
+        // Add assistant state entity to table
+        AssistantStateEntity assistantStateEntity = new(request.Id) { TotalMessages = batch.Count };
 
-        batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatBotStateEntity));
+        batch.Add(new TableTransactionAction(TableTransactionActionType.Add, assistantStateEntity));
 
         // Add the batch of table transaction actions to the table
         await this.tableClient.SubmitTransactionAsync(batch);
     }
 
-    public async Task<ChatBotState> GetStateAsync(string id, DateTime after, CancellationToken cancellationToken)
+    public async Task<AssistantState> GetStateAsync(string id, DateTime after, CancellationToken cancellationToken)
     {
         DateTime afterUtc = after.ToUniversalTime();
         this.logger.LogInformation(
-            "Reading state for chat bot entity '{Id}' and getting chat messages after {Timestamp}",
+            "Reading state for assistant entity '{Id}' and getting chat messages after {Timestamp}",
             id,
             afterUtc.ToString("o"));
 
         InternalChatState? chatState = await this.LoadChatStateAsync(id, cancellationToken);
         if (chatState is null)
         {
-            this.logger.LogWarning("No chat bot exists with ID = '{Id}'", id);
-            return new ChatBotState(id, false, default, default, 0, 0, Array.Empty<ChatMessage>());
+            this.logger.LogWarning("No assistant exists with ID = '{Id}'", id);
+            return new AssistantState(id, false, default, default, 0, 0, Array.Empty<ChatMessage>());
         }
 
         List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
@@ -171,7 +171,7 @@ class DefaultChatBotService : IChatBotService
             filteredChatMessages.Count,
             chatState.Metadata.TotalMessages, id);
 
-        ChatBotState state = new(
+        AssistantState state = new(
             id,
             true,
             chatState.Metadata.CreatedAt,
@@ -182,26 +182,26 @@ class DefaultChatBotService : IChatBotService
         return state;
     }
 
-    public async Task PostMessageAsync(ChatBotPostRequest request, CancellationToken cancellationToken)
+    public async Task PostMessageAsync(AssistantPostRequest request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(request.Id))
         {
-            throw new ArgumentException("The chat bot ID must be specified.", nameof(request));
+            throw new ArgumentException("The assistant ID must be specified.", nameof(request));
         }
 
         if (string.IsNullOrEmpty(request.UserMessage))
         {
-            throw new ArgumentException("The chat bot must have a user message", nameof(request));
+            throw new ArgumentException("The assistant must have a user message", nameof(request));
         }
 
-        this.logger.LogInformation("Posting message to chat bot entity '{Id}'", request.Id);
+        this.logger.LogInformation("Posting message to assistant entity '{Id}'", request.Id);
 
         InternalChatState? chatState = await this.LoadChatStateAsync(request.Id, cancellationToken);
 
-        // Check if chat bot has been deactivated
+        // Check if assistant has been deactivated
         if (chatState is null || !chatState.Metadata.Exists)
         {
-            this.logger.LogWarning("[{Id}] Ignoring request sent to nonexistent chat bot.", request.Id);
+            this.logger.LogWarning("[{Id}] Ignoring request sent to nonexistent assistant.", request.Id);
             return;
         }
 
@@ -359,7 +359,7 @@ class DefaultChatBotService : IChatBotService
             }
         }
 
-        // Update the chat bot state entity
+        // Update the assistant state entity
         chatState.Metadata.TotalMessages = chatState.Messages.Count;
         chatState.Metadata.LastUpdatedAt = DateTime.UtcNow;
         batch.Add(new TableTransactionAction(TableTransactionActionType.UpdateMerge, chatState.Metadata));
@@ -377,7 +377,7 @@ class DefaultChatBotService : IChatBotService
 
         // Deserialize the chat messages
         List<ChatMessageTableEntity> chatMessageList = new();
-        ChatBotStateEntity? chatBotStateEntity = null;
+        AssistantStateEntity? assistantStateEntity = null;
 
         await foreach (TableEntity entity in itemsWithPartitionKey)
         {
@@ -387,19 +387,19 @@ class DefaultChatBotService : IChatBotService
                 chatMessageList.Add(new ChatMessageTableEntity(entity));
             }
 
-            // Get chat bot state
-            if (entity.RowKey == ChatBotStateEntity.FixedRowKeyValue)
+            // Get assistant state
+            if (entity.RowKey == AssistantStateEntity.FixedRowKeyValue)
             {
-                chatBotStateEntity = new ChatBotStateEntity(entity);
+                assistantStateEntity = new AssistantStateEntity(entity);
             }
         }
 
-        if (chatBotStateEntity is null)
+        if (assistantStateEntity is null)
         {
             return null;
         }
 
-        return new InternalChatState(id, chatBotStateEntity, chatMessageList);
+        return new InternalChatState(id, assistantStateEntity, chatMessageList);
     }
 
     static IEnumerable<ChatRequestMessage> ToOpenAIChatRequestMessages(IEnumerable<ChatMessageTableEntity> entities)

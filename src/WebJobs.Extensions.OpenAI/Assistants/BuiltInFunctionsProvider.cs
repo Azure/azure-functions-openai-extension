@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.Azure.WebJobs.Script.Description;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 /// <summary>
 /// Class that defines all the built-in functions for executing CNCF Serverless Workflows.

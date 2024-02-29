@@ -3,29 +3,29 @@
 
 using Microsoft.Azure.WebJobs.Description;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class ChatBotCreateAttribute : Attribute
+public class AssistantCreateAttribute : Attribute
 {
     // No configuration needed
 }
 
-public class ChatBotCreateRequest
+public class AssistantCreateRequest
 {
-    public ChatBotCreateRequest()
+    public AssistantCreateRequest()
     {
         // For deserialization
         this.Id = string.Empty;
     }
 
-    public ChatBotCreateRequest(string id)
+    public AssistantCreateRequest(string id)
     {
         this.Id = id;
     }
 
-    public ChatBotCreateRequest(string id, string? instructions)
+    public AssistantCreateRequest(string id, string? instructions)
     {
         this.Id = id;
 
@@ -36,6 +36,6 @@ public class ChatBotCreateRequest
     }
 
     public string Id { get; set; }
-    public string Instructions { get; set; } = "You are a helpful chat bot.";
+    public string Instructions { get; set; } = "You are a helpful assistant.";
     public DateTime? ExpiresAt { get; set; }
 }

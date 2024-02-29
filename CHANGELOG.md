@@ -11,17 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added dotnet-isolated support to AssistantSkills
 
+### Breaking changes
+- Changed all references from `chatBot` to `assistants` (#17)
+- Renamed namespace from `Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents` to `Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants`
+- Renamed namespace from `Functions.Worker.Extensions.OpenAI` to `Microsoft.Azure.Functions.Worker.Extensions.OpenAI`
+
 ## v0.11.0 - 2024/02/27
 
 ### Changes
 
 - Added E2E test for ChatBot
 - Extension bundle support
-
-### Breaking changes
-- Changed all references from `chatBot` to `assistants` (#17)
-- Renamed namespace from `Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents` to `Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants`
-- Renamed namespace from `Functions.Worker.Extensions.OpenAI` to `Microsoft.Azure.Functions.Worker.Extensions.OpenAI`
 
 ## v0.10.0 - 2024/02/21
 

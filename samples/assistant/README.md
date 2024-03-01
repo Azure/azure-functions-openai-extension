@@ -162,6 +162,7 @@ Also note that the storage of chat history is done via table storage. You may co
       "createdAt": "2023-11-26T00:40:56.7864809Z",
       "lastUpdatedAt": "2023-11-26T00:41:21.0153489Z",
       "totalMessages": 10,
+      "totalTokens": 153,
       "recentMessages": [
         {
           "role": "system",
@@ -174,7 +175,6 @@ Also note that the storage of chat history is done via table storage. You may co
         {
           "role": "function",
           "content": "The function call succeeded. Let the user know that you completed the action.",
-          "name": "AddTodo"
         },
         {
           "role": "assistant",
@@ -187,7 +187,6 @@ Also note that the storage of chat history is done via table storage. You may co
         {
           "role": "function",
           "content": "The function call succeeded. Let the user know that you completed the action.",
-          "name": "AddTodo"
         },
         {
           "role": "assistant",
@@ -200,7 +199,6 @@ Also note that the storage of chat history is done via table storage. You may co
         {
           "role": "function",
           "content": "[{\"Id\":\"4d3170\",\"Task\":\"Call my dad\"},{\"Id\":\"f1413f\",\"Task\":\"Take out the trash\"}]",
-          "name": "GetTodos"
         },
         {
           "role": "assistant",

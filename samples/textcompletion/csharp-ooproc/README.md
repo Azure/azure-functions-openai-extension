@@ -1,6 +1,6 @@
-# Text Completion in-proc samples
+# Text Completion samples
 
-This project contains sample code for using the OpenAI bindings with the Azure Functions .NET in-proc experience. The examples are written in C#.
+This project contains sample code for using the OpenAI bindings with the Azure Functions .NET isolated experience. The examples are written in C#.
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ Please refer to the root level [README](../../../README.md#requirements) for pre
 Navigate to folder
 
 ```bash
-cd samples/textcompletion/csharp-inproc
+cd samples/textcompletion/csharp-ooproc
 ```
 
 Use the following command to build the project:

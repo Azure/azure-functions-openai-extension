@@ -56,7 +56,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
         // TODO: Add string binding support to enable binding in non-.NET languages.
         semanticSearchRule.BindToCollector<SearchableDocument>(this.semanticSearchConverter);
 
-        // ChatBot support
+        // Assistant support
         var chatBotCreateRule = context.AddBindingRule<AssistantCreateAttribute>();
         chatBotCreateRule.BindToCollector<AssistantCreateRequest>(this.chatBotConverter);
         context.AddConverter<JObject, AssistantCreateRequest>(this.chatBotConverter.ToAssistantCreateRequest);

@@ -48,17 +48,19 @@ The `textCompletion` input binding can be used to invoke the [OpenAI Chat Comple
 
 The examples below define "who is" HTTP-triggered functions with a hardcoded `"who is {name}?"` prompt, where `{name}` is the substituted with the value in the HTTP request path. The OpenAI input binding invokes the OpenAI GPT endpoint to surface the answer to the prompt to the function, which then returns the result text as the response content.
 
-#### [C# example](./samples/textcompletion/csharp-inproc/)
+#### [C# example](./samples/textcompletion/csharp-ooproc/)
 
 Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
 
 ```csharp
-[FunctionName(nameof(WhoIs))]
-public static string WhoIs(
-    [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
+[Function(nameof(WhoIs))]
+public static HttpResponseData WhoIs(
+    [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
+    [TextCompletionInput("Who is {name}?")] TextCompletionResponse response)
 {
-    return response.Content;
+    HttpResponseData responseData = req.CreateResponse(HttpStatusCode.OK);
+    responseData.WriteString(response.Content);
+    return responseData;
 }
 ```
 

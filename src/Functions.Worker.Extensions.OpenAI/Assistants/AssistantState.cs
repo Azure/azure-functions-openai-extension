@@ -56,5 +56,5 @@ public class AssistantState
     /// Gets a list of the recent messages from the assistant.
     /// </summary>
     [JsonPropertyName("recentMessages")]
-    public IReadOnlyList<AssistantMessage> RecentMessages { get; set; } = Array.Empty<AssistantMessage>();
+    public IReadOnlyList<ChatMessage> RecentMessages { get; set; } = Array.Empty<ChatMessage>();
 }

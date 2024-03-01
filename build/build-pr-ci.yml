@@ -60,7 +60,6 @@ steps:
     displayName: Create new directory
 
   - script: |
-      ls
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $(config) -p:WebJobsVersion=$(fakeWebJobsPackageVersion) -p:Version=$(fakeWebJobsPackageVersion)
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
 

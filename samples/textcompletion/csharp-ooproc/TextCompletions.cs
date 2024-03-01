@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Net;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.TextCompletion;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 

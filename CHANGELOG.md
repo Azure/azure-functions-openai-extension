@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.12.0 - 2024/03/01
+
+### Changes
+
+- Added dotnet-isolated support to AssistantSkills
+
+### Breaking changes
+
+- Changed all references from `chatBot` to `assistants` (#17)
+- Renamed namespace from `Microsoft.Azure.WebJobs.Extensions.OpenAI.Agents` to `Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants`
+- Renamed namespace from `Functions.Worker.Extensions.OpenAI` to `Microsoft.Azure.Functions.Worker.Extensions.OpenAI`
+
+## v0.11.0 - 2024/02/27
+
+### Changes
+
+- Added E2E test for ChatBot
+- Extension bundle support
+
 ## v0.10.0 - 2024/02/21
 
 ### Changes

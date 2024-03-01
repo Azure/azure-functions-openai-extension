@@ -1,7 +1,7 @@
 # Azure Functions bindings for OpenAI's GPT engine
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml)
+[![Build](https://dev.azure.com/azfunc/Azure%20Functions/_apis/build/status%2FExtension-OpenAI%2FAzure%20Functions%20OpenAI%20Extension%20PR%20CI?branchName=main)](https://dev.azure.com/azfunc/Azure%20Functions/_build/latest?definitionId=303&branchName=main)
 
 This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
@@ -37,7 +37,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
 The following features are currently available. More features will be slowly added over time.
 
 * [Text completions](#text-completion-input-binding)
-* [Chat bots](#chat-bots)
+* [Chat completion](#chat-completion)
 * [Assistants](#assistants)
 * [Embeddings generators](#embeddings-generator)
 * [Semantic search](#semantic-search)
@@ -48,17 +48,19 @@ The `textCompletion` input binding can be used to invoke the [OpenAI Chat Comple
 
 The examples below define "who is" HTTP-triggered functions with a hardcoded `"who is {name}?"` prompt, where `{name}` is the substituted with the value in the HTTP request path. The OpenAI input binding invokes the OpenAI GPT endpoint to surface the answer to the prompt to the function, which then returns the result text as the response content.
 
-#### [C# example](./samples/textcompletion/csharp-inproc/)
+#### [C# example](./samples/textcompletion/csharp-ooproc/)
 
 Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
 
 ```csharp
-[FunctionName(nameof(WhoIs))]
-public static string WhoIs(
-    [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
+[Function(nameof(WhoIs))]
+public static HttpResponseData WhoIs(
+    [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
+    [TextCompletionInput("Who is {name}?")] TextCompletionResponse response)
 {
-    return response.Content;
+    HttpResponseData responseData = req.CreateResponse(HttpStatusCode.OK);
+    responseData.WriteString(response.Content);
+    return responseData;
 }
 ```
 
@@ -153,54 +155,65 @@ movies, and other media.
 
 You can find more instructions for running the samples in the corresponding project directories. The goal is to have samples for all languages supported by Azure Functions.
 
-### Chat bots
+### Chat completion
 
-[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered chat bots.
+[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered assistants.
 
-There are three bindings you can use to interact with the chat bot:
+There are three bindings you can use to interact with the assistant:
 
-1. The `chatBotCreate` output binding creates a new chat bot with a specified system prompt.
-1. The `chatBotPost` output binding sends a message to the chat bot and saves the response in its internal state.
-1. The `chatBotQuery` input binding fetches the chat bot history and passes it to the function.
+1. The `assistantCreate` output binding creates a new assistant with a specified system prompt.
+1. The `assistantPost` output binding sends a message to the assistant and saves the response in its internal state.
+1. The `assistantQuery` input binding fetches the assistant history and passes it to the function.
 
 You can find samples in multiple languages with instructions [in the chat samples directory](./samples/chat/).
 
 ### Assistants
 
-Assistants build on top of the chat bot functionality to provide chat bots with custom skills defined as functions.
+Assistants build on top of the chat functionality to provide assistants with custom skills defined as functions.
 This internally uses the [function calling](https://platform.openai.com/docs/guides/function-calling) feature of OpenAIs GPT models to select which functions to invoke and when.
 
-You can define functions that can be triggered by chat bots by using the `assistantSkillTrigger` trigger binding.
-These functions are invoked by the extension when a chat bot signals that it would like to invoke a function in response to a user prompt.
+You can define functions that can be triggered by assistants by using the `assistantSkillTrigger` trigger binding.
+These functions are invoked by the extension when a assistant signals that it would like to invoke a function in response to a user prompt.
 
 The name of the function, the description provided by the trigger, and the parameter name are all hints that the underlying language model use to determine when and how to invoke an assistant function.
 
-#### [C# example](./samples/assistant/csharp-inproc)
+#### [C# example](./samples/assistant/csharp-ooproc)
 
 ```csharp
 public class AssistantSkills
 {
     readonly ITodoManager todoManager;
+    readonly ILogger<AssistantSkills> logger;
 
     // This constructor is called by the Azure Functions runtime's dependency injection container.
-    public AssistantSkills(ITodoManager todoManager)
+    public AssistantSkills(ITodoManager todoManager, ILogger<AssistantSkills> logger)
     {
         this.todoManager = todoManager ?? throw new ArgumentNullException(nameof(todoManager));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     // Called by the assistant to create new todo tasks.
-    [FunctionName(nameof(AddTodo))]
+    [Function(nameof(AddTodo))]
     public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription)
     {
+        if (string.IsNullOrEmpty(taskDescription))
+        {
+            throw new ArgumentException("Task description cannot be empty");
+        }
+
+        this.logger.LogInformation("Adding todo: {task}", taskDescription);
+
         string todoId = Guid.NewGuid().ToString()[..6];
         return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
     }
 
     // Called by the assistant to fetch the list of previously created todo tasks.
-    [FunctionName(nameof(GetTodos))]
+    [Function(nameof(GetTodos))]
     public Task<IReadOnlyList<TodoItem>> GetTodos(
         [AssistantSkillTrigger("Fetch the list of previously created todo tasks")] object inputIgnored)
     {
+        this.logger.LogInformation("Fetching list of todos");
+
         return this.todoManager.GetTodosAsync();
     }
 }

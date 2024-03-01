@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Functions.Worker.Extensions.OpenAI;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 namespace CSharpIsolatedSamples;
 
@@ -42,14 +42,14 @@ public static class ChatBotIsolated
         return new CreateChatBotOutput
         {
             HttpResponse = response,
-            ChatBotCreateRequest = new ChatBotCreateRequest(chatId, createRequestBody.Instructions),
+            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody.Instructions),
         };
     }
 
     public class CreateChatBotOutput
     {
-        [ChatBotCreateOutput()]
-        public ChatBotCreateRequest? ChatBotCreateRequest { get; set; }
+        [AssistantCreateOutput()]
+        public AssistantCreateRequest? ChatBotCreateRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }
@@ -72,14 +72,14 @@ public static class ChatBotIsolated
         return new PostResponseOutput
         {
             HttpResponse = response,
-            ChatBotPostRequest = new ChatBotPostRequest { UserMessage = userMessage, Id = chatId }
+            ChatBotPostRequest = new AssistantPostRequest { UserMessage = userMessage, Id = chatId }
         };
     }
 
     public class PostResponseOutput
     {
-        [ChatBotPostOutput("{chatId}", Model = "%AZURE_DEPLOYMENT_NAME%")]
-        public ChatBotPostRequest? ChatBotPostRequest { get; set; }
+        [AssistantPostOutput("{chatId}", Model = "%AZURE_DEPLOYMENT_NAME%")]
+        public AssistantPostRequest? ChatBotPostRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }
@@ -88,7 +88,7 @@ public static class ChatBotIsolated
     public static async Task<HttpResponseData> GetChatState(
        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequestData req,
        string chatId,
-       [ChatBotQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] ChatBotState state,
+       [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state,
        FunctionContext context)
     {
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);

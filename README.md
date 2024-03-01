@@ -37,7 +37,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
 The following features are currently available. More features will be slowly added over time.
 
 * [Text completions](#text-completion-input-binding)
-* [assistants](#chat-bots)
+* [Chat completion](#chat-completion)
 * [Assistants](#assistants)
 * [Embeddings generators](#embeddings-generator)
 * [Semantic search](#semantic-search)
@@ -153,7 +153,7 @@ movies, and other media.
 
 You can find more instructions for running the samples in the corresponding project directories. The goal is to have samples for all languages supported by Azure Functions.
 
-### Assistants
+### Chat completion
 
 [Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered assistants.
 

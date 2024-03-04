@@ -16,7 +16,7 @@
       "name": "Response"
     },
     {
-      "type": "chatBotPost",
+      "type": "assistantPost",
       "direction": "out",
       "name": "newMessages",
       "id": "{chatId}",

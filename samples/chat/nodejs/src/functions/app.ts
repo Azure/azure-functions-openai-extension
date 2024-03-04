@@ -5,7 +5,7 @@ import { HttpRequest, InvocationContext, app, input, output } from "@azure/funct
 
 
 const chatBotCreateOutput = output.generic({
-    type: 'chatBotCreate'
+    type: 'assistantCreate'
 })
 app.http('CreateChatBot', {
     methods: ['PUT'],
@@ -26,8 +26,8 @@ app.http('CreateChatBot', {
 });
 
 
-const chatBotQueryInput = input.generic({
-    type: 'chatBotQuery',
+const assistantQueryInput = input.generic({
+    type: 'assistantQuery',
     id: '{chatId}',
     timestampUtc: '{Query.timestampUTC}'
 })
@@ -35,16 +35,16 @@ app.http('GetChatState', {
     methods: ['GET'],
     route: 'chats/{chatID}',
     authLevel: 'function',
-    extraInputs: [chatBotQueryInput],
+    extraInputs: [assistantQueryInput],
     handler: async (_, context) => {
-        const chatState: any = context.extraInputs.get(chatBotQueryInput)
+        const chatState: any = context.extraInputs.get(assistantQueryInput)
         return { status: 200, jsonBody: chatState }
     }
 });
 
 
 const chatBotPostOutput = output.generic({
-    type: 'chatBotPost',
+    type: 'assistantPost',
     id: '{chatID}'
 })
 app.http('PostUserResponse', {
@@ -59,7 +59,7 @@ app.http('PostUserResponse', {
         }
         const chatPostRequest = {
             chatId: request.params.chatID,
-            userMessage: userMessage,
+            userMessage: userMessage
         }
         context.log(`Creating post request with parameters: ${JSON.stringify(chatPostRequest)}`)
         context.extraOutputs.set(chatBotPostOutput, chatPostRequest)

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 
 - Added dotnet-isolated support to AssistantSkills
+- Downgraded Microsoft.Azure.Kusto.Data and Microsoft.Azure.Kusto.Ingest packages to 11.3.5.
 
 ### Breaking changes
 

@@ -16,7 +16,7 @@
       "name": "Response"
     },
     {
-      "type": "chatBotQuery",
+      "type": "assistantQuery",
       "direction": "in",
       "name": "ChatBotState",
       "id": "{chatId}",

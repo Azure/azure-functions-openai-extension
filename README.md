@@ -273,8 +273,8 @@ public record EmbeddingsRequest(string FilePath);
 [FunctionName("IngestEmail")]
 public static async Task<IActionResult> IngestEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-ada-002")] EmbeddingsContext embeddings,
-    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] IAsyncCollector<SearchableDocument> output)
+    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-3-small")] EmbeddingsContext embeddings,
+    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] IAsyncCollector<SearchableDocument> output)
 {
     string title = Path.GetFileNameWithoutExtension(req.FilePath);
     await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -292,7 +292,7 @@ public record SemanticSearchRequest(string Prompt);
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] SemanticSearchContext result)
+    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -337,7 +337,7 @@ public static string WhoIs(
 ```csharp
 public record SemanticSearchRequest(string Prompt);
 
-// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-ada-002 models, respectively
+// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-3-small models, respectively
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
@@ -350,7 +350,7 @@ public static IActionResult PromptEmail(
 ## Default OpenAI models
 
 1. Chat Completion - gpt-3.5-turbo
-1. Embeddings - text-embedding-ada-002
+1. Embeddings - text-embedding-3-small
 1. Text Completion - gpt-3.5-turbo
 
 While using non-Azure OpenAI, you can omit the Model specification in attributes to use the default models.

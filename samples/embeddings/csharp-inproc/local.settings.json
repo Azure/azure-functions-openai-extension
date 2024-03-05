@@ -4,6 +4,6 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
     "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",
-    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
+    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-3-small"
   }
 }

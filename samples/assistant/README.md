@@ -55,6 +55,7 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
 * Uncomment the `CosmosDbConnectionString` setting in the `local.settings.json` file and configure it with the connection string to your Cosmos DB resource (local or Azure).
 
 Also note that the storage of chat history is done via table storage. You may configure the `host.json` file within the project to be as follows:
+
 ```json
 "extensions": {
     "openai": {
@@ -63,6 +64,7 @@ Also note that the storage of chat history is done via table storage. You may co
     }
 }
 ```
+
 `StorageConnectionName` is the name of connection string of a storage account and `CollectionName` is the name of the table that would hold the chat state and messages.
 
 ## Running the sample

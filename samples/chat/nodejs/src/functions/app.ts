@@ -46,7 +46,7 @@ app.http('GetChatState', {
 const chatBotPostOutput = output.generic({
     type: 'assistantPost',
     id: '{chatID}',
-    model: '%AZURE_DEPLOYMENT_NAME%'
+    model: '%CHAT_MODEL_DEPLOYMENT_NAME%'
 })
 app.http('PostUserResponse', {
     methods: ['POST'],

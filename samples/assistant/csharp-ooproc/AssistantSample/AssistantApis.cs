@@ -79,7 +79,7 @@ static class AssistantApis
 
     public class PostResponseOutput
     {
-        [AssistantPostOutput("{assistantId}", Model = "%AZURE_DEPLOYMENT_NAME%")]
+        [AssistantPostOutput("{assistantId}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")]
         public AssistantPostRequest? ChatBotPostRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }

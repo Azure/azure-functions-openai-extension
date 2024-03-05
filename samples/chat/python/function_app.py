@@ -31,7 +31,7 @@ def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
 
 @app.function_name("PostUserResponse")
 @app.route(route="chats/{chatID}", methods=["POST"])
-@app.generic_output_binding(arg_name="messages", type="assistantPost", data_type=func.DataType.STRING, id="{chatID}", model="%AZURE_DEPLOYMENT_NAME%")
+@app.generic_output_binding(arg_name="messages", type="assistantPost", data_type=func.DataType.STRING, id="{chatID}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
 def post_user_response(req: func.HttpRequest, messages: func.Out[str]) -> func.HttpResponse:
     userMessage = req.get_body().decode("utf-8")
     if not userMessage:

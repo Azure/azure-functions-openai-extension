@@ -29,7 +29,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
         * `AZURE_OPENAI_KEY` - Key of the Azure OpenAI resource as a setting.
     1. **OR** `OPENAI_API_KEY` -  Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
     If using environment variables, Learn more in [.env readme](./env/README.md).
-    1. In bindings, update the model name to an Azure deployment name or override a default OpenAI model. Refer capabilities specific read me to override this property for different bindings.
+    1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
 * The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
 
@@ -105,7 +105,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 
 In the same directory as the PowerShell function, define the bindings in a function.json file.  
 
-If using Azure OpenAI, update the deployment name to model property in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
+If using Azure OpenAI, update `CHAT_MODEL_DEPLOYMENT_NAME` key in `local.settings.json` with the deployment name or update model property directly in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
 
 ```json
 {

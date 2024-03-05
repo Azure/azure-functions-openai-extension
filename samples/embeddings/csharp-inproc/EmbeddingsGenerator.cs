@@ -23,7 +23,7 @@ public class EmbeddingsGenerator
     [FunctionName(nameof(GenerateEmbeddings_Http_Request))]
     public static void GenerateEmbeddings_Http_Request(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] EmbeddingsRequest req,
-        [Embeddings("{RawText}", InputType.RawText)] EmbeddingsContext embeddings,
+        [Embeddings("{RawText}", InputType.RawText, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(
@@ -41,7 +41,7 @@ public class EmbeddingsGenerator
     [FunctionName(nameof(GetEmbeddings_Http_FilePath))]
     public static void GetEmbeddings_Http_FilePath(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-file")] EmbeddingsRequest req,
-        [Embeddings("{FilePath}", InputType.FilePath, MaxChunkLength = 512)] EmbeddingsContext embeddings,
+        [Embeddings("{FilePath}", InputType.FilePath, MaxChunkLength = 512, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(

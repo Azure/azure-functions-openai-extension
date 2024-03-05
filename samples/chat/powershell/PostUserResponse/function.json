@@ -20,7 +20,7 @@
       "direction": "out",
       "name": "newMessages",
       "id": "{chatId}",
-      "model": "gpt-3.5-turbo"
+      "model": "%AZURE_DEPLOYMENT_NAME%"
     }
   ]
 }

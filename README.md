@@ -29,6 +29,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
         * `AZURE_OPENAI_KEY` - Key of the Azure OpenAI resource as a setting.
     1. **OR** `OPENAI_API_KEY` -  Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
     If using environment variables, Learn more in [.env readme](./env/README.md).
+    1. In bindings, update the model name to an Azure deployment name or override a default OpenAI model. Refer capabilities specific read me to override this property for different bindings.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
 * The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
 

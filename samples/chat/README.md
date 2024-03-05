@@ -38,21 +38,22 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
         PostUserResponse: [POST] http://localhost:7071/api/chats/{chatId}
     ```
 
-    Note for running the post user response function provided in the sample, please specify a model name in place of `AZURE_DEPLOYMENT_NAME`. This value can be an Azure deployment name or a GPT model name.
+    Note for running the post user response function provided in the sample, please specify a model name as a value for key `AZURE_DEPLOYMENT_NAME` in `local.settings.json`. This value can be an Azure deployment name or a GPT model name.
 
     For example, if you were running the chat bot scenario using the Azure OpenAI, you would have created a deployment name here as specified in step #6 [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal#deploy-a-model). Here is an example of what this would look like:
+
     ```csharp
     public class PostResponseOutput
     {
-        [ChatBotPostOutput("{chatId}", Model = "DeploymentName")]
-        public ChatBotPostRequest? ChatBotPostRequest { get; set; }
+        [AssistantPostOutput("{chatId}", Model = "DeploymentName")]
+        public AssistantPostRequest? ChatBotPostRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }
 
     ```
 
-    If you were running the chat bot scneario using open AI, you can override the default model value used for OpenAI, which is `gpt-3.5-turbo` and update the model field within `ChatBotPostOutput`.
+    If you were running the chat bot scneario using open AI, you can override the default model value used for OpenAI, which is `gpt-3.5-turbo` and update the model field within `AssistantPostOutput`.
 
 3. Use an HTTP client tool to send a request to the `CreateChatBot` function. The following is an example request:
 

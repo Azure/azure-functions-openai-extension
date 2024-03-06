@@ -80,7 +80,7 @@ class CosmosDbTodoManager : ITodoManager
             throw new ArgumentNullException(nameof(cosmosClient));
         }
 
-        string? CosmosDatabaseName = Environment.GetEnvironmentVariable("CosmosDbDatabaseName");
+        string? CosmosDatabaseName = Environment.GetEnvironmentVariable("CosmosDatabaseName");
         string? CosmosContainerName = Environment.GetEnvironmentVariable("CosmosContainerName");
 
         if (string.IsNullOrEmpty(CosmosDatabaseName) || string.IsNullOrEmpty(CosmosContainerName))

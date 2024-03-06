@@ -5,6 +5,8 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "CosmosDbConnectionString": "Local Cosmos DB emulator or Cosmos DB in Azure connection string",
     "CosmosDatabaseName": "todoDB",
-    "CosmosContainerName": "myTasks"
+    "CosmosContainerName": "myTasks",
+    "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",
+    "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo"
   }
 }

@@ -65,6 +65,8 @@ steps:
 
       dotnet nuget add source ~/NuGetPackagesLocal
       dotnet nuget list source
+      
+      sleep 10s
 
       dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion)
     displayName: Create/Copy NuGet Package to local directory and Build

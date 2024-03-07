@@ -37,15 +37,12 @@ class EmbeddingsConverter :
     {
         EmbeddingsContext response = await this.ConvertCoreAsync(input, cancellationToken);
 
-        //var binaryData = ModelReaderWriter.Write(response);
-        //var temp = binaryData.ToString();
-        //return temp;
+        // Note: we need this converter as Azure.AI.OpenAI does not support System.Text.Json serialization since their constructors are internal
         var options = new JsonSerializerOptions
         {
             Converters = { new EmbeddingsJsonConverter() }
         };
-        string json = JsonSerializer.Serialize(response, options);
-        return json;
+        return JsonSerializer.Serialize(response, options);
     }
 
     async Task<EmbeddingsContext> ConvertCoreAsync(
@@ -54,7 +51,8 @@ class EmbeddingsConverter :
     {
         EmbeddingsOptions request = attribute.BuildRequest();
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
-        Response<Embeddings> response = (await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken));
+        Response<Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
+        this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
 
         return new EmbeddingsContext(request, response);
     }

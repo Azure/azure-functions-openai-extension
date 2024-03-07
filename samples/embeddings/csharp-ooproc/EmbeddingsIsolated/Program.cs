@@ -14,11 +14,6 @@ var host = new HostBuilder()
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-
-        services.Configure<JsonSerializerOptions>(options =>
-        {
-            options.Converters.Add(new EmbeddingsJsonConverter());
-        });
     })
     .Build();
 

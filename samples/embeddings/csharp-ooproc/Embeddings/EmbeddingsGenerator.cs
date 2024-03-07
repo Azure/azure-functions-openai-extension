@@ -25,10 +25,10 @@ namespace EmbeddingsIsolated
         internal class EmbeddingsRequest
         {
             [JsonPropertyName("RawText")]
-            public string RawText { get; set; }
+            public string? RawText { get; set; }
 
             [JsonPropertyName("FilePath")]
-            public string FilePath { get; set; }
+            public string? FilePath { get; set; }
         }
 
         /// <summary>

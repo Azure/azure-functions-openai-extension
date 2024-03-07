@@ -12,12 +12,12 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
 /// <summary>
 /// Embeddings JSON converter needed to serialize and deserialize the Embeddings object with the dotnet worker.
 /// </summary>
-internal class EmbeddingsJsonConverter : JsonConverter<Embeddings>
+class EmbeddingsJsonConverter : JsonConverter<Embeddings>
 {
     public override Embeddings Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         using JsonDocument jsonDocument = JsonDocument.ParseValue(ref reader);
-        return ModelReaderWriter.Read<Embeddings>(BinaryData.FromString(jsonDocument.RootElement.GetRawText()));
+        return ModelReaderWriter.Read<Embeddings>(BinaryData.FromString(jsonDocument.RootElement.GetRawText()))!;
     }
 
     public override void Write(Utf8JsonWriter writer, Embeddings value, JsonSerializerOptions options)

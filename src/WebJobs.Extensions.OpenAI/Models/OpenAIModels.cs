@@ -13,7 +13,7 @@ static class OpenAIModels
     internal const string Gpt_35_Turbo = "gpt-3.5-turbo";
 
     /// <summary>
-    /// The default embeddings model, currently pointing to text-embedding-ada-002
+    /// The default embeddings model, currently pointing to text-embedding-3-small
     /// </summary>
-    internal const string DefaultEmbeddingsModel = "text-embedding-ada-002";
+    internal const string DefaultEmbeddingsModel = "text-embedding-3-small";
 }

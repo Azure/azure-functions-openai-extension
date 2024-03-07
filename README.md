@@ -29,6 +29,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
         * `AZURE_OPENAI_KEY` - Key of the Azure OpenAI resource as a setting.
     1. **OR** `OPENAI_API_KEY` -  Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
     If using environment variables, Learn more in [.env readme](./env/README.md).
+    1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
 * The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
 
@@ -104,7 +105,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 
 In the same directory as the PowerShell function, define the bindings in a function.json file.  
 
-If using Azure OpenAI, update the deployment name to model property in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
+If using Azure OpenAI, update `CHAT_MODEL_DEPLOYMENT_NAME` key in `local.settings.json` with the deployment name or update model property directly in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
 
 ```json
 {
@@ -276,8 +277,8 @@ public record EmbeddingsRequest(string FilePath);
 [FunctionName("IngestEmail")]
 public static async Task<IActionResult> IngestEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-ada-002")] EmbeddingsContext embeddings,
-    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] IAsyncCollector<SearchableDocument> output)
+    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-3-small")] EmbeddingsContext embeddings,
+    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] IAsyncCollector<SearchableDocument> output)
 {
     string title = Path.GetFileNameWithoutExtension(req.FilePath);
     await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -295,7 +296,7 @@ public record SemanticSearchRequest(string Prompt);
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] SemanticSearchContext result)
+    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -340,7 +341,7 @@ public static string WhoIs(
 ```csharp
 public record SemanticSearchRequest(string Prompt);
 
-// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-ada-002 models, respectively
+// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-3-small models, respectively
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
@@ -353,7 +354,7 @@ public static IActionResult PromptEmail(
 ## Default OpenAI models
 
 1. Chat Completion - gpt-3.5-turbo
-1. Embeddings - text-embedding-ada-002
+1. Embeddings - text-embedding-3-small
 1. Text Completion - gpt-3.5-turbo
 
 While using non-Azure OpenAI, you can omit the Model specification in attributes to use the default models.

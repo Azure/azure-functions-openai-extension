@@ -38,7 +38,7 @@ namespace EmbeddingsIsolated
         [Function(nameof(GenerateEmbeddings_Http_RequestAsync))]
         public async Task GenerateEmbeddings_Http_RequestAsync(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] HttpRequestData req,
-            [EmbeddingsInput("{RawText}", InputType.RawText)] EmbeddingsContext embeddings)
+            [EmbeddingsInput("{RawText}", InputType.RawText, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
         {
             using StreamReader reader = new(req.Body);
             string request = await reader.ReadToEndAsync();

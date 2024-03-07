@@ -22,7 +22,7 @@ public class EmbeddingsInputAttribute: InputBindingAttribute
     /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
-    public string Model { get; set; } = "text-embedding-ada-002";
+    public string Model { get; set; } = "text-embedding-3-small";
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.

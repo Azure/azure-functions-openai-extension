@@ -234,19 +234,23 @@ OpenAI's [text embeddings](https://platform.openai.com/docs/guides/embeddings) m
 
 Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use.
 
-#### [C# embeddings generator example](./samples/embeddings/csharp-inproc/EmbeddingsGenerator.cs)
+#### [C# embeddings generator example](./samples/embeddings/csharp-ooproc/EmbeddingsGenerator.cs)
 
 ```csharp
-[FunctionName(nameof(GenerateEmbeddings_Http_Request))]
-public static void GenerateEmbeddings_Http_Request(
-    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] EmbeddingsRequest req,
-    [Embeddings("{RawText}", InputType.RawText)] EmbeddingCreateResponse embeddingsResponse,
-    ILogger logger)
+[Function(nameof(GenerateEmbeddings_Http_RequestAsync))]
+public async Task GenerateEmbeddings_Http_RequestAsync(
+    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] HttpRequestData req,
+    [EmbeddingsInput("{RawText}", InputType.RawText)] EmbeddingsContext embeddings)
 {
-    logger.LogInformation(
+    using StreamReader reader = new(req.Body);
+    string request = await reader.ReadToEndAsync();
+
+    EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
+
+    this.logger.LogInformation(
         "Received {count} embedding(s) for input text containing {length} characters.",
-        embeddingsResponse.Data.Count,
-        req.RawText.Length);
+        embeddings.Count,
+        requestBody.RawText.Length);
 
     // TODO: Store the embeddings into a database or other storage.
 }

@@ -1,10 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel.Primitives;
+using System.Text.Json;
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
+using WebJobs.Extensions.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -33,7 +36,16 @@ class EmbeddingsConverter :
         CancellationToken cancellationToken)
     {
         EmbeddingsContext response = await this.ConvertCoreAsync(input, cancellationToken);
-        return JsonConvert.SerializeObject(response);
+
+        //var binaryData = ModelReaderWriter.Write(response);
+        //var temp = binaryData.ToString();
+        //return temp;
+        var options = new JsonSerializerOptions
+        {
+            Converters = { new EmbeddingsJsonConverter() }
+        };
+        string json = JsonSerializer.Serialize(response, options);
+        return json;
     }
 
     async Task<EmbeddingsContext> ConvertCoreAsync(
@@ -42,8 +54,7 @@ class EmbeddingsConverter :
     {
         EmbeddingsOptions request = attribute.BuildRequest();
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
-        Response<Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
-        this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
+        Response<Embeddings> response = (await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken));
 
         return new EmbeddingsContext(request, response);
     }

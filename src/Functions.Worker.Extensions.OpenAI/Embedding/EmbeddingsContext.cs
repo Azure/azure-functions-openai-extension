@@ -7,14 +7,14 @@ using System.Xml.Linq;
 using Azure;
 using Azure.AI.OpenAI;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
 
 /// <summary>
 /// Binding target for the <see cref="EmbeddingsAttribute"/>.
 /// </summary>
 /// <param name="Request">The embeddings request that was sent to OpenAI.</param>
 /// <param name="Response">The embeddings response that was received from OpenAI.</param>
-public class EmbeddingsContext: IJsonModel<EmbeddingsContext>
+public class EmbeddingsContext : IJsonModel<EmbeddingsContext>
 {
     public EmbeddingsContext(EmbeddingsOptions Request, Embeddings Response)
     {

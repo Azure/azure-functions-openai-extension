@@ -48,7 +48,7 @@ namespace EmbeddingsIsolated
             this.logger.LogInformation(
                 "Received {count} embedding(s) for input text containing {length} characters.",
                 embeddings.Count,
-                requestBody.RawText.Length);
+                requestBody?.RawText?.Length);
 
             // TODO: Store the embeddings into a database or other storage.
         }
@@ -69,7 +69,7 @@ namespace EmbeddingsIsolated
             this.logger.LogInformation(
                 "Received {count} embedding(s) for input file '{path}'.",
                 embeddings.Count,
-                requestBody.FilePath);
+                requestBody?.FilePath);
 
             // TODO: Store the embeddings into a database or other storage.
         }

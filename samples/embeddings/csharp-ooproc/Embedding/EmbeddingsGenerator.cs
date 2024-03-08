@@ -60,7 +60,7 @@ namespace Embeddings
         [Function(nameof(GetEmbeddings_Http_FilePath))]
         public async Task GetEmbeddings_Http_FilePath(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-file")] HttpRequestData req,
-            [EmbeddingsInput("{FilePath}", InputType.FilePath, MaxChunkLength = 512)] EmbeddingsContext embeddings)
+            [EmbeddingsInput("{FilePath}", InputType.FilePath, MaxChunkLength = 512, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
         {
             using StreamReader reader = new(req.Body);
             string request = await reader.ReadToEndAsync();

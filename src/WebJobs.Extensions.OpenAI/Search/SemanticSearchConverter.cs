@@ -5,6 +5,7 @@ using System.Text;
 using Azure.AI.OpenAI;
 using Azure;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 

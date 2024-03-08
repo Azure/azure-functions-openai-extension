@@ -1,4 +1,8 @@
-﻿namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
+
 static class OpenAIModels
 {
     // Reference - https://platform.openai.com/docs/models

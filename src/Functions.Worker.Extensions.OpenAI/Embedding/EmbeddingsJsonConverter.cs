@@ -6,7 +6,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 
-
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
 
 /// <summary>

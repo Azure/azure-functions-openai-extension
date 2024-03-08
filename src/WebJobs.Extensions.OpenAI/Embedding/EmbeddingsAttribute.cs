@@ -5,7 +5,7 @@ using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 
 /// <summary>
 /// Input binding attribute for converting function trigger input into OpenAI embeddings.

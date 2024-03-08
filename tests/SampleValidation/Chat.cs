@@ -32,11 +32,11 @@ public class Chat
         string baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS") ?? "http://localhost:7071";
         string chatId = $"superbowl-{Guid.NewGuid():N}";
 
-        // The timestamp is used for message filtering and will be updated by the ValidateChatBotResponseAsync function
+        // The timestamp is used for message filtering and will be updated by the ValidateAssistantResponseAsync function
         DateTime timestamp = DateTime.UtcNow;
 
-        // Create a new chat bot using an HTTP PUT request
-        var createRequest = new { instructions = "You are a helpful chat bot. Prefix each response with 'Yo!'." };
+        // Create a new assistant using an HTTP PUT request
+        var createRequest = new { instructions = "You are a helpful assistant. Prefix each response with 'Yo!'." };
         using HttpResponseMessage createResponse = await client.PutAsJsonAsync(
             requestUri: $"{baseAddress}/api/chats/{chatId}",
             createRequest,
@@ -51,7 +51,7 @@ public class Chat
         Assert.Equal(chatId, createResponseJson!["chatId"]?.GetValue<string>());
 
         // Wait for the chat bot to be initialized
-        await ValidateChatBotResponseAsync(expectedMessageCount: 1, expectedContent: createRequest.instructions);
+        await ValidateAssistantResponseAsync(expectedMessageCount: 1, expectedContent: createRequest.instructions);
 
         // Ask a question using an HTTP POST request
         using HttpResponseMessage questionResponse = await client.PostAsync(
@@ -61,7 +61,7 @@ public class Chat
         Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
 
         // Ensure that the model responded and mentioned the Seahawks as the 2014 Superbowl winners.
-        await ValidateChatBotResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
+        await ValidateAssistantResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
 
         using HttpResponseMessage followupResponse = await client.PostAsync(
             requestUri: $"{baseAddress}/api/chats/{chatId}",
@@ -70,10 +70,10 @@ public class Chat
         Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
 
         // Ensure that the model responded with Bruno Mars as the halftime show performer.
-        await ValidateChatBotResponseAsync(expectedMessageCount: 5, expectedContent: "Bruno Mars", hasTotalTokens: true);
+        await ValidateAssistantResponseAsync(expectedMessageCount: 5, expectedContent: "Bruno Mars", hasTotalTokens: true);
 
         // Local function to validate each chat bot response
-        async Task ValidateChatBotResponseAsync(int expectedMessageCount, string expectedContent, bool hasTotalTokens = false)
+        async Task ValidateAssistantResponseAsync(int expectedMessageCount, string expectedContent, bool hasTotalTokens = false)
         {
             // It may take a few seconds for the chat bot response to appear
             while (!cts.IsCancellationRequested)

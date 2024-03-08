@@ -14,12 +14,19 @@ This OpenAI extension internally uses the [function calling](https://platform.op
 
 ## Defining skills
 
-You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following C# in-proc example shows a skill that adds a todo item to a database:
+You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following C# (out-of-process) example shows a skill that adds a todo item to a database:
 
 ```csharp
-[FunctionName(nameof(AddTodo))]
+[Function(nameof(AddTodo))]
 public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription)
 {
+    if (string.IsNullOrEmpty(taskDescription))
+    {
+        throw new ArgumentException("Task description cannot be empty");
+    }
+
+    this.logger.LogInformation("Adding todo: {task}", taskDescription);
+
     string todoId = Guid.NewGuid().ToString()[..6];
     return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
 }
@@ -38,7 +45,7 @@ The assistant will invoke a skill function whenever it decides to do so to satis
 
 The sample is available in the following language stacks:
 
-* [C# on the in-process worker](csharp-inproc)
+* [C# on the out-of-process worker](csharp-ooproc)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
@@ -47,10 +54,23 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
 * Install the [Azure Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator), or get a connection string to a real Azure Cosmos DB resource.
 * Uncomment the `CosmosDbConnectionString` setting in the `local.settings.json` file and configure it with the connection string to your Cosmos DB resource (local or Azure).
 
+Also note that the storage of chat history is done via table storage. You may configure the `host.json` file within the project to be as follows:
+
+```json
+"extensions": {
+    "openai": {
+      "storageConnectionName": "AzureWebJobsStorage",
+      "collectionName": "SampleChatState"
+    }
+}
+```
+
+`StorageConnectionName` is the name of connection string of a storage account and `CollectionName` is the name of the table that would hold the chat state and messages.
+
 ## Running the sample
 
 1. Clone this repo and navigate to the sample folder.
-1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/assistant/csharp-inproc`)
+1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/assistant/csharp-ooproc`)
 1. Run `func start --port 7168` to build and run the sample function app
 
     If successful, you should see the following output from the `func` command:
@@ -67,11 +87,7 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
         AddTodo: assistantSkillTrigger
 
         GetTodos: assistantSkillTrigger
-
-        OpenAI::ChatBotEntity: entityTrigger
     ```
-
-    > **NOTE:** The `OpenAI::ChatBotEntity` function is a special "built-in" function that is automatically added by the OpenAI extension. It's not defined by the sample project.
 
 1. Use an HTTP client tool to send a `PUT` request to the `CreateAssistant` function. The following is an example request:
 
@@ -148,6 +164,7 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
       "createdAt": "2023-11-26T00:40:56.7864809Z",
       "lastUpdatedAt": "2023-11-26T00:41:21.0153489Z",
       "totalMessages": 10,
+      "totalTokens": 153,
       "recentMessages": [
         {
           "role": "system",
@@ -160,7 +177,6 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
         {
           "role": "function",
           "content": "The function call succeeded. Let the user know that you completed the action.",
-          "name": "AddTodo"
         },
         {
           "role": "assistant",
@@ -173,7 +189,6 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
         {
           "role": "function",
           "content": "The function call succeeded. Let the user know that you completed the action.",
-          "name": "AddTodo"
         },
         {
           "role": "assistant",
@@ -186,7 +201,6 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
         {
           "role": "function",
           "content": "[{\"Id\":\"4d3170\",\"Task\":\"Call my dad\"},{\"Id\":\"f1413f\",\"Task\":\"Take out the trash\"}]",
-          "name": "GetTodos"
         },
         {
           "role": "assistant",

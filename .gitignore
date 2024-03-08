@@ -409,3 +409,6 @@ __azurite_db*__.json
 
 # node js dist folder
 **/dist/*
+
+# python venv folder
+**/.venv/*

@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SemanticSearchEmbeddingsIsolated": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7179",
+      "launchBrowser": false
+    }
+  }
+}

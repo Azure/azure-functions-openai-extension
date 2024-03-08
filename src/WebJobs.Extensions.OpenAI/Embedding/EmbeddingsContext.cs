@@ -3,7 +3,7 @@
 
 using Azure.AI.OpenAI;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 
 /// <summary>
 /// Binding target for the <see cref="EmbeddingsAttribute"/>.

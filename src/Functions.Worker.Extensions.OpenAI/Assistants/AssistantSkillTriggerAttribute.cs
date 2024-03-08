@@ -44,5 +44,5 @@ public class AssistantSkillTriggerAttribute : TriggerBindingAttribute
     /// <remarks>
     /// When using Azure OpenAI, then should be the name of the model <em>deployment</em>.
     /// </remarks>
-    public string Model { get; set; } = "gpt-3.5-turbo";
+    public string Model { get; set; } = OpenAIModels.Gpt_35_Turbo;
 }

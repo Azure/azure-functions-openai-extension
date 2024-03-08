@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 /// <summary>

@@ -22,7 +22,7 @@ public class EmbeddingsInputAttribute: InputBindingAttribute
     /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
-    public string Model { get; set; } = "text-embedding-3-small";
+    public string Model { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.
@@ -45,25 +45,4 @@ public class EmbeddingsInputAttribute: InputBindingAttribute
     /// Gets the type of the input.
     /// </summary>
     public InputType InputType { get; }
-}
-
-/// <summary>
-/// Options for interpreting input binding data.
-/// </summary>
-public enum InputType
-{
-    /// <summary>
-    /// The input data is raw text.
-    /// </summary>
-    RawText,
-
-    /// <summary>
-    /// The input data is a file path that contains the text.
-    /// </summary>
-    FilePath,
-
-    /// <summary>
-    /// The input data is a URL that can be invoked to get the text.
-    /// </summary>
-    URL,
 }

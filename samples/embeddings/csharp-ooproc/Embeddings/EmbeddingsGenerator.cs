@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Text.Json;
 
-namespace EmbeddingsIsolated
+namespace Embeddings
 {
     public class EmbeddingsGenerator
     {

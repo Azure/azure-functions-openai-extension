@@ -7,7 +7,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 @app.function_name("CreateChatBot")
 @app.route(route="chats/{chatID}", methods=["PUT"])
-@app.generic_output_binding(arg_name="requests", type="chatBotCreate", data_type=func.DataType.STRING)
+@app.generic_output_binding(arg_name="requests", type="assistantCreate", data_type=func.DataType.STRING)
 def create_chat_bot(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResponse:
     chatID = req.route_params.get("chatID")
     input_json = req.get_json()
@@ -24,14 +24,14 @@ def create_chat_bot(req: func.HttpRequest, requests: func.Out[str]) -> func.Http
 
 @app.function_name("GetChatState")
 @app.route(route="chats/{chatID}", methods=["GET"])
-@app.generic_input_binding(arg_name="state", type="chatBotQuery", data_type=func.DataType.STRING, id="{chatID}", timestampUtc="{Query.timestampUTC}")
+@app.generic_input_binding(arg_name="state", type="assistantQuery", data_type=func.DataType.STRING, id="{chatID}", timestampUtc="{Query.timestampUTC}")
 def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
     return func.HttpResponse(state, status_code=200, mimetype="application/json")
 
 
 @app.function_name("PostUserResponse")
 @app.route(route="chats/{chatID}", methods=["POST"])
-@app.generic_output_binding(arg_name="messages", type="chatBotPost", data_type=func.DataType.STRING, id="{chatID}", model = "gpt-3.5-turbo")
+@app.generic_output_binding(arg_name="messages", type="assistantPost", data_type=func.DataType.STRING, id="{chatID}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
 def post_user_response(req: func.HttpRequest, messages: func.Out[str]) -> func.HttpResponse:
     userMessage = req.get_body().decode("utf-8")
     if not userMessage:

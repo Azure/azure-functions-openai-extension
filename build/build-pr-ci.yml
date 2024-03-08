@@ -48,7 +48,7 @@ steps:
             --add-host host.docker.internal:host-gateway \
             --env AZURE_OPENAI_KEY=$(AZURE_OPENAI_KEY) \
             --env AZURE_OPENAI_ENDPOINT=$(AZURE_OPENAI_ENDPOINT) \
-            --env AZURE_DEPLOYMENT_NAME=$(AZURE_DEPLOYMENT_NAME) \
+            --env CHAT_MODEL_DEPLOYMENT_NAME=$(AZURE_DEPLOYMENT_NAME) \
             --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
             openai-func-sample-csharp-ooproc
     displayName: Docker Run - Chat Bot Sample Out of Proc
@@ -60,7 +60,6 @@ steps:
     displayName: Create new directory
 
   - script: |
-      ls
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $(config) -p:WebJobsVersion=$(fakeWebJobsPackageVersion) -p:Version=$(fakeWebJobsPackageVersion)
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
 

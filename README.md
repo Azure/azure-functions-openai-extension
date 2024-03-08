@@ -1,7 +1,7 @@
 # Azure Functions bindings for OpenAI's GPT engine
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/azure-functions-openai-extension/actions/workflows/build.yml)
+[![Build](https://dev.azure.com/azfunc/Azure%20Functions/_apis/build/status%2FExtension-OpenAI%2FAzure%20Functions%20OpenAI%20Extension%20PR%20CI?branchName=main)](https://dev.azure.com/azfunc/Azure%20Functions/_build/latest?definitionId=303&branchName=main)
 
 This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
@@ -29,6 +29,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
         * `AZURE_OPENAI_KEY` - Key of the Azure OpenAI resource as a setting.
     1. **OR** `OPENAI_API_KEY` -  Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
     If using environment variables, Learn more in [.env readme](./env/README.md).
+    1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
 * The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
 
@@ -37,7 +38,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
 The following features are currently available. More features will be slowly added over time.
 
 * [Text completions](#text-completion-input-binding)
-* [Chat bots](#chat-bots)
+* [Chat completion](#chat-completion)
 * [Assistants](#assistants)
 * [Embeddings generators](#embeddings-generator)
 * [Semantic search](#semantic-search)
@@ -48,17 +49,19 @@ The `textCompletion` input binding can be used to invoke the [OpenAI Chat Comple
 
 The examples below define "who is" HTTP-triggered functions with a hardcoded `"who is {name}?"` prompt, where `{name}` is the substituted with the value in the HTTP request path. The OpenAI input binding invokes the OpenAI GPT endpoint to surface the answer to the prompt to the function, which then returns the result text as the response content.
 
-#### [C# example](./samples/textcompletion/csharp-inproc/)
+#### [C# example](./samples/textcompletion/csharp-ooproc/)
 
 Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
 
 ```csharp
-[FunctionName(nameof(WhoIs))]
-public static string WhoIs(
-    [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
-    [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
+[Function(nameof(WhoIs))]
+public static HttpResponseData WhoIs(
+    [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
+    [TextCompletionInput("Who is {name}?")] TextCompletionResponse response)
 {
-    return response.Content;
+    HttpResponseData responseData = req.CreateResponse(HttpStatusCode.OK);
+    responseData.WriteString(response.Content);
+    return responseData;
 }
 ```
 
@@ -102,7 +105,7 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
 
 In the same directory as the PowerShell function, define the bindings in a function.json file.  
 
-If using Azure OpenAI, update the deployment name to model property in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
+If using Azure OpenAI, update `CHAT_MODEL_DEPLOYMENT_NAME` key in `local.settings.json` with the deployment name or update model property directly in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
 
 ```json
 {
@@ -153,54 +156,65 @@ movies, and other media.
 
 You can find more instructions for running the samples in the corresponding project directories. The goal is to have samples for all languages supported by Azure Functions.
 
-### Chat bots
+### Chat completion
 
-[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered chat bots.
+[Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered assistants.
 
-There are three bindings you can use to interact with the chat bot:
+There are three bindings you can use to interact with the assistant:
 
-1. The `chatBotCreate` output binding creates a new chat bot with a specified system prompt.
-1. The `chatBotPost` output binding sends a message to the chat bot and saves the response in its internal state.
-1. The `chatBotQuery` input binding fetches the chat bot history and passes it to the function.
+1. The `assistantCreate` output binding creates a new assistant with a specified system prompt.
+1. The `assistantPost` output binding sends a message to the assistant and saves the response in its internal state.
+1. The `assistantQuery` input binding fetches the assistant history and passes it to the function.
 
 You can find samples in multiple languages with instructions [in the chat samples directory](./samples/chat/).
 
 ### Assistants
 
-Assistants build on top of the chat bot functionality to provide chat bots with custom skills defined as functions.
+Assistants build on top of the chat functionality to provide assistants with custom skills defined as functions.
 This internally uses the [function calling](https://platform.openai.com/docs/guides/function-calling) feature of OpenAIs GPT models to select which functions to invoke and when.
 
-You can define functions that can be triggered by chat bots by using the `assistantSkillTrigger` trigger binding.
-These functions are invoked by the extension when a chat bot signals that it would like to invoke a function in response to a user prompt.
+You can define functions that can be triggered by assistants by using the `assistantSkillTrigger` trigger binding.
+These functions are invoked by the extension when a assistant signals that it would like to invoke a function in response to a user prompt.
 
 The name of the function, the description provided by the trigger, and the parameter name are all hints that the underlying language model use to determine when and how to invoke an assistant function.
 
-#### [C# example](./samples/assistant/csharp-inproc)
+#### [C# example](./samples/assistant/csharp-ooproc)
 
 ```csharp
 public class AssistantSkills
 {
     readonly ITodoManager todoManager;
+    readonly ILogger<AssistantSkills> logger;
 
     // This constructor is called by the Azure Functions runtime's dependency injection container.
-    public AssistantSkills(ITodoManager todoManager)
+    public AssistantSkills(ITodoManager todoManager, ILogger<AssistantSkills> logger)
     {
         this.todoManager = todoManager ?? throw new ArgumentNullException(nameof(todoManager));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     // Called by the assistant to create new todo tasks.
-    [FunctionName(nameof(AddTodo))]
+    [Function(nameof(AddTodo))]
     public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string taskDescription)
     {
+        if (string.IsNullOrEmpty(taskDescription))
+        {
+            throw new ArgumentException("Task description cannot be empty");
+        }
+
+        this.logger.LogInformation("Adding todo: {task}", taskDescription);
+
         string todoId = Guid.NewGuid().ToString()[..6];
         return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
     }
 
     // Called by the assistant to fetch the list of previously created todo tasks.
-    [FunctionName(nameof(GetTodos))]
+    [Function(nameof(GetTodos))]
     public Task<IReadOnlyList<TodoItem>> GetTodos(
         [AssistantSkillTrigger("Fetch the list of previously created todo tasks")] object inputIgnored)
     {
+        this.logger.LogInformation("Fetching list of todos");
+
         return this.todoManager.GetTodosAsync();
     }
 }
@@ -259,8 +273,8 @@ public record EmbeddingsRequest(string FilePath);
 [FunctionName("IngestEmail")]
 public static async Task<IActionResult> IngestEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-ada-002")] EmbeddingsContext embeddings,
-    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] IAsyncCollector<SearchableDocument> output)
+    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-3-small")] EmbeddingsContext embeddings,
+    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] IAsyncCollector<SearchableDocument> output)
 {
     string title = Path.GetFileNameWithoutExtension(req.FilePath);
     await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -278,7 +292,7 @@ public record SemanticSearchRequest(string Prompt);
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-ada-002")] SemanticSearchContext result)
+    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -323,7 +337,7 @@ public static string WhoIs(
 ```csharp
 public record SemanticSearchRequest(string Prompt);
 
-// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-ada-002 models, respectively
+// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-3-small models, respectively
 [FunctionName("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
@@ -336,7 +350,7 @@ public static IActionResult PromptEmail(
 ## Default OpenAI models
 
 1. Chat Completion - gpt-3.5-turbo
-1. Embeddings - text-embedding-ada-002
+1. Embeddings - text-embedding-3-small
 1. Text Completion - gpt-3.5-turbo
 
 While using non-Azure OpenAI, you can omit the Model specification in attributes to use the default models.

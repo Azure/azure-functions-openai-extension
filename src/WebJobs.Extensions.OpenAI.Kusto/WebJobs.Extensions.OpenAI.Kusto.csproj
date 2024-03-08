@@ -6,8 +6,8 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="12.0.1" />
-    <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="12.0.1" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="11.3.5" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="11.3.5" />
   </ItemGroup>
 
   <ItemGroup>

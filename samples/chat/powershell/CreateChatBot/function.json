@@ -16,7 +16,7 @@
       "name": "Response"
     },
     {
-      "type": "chatBotCreate",
+      "type": "assistantCreate",
       "direction": "out",
       "name": "ChatBotCreate"
     }

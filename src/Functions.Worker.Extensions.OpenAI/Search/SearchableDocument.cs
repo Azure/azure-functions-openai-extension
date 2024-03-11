@@ -7,9 +7,9 @@ using System.Text;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
+
 public class SearchableDocument
 {
-
     public SearchableDocument(string title, EmbeddingsContext embeddingsContext)
     {
         this.Title = title;

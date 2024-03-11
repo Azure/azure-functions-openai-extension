@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -14,8 +15,17 @@ namespace CSharpInProcSamples.Demos;
 
 public static class EmailPromptDemo
 {
-    public record EmbeddingsRequest(string FilePath);
-    public record SemanticSearchRequest(string Prompt);
+    public class EmbeddingsRequest
+    {
+        [JsonPropertyName("FilePath")]
+        public string? FilePath { get; set; }
+    }
+
+    public class SemanticSearchRequest
+    {
+        [JsonPropertyName("Prompt")]
+        public string? Prompt { get; set; }
+    }
 
     // REVIEW: There are several assumptions about how the Embeddings binding and the SemanticSearch bindings
     //         work together. We should consider creating a higher-level of abstraction for this.

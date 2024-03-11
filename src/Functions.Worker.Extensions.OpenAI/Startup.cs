@@ -6,6 +6,9 @@ using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 using System.Text.Json;
+using Functions.Worker.Extensions.OpenAI.Search;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 
 [assembly: WorkerExtensionStartup(typeof(Startup))]
 
@@ -22,6 +25,7 @@ public sealed class Startup : WorkerExtensionStartup
         {
             jsonSerializerOptions.Converters.Add(new EmbeddingsJsonConverter());
             jsonSerializerOptions.Converters.Add(new EmbeddingsOptionsJsonConverter());
+            jsonSerializerOptions.Converters.Add(new SearchableDocumentJsonConverter());
         });
     }
 }

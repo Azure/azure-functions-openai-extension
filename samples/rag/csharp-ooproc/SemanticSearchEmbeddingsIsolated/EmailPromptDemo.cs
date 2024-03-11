@@ -14,7 +14,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 
 namespace CSharpInProcSamples.Demos;
 
-public static class EmailPromptDemo
+public class EmailPromptDemo
 {
     public class EmbeddingsRequest
     {
@@ -31,7 +31,7 @@ public static class EmailPromptDemo
     // REVIEW: There are several assumptions about how the Embeddings binding and the SemanticSearch bindings
     //         work together. We should consider creating a higher-level of abstraction for this.
     [Function("IngestEmail")]
-    public static async Task<SemanticSearchOutputResponse> IngestEmail(
+    public async Task<SemanticSearchOutputResponse> IngestEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
         [EmbeddingsInput("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
@@ -42,7 +42,9 @@ public static class EmailPromptDemo
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
         string title = Path.GetFileNameWithoutExtension(requestBody.FilePath);
 
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+        //HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+
+        var response = new OkObjectResult(new { status = "success", title, chunks = embeddings.Count });
 
         return new SemanticSearchOutputResponse
         {
@@ -56,11 +58,11 @@ public static class EmailPromptDemo
         [SemanticSearchOutput("KustoConnectionString", "Documents", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public SearchableDocument SearchableDocument { get; set; }
 
-        public HttpResponseData? HttpResponse { get; set; }
+        public IActionResult? HttpResponse { get; set; }
     }
 
     [Function("PromptEmail")]
-    public static IActionResult PromptEmail(
+    public IActionResult PromptEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
         [SemanticSearchInput("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
     {

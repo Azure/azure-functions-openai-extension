@@ -43,14 +43,6 @@ public class SemanticSearchOutputAttribute : OutputBindingAttribute
     /// </remarks>
     public string Collection { get; set; }
 
-    /// <summary>
-    /// Gets or sets the semantic query text to use for searching.
-    /// This property is only used for the semantic search input binding.
-    /// </summary>
-    /// <remarks>
-    /// This property supports binding expressions.
-    /// </remarks>
-    public string? Query { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the model to use for embeddings.

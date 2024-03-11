@@ -30,7 +30,7 @@ app.http('CreateAssistant', {
 
 
 const chatBotPostOutput = output.generic({
-    type: 'chatBotPost',
+    type: 'assistantPost',
     id: '{assistantId}'
 })
 app.http('PostUserQuery', {
@@ -50,7 +50,7 @@ app.http('PostUserQuery', {
 
 
 const chatBotQueryInput = input.generic({
-    type: 'chatBotQuery',
+    type: 'assistantQuery',
     id: '{assistantId}',
     timestampUtc: '{Query.timestampUTC}'
 })

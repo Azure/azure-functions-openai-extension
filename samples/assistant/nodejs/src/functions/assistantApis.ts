@@ -5,7 +5,7 @@ import { HttpRequest, InvocationContext, app, input, output } from "@azure/funct
 
 
 const chatBotCreateOutput = output.generic({
-    type: 'chatBotCreate'
+    type: 'assistantCreate'
 })
 app.http('CreateAssistant', {
     methods: ['PUT'],

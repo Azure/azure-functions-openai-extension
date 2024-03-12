@@ -7,12 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.13.0 - Unreleased
 
-### Changes
+### Added
 
-- Changed default embeddings model from `text-embedding-ada-002` to `text-embedding-3-small`
 - Added dotnet-isolated support for Embeddings
 
 ### Breaking changes
+
+- Changed default embeddings model from `text-embedding-ada-002` to `text-embedding-3-small`
 
 ## v0.12.0 - 2024/03/01
 

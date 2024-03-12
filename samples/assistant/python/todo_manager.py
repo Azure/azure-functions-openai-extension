@@ -35,8 +35,15 @@ class InMemoryTodoManager(ITodoManager):
 class CosmosDbTodoManager(ITodoManager):
     def __init__(self, cosmos_client: CosmosClient):
         self.cosmos_client = cosmos_client
-        self.database = self.cosmos_client.get_database_client("testdb")
-        self.container = self.database.get_container_client("my-todos")
+        cosmos_database_name = os.environ.get("CosmosDatabaseName")
+        cosmos_container_name = os.environ.get("CosmosContainerName")
+
+        if not cosmos_database_name or not cosmos_container_name:
+            raise ValueError("CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json")
+
+        # ToDo: Update below to create database and container if they don't exist
+        self.database = cosmos_database_name
+        self.container = cosmos_container_name
 
     def add_todo(self, todo: TodoItem):
         logging.info(

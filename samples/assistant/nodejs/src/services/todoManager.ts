@@ -25,7 +25,7 @@ class CosmosDbTodoManager implements ITodoManager {
     private container: Container
 
     constructor(cosmosClient: CosmosClient) {
-        this.container = cosmosClient.database('testdb').container('my-todos')
+        this.createContainerIfNotExists(cosmosClient);
     }
 
     public async AddTodo(todo: TodoItem) {
@@ -39,6 +39,23 @@ class CosmosDbTodoManager implements ITodoManager {
         console.log(`Found ${resources.length} todos in container '${this.container.id}'.`)
         return resources
     }
+
+    private async createContainerIfNotExists(cosmosClient: CosmosClient) {
+        const cosmosDatabaseName = process.env.CosmosDatabaseName;
+        const cosmosContainerName = process.env.CosmosContainerName;
+
+        if (!cosmosDatabaseName || !cosmosContainerName) {
+            throw new Error("CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json");
+        }
+        await cosmosClient.databases.createIfNotExists({ id: cosmosDatabaseName });
+
+        await cosmosClient.database(cosmosDatabaseName).containers.createIfNotExists(
+            { id: cosmosContainerName, partitionKey: { paths: ["/id"] } }
+        );
+
+        this.container = cosmosClient.database(cosmosDatabaseName).container(cosmosContainerName);
+    }
+
 }
 
 export function CreateTodoManager(): ITodoManager {

@@ -46,6 +46,7 @@ The assistant will invoke a skill function whenever it decides to do so to satis
 The sample is available in the following language stacks:
 
 * [C# on the out-of-process worker](csharp-ooproc)
+* [nodejs](nodejs)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
@@ -71,7 +72,7 @@ Also note that the storage of chat history is done via table storage. You may co
 
 1. Clone this repo and navigate to the sample folder.
 1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/assistant/csharp-ooproc`)
-1. Run `func start --port 7168` to build and run the sample function app
+1. Run `func start` to build and run the sample function app
 
     If successful, you should see the following output from the `func` command:
 

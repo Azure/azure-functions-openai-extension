@@ -6,6 +6,7 @@ using Azure.AI.OpenAI;
 using Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+using System.Text.Json;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
@@ -24,11 +25,17 @@ public record SemanticSearchContext(EmbeddingsContext Embeddings, Response<ChatC
 
 class SemanticSearchConverter :
     IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>,
-    IAsyncConverter<SemanticSearchAttribute, IAsyncCollector<SearchableDocument>>
+    IAsyncConverter<SemanticSearchAttribute, IAsyncCollector<SearchableDocument>>,
+    IAsyncConverter<SemanticSearchAttribute, string>
 {
     readonly OpenAIClient openAIClient;
     readonly ILogger logger;
     readonly ISearchProvider? searchProvider;
+
+    static readonly JsonSerializerOptions options = new()
+    {
+        Converters = { new SearchableDocumentJsonConverter() }
+    };
 
     public SemanticSearchConverter(
         OpenAIClient openAIClient,
@@ -42,6 +49,18 @@ class SemanticSearchConverter :
         // TODO: Eventually we need to resolve this by name at execution time by name so that we can support
         //       multiple search providers.
         this.searchProvider = searchProvider;
+    }
+
+    public IAsyncCollector<SearchableDocument> Convert(SemanticSearchAttribute input)
+    {
+        if (this.searchProvider == null)
+        {
+            throw new InvalidOperationException(
+                "No search provider is configured. Search providers can be added via nuget package references.");
+        }
+
+        IAsyncCollector<SearchableDocument> collector = new SemanticDocumentCollector(input, this.searchProvider);
+        return collector;
     }
 
     public Task<IAsyncCollector<SearchableDocument>> ConvertAsync(
@@ -124,6 +143,20 @@ class SemanticSearchConverter :
         return new SemanticSearchContext(new EmbeddingsContext(embeddingsRequest, embeddingsResponse), chatResponse);
     }
 
+    // Called by the host when processing binding requests from out-of-process workers.
+    internal SearchableDocument ToSearchableDocument(string json)
+    {
+        this.logger.LogDebug("Creating searchable document from JSON string: {Text}", json);
+        SearchableDocument document = JsonSerializer.Deserialize<SearchableDocument>(json, options);
+        return document ?? throw new ArgumentException("Invalid assistant post request");
+    }
+
+    Task<string> IAsyncConverter<SemanticSearchAttribute, string>.ConvertAsync(SemanticSearchAttribute input, CancellationToken cancellationToken)
+    {
+        var lol = input;
+        throw new NotImplementedException();
+    }
+
     sealed class SemanticDocumentCollector : IAsyncCollector<SearchableDocument>
     {
         readonly SemanticSearchAttribute attribute;
@@ -137,7 +170,7 @@ class SemanticSearchConverter :
 
         public Task AddAsync(SearchableDocument item, CancellationToken cancellationToken = default)
         {
-            if (item.ConnectionInfo == null)
+            if (item.ConnectionInfo == null || item.ConnectionInfo.CollectionName == null || item.ConnectionInfo.ConnectionName == null)
             {
                 item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection);
             }

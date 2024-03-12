@@ -48,7 +48,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticSearchEmbeddings", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-ooproc\AssistantSample\AssistantSample.csproj", "{8573FE76-9920-4A95-9D29-911FD6B0AB25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Embedding", "samples\embeddings\csharp-ooproc\Embedding\Embedding.csproj", "{E7B47831-0176-419A-B73B-72762EF14B46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Embeddings", "samples\embeddings\csharp-ooproc\Embeddings\Embeddings.csproj", "{E7B47831-0176-419A-B73B-72762EF14B46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

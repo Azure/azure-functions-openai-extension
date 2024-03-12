@@ -14,7 +14,9 @@ This OpenAI extension internally uses the [function calling](https://platform.op
 
 ## Defining skills
 
-You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following C# (out-of-process) example shows a skill that adds a todo item to a database:
+You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following example shows a skill that adds a todo item to a database:
+
+C# example:
 
 ```csharp
 [Function(nameof(AddTodo))]
@@ -32,6 +34,27 @@ public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string tas
 }
 ```
 
+Nodejs example:
+
+```ts
+app.generic('AddTodo', {
+    trigger: trigger.generic({
+        type: 'assistantSkillTrigger',
+        functionDescription: 'Create a new todo task'
+    }),
+    handler: async (taskDescription: string, context: InvocationContext) => {
+        if (!taskDescription) {
+            throw new Error('Task description cannot be empty')
+        }
+
+        context.log(`Adding todo: ${taskDescription}`)
+
+        const todoId = crypto.randomUUID().substring(0, 6)
+        return todoManager.AddTodo(new TodoItem(todoId, taskDescription))
+    }
+})
+```
+
 The `AssistantSkillTrigger` attribute requires a `FunctionDescription` string value, which is text describing what the function does.
 This is critical for the AI assistant to be able to invoke the skill at the right time.
 The name of the function parameter (e.g., `taskDescription`) is also an important hint to the AI assistant about what kind of information to provide to the skill.
@@ -46,6 +69,7 @@ The assistant will invoke a skill function whenever it decides to do so to satis
 The sample is available in the following language stacks:
 
 * [C# on the out-of-process worker](csharp-ooproc)
+* [nodejs](nodejs)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
@@ -71,7 +95,7 @@ Also note that the storage of chat history is done via table storage. You may co
 
 1. Clone this repo and navigate to the sample folder.
 1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/assistant/csharp-ooproc`)
-1. Run `func start --port 7168` to build and run the sample function app
+1. Run `func start` to build and run the sample function app
 
     If successful, you should see the following output from the `func` command:
 

@@ -14,7 +14,9 @@ This OpenAI extension internally uses the [function calling](https://platform.op
 
 ## Defining skills
 
-You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following C# (out-of-process) example shows a skill that adds a todo item to a database:
+You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following example shows a skill that adds a todo item to a database:
+
+C# example:
 
 ```csharp
 [Function(nameof(AddTodo))]
@@ -30,6 +32,27 @@ public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string tas
     string todoId = Guid.NewGuid().ToString()[..6];
     return this.todoManager.AddTodoAsync(new TodoItem(todoId, taskDescription));
 }
+```
+
+Nodejs example:
+
+```ts
+app.generic('AddTodo', {
+    trigger: trigger.generic({
+        type: 'assistantSkillTrigger',
+        functionDescription: 'Create a new todo task'
+    }),
+    handler: async (taskDescription: string, context: InvocationContext) => {
+        if (!taskDescription) {
+            throw new Error('Task description cannot be empty')
+        }
+
+        context.log(`Adding todo: ${taskDescription}`)
+
+        const todoId = crypto.randomUUID().substring(0, 6)
+        return todoManager.AddTodo(new TodoItem(todoId, taskDescription))
+    }
+})
 ```
 
 The `AssistantSkillTrigger` attribute requires a `FunctionDescription` string value, which is text describing what the function does.

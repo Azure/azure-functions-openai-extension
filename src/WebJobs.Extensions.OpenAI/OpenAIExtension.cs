@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Newtonsoft.Json.Linq;
+using WebJobs.Extensions.OpenAI.Search;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -54,6 +55,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
         // Semantic search input binding support
         var semanticSearchRule = context.AddBindingRule<SemanticSearchAttribute>();
         semanticSearchRule.BindToInput<SemanticSearchContext>(this.semanticSearchConverter);
+        semanticSearchRule.BindToInput<string>(this.semanticSearchConverter);
         // TODO: Add string binding support to enable binding in non-.NET languages.
         semanticSearchRule.BindToCollector<SearchableDocument>(this.semanticSearchConverter);
         context.AddConverter<string, SearchableDocument>(this.semanticSearchConverter.ToSearchableDocument);

@@ -35,14 +35,11 @@ public class EmailPromptDemo
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
         [EmbeddingsInput("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
-
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
         string title = Path.GetFileNameWithoutExtension(requestBody.FilePath);
-
-        //HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
 
         var response = new OkObjectResult(new { status = "success", title, chunks = embeddings.Count });
 

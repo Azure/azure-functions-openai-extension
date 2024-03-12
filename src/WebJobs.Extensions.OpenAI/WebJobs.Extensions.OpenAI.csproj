@@ -17,8 +17,6 @@
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.18" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Script.Abstractions" Version="1.0.0-preview" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.2" />
-    <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="11.3.5" />
-    <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="11.3.5" />
   </ItemGroup>
 
 </Project>

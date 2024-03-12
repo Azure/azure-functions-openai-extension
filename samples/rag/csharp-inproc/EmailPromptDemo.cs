@@ -10,6 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
+using WebJobs.Extensions.OpenAI.Search;
 
 namespace CSharpInProcSamples.Demos;
 

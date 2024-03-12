@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Azure;
 using Azure.AI.OpenAI;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+using Azure;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 
-namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
+namespace WebJobs.Extensions.OpenAI.Search;
 public class SemanticSearchContext
 {
     /// <summary>
@@ -20,16 +20,16 @@ public class SemanticSearchContext
     {
         this.Embeddings = Embeddings;
         this.Chat = Chat;
-        
+
     }
 
     public EmbeddingsContext Embeddings { get; }
 
     public ChatCompletions Chat { get; }
 
-    
+
     /// <summary>
     /// Gets the latest response message from the OpenAI Chat API.
     /// </summary>
     public string Response => this.Chat.Choices.Last().Message.Content;
- }
+}

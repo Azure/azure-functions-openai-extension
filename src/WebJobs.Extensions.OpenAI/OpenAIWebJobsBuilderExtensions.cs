@@ -77,7 +77,6 @@ public static class OpenAIWebJobsBuilderExtensions
             .AddSingleton<AssistantSkillManager>()
             .AddSingleton<IAssistantSkillInvoker>(p => p.GetRequiredService<AssistantSkillManager>());
         builder.Services.AddSingleton<AssistantSkillTriggerBindingProvider>();
-        builder.Services.AddSingleton<ISearchProvider, KustoSearchProvider>();
         return builder;
     }
 

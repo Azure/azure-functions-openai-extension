@@ -1,10 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
-using System.Text;
 using Azure.AI.OpenAI;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;

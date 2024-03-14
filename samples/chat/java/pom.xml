@@ -14,6 +14,7 @@
         <java.version>1.8</java.version>
         <azure.functions.maven.plugin.version>1.29.0</azure.functions.maven.plugin.version>
         <azure.functions.java.library.version>3.0.0</azure.functions.java.library.version>
+        <azure-functions-java-library-openai>1.0.0-SNAPSHOT</azure-functions-java-library-openai>
         <functionAppName>azfs-java-openai-sample</functionAppName>
     </properties>
 
@@ -22,6 +23,12 @@
             <groupId>com.microsoft.azure.functions</groupId>
             <artifactId>azure-functions-java-library</artifactId>
             <version>${azure.functions.java.library.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.azure.functions</groupId>
+            <artifactId>azure-functions-java-library-openai</artifactId>
+            <version>${azure-functions-java-library-openai}</version>
         </dependency>
 
         <dependency>

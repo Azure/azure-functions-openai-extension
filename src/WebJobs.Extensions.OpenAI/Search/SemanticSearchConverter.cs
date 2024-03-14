@@ -39,7 +39,7 @@ class SemanticSearchConverter :
 
         // This will be null if no search provider extension is configured
         // TODO: Eventually we need to resolve this by name at execution time by name so that we can support
-        //       multiple search providers.
+        //       multiple search providers.       
         this.searchProvider = searchProvider;
     }
 
@@ -80,7 +80,7 @@ class SemanticSearchConverter :
         this.logger.LogInformation("Received OpenAI embeddings response: {response}", embeddingsResponse);
 
 
-        ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection);
+        ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection, attribute.ApiKey);
         if (string.IsNullOrEmpty(connectionInfo.ConnectionName))
         {
             throw new InvalidOperationException("No connection string information was provided.");
@@ -138,7 +138,7 @@ class SemanticSearchConverter :
         {
             if (item.ConnectionInfo == null)
             {
-                item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection);
+                item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection, this.attribute.ApiKey);
             }
 
             if (string.IsNullOrEmpty(item.ConnectionInfo.ConnectionName))

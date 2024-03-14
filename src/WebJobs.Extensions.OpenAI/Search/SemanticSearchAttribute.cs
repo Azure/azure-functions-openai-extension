@@ -40,13 +40,23 @@ public class SemanticSearchAttribute : Attribute
     public string ConnectionName { get; set; }
 
     /// <summary>
-    /// The name of the collection or table to search.
+    /// The name of the collection or table or index to search.
     /// </summary>
     /// <remarks>
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
     public string Collection { get; set; }
+
+
+    /// <summary>
+    /// The api key for client authentication, pass null for managed identity.
+    /// </summary>
+    /// <remarks>
+    /// This property supports binding expressions.
+    /// </remarks>
+    [AutoResolve]
+    public string? ApiKey { get; set; }
 
     /// <summary>
     /// Gets or sets the semantic query text to use for searching.

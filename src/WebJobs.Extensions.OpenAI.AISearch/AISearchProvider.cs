@@ -1,9 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
 using Azure;
-using Azure.AI.OpenAI;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
@@ -16,13 +14,16 @@ using Microsoft.Extensions.Logging;
 namespace WebJobs.Extensions.OpenAI.AISearch;
 sealed class AISearchProvider : ISearchProvider
 {
-    // We create a separate client object for each connection string we see.
-    readonly ConcurrentDictionary<string, SearchIndexClient> searchIndexClients = new();
-    readonly ConcurrentDictionary<string, SearchClient> searchClients = new();
     readonly INameResolver nameResolver;
     readonly ILogger logger;
     const string defaultSearchIndexName = "openai-index";
 
+    /// <summary>
+    /// Initializes AI Search provider.
+    /// </summary>
+    /// <param name="nameResolver">The name resolver.</param>
+    /// <param name="loggerFactory">The logger factory.</param>
+    /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
     public AISearchProvider(INameResolver nameResolver, ILoggerFactory loggerFactory)
     {
         // TODO: Use IConfiguration instead of INameResolver to get the connection string.
@@ -37,38 +38,107 @@ sealed class AISearchProvider : ISearchProvider
         this.logger = loggerFactory.CreateLogger<AISearchProvider>();
     }
 
+    /// <summary>
+    /// Add a document to the search index.
+    /// </summary>
+    /// <param name="document">The searchable document.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>Returns a task that completes when the document is successfully saved.</returns>
     public async Task AddDocumentAsync(SearchableDocument document, CancellationToken cancellationToken)
     {
         string endpoint = this.nameResolver.Resolve(document.ConnectionInfo!.ConnectionName);
         string key = this.nameResolver.Resolve(document.ConnectionInfo!.ApiKey);
 
-        SearchIndexClient searchIndexClient;
-        SearchClient searchClient;
-        if (string.IsNullOrEmpty(key))
-        {
-            searchIndexClient = new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
-            searchClient = new SearchClient(new Uri(endpoint), document.ConnectionInfo!.CollectionName ?? defaultSearchIndexName, new DefaultAzureCredential());
-        }
-        else
-        {
-            searchIndexClient = new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key));
-            searchClient = new SearchClient(new Uri(endpoint), document.ConnectionInfo!.CollectionName ?? defaultSearchIndexName, new AzureKeyCredential(key));
-        }
+        SearchIndexClient searchIndexClient = this.GetSearchIndexClient(endpoint, key);
+        SearchClient searchClient = this.GetSearchClient(endpoint, key, document.ConnectionInfo!.CollectionName ?? defaultSearchIndexName);
 
-        this.searchIndexClients.GetOrAdd(document.ConnectionInfo!.ConnectionName, searchIndexClient);
-        this.searchClients.GetOrAdd(document.ConnectionInfo!.ConnectionName, searchClient);
+        await this.CreateIndexIfDoesntExist(searchIndexClient, document.ConnectionInfo!.CollectionName ?? defaultSearchIndexName, cancellationToken);
 
-        await this.CreateIndexIfDoesntExist(searchIndexClient, document.ConnectionInfo!.CollectionName ?? defaultSearchIndexName);
-
-        await this.IndexSectionsAsync(searchClient, document);
+        await this.IndexSectionsAsync(searchClient, document, cancellationToken);
     }
 
-    public Task<SearchResponse> SearchAsync(SearchRequest request)
+    /// <summary>
+    /// Search for documents using the provided request.
+    /// </summary>
+    /// <param name="request">The search request.</param>
+    /// <returns>Search Response.</returns>
+    /// <exception cref="ArgumentException">Throws argument exception if query or embeddings is null.</exception>
+    /// <exception cref="InvalidOperationException">Throws the invalid operation exception if search result response is null.</exception>
+    public async Task<SearchResponse> SearchAsync(SearchRequest request)
     {
-        throw new NotImplementedException();
+        if (request.Query is null && request.Embeddings.IsEmpty)
+        {
+            throw new ArgumentException("Either query or embeddings must be provided");
+        }
+
+        SearchOptions searchOptions = new()
+        {
+            QueryType = SearchQueryType.Semantic,
+            SemanticSearch = new()
+            {
+                SemanticConfigurationName = "default",
+                QueryCaption = new(QueryCaptionType.Extractive),
+            },
+            Size = request.MaxResults,
+        };
+
+        // Use below to use vector search
+        //if (!request.Embeddings.IsEmpty && useVectorSearch)
+        //{
+        //    var vectorQuery = new VectorizedQuery(request.Embeddings)
+        //    {
+        //        KNearestNeighborsCount = request?.MaxResults ?? 3,
+        //    };
+        //    vectorQuery.Fields.Add("embeddings");
+        //    searchOptions.VectorSearch = new();
+        //    searchOptions.VectorSearch.Queries.Add(vectorQuery);
+        //}
+
+        string endpoint = this.nameResolver.Resolve(request.ConnectionInfo!.ConnectionName);
+        string key = this.nameResolver.Resolve(request.ConnectionInfo!.ApiKey);
+        SearchClient searchClient = this.GetSearchClient(endpoint, key, request.ConnectionInfo!.CollectionName ?? defaultSearchIndexName);
+        
+        Response<SearchResults<SearchDocument>> searchResultResponse = await searchClient.SearchAsync<SearchDocument>(
+            request.Query, searchOptions);
+        if (searchResultResponse.Value is null)
+        {
+            throw new InvalidOperationException("Failed to get search result from AI Search.");
+        }
+
+        SearchResults<SearchDocument> searchResult = searchResultResponse.Value;
+
+        List<SearchResult> results = new(capacity: request.MaxResults);
+        foreach (SearchResult<SearchDocument> doc in searchResult.GetResults())
+        {
+            doc.Document.TryGetValue("title", out object? titleValue);
+            string? contentValue;
+            try
+            {
+                IEnumerable<string> docs = doc.SemanticSearch.Captions.Select(c => c.Text);
+                contentValue = string.Join(" . ", docs);
+
+                // Use below if dont want to use semantic captions
+                //doc.Document.TryGetValue("content", out object? text);
+                //contentValue = (string)text;
+
+            }
+            catch (ArgumentNullException)
+            {
+                contentValue = null;
+            }
+
+            if (titleValue is string title && contentValue is string text)
+            {
+                text = text.Replace('\r', ' ').Replace('\n', ' ');
+                results.Add(new SearchResult(title, text));
+            }
+        }
+
+        SearchResponse response = new(results);
+        return response;
     }
 
-    async Task CreateIndexIfDoesntExist(SearchIndexClient searchIndexClient, string searchIndexName)
+    async Task CreateIndexIfDoesntExist(SearchIndexClient searchIndexClient, string searchIndexName, CancellationToken cancellationToken = default)
     {
         AsyncPageable<string> indexNames = searchIndexClient.GetIndexNamesAsync();
         await foreach (Page<string> page in indexNames.AsPages())
@@ -123,10 +193,10 @@ sealed class AISearchProvider : ISearchProvider
             }
         };
 
-        await searchIndexClient.CreateIndexAsync(index);
+        await searchIndexClient.CreateIndexAsync(index, cancellationToken);
     }
 
-    async Task IndexSectionsAsync(SearchClient searchClient, SearchableDocument document)
+    async Task IndexSectionsAsync(SearchClient searchClient, SearchableDocument document, CancellationToken cancellationToken = default)
     {
         var iteration = 0;
         var batch = new IndexDocumentsBatch<SearchDocument>();
@@ -146,7 +216,7 @@ sealed class AISearchProvider : ISearchProvider
             if (iteration % 1_000 is 0)
             {
                 // Every one thousand documents, batch create.
-                IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch);
+                IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
                 int succeeded = result.Results.Count(r => r.Succeeded);
                 this.logger.LogDebug("""
                         Indexed {Count} sections, {Succeeded} succeeded
@@ -161,11 +231,37 @@ sealed class AISearchProvider : ISearchProvider
         if (batch is { Actions.Count: > 0 })
         {
             // Any remaining documents, batch create.
-            IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch);
+            IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
             int succeeded = result.Results.Count(r => r.Succeeded);
             string message = $"Indexed {batch.Actions.Count} sections, {succeeded} succeeded";
             this.logger.LogDebug(message);
         }
     }
 
+    SearchIndexClient GetSearchIndexClient(string endpoint, string key)
+    {
+        if (string.IsNullOrEmpty(key))
+        {
+            return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
+        }
+        else
+        {
+            return new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key));
+        }
+    }
+
+    SearchClient GetSearchClient(string endpoint, string key, string searchIndexName)
+    {
+        SearchClient searchClient;
+        if (string.IsNullOrEmpty(key))
+        {
+            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
+        }
+        else
+        {
+            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new AzureKeyCredential(key));
+        }
+
+        return searchClient;
+    }
 }

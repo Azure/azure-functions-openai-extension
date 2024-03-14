@@ -53,6 +53,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.A
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.Kusto", "src\WebJobs.Extensions.OpenAI.Kusto\WebJobs.Extensions.OpenAI.Kusto.csproj", "{346BE57C-341F-4EF4-A81A-BAC9D2F5B938}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-aisearch", "rag-aisearch", "{3E836929-3691-4DD1-AB8D-F3E0C3A42B5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticAISearchEmbeddings", "samples\rag-aisearch\csharp-inproc\SemanticAISearchEmbeddings\SemanticAISearchEmbeddings.csproj", "{9D339253-E654-450B-8995-E50119F891A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +103,10 @@ Global
 		{346BE57C-341F-4EF4-A81A-BAC9D2F5B938}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{346BE57C-341F-4EF4-A81A-BAC9D2F5B938}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{346BE57C-341F-4EF4-A81A-BAC9D2F5B938}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D339253-E654-450B-8995-E50119F891A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D339253-E654-450B-8995-E50119F891A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D339253-E654-450B-8995-E50119F891A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D339253-E654-450B-8995-E50119F891A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -119,6 +127,8 @@ Global
 		{8573FE76-9920-4A95-9D29-911FD6B0AB25} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
 		{32196912-898F-428E-94EF-4C2333367977} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{346BE57C-341F-4EF4-A81A-BAC9D2F5B938} = {7A80B95C-AD57-4057-AED0-48629B75874F}
+		{3E836929-3691-4DD1-AB8D-F3E0C3A42B5F} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{9D339253-E654-450B-8995-E50119F891A3} = {3E836929-3691-4DD1-AB8D-F3E0C3A42B5F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

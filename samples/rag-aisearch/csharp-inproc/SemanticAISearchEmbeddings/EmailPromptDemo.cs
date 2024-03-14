@@ -23,7 +23,7 @@ public static class EmailPromptDemo
     public static async Task<IActionResult> IngestEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
         [Embeddings("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
-        [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] IAsyncCollector<SearchableDocument> output)
+        [SemanticSearch("AISearchEndpoint", "openai-index-mn", ApiKey = "SearchAPIKey", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] IAsyncCollector<SearchableDocument> output)
     {
         string title = Path.GetFileNameWithoutExtension(req.FilePath);
         await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -33,7 +33,7 @@ public static class EmailPromptDemo
     [FunctionName("PromptEmail")]
     public static IActionResult PromptEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-        [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+        [SemanticSearch("AISearchEndpoint", "openai-index-mn", ApiKey = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
     {
         return new ContentResult { Content = result.Response, ContentType = "text/plain" };
     }

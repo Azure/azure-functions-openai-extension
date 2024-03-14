@@ -82,17 +82,17 @@ sealed class AISearchProvider : ISearchProvider
             Size = request.MaxResults,
         };
 
-        // Use below to use vector search
-        //if (!request.Embeddings.IsEmpty && useVectorSearch)
-        //{
-        //    var vectorQuery = new VectorizedQuery(request.Embeddings)
-        //    {
-        //        KNearestNeighborsCount = request?.MaxResults ?? 3,
-        //    };
-        //    vectorQuery.Fields.Add("embeddings");
-        //    searchOptions.VectorSearch = new();
-        //    searchOptions.VectorSearch.Queries.Add(vectorQuery);
-        //}
+        // Use vector search if embeddings are provided.
+        if (!request.Embeddings.IsEmpty)
+        {
+            var vectorQuery = new VectorizedQuery(request.Embeddings)
+            {
+                KNearestNeighborsCount = request?.MaxResults ?? 3,
+            };
+            vectorQuery.Fields.Add("embeddings");
+            searchOptions.VectorSearch = new();
+            searchOptions.VectorSearch.Queries.Add(vectorQuery);
+        }
 
         string endpoint = this.nameResolver.Resolve(request.ConnectionInfo!.ConnectionName);
         string key = this.nameResolver.Resolve(request.ConnectionInfo!.ApiKey);

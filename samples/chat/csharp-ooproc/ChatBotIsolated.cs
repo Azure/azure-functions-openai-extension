@@ -78,7 +78,7 @@ public static class ChatBotIsolated
 
     public class PostResponseOutput
     {
-        [AssistantPostOutput("{chatId}", Model = "%AZURE_DEPLOYMENT_NAME%")]
+        [AssistantPostOutput("{chatId}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")]
         public AssistantPostRequest? ChatBotPostRequest { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }

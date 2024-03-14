@@ -39,7 +39,7 @@ class SemanticSearchConverter :
 
         // This will be null if no search provider extension is configured
         // TODO: Eventually we need to resolve this by name at execution time by name so that we can support
-        //       multiple search providers.       
+        //       multiple search providers.
         this.searchProvider = searchProvider;
     }
 

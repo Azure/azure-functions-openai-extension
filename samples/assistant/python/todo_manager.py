@@ -42,8 +42,8 @@ class CosmosDbTodoManager(ITodoManager):
             raise ValueError("CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json")
 
         # ToDo: Update below to create database and container if they don't exist
-        self.database = cosmos_database_name
-        self.container = cosmos_container_name
+        self.database = self.cosmos_client.get_database_client(cosmos_database_name)
+        self.container = self.database.get_container_client(cosmos_container_name)
 
     def add_todo(self, todo: TodoItem):
         logging.info(

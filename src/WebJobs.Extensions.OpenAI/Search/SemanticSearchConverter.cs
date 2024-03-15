@@ -80,7 +80,7 @@ class SemanticSearchConverter :
         this.logger.LogInformation("Received OpenAI embeddings response: {response}", embeddingsResponse);
 
 
-        ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection, attribute.ApiKey);
+        ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection, attribute.CredentialSettingName);
         if (string.IsNullOrEmpty(connectionInfo.ConnectionName))
         {
             throw new InvalidOperationException("No connection string information was provided.");
@@ -138,7 +138,7 @@ class SemanticSearchConverter :
         {
             if (item.ConnectionInfo == null)
             {
-                item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection, this.attribute.ApiKey);
+                item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection, this.attribute.CredentialSettingName);
             }
 
             if (string.IsNullOrEmpty(item.ConnectionInfo.ConnectionName))

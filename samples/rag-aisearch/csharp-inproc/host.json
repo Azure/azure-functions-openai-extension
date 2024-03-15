@@ -4,5 +4,12 @@
     "logLevel": {
       "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
     }
+  },
+  "extensions": {
+    "azureaisearch": {
+      "isSemanticSearchEnabled": "true",
+      "useSemanticCaptions": "true",
+      "vectorSearchDimensions": "1536"
+    }
   }
 }

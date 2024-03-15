@@ -50,13 +50,15 @@ public class SemanticSearchAttribute : Attribute
 
 
     /// <summary>
-    /// The api key for client authentication, pass null for managed identity.
+    /// The name of the app setting or environment variable containing the required credentials 
+    /// for authenticating with the search provider. See the documentation for the search provider
+    /// extension to know what format the underlying credential value requires.
     /// </summary>
     /// <remarks>
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string? ApiKey { get; set; }
+    public string? CredentialSettingName { get; set; }
 
     /// <summary>
     /// Gets or sets the semantic query text to use for searching.

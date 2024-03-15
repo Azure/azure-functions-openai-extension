@@ -10,6 +10,7 @@ using Kusto.Data.Common;
 using Kusto.Data.Net.Client;
 using Kusto.Ingest;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto;
@@ -22,14 +23,12 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
     // We create a separate client object for each connection string we see.
     readonly ConcurrentDictionary<string, (ICslQueryProvider, KustoConnectionStringBuilder)> kustoQueryClients = new();
     readonly ConcurrentDictionary<string, (IKustoIngestClient, KustoConnectionStringBuilder)> kustoIngestClients = new();
-    readonly INameResolver nameResolver;
+    readonly IConfiguration configuration;
     readonly ILogger logger;
 
-    public KustoSearchProvider(INameResolver nameResolver, ILoggerFactory loggerFactory)
+    public KustoSearchProvider(IConfiguration configuration, ILoggerFactory loggerFactory)
     {
-        // TODO: Use IConfiguration instead of INameResolver to get the Kusto connection string.
-        //       Otherwise, we might have problems if users inject their own configuration source.
-        this.nameResolver = nameResolver ?? throw new ArgumentNullException(nameof(nameResolver));
+        this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
         if (loggerFactory == null)
         {
@@ -156,7 +155,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
 
     KustoConnectionStringBuilder GetKustoConnectionString(string connectionName)
     {
-        string connectionString = this.nameResolver.Resolve(connectionName);
+        string connectionString = this.configuration.GetValue<string>(connectionName);
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException($"""

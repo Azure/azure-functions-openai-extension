@@ -42,18 +42,27 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpIsolatedSamples", "samples\chat\csharp-ooproc\CSharpIsolatedSamples.csproj", "{6701A54D-E00F-46E8-9344-B1547805459E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assistant", "assistant", "{C5578BE5-AAC7-4616-9A35-41CA5903882A}"
+	ProjectSection(SolutionItems) = preProject
+		samples\assistant\demo.http = samples\assistant\demo.http
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag", "rag", "{4CD51D81-D334-4FBC-A82B-8E2408913B7D}"
+	ProjectSection(SolutionItems) = preProject
+		samples\rag\csharp-inproc\demo.http = samples\rag\csharp-inproc\demo.http
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticSearchEmbeddings", "samples\rag\csharp-inproc\SemanticSearchEmbeddings.csproj", "{BD2064F5-6F56-45D4-A2E9-5C276FDAF4B1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-ooproc\AssistantSample\AssistantSample.csproj", "{8573FE76-9920-4A95-9D29-911FD6B0AB25}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.AISearch", "src\WebJobs.Extensions.OpenAI.AISearch\WebJobs.Extensions.OpenAI.AISearch.csproj", "{32196912-898F-428E-94EF-4C2333367977}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.AzureAISearch", "src\WebJobs.Extensions.OpenAI.AISearch\WebJobs.Extensions.OpenAI.AzureAISearch.csproj", "{32196912-898F-428E-94EF-4C2333367977}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.Kusto", "src\WebJobs.Extensions.OpenAI.Kusto\WebJobs.Extensions.OpenAI.Kusto.csproj", "{346BE57C-341F-4EF4-A81A-BAC9D2F5B938}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-aisearch", "rag-aisearch", "{3E836929-3691-4DD1-AB8D-F3E0C3A42B5F}"
+	ProjectSection(SolutionItems) = preProject
+		samples\rag-aisearch\demo.http = samples\rag-aisearch\demo.http
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticAISearchEmbeddings", "samples\rag-aisearch\csharp-inproc\SemanticAISearchEmbeddings.csproj", "{EADF33D1-03E7-4809-A9AF-D52F3B88F862}"
 EndProject

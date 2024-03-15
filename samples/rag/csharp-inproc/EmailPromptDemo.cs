@@ -10,7 +10,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
-namespace CSharpInProcSamples.Demos;
+namespace SemanticSearchEmbeddings;
 
 public static class EmailPromptDemo
 {

@@ -2,7 +2,11 @@
 
 ## Prerequisites
 
-Please refer to the root level [README](../../../README.md#requirements) for prerequisites.
+The sample is available in the following language stacks:
+
+* [C# on the in process worker](csharp-inproc/)
+
+Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
 ## Running the sample
 
@@ -29,6 +33,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     dotnet build && cd bin/debug/net6.0 && func start
     ```
 
+1. Refer the [demo.http](demo.http) file for the format of requests.
 1. Send an HTTP POST request to ingest a text file. You can do this multiple times with different files if you like.
 
     ```http

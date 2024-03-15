@@ -68,12 +68,6 @@ body:
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
 
-  - type: input
-    id: environment
-    attributes:
-      label: Environment
-      description: Provide details about your environment (e.g., browser, version, OS, etc.).
-
   - type: dropdown
     id: environment
     attributes:

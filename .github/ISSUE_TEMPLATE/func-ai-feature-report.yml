@@ -1,7 +1,7 @@
 name: Functions OpenAI Extension Feature Request
 description: File a Functions OpenAI Extension Feature report
 title: "Request a feature"
-labels: funcai, feature
+labels: ["funcai", "feature"]
 body:
   - type: markdown
     attributes:
@@ -28,12 +28,12 @@ body:
         - Python
         - Other - Explain below
 
-    - type: textarea
-      id: code-snippet
-      attributes:
-        label: Relevant sample code snipped
-        description: Please copy and paste any relevant code snippet of how you want the feature to be used. (This will be automatically formatted into code, so no need for backticks)
-        render: shell
+  - type: textarea
+    id: code-snippet
+    attributes:
+      label: Relevant sample code snipped
+      description: Please copy and paste any relevant code snippet of how you want the feature to be used. (This will be automatically formatted into code, so no need for backticks)
+      render: shell
 
   - type: textarea
     id: additional-info

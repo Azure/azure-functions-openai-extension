@@ -1,7 +1,7 @@
 name: Functions OpenAI Extension Bug Report
 description: File a Functions OpenAI Extension bug report
 title: "[Bug] Bug Title Here"
-labels: funcai, bug
+labels: ["funcai", "bug"]
 body:
   - type: markdown
     attributes:
@@ -54,19 +54,19 @@ body:
         4. Observe [describe what you see, e.g., an error message or unexpected behavior].
         5. Include any additional steps or details that may be relevant.
 
-    - type: textarea
-      id: code-snipped
-      attributes:
-        label: Relevant code being tried
-        description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-        render: shell
+  - type: textarea
+    id: code-snipped
+    attributes:
+      label: Relevant code being tried
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
 
-    - type: textarea
-      id: logs
-      attributes:
-        label: Relevant log output
-        description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
-        render: shell
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
 
   - type: input
     id: environment

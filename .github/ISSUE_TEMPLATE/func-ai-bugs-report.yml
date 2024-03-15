@@ -75,7 +75,7 @@ body:
       default: 0
       options:
         - Local - Core Tools
-        - Production Environment (explan below)
+        - Production Environment (explain below)
 
   - type: textarea
     id: additional-info

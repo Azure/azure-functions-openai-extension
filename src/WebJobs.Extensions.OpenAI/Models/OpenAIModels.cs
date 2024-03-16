@@ -15,5 +15,8 @@ static class OpenAIModels
     /// <summary>
     /// The default embeddings model, currently pointing to text-embedding-3-small
     /// </summary>
+    /// <remarks>
+    /// Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
+    /// </remarks>
     internal const string DefaultEmbeddingsModel = "text-embedding-3-small";
 }

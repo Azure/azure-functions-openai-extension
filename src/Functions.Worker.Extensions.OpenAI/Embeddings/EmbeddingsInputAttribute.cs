@@ -5,7 +5,7 @@ using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
-public class EmbeddingsInputAttribute: InputBindingAttribute
+public class EmbeddingsInputAttribute : InputBindingAttribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EmbeddingsAttribute"/> class with the specified input.
@@ -22,6 +22,9 @@ public class EmbeddingsInputAttribute: InputBindingAttribute
     /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
+    /// <remarks>
+    /// Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
+    /// </remarks>
     public string Model { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 
     /// <summary>

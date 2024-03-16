@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Azure.Functions.Worker.Core;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 using System.Text.Json;
+using Microsoft.Azure.Functions.Worker.Core;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
+using Microsoft.Extensions.DependencyInjection;
 
 [assembly: WorkerExtensionStartup(typeof(Startup))]
 

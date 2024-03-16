@@ -3,7 +3,7 @@
 
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
-namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 public class EmbeddingsInputAttribute: InputBindingAttribute
 {

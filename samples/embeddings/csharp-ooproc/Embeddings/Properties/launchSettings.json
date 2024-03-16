@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "Embedding": {
+    "Embeddings": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7258",
+      "commandLineArgs": "--port 7071",
       "launchBrowser": false
     }
   }

@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 /// <summary>
 /// Embeddings JSON converter needed to serialize the EmbeddingsContext object.

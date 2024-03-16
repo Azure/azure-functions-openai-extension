@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 
-namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 /// <summary>
 /// EmbeddingsOptions JSON converter needed to serialize and deserialize the EmbeddingsOptions object with the dotnet worker.

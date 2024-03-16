@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.AI.OpenAI;
+using OpenAISDK = Azure.AI.OpenAI;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 /// <summary>
 /// Binding target for the <see cref="EmbeddingsAttribute"/>.
@@ -12,7 +12,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 /// <param name="Response">The embeddings response that was received from OpenAI.</param>
 public class EmbeddingsContext
 {
-    public EmbeddingsContext(EmbeddingsOptions Request, Embeddings Response)
+    public EmbeddingsContext(OpenAISDK.EmbeddingsOptions Request, OpenAISDK.Embeddings Response)
     {
         this.Request = Request;
         this.Response = Response;
@@ -21,12 +21,12 @@ public class EmbeddingsContext
     /// <summary>
     /// Embeddings request sent to OpenAI.
     /// </summary>
-    public EmbeddingsOptions Request { get; set; }
+    public OpenAISDK.EmbeddingsOptions Request { get; set; }
 
     /// <summary>
     /// Embeddings response from OpenAI.
     /// </summary>
-    public Embeddings Response { get; set; }
+    public OpenAISDK.Embeddings Response { get; set; }
 
     /// <summary>
     /// Gets the number of embeddings that were returned in the response.

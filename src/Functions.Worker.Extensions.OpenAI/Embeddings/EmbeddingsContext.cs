@@ -1,9 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.AI.OpenAI;
-
-namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+using OpenAISDK = Azure.AI.OpenAI;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 public class EmbeddingsContext
 {
@@ -12,7 +11,7 @@ public class EmbeddingsContext
     /// </summary>
     /// <param name="Request">The embeddings request that was sent to OpenAI.</param>
     /// <param name="Response">The embeddings response that was received from OpenAI.</param>
-    public EmbeddingsContext(EmbeddingsOptions Request, Embeddings Response)
+    public EmbeddingsContext(OpenAISDK.EmbeddingsOptions Request, OpenAISDK.Embeddings Response)
     {
         this.Request = Request;
         this.Response = Response;
@@ -21,13 +20,13 @@ public class EmbeddingsContext
     /// <summary>
     /// Embeddings request sent to OpenAI.
     /// </summary>
-    public EmbeddingsOptions Request { get; set; }
+    public OpenAISDK.EmbeddingsOptions Request { get; set; }
 
     /// <summary>
     /// Embeddings response from OpenAI.
     /// </summary>
-    public Embeddings Response { get; set; }
-
+    public OpenAISDK.Embeddings Response { get; set; }
+    
     /// <summary>
     /// Gets the number of embeddings that were returned in the response.
     /// </summary>

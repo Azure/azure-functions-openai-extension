@@ -1,9 +1,9 @@
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
-using System.Text.Json.Serialization;
-using Microsoft.Azure.Functions.Worker.Http;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Embeddings
 {

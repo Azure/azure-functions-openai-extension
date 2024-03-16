@@ -7,7 +7,7 @@ using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 class EmbeddingsConverter :
     IAsyncConverter<EmbeddingsAttribute, EmbeddingsContext>,

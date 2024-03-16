@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 /// <summary>
 /// Options for interpreting input binding data.

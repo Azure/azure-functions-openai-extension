@@ -27,6 +27,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleValidation", "tests\SampleValidation\SampleValidation.csproj", "{B0F02F06-9124-4A91-9685-824C55E698BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "embeddings", "embeddings", "{4B55F637-B067-43B4-B6FC-65171654315C}"
+	ProjectSection(SolutionItems) = preProject
+		samples\embeddings\demo.http = samples\embeddings\demo.http
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functions.Worker.Extensions.OpenAI", "src\Functions.Worker.Extensions.OpenAI\Functions.Worker.Extensions.OpenAI.csproj", "{2704D01A-21F8-4B58-B018-73C5D774D9D6}"
 EndProject

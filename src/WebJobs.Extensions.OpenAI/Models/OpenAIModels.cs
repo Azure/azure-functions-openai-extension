@@ -10,7 +10,7 @@ static class OpenAIModels
     /// <summary>
     /// GPT 3 Turbo, refer to https://platform.openai.com/docs/models/continuous-model-upgrades for exact model being pointed to
     /// </summary>
-    internal const string Gpt_35_Turbo = "gpt-3.5-turbo";
+    internal const string DefaultChatModel = "gpt-3.5-turbo";
 
     /// <summary>
     /// The default embeddings model, currently pointing to text-embedding-3-small

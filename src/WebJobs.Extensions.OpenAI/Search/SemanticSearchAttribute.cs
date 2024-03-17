@@ -76,7 +76,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string ChatModel { get; set; } = OpenAIModels.Gpt_35_Turbo;
+    public string ChatModel { get; set; } = OpenAIModels.DefaultChatModel;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.

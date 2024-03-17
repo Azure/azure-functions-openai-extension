@@ -13,6 +13,8 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 /// </summary>
 class EmbeddingsJsonConverter : JsonConverter<OpenAISDK.Embeddings>
 {
+    static readonly ModelReaderWriterOptions JsonOptions = new("J");
+
     public override OpenAISDK.Embeddings Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         using JsonDocument jsonDocument = JsonDocument.ParseValue(ref reader);
@@ -21,6 +23,6 @@ class EmbeddingsJsonConverter : JsonConverter<OpenAISDK.Embeddings>
 
     public override void Write(Utf8JsonWriter writer, OpenAISDK.Embeddings value, JsonSerializerOptions options)
     {
-        ((IJsonModel<OpenAISDK.Embeddings>)value).Write(writer, new ModelReaderWriterOptions("J"));
+        ((IJsonModel<OpenAISDK.Embeddings>)value).Write(writer, JsonOptions);
     }
 }

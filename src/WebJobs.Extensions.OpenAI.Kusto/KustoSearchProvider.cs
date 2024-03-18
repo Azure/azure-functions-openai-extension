@@ -76,13 +76,13 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         table.AppendColumn("Embeddings", typeof(object));
         table.AppendColumn("Timestamp", typeof(DateTime));
 
-        for (int i = 0; i < document.Embeddings.Response.Value.Data.Count; i++)
+        for (int i = 0; i < document.Embeddings.Response.Data.Count; i++)
         {
             table.Rows.Add(
                 Guid.NewGuid().ToString("N"),
                 Path.GetFileNameWithoutExtension(document.Title),
                 document.Embeddings.Request.Input![i],
-                GetEmbeddingsString(document.Embeddings.Response.Value.Data[i].Embedding),
+                GetEmbeddingsString(document.Embeddings.Response.Data[i].Embedding),
                 DateTime.UtcNow);
         }
 

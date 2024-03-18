@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 /// <summary>
 /// Options for interpreting input binding data.
@@ -16,10 +16,5 @@ public enum InputType
     /// <summary>
     /// The input data is a file path that contains the text.
     /// </summary>
-    FilePath,
-
-    /// <summary>
-    /// The input data is a URL that can be invoked to get the text.
-    /// </summary>
-    URL,
+    FilePath
 }

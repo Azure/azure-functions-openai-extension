@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 namespace SemanticSearchEmbeddings;

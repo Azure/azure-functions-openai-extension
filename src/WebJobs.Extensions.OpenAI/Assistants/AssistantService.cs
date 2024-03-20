@@ -221,7 +221,7 @@ class DefaultAssistantService : IAssistantService
         // Add the chat message to the batch
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
 
-        string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
+        string deploymentName = request.Model ?? OpenAIModels.DefaultChatModel;
         IList<ChatCompletionsFunctionToolDefinition>? functions = this.skillInvoker.GetFunctionsDefinitions();
 
         // We loop if the model returns function calls. Otherwise, we break after receiving a response.

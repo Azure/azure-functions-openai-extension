@@ -7,10 +7,10 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch;
 /// Open AI Configuration Options used for reading host.json values.
 /// </summary>
 public class AzureAISearchConfigOptions
-{    
-    public string IsSemanticSearchEnabled { get; set; } = "IsSemanticSearchEnabled";
+{
+    public bool IsSemanticSearchEnabled { get; set; }
 
-    public string UseSemanticCaptions { get; set; } = "UseSemanticCaptions";
+    public bool UseSemanticCaptions { get; set; }
 
-    public string VectorSearchDimensions { get; set; } = "vectorSearchDimensions";
+    public int VectorSearchDimensions { get; set; } = 1536;
 }

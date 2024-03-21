@@ -162,30 +162,15 @@ sealed class AzureAISearchProvider : ISearchProvider
 
     void GetAzureAISearchConfig(IOptions<AzureAISearchConfigOptions> azureAiSearchConfigOptions)
     {
-        string? IsSemanticSearchEnabledString = azureAiSearchConfigOptions?.Value?.IsSemanticSearchEnabled;
-        string? IsUseSemanticCaptionsString = azureAiSearchConfigOptions?.Value?.UseSemanticCaptions;
-        string? VectorSearchDimensionsString = azureAiSearchConfigOptions?.Value?.VectorSearchDimensions;
-
-        if (!string.IsNullOrEmpty(IsSemanticSearchEnabledString))
+        this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
+        this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
+        int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
+        if (value < 2 || value > 3072)
         {
-            this.isSemanticSearchEnabled = bool.Parse(IsSemanticSearchEnabledString);
+            throw new ArgumentOutOfRangeException(nameof(AzureAISearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 3072");
         }
 
-        if (!string.IsNullOrEmpty(IsUseSemanticCaptionsString))
-        {
-            this.useSemanticCaptions = bool.Parse(IsUseSemanticCaptionsString);
-        }
-
-        if (!string.IsNullOrEmpty(VectorSearchDimensionsString))
-        {
-            int value = int.Parse(VectorSearchDimensionsString);
-            if (value < 2 || value > 3072)
-            {
-                throw new ArgumentOutOfRangeException(nameof(AzureAISearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 3072");
-            }
-
-            this.vectorSearchDimensions = value;
-        }
+        this.vectorSearchDimensions = value;
     }
 
     async Task CreateIndexIfDoesntExist(SearchIndexClient searchIndexClient, string searchIndexName, CancellationToken cancellationToken = default)

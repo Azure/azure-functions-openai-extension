@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Microsoft.Azure.WebJobs.Description;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
@@ -28,12 +27,3 @@ public class AssistantQueryAttribute : Attribute
     [AutoResolve]
     public string TimestampUtc { get; set; } = string.Empty;
 }
-
-public record AssistantState(
-    string Id,
-    bool Exists,
-    DateTime CreatedAt,
-    DateTime LastUpdatedAt,
-    int TotalMessages,
-    int TotalTokens,
-    IReadOnlyList<ChatMessage> RecentMessages);

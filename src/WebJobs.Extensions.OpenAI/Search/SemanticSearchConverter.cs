@@ -45,18 +45,17 @@ class SemanticSearchConverter :
 
         this.searchProvider = searchProviders?
             .FirstOrDefault(x => string.Equals(x.Name, value?.ToString(), StringComparison.OrdinalIgnoreCase));
-
-        if (this.searchProvider == null)
-        {
-            throw new InvalidOperationException(
-                "No search provider is configured. Search providers are configured in the host.json file. For .NET apps, the appropriate nuget package must also be added to the app's project file.");
-        }
     }
 
     public Task<IAsyncCollector<SearchableDocument>> ConvertAsync(
         SemanticSearchAttribute input,
         CancellationToken cancellationToken)
     {
+        if (this.searchProvider == null)
+        {
+            throw new InvalidOperationException(
+                "No search provider is configured. Search providers are configured in the host.json file. For .NET apps, the appropriate nuget package must also be added to the app's project file.");
+        }
         IAsyncCollector<SearchableDocument> collector = new SemanticDocumentCollector(input, this.searchProvider);
         return Task.FromResult(collector);
     }
@@ -65,6 +64,12 @@ class SemanticSearchConverter :
         SemanticSearchAttribute attribute,
         CancellationToken cancellationToken)
     {
+        if (this.searchProvider == null)
+        {
+            throw new InvalidOperationException(
+                "No search provider is configured. Search providers are configured in the host.json file. For .NET apps, the appropriate nuget package must also be added to the app's project file.");
+        }
+
         if (string.IsNullOrEmpty(attribute.Query))
         {
             throw new InvalidOperationException("The query must be specified.");

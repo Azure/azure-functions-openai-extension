@@ -6,12 +6,12 @@
 
 package com.microsoft.azure.functions.openai.annotation;
 
+import com.microsoft.azure.functions.annotation.CustomBinding;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import com.microsoft.azure.functions.annotation.CustomBinding;
 
 /**
  * <p>

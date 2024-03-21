@@ -39,6 +39,8 @@ public class AssistantState {
 
     /**
      * Gets the ID of the assistant.
+     * 
+     * @return The ID of the assistant.
      */
     public String getId() {
         return id;
@@ -46,6 +48,8 @@ public class AssistantState {
 
     /**
      * Gets if assistant exists.
+     * 
+     * @return If assistant exists.
      */
     public boolean isExists() {
         return exists;
@@ -53,6 +57,8 @@ public class AssistantState {
 
     /**
      * Gets status of assistant. Options are Uninitialzied, Active, or Expired.
+     * 
+     * @return The status of the assistant.
      */
     public String getStatus() {
         return status;
@@ -60,6 +66,8 @@ public class AssistantState {
 
     /**
      * Gets timestamp of when assistant is created.
+     * 
+     * @return The timestamp of when assistant is created.
      */ 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -67,6 +75,8 @@ public class AssistantState {
 
     /**
      * Gets timestamp of when assistant is last updated.
+     * 
+     * @return The timestamp of when assistant is last updated.
      */
     public LocalDateTime getLastUpdatedAt() {
         return lastUpdatedAt;
@@ -74,6 +84,8 @@ public class AssistantState {
 
     /**
      * Gets number of total messages for assistant.
+     * 
+     * @return The number of total messages for assistant.
      */
     public int getTotalMessages() {
         return totalMessages;
@@ -81,6 +93,8 @@ public class AssistantState {
 
     /**
      * Gets number of total tokens for assistant.
+     * 
+     * @return The number of total tokens for assistant.
      */
     public int getTotalTokens() {
         return totalTokens;
@@ -88,6 +102,8 @@ public class AssistantState {
 
     /**
      * Gets a list of the recent messages from the assistant.
+     * 
+     * @return A list of the recent messages from the assistant.
      */
     public List<ChatMessage> getRecentMessages() {
         return recentMessages;
@@ -95,6 +111,8 @@ public class AssistantState {
 
     /**
      * Sets the ID of the assistant.
+     * 
+     * @param id The ID of the assistant.
      */
     public void setId(String id) {
         this.id = id;
@@ -102,6 +120,8 @@ public class AssistantState {
 
     /**
      * Sets if assistant exists.
+     * 
+     * @param exists If assistant exists.
      */
     public void setExists(boolean exists) {
         this.exists = exists;
@@ -109,6 +129,8 @@ public class AssistantState {
 
     /**
      * Sets status of assistant. Options are Uninitialzied, Active, or Expired.
+     * 
+     * @param status The status of the assistant.
      */
     public void setStatus(String status) {
         this.status = status;
@@ -116,6 +138,8 @@ public class AssistantState {
 
     /**
      * Sets timestamp of when assistant is created.
+     * 
+     * @param createdAt The timestamp of when assistant is created.
      */
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
@@ -123,6 +147,8 @@ public class AssistantState {
 
     /**
      * Sets timestamp of when assistant is last updated.
+     * 
+     * @param lastUpdatedAt The timestamp of when assistant is last updated.
      */
     public void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
         this.lastUpdatedAt = lastUpdatedAt;
@@ -130,6 +156,8 @@ public class AssistantState {
 
     /**
      * Sets number of total messages for assistant.
+     * 
+     * @param totalMessages The number of total messages for assistant.
      */
     public void setTotalMessages(int totalMessages) {
         this.totalMessages = totalMessages;
@@ -137,6 +165,8 @@ public class AssistantState {
 
     /**
      * Sets number of total tokens for assistant.
+     * 
+     * @param totalTokens The number of total tokens for assistant.
      */
     public void setTotalTokens(int totalTokens) {
         this.totalTokens = totalTokens;
@@ -144,6 +174,8 @@ public class AssistantState {
 
     /**
      * Sets a list of the recent messages from the assistant.
+     * 
+     * @param recentMessages A list of the recent messages from the assistant.
      */
     public void setRecentMessages(List<ChatMessage> recentMessages) {
         this.recentMessages = recentMessages;

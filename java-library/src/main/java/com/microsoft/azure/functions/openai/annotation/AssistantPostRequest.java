@@ -17,6 +17,10 @@ public class AssistantPostRequest {
 
     /**
      * Initializes a new instance of the AssistantPostRequest class.
+     * 
+     * @param userMessage The user message that user has entered for assistant to respond to.
+     * @param id The ID of the assistant to update.
+     * @param model The OpenAI chat model to use.
      */
     public AssistantPostRequest(String userMessage, String id, String model) {
         this.userMessage = userMessage;
@@ -26,6 +30,9 @@ public class AssistantPostRequest {
 
     /**
      * Initializes a new instance of the AssistantPostRequest class.
+     * 
+     * @param userMessage The user message that user has entered for assistant to respond to.
+     * @param id The ID of the assistant to update.
      */
     public AssistantPostRequest(String userMessage, String id) {
         this.userMessage = userMessage;
@@ -34,6 +41,8 @@ public class AssistantPostRequest {
 
     /**
      * Gets user message that user has entered for assistant to respond to.
+     * 
+     * @return The user message that user has entered for assistant to respond to.
      */
     public String getUserMessage() {
         return userMessage;
@@ -41,6 +50,8 @@ public class AssistantPostRequest {
 
     /**
      * Sets user message that user has entered for assistant to respond to.
+     * 
+     * @param userMessage The user message that user has entered for assistant to respond to.
      */
     public void setUserMessage(String userMessage) {
         this.userMessage = userMessage;
@@ -48,6 +59,8 @@ public class AssistantPostRequest {
 
     /**
      * Gets the ID of the assistant to update.
+     * 
+     * @return The ID of the assistant to update.
      */
     public String getId() {
         return id;
@@ -55,6 +68,8 @@ public class AssistantPostRequest {
 
     /**
      * Sets the ID of the assistant to update.
+     * 
+     * @param id The ID of the assistant to update.
      */
     public void setId(String id) {
         this.id = id;
@@ -65,6 +80,8 @@ public class AssistantPostRequest {
      * <p>
      * When using Azure OpenAI, then should be the name of the model <em>deployment</em>.
      * </p>
+     * 
+     * @return The OpenAI chat model to use.
      */
     public String getModel() {
         return model;
@@ -75,6 +92,8 @@ public class AssistantPostRequest {
      * <p>
      * When using Azure OpenAI, then should be the name of the model <em>deployment</em>.
      * </p>
+     * 
+     * @param model The OpenAI chat model to use.
      */
     public void setModel(String model) {
         this.model = model;

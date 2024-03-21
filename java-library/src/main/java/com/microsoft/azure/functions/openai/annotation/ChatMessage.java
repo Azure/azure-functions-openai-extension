@@ -44,6 +44,8 @@ public class ChatMessage {
 
     /**
      * Gets the content of the message.
+     * 
+     * @return The content of the message.
      */
     public String getContent() {
         return content;
@@ -51,6 +53,8 @@ public class ChatMessage {
 
     /**
      * Sets the content of the message.
+     * 
+     * @param content The content of the message.
      */
     public void setContent(String content) {
         this.content = content;
@@ -58,6 +62,8 @@ public class ChatMessage {
 
     /**
      * Gets the role of the chat agent.
+     * 
+     * @return The role of the chat agent.
      */
     public String getRole() {
         return role;
@@ -65,13 +71,17 @@ public class ChatMessage {
 
     /**
      * Sets the role of the chat agent.
+     * 
+     * @param role The role of the chat agent.
      */
     public void setRole(String role) {
         this.role = role;
     }
 
     /**
-     *Gets the name of the calling function if applicable.
+     * Gets the name of the calling function if applicable.
+     * 
+     * @return The name of the calling function if applicable.
      */
     public String getName() {
         return name;
@@ -79,6 +89,8 @@ public class ChatMessage {
 
     /**
      * Sets the name of the calling function if applicable.
+     * 
+     * @param name The name of the calling function if applicable.
      */
     public void setName(String name) {
         this.name = name;

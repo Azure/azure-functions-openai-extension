@@ -14,8 +14,6 @@ import com.microsoft.azure.functions.HttpStatus;
 import com.microsoft.azure.functions.OutputBinding;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.BindingName;
-import com.microsoft.azure.functions.annotation.CosmosDBOutput;
-import com.microsoft.azure.functions.annotation.CustomBinding;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 import com.microsoft.azure.functions.openai.annotation.AssistantCreate;

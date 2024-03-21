@@ -80,8 +80,18 @@ class CosmosDbTodoManager : ITodoManager
             throw new ArgumentNullException(nameof(cosmosClient));
         }
 
+        string? CosmosDatabaseName = Environment.GetEnvironmentVariable("CosmosDatabaseName");
+        string? CosmosContainerName = Environment.GetEnvironmentVariable("CosmosContainerName");
+
+        if (string.IsNullOrEmpty(CosmosDatabaseName) || string.IsNullOrEmpty(CosmosContainerName))
+        {
+            throw new ArgumentNullException("CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json");
+        }
+
         this.logger = loggerFactory.CreateLogger<CosmosDbTodoManager>();
-        this.container = cosmosClient.GetContainer("testdb", "my-todos");
+        cosmosClient.CreateDatabaseIfNotExistsAsync(CosmosDatabaseName).Wait();
+        cosmosClient.GetDatabase(CosmosDatabaseName).CreateContainerIfNotExistsAsync(CosmosContainerName, "/id").Wait();
+        this.container = cosmosClient.GetContainer(CosmosDatabaseName, CosmosContainerName);
     }
 
     public async Task AddTodoAsync(TodoItem todo)

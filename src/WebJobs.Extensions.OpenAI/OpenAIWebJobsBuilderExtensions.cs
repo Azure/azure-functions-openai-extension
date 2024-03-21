@@ -60,15 +60,8 @@ public static class OpenAIWebJobsBuilderExtensions
 
         // Service objects that will be used by the extension
         builder.Services.AddSingleton<TextCompletionConverter>();
-        builder.Services.AddSingleton<EmbeddingsConverter>();
-        
-        SemanticSearchConverter semanticSearchConverter = null!;
-        builder.Services.AddSingleton(serviceProvider =>
-        {
-            semanticSearchConverter = new SemanticSearchConverter(serviceProvider.GetService<OpenAIClient>(), serviceProvider.GetService<ILoggerFactory>(), serviceProvider.GetService<IEnumerable<ISearchProvider>>(), serviceProvider.GetService<IOptions<OpenAIConfigOptions>>());
-            return semanticSearchConverter;
-        });
-
+        builder.Services.AddSingleton<EmbeddingsConverter>();        
+        builder.Services.AddSingleton<SemanticSearchConverter>();
         builder.Services.AddSingleton<AssistantBindingConverter>();
 
         builder.Services.AddOptions<OpenAIConfigOptions>()

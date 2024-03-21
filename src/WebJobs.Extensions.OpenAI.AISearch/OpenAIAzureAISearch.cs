@@ -19,7 +19,6 @@ class OpenAIAzureAISearch : FunctionsStartup
         builder.Services.AddOptions<AzureAISearchConfigOptions>()
             .Configure<IConfiguration>((options, config) =>
             {
-                // For in-proc
                 config.GetSection("azurefunctionsjobhost:extensions:openai:searchprovider").Bind(options);
             });
         builder.Services.AddSingleton<ISearchProvider, AzureAISearchProvider>();

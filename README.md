@@ -263,14 +263,14 @@ The semantic search feature allows you to import documents into a vector databas
 
  The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
 
-* [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/search-create-service-portal) - See [this project](./src/WebJobs.Extensions.OpenAI.AISearch/)
-* [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [this project](./src/WebJobs.Extensions.OpenAI.Kusto/)
+* [Azure AI Search](https://learn.microsoft.com/azure/search/search-create-service-portal) - [source code](./src/WebJobs.Extensions.OpenAI.AISearch/)
+* [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [source code](./src/WebJobs.Extensions.OpenAI.Kusto/)
 
  More may be added over time.
 
 #### [C# document storage example](./samples/rag-aisearch/csharp-inproc/FilePrompt.cs)
 
-This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into Azure AI Search Index.
+This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into an Azure AI Search Index.
 
 ```csharp
 public record EmbeddingsRequest(string FilePath);
@@ -279,7 +279,7 @@ public record EmbeddingsRequest(string FilePath);
 public static async Task<IActionResult> IngestFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
     [Embeddings("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
-    [SemanticSearch("AISearchEndpoint", "openai-index-mm", CredentialSettingName = "SearchAPIKey", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] IAsyncCollector<SearchableDocument> output)
+    [SemanticSearch("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] IAsyncCollector<SearchableDocument> output)
 {
     string title = Path.GetFileNameWithoutExtension(req.FilePath);
     await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -297,7 +297,7 @@ public record SemanticSearchRequest(string Prompt);
 [FunctionName("PromptFile")]
 public static IActionResult PromptFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("AISearchEndpoint", "openai-index-mm", CredentialSettingName = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+    [SemanticSearch("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }

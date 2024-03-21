@@ -13,14 +13,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch;
+
 sealed class AzureAISearchProvider : ISearchProvider
 {
     readonly IConfiguration configuration;
     readonly ILogger logger;
     const string defaultSearchIndexName = "openai-index";
-    bool IsSemanticSearchEnabled = false;
-    bool UseSemanticCaptions = false;
-    int VectorSearchDimensions = 1536;
+    const string vectorSearchConfigName = "openai-vector-config";
+    const string vectorSearchProfile = "openai-vector-profile";
+    bool isSemanticSearchEnabled = false;
+    bool useSemanticCaptions = false;
+    int vectorSearchDimensions = 1536;
 
     public string Name { get; set; } = "AzureAISearch";
 
@@ -90,14 +93,14 @@ sealed class AzureAISearchProvider : ISearchProvider
         string key = this.configuration.GetValue<string>(request.ConnectionInfo.Credentials);
         SearchClient searchClient = GetSearchClient(endpoint, key, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
-        SearchOptions searchOptions = this.IsSemanticSearchEnabled
+        SearchOptions searchOptions = this.isSemanticSearchEnabled
             ? new SearchOptions
             {
                 QueryType = SearchQueryType.Semantic,
                 SemanticSearch = new()
                 {
                     SemanticConfigurationName = "default",
-                    QueryCaption = new(this.UseSemanticCaptions
+                    QueryCaption = new(this.useSemanticCaptions
                         ? QueryCaptionType.Extractive
                         : QueryCaptionType.None),
                 },
@@ -114,7 +117,7 @@ sealed class AzureAISearchProvider : ISearchProvider
             VectorizedQuery vectorQuery = new(request.Embeddings)
             {
                 // Use a higher K value for semantic search to get better results.
-                KNearestNeighborsCount = this.IsSemanticSearchEnabled ? Math.Max(50, request.MaxResults) : request.MaxResults,
+                KNearestNeighborsCount = this.isSemanticSearchEnabled ? Math.Max(50, request.MaxResults) : request.MaxResults,
             };
             vectorQuery.Fields.Add("embeddings");
             searchOptions.VectorSearch = new();
@@ -136,7 +139,7 @@ sealed class AzureAISearchProvider : ISearchProvider
             doc.Document.TryGetValue("title", out object? titleValue);
             string? contentValue;
 
-            if (this.UseSemanticCaptions)
+            if (this.useSemanticCaptions)
             {
                 IEnumerable<string> docs = doc.SemanticSearch.Captions.Select(c => c.Text);
                 contentValue = string.Join(" . ", docs);
@@ -165,12 +168,12 @@ sealed class AzureAISearchProvider : ISearchProvider
 
         if (!string.IsNullOrEmpty(IsSemanticSearchEnabledString))
         {
-            this.IsSemanticSearchEnabled = bool.Parse(IsSemanticSearchEnabledString);
+            this.isSemanticSearchEnabled = bool.Parse(IsSemanticSearchEnabledString);
         }
 
         if (!string.IsNullOrEmpty(IsUseSemanticCaptionsString))
         {
-            this.UseSemanticCaptions = bool.Parse(IsUseSemanticCaptionsString);
+            this.useSemanticCaptions = bool.Parse(IsUseSemanticCaptionsString);
         }
 
         if (!string.IsNullOrEmpty(VectorSearchDimensionsString))
@@ -178,10 +181,10 @@ sealed class AzureAISearchProvider : ISearchProvider
             int value = int.Parse(VectorSearchDimensionsString);
             if (value < 2 || value > 3072)
             {
-                throw new ArgumentException("VectorSearchDimensions must be between 2 and 3072");
+                throw new ArgumentOutOfRangeException(nameof(AzureAISearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 3072");
             }
 
-            this.VectorSearchDimensions = value;
+            this.vectorSearchDimensions = value;
         }
     }
 
@@ -197,8 +200,6 @@ sealed class AzureAISearchProvider : ISearchProvider
             }
         }
 
-        string vectorSearchConfigName = "openai-vector-config";
-        string vectorSearchProfile = "openai-vector-profile";
         SearchIndex index = new(searchIndexName)
         {
             VectorSearch = new()
@@ -219,7 +220,7 @@ sealed class AzureAISearchProvider : ISearchProvider
                 new SimpleField("title", SearchFieldDataType.String) { IsFacetable = true },
                 new SearchField("embeddings", SearchFieldDataType.Collection(SearchFieldDataType.Single))
                 {
-                    VectorSearchDimensions = this.VectorSearchDimensions,
+                    VectorSearchDimensions = this.vectorSearchDimensions,
                     IsSearchable = true,
                     VectorSearchProfileName = vectorSearchProfile,
                 },
@@ -266,7 +267,7 @@ sealed class AzureAISearchProvider : ISearchProvider
                 // Every one thousand documents, batch create.
                 IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
                 int succeeded = result.Results.Count(r => r.Succeeded);
-                this.logger.LogDebug("""
+                this.logger.LogInformation("""
                         Indexed {Count} sections, {Succeeded} succeeded
                         """,
                         batch.Actions.Count,
@@ -281,7 +282,7 @@ sealed class AzureAISearchProvider : ISearchProvider
             // Any remaining documents, batch create.
             IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
             int succeeded = result.Results.Count(r => r.Succeeded);
-            this.logger.LogDebug("""
+            this.logger.LogInformation("""
                         Indexed {Count} sections, {Succeeded} succeeded
                         """,
                     batch.Actions.Count,
@@ -314,10 +315,5 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
 
         return searchClient;
-    }
-
-    public ISearchProvider GetServiceProvider(string serviceProviderName)
-    {
-        throw new NotImplementedException();
     }
 }

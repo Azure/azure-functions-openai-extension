@@ -15,7 +15,7 @@ This sample requires creating a Kusto cluster and database. You can do this by f
 Once you have a Kusto cluster and database, you can run the sample by following these steps:
 
 1. Update the `KustoConnectionString` value in `local.settings.json` to match your Kusto cluster and database names.
-1. In case of multiple search providers, it is necessary to configure the type from the `host.json` as shown in below snippet.
+1. Always configure the search provider type in the `host.json` as shown in below snippet.
 
     ```json
     "extensions": {
@@ -42,7 +42,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
 1. Build and start the app
 
     ```sh
-    dotnet build && cd bin/debug/net6.0 && func start
+    func start
     ```
 
 1. Refer the [demo.http](demo.http) file for the format of requests.

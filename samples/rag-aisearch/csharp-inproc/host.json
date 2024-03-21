@@ -8,7 +8,7 @@
   "extensions": {
     "openai": {
       "searchProvider": {
-        "type": "azureaisearch",
+        "type": "azureAiSearch",
         "isSemanticSearchEnabled": "true",
         "useSemanticCaptions": "true",
         "vectorSearchDimensions": "1536"

@@ -41,30 +41,22 @@ class SemanticSearchConverter :
         this.logger = loggerFactory?.CreateLogger<SemanticSearchConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
 
         openAiConfigOptions.Value.SearchProvider.TryGetValue("type", out object value);
-        this.logger.LogDebug("Type of the searchProvider configured in host file: {type}", value);
-        
-        if (searchProviders.Count() > 1)
-        {
-            this.searchProvider = searchProviders?
+        this.logger.LogInformation("Type of the searchProvider configured in host file: {type}", value);
+
+        this.searchProvider = searchProviders?
             .FirstOrDefault(x => string.Equals(x.Name, value?.ToString(), StringComparison.OrdinalIgnoreCase));
-        }
-        else
+
+        if (this.searchProvider == null)
         {
-            this.searchProvider = searchProviders?.FirstOrDefault();
-        }   
-        
+            throw new InvalidOperationException(
+                "No search provider is configured. Search providers are configured in the host.json file. For .NET apps, the appropriate nuget package must also be added to the app's project file.");
+        }
     }
 
     public Task<IAsyncCollector<SearchableDocument>> ConvertAsync(
         SemanticSearchAttribute input,
         CancellationToken cancellationToken)
     {
-        if (this.searchProvider == null)
-        {
-            throw new InvalidOperationException(
-                "No search provider is configured. Search providers can be added via nuget package references and configuring the search provider type in host file.");
-        }
-
         IAsyncCollector<SearchableDocument> collector = new SemanticDocumentCollector(input, this.searchProvider);
         return Task.FromResult(collector);
     }
@@ -73,12 +65,6 @@ class SemanticSearchConverter :
         SemanticSearchAttribute attribute,
         CancellationToken cancellationToken)
     {
-        if (this.searchProvider == null)
-        {
-            throw new InvalidOperationException(
-                "No search provider is configured. Search providers can be added via nuget package references and configuring the search provider type in host file.");
-        }
-
         if (string.IsNullOrEmpty(attribute.Query))
         {
             throw new InvalidOperationException("The query must be specified.");

@@ -10,8 +10,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -60,7 +58,7 @@ public static class OpenAIWebJobsBuilderExtensions
 
         // Service objects that will be used by the extension
         builder.Services.AddSingleton<TextCompletionConverter>();
-        builder.Services.AddSingleton<EmbeddingsConverter>();        
+        builder.Services.AddSingleton<EmbeddingsConverter>();
         builder.Services.AddSingleton<SemanticSearchConverter>();
         builder.Services.AddSingleton<AssistantBindingConverter>();
 
@@ -77,7 +75,7 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services
             .AddSingleton<AssistantSkillManager>()
             .AddSingleton<IAssistantSkillInvoker>(p => p.GetRequiredService<AssistantSkillManager>());
-        builder.Services.AddSingleton<AssistantSkillTriggerBindingProvider>(); 
+        builder.Services.AddSingleton<AssistantSkillTriggerBindingProvider>();
         return builder;
     }
 

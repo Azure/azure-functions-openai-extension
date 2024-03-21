@@ -5,7 +5,7 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Data.Tables;
 
-namespace WebJobs.Extensions.OpenAI.Models;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 /// <summary>
 /// The ChatMessageTableEntity class represents each chat message to interact with table storage.

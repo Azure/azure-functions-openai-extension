@@ -11,6 +11,11 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 public interface ISearchProvider
 {
     /// <summary>
+    /// Name of the Search Provider.
+    /// </summary>
+    string Name { get; }
+
+    /// <summary>
     /// Adds a document to a search provider index.
     /// </summary>
     /// <param name="document">The document metadata.</param>
@@ -33,7 +38,7 @@ public record SearchableDocument(
     public ConnectionInfo? ConnectionInfo { get; set; }
 }
 
-public record ConnectionInfo(string ConnectionName, string CollectionName);
+public record ConnectionInfo(string ConnectionName, string CollectionName, string? Credentials);
 
 public record SearchRequest(
     string Query,

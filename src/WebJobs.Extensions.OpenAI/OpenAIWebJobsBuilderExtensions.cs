@@ -10,7 +10,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using WebJobs.Extensions.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 

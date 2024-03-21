@@ -6,10 +6,13 @@
     }
   },
   "extensions": {
-    "azureaisearch": {
-      "isSemanticSearchEnabled": "true",
-      "useSemanticCaptions": "true",
-      "vectorSearchDimensions": "1536"
+    "openai": {
+      "searchProvider": {
+        "type": "azureaisearch",
+        "isSemanticSearchEnabled": "true",
+        "useSemanticCaptions": "true",
+        "vectorSearchDimensions": "1536"
+      }
     }
   }
 }

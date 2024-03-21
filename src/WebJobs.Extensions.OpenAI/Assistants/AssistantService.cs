@@ -8,8 +8,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using WebJobs.Extensions.OpenAI;
-using WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 

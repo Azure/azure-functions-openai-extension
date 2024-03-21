@@ -6,8 +6,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using WebJobs.Extensions.OpenAI;
-using WebJobs.Extensions.OpenAI.AzureAISearch;
 
 // Reference: https://docs.microsoft.com/en-us/azure/azure-functions/functions-dotnet-dependency-injection
 [assembly: FunctionsStartup(typeof(OpenAIAzureAISearch))]
@@ -22,7 +20,7 @@ class OpenAIAzureAISearch : FunctionsStartup
             .Configure<IConfiguration>((options, config) =>
             {
                 // For in-proc
-                config.GetSection("azurefunctionsjobhost:extensions:azureaisearch").Bind(options);
+                config.GetSection("azurefunctionsjobhost:extensions:openai:searchprovider").Bind(options);
             });
         builder.Services.AddSingleton<ISearchProvider, AzureAISearchProvider>();
     }

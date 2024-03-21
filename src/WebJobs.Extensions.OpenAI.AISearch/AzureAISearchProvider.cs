@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace WebJobs.Extensions.OpenAI.AzureAISearch;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch;
 sealed class AzureAISearchProvider : ISearchProvider
 {
     readonly IConfiguration configuration;
@@ -21,6 +21,8 @@ sealed class AzureAISearchProvider : ISearchProvider
     bool IsSemanticSearchEnabled = false;
     bool UseSemanticCaptions = false;
     int VectorSearchDimensions = 1536;
+
+    public string Name { get; set; } = "AzureAISearch";
 
     /// <summary>
     /// Initializes AI Search provider.
@@ -312,5 +314,10 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
 
         return searchClient;
+    }
+
+    public ISearchProvider GetServiceProvider(string serviceProviderName)
+    {
+        throw new NotImplementedException();
     }
 }

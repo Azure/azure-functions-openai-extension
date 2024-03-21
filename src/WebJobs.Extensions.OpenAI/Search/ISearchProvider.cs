@@ -10,6 +10,8 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 /// </summary>
 public interface ISearchProvider
 {
+    string Name { get; set; }
+
     /// <summary>
     /// Adds a document to a search provider index.
     /// </summary>

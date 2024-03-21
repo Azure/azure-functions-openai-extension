@@ -5,6 +5,7 @@ using System.Text;
 using Azure;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenAISDK = Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
@@ -33,15 +34,25 @@ class SemanticSearchConverter :
     public SemanticSearchConverter(
         OpenAISDK.OpenAIClient openAIClient,
         ILoggerFactory loggerFactory,
-        ISearchProvider searchProvider)
+        IEnumerable<ISearchProvider> searchProviders,
+        IOptions<OpenAIConfigOptions> openAiConfigOptions)
     {
         this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.logger = loggerFactory?.CreateLogger<SemanticSearchConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
 
-        // This will be null if no search provider extension is configured
-        // TODO: Eventually we need to resolve this by name at execution time by name so that we can support
-        //       multiple search providers.
-        this.searchProvider = searchProvider;
+        openAiConfigOptions.Value.SearchProvider.TryGetValue("type", out object value);
+        this.logger.LogDebug("Type of the searchProvider configured in host file: {type}", value);
+        
+        if (searchProviders.Count() > 1)
+        {
+            this.searchProvider = searchProviders?
+            .FirstOrDefault(x => string.Equals(x.Name, value?.ToString(), StringComparison.OrdinalIgnoreCase));
+        }
+        else
+        {
+            this.searchProvider = searchProviders?.FirstOrDefault();
+        }   
+        
     }
 
     public Task<IAsyncCollector<SearchableDocument>> ConvertAsync(
@@ -51,7 +62,7 @@ class SemanticSearchConverter :
         if (this.searchProvider == null)
         {
             throw new InvalidOperationException(
-                "No search provider is configured. Search providers can be added via nuget package references.");
+                "No search provider is configured. Search providers can be added via nuget package references and configuring the search provider type in host file.");
         }
 
         IAsyncCollector<SearchableDocument> collector = new SemanticDocumentCollector(input, this.searchProvider);
@@ -65,7 +76,7 @@ class SemanticSearchConverter :
         if (this.searchProvider == null)
         {
             throw new InvalidOperationException(
-                "No search provider is configured. Search providers can be added via nuget package references.");
+                "No search provider is configured. Search providers can be added via nuget package references and configuring the search provider type in host file.");
         }
 
         if (string.IsNullOrEmpty(attribute.Query))

@@ -26,6 +26,8 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
     readonly IConfiguration configuration;
     readonly ILogger logger;
 
+    public string Name { get; set; } = "Kusto";
+
     public KustoSearchProvider(IConfiguration configuration, ILoggerFactory loggerFactory)
     {
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

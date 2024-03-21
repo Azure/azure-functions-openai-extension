@@ -25,15 +25,15 @@ Once you have an Azure AI Search resource, you can run the sample by following t
         "openai": {
             "searchProvider": {
                 "type": "azureAiSearch",
-                "isSemanticSearchEnabled": "true",
-                "useSemanticCaptions": "true",
-                "vectorSearchDimensions": "1536"
+                "isSemanticSearchEnabled": true,
+                "useSemanticCaptions": true,
+                "vectorSearchDimensions": 1536
             }
         }
     }
     ```
 
-    `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 3072 floating point values each](https://learn.microsoft.com/en-us/azure/search/search-get-started-vector#:~:text=dimensions%20attribute%20has%20a%20minimum%20of%202%20and%20a%20maximum%20of%203072%20floating%20point%20values%20each). By default, the length of the embedding vector will be 1536 for text-embedding-3-small.
+    `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 3072 floating point values each](https://learn.microsoft.com/azure/search/search-get-started-vector#:~:text=dimensions%20attribute%20has%20a%20minimum%20of%202%20and%20a%20maximum%20of%203072%20floating%20point%20values%20each). By default, the length of the embedding vector will be 1536 for text-embedding-3-small.
 
 1. Use a terminal window to navigate to the sample directory
 

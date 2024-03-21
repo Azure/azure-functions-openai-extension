@@ -6,7 +6,6 @@
 
 package com.microsoft.azure.functions.openai.annotation;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -18,14 +17,14 @@ public class AssistantState {
     private String id;
     private boolean exists;
     private String status;
-    private LocalDateTime createdAt;
-    private LocalDateTime lastUpdatedAt;
+    private String createdAt;
+    private String lastUpdatedAt;
     private int totalMessages;
     private int totalTokens;
     private List<ChatMessage> recentMessages;
 
     public AssistantState(String id, boolean exists, String status,
-                        LocalDateTime createdAt, LocalDateTime lastUpdatedAt,
+                        String createdAt, String lastUpdatedAt,
                         int totalMessages, int totalTokens, List<ChatMessage> recentMessages) {
         this.id = id;
         this.exists = exists;
@@ -37,7 +36,7 @@ public class AssistantState {
         this.recentMessages = recentMessages;
     }
 
-    /**
+	/**
      * Gets the ID of the assistant.
      * 
      * @return The ID of the assistant.
@@ -69,7 +68,7 @@ public class AssistantState {
      * 
      * @return The timestamp of when assistant is created.
      */ 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
@@ -78,7 +77,7 @@ public class AssistantState {
      * 
      * @return The timestamp of when assistant is last updated.
      */
-    public LocalDateTime getLastUpdatedAt() {
+    public String getLastUpdatedAt() {
         return lastUpdatedAt;
     }
 
@@ -141,7 +140,7 @@ public class AssistantState {
      * 
      * @param createdAt The timestamp of when assistant is created.
      */
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -150,7 +149,7 @@ public class AssistantState {
      * 
      * @param lastUpdatedAt The timestamp of when assistant is last updated.
      */
-    public void setLastUpdatedAt(LocalDateTime lastUpdatedAt) {
+    public void setLastUpdatedAt(String lastUpdatedAt) {
         this.lastUpdatedAt = lastUpdatedAt;
     }
 

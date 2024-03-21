@@ -17,14 +17,18 @@ Once you have an Azure AI Search resource, you can run the sample by following t
 
 1. Update the `AISearchEndpoint` value in `local.settings.json` to match your Azure AI Search endpoint.
 1. Provide SearchAPIKey for API key based auth, skip setting it for managed identity based authentication.
+1. In case of multiple search providers, it is necessary to configure the type from the `host.json` as shown in below snippet.
 1. Use of Semantic Search, Semantic Captions and Vector Search Dimensions are configurable. You may configure the `host.json` file within the project and following example shows the default values:
 
     ```json
     "extensions": {
-        "azureaisearch": {
-            "isSemanticSearchEnabled": "false",
-            "useSemanticCaptions": "false",
-            "vectorSearchDimensions": "1536"
+        "openai": {
+            "searchProvider": {
+                "type": "azureaisearch",
+                "isSemanticSearchEnabled": "true",
+                "useSemanticCaptions": "true",
+                "vectorSearchDimensions": "1536"
+            }
         }
     }
     ```

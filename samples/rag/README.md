@@ -15,6 +15,18 @@ This sample requires creating a Kusto cluster and database. You can do this by f
 Once you have a Kusto cluster and database, you can run the sample by following these steps:
 
 1. Update the `KustoConnectionString` value in `local.settings.json` to match your Kusto cluster and database names.
+1. In case of multiple search providers, it is necessary to configure the type from the `host.json` as shown in below snippet.
+
+    ```json
+    "extensions": {
+        "openai": {
+            "searchProvider": {
+                "type": "kusto"
+            }
+        }
+    }
+    ```
+
 1. Run the following command in [Azure Data Explorer](https://dataexplorer.azure.com/), in the context of your new Kusto database, to create a "Documents" table in your Kusto database. This is where the ingest function will save embeddings.
 
     ```sh

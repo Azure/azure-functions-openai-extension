@@ -40,13 +40,25 @@ public class SemanticSearchAttribute : Attribute
     public string ConnectionName { get; set; }
 
     /// <summary>
-    /// The name of the collection or table to search.
+    /// The name of the collection or table or index to search.
     /// </summary>
     /// <remarks>
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
     public string Collection { get; set; }
+
+
+    /// <summary>
+    /// The name of the app setting or environment variable containing the required credentials 
+    /// for authenticating with the search provider. See the documentation for the search provider
+    /// extension to know what format the underlying credential value requires.
+    /// </summary>
+    /// <remarks>
+    /// This property supports binding expressions.
+    /// </remarks>
+    [AutoResolve]
+    public string? CredentialSettingName { get; set; }
 
     /// <summary>
     /// Gets or sets the semantic query text to use for searching.
@@ -76,7 +88,7 @@ public class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string ChatModel { get; set; } = OpenAIModels.Gpt_35_Turbo;
+    public string ChatModel { get; set; } = OpenAIModels.DefaultChatModel;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.

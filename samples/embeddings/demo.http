@@ -1,0 +1,13 @@
+### Embeddings from Raw Text
+
+POST http://localhost:7071/api/embeddings
+Content-Type: application/json
+
+{"RawText": "Enter raw text here for embedding generation."}
+
+
+### Embeddings from File
+POST http://localhost:7071/api/embeddings-from-file
+Content-Type: application/json
+
+{"FilePath": "D:\\test\\test_file.txt"}

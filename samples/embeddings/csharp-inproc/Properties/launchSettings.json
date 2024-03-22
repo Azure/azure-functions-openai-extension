@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "Embedding": {
+    "CSharpInProcSamples": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7258",
+      "commandLineArgs": "--port 7127",
       "launchBrowser": false
     }
   }

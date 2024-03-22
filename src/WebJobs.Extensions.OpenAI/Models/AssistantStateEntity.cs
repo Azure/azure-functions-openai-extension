@@ -4,7 +4,7 @@
 using Azure;
 using Azure.Data.Tables;
 
-namespace WebJobs.Extensions.OpenAI.Models;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 /// <summary>
 /// The AssistantStateEntity class represents the state of a assistant to interact with Table Storage.

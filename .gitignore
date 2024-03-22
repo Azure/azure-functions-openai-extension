@@ -412,3 +412,9 @@ __azurite_db*__.json
 
 # python venv folder
 **/.venv/*
+
+# Azure Functions artifacts
+bin
+obj
+appsettings.json
+local.settings.json

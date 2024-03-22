@@ -4,5 +4,12 @@
     "logLevel": {
       "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
     }
+  },
+  "extensions": {
+    "openai": {
+      "searchProvider": {
+        "type": "kusto"
+      }
+    }
   }
 }

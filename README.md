@@ -261,24 +261,25 @@ public async Task GenerateEmbeddings_Http_RequestAsync(
 
 The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).
 
- The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Currently supported vector databases include:
+ The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
 
-* [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [this project](./src/WebJobs.Extensions.OpenAI.Kusto/)
+* [Azure AI Search](https://learn.microsoft.com/azure/search/search-create-service-portal) - [source code](./src/WebJobs.Extensions.OpenAI.AISearch/)
+* [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [source code](./src/WebJobs.Extensions.OpenAI.Kusto/)
 
  More may be added over time.
 
-#### [C# document storage example](./samples/embeddings/csharp-inproc/SemanticSearchEmbeddings/EmailPromptDemo.cs)
+#### [C# document storage example](./samples/rag-aisearch/csharp-inproc/FilePrompt.cs)
 
-This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) (a.k.a. Kusto).
+This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into an Azure AI Search Index.
 
 ```csharp
 public record EmbeddingsRequest(string FilePath);
 
-[FunctionName("IngestEmail")]
-public static async Task<IActionResult> IngestEmail(
+[FunctionName("IngestFile")]
+public static async Task<IActionResult> IngestFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-    [Embeddings("{FilePath}", InputType.FilePath, Model = "text-embedding-3-small")] EmbeddingsContext embeddings,
-    [SemanticSearch("KustoConnectionString", "Documents", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] IAsyncCollector<SearchableDocument> output)
+    [Embeddings("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
+    [SemanticSearch("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] IAsyncCollector<SearchableDocument> output)
 {
     string title = Path.GetFileNameWithoutExtension(req.FilePath);
     await output.AddAsync(new SearchableDocument(title, embeddings));
@@ -286,17 +287,17 @@ public static async Task<IActionResult> IngestEmail(
 }
 ```
 
-#### [C# document query example](./samples/embeddings/csharp-inproc/SemanticSearchEmbeddings/EmailPromptDemo.cs)
+#### [C# document query example](./samples/rag-aisearch/csharp-inproc/FilePrompt.cs)
 
 This HTTP trigger function takes a query prompt as input, pulls in semantically similar document chunks into a prompt, and then sends the combined prompt to OpenAI. The results are then made available to the function, which simply returns that chat response to the caller.
 
 ```csharp
 public record SemanticSearchRequest(string Prompt);
 
-[FunctionName("PromptEmail")]
-public static IActionResult PromptEmail(
+[FunctionName("PromptFile")]
+public static IActionResult PromptFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "gpt-3.5-turbo", EmbeddingsModel = "text-embedding-3-small")] SemanticSearchContext result)
+    [SemanticSearch("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -305,7 +306,7 @@ public static IActionResult PromptEmail(
 The responses from the above function will be based on relevant document snippets which were previously uploaded to the vector database. For example, assuming you uploaded internal emails discussing a new feature of Azure Functions that supports OpenAI, you could issue a query similar to the following:
 
 ```http
-POST http://localhost:7127/api/PromptEmail
+POST http://localhost:7127/api/PromptFile
 Content-Type: application/json
 
 {

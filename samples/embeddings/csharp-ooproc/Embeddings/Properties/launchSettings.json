@@ -1,0 +1,15 @@
+{
+  "profiles": {
+<<<<<<<< HEAD:samples/embeddings/csharp-ooproc/Embedding/Properties/launchSettings.json
+    "Embedding": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7258",
+========
+    "Embeddings": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7071",
+>>>>>>>> 1926143d5cfb2a4f6ffa133819b8b79f6ff83e14:samples/embeddings/csharp-ooproc/Embeddings/Properties/launchSettings.json
+      "launchBrowser": false
+    }
+  }
+}

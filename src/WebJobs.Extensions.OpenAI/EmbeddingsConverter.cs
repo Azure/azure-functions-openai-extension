@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.Json;
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
-
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 class EmbeddingsConverter :
     IAsyncConverter<EmbeddingsAttribute, EmbeddingsContext>,
@@ -15,11 +14,6 @@ class EmbeddingsConverter :
 {
     readonly OpenAIClient openAIClient;
     readonly ILogger logger;
-    // Note: we need this converter as Azure.AI.OpenAI does not support System.Text.Json serialization since their constructors are internal
-    static readonly JsonSerializerOptions options = new()
-    {
-        Converters = { new EmbeddingsJsonConverter() }
-    };
 
     public EmbeddingsConverter(OpenAIClient openAIClient, ILoggerFactory loggerFactory)
     {
@@ -39,7 +33,7 @@ class EmbeddingsConverter :
         CancellationToken cancellationToken)
     {
         EmbeddingsContext response = await this.ConvertCoreAsync(input, cancellationToken);
-        return JsonSerializer.Serialize(response, options);
+        return JsonConvert.SerializeObject(response);
     }
 
     async Task<EmbeddingsContext> ConvertCoreAsync(

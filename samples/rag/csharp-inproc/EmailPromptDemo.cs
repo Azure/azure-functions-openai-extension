@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using WebJobs.Extensions.OpenAI.Search;
 
-namespace CSharpInProcSamples.Demos;
+namespace SemanticSearchEmbeddings;
 
 public static class EmailPromptDemo
 {

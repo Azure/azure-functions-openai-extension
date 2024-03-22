@@ -5,12 +5,11 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using WebJobs.Extensions.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 

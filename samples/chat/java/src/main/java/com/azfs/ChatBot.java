@@ -16,12 +16,12 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.BindingName;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
-import com.microsoft.azure.functions.openai.annotation.AssistantCreate;
-import com.microsoft.azure.functions.openai.annotation.AssistantQuery;
-import com.microsoft.azure.functions.openai.annotation.AssistantPost;
-import com.microsoft.azure.functions.openai.annotation.AssistantCreateRequest;
-import com.microsoft.azure.functions.openai.annotation.AssistantPostRequest;
-import com.microsoft.azure.functions.openai.annotation.AssistantState;
+import com.microsoft.azure.functions.openai.annotation.assistant.AssistantCreate;
+import com.microsoft.azure.functions.openai.annotation.assistant.AssistantQuery;
+import com.microsoft.azure.functions.openai.annotation.assistant.AssistantPost;
+import com.microsoft.azure.functions.openai.annotation.assistant.AssistantCreateRequest;
+import com.microsoft.azure.functions.openai.annotation.assistant.AssistantPostRequest;
+import com.microsoft.azure.functions.openai.annotation.assistant.AssistantState;
 
 import java.util.Optional;
 

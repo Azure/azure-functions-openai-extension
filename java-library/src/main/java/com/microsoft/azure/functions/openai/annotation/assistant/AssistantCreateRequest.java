@@ -4,7 +4,7 @@
  * license information.
  */
 
-package com.microsoft.azure.functions.openai.annotation;
+package com.microsoft.azure.functions.openai.annotation.assistant;
 
 import java.time.LocalDateTime;
 

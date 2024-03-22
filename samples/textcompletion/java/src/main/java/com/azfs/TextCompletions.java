@@ -16,8 +16,8 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.BindingName;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
-import com.microsoft.azure.functions.openai.annotation.TextCompletion;
-import com.microsoft.azure.functions.openai.annotation.TextCompletionResponse;
+import com.microsoft.azure.functions.openai.annotation.textcompletion.TextCompletion;
+import com.microsoft.azure.functions.openai.annotation.textcompletion.TextCompletionResponse;
 /**
   * These samples show how to use the OpenAI Chat Completions API for Text Completion. For more details on the Completions APIs, see
   * https://platform.openai.com/docs/guides/text-generation/chat-completions-vs-completions.

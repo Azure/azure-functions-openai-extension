@@ -23,12 +23,6 @@ public class AssistantState
     public bool Exists { get; set; }
 
     /// <summary>
-    /// Gets status of assistant. Options are Uninitialzied, Active, or Expired.
-    /// </summary>
-    [JsonPropertyName("status")]
-    public string? Status { get; set; }
-
-    /// <summary>
     /// Gets timestamp of when assistant is created.
     /// </summary>
     [JsonPropertyName("createdAt")]

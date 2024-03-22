@@ -31,7 +31,8 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
     If using environment variables, Learn more in [.env readme](./env/README.md).
     1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
-* The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
+* The target language runtime (e.g. .NET, Node.js, PowerShell, Python, Java etc.) installed on your machine
+* For the Java runtime, use Java versions 8, 11, 17 or 21 and Apache maven 3.0 or above.
 
 ## Features
 

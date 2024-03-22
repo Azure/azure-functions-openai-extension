@@ -16,19 +16,17 @@ import java.util.List;
 public class AssistantState {
     private String id;
     private boolean exists;
-    private String status;
     private String createdAt;
     private String lastUpdatedAt;
     private int totalMessages;
     private int totalTokens;
     private List<ChatMessage> recentMessages;
 
-    public AssistantState(String id, boolean exists, String status,
+    public AssistantState(String id, boolean exists,
                         String createdAt, String lastUpdatedAt,
                         int totalMessages, int totalTokens, List<ChatMessage> recentMessages) {
         this.id = id;
         this.exists = exists;
-        this.status = status;
         this.createdAt = createdAt;
         this.lastUpdatedAt = lastUpdatedAt;
         this.totalMessages = totalMessages;
@@ -36,7 +34,7 @@ public class AssistantState {
         this.recentMessages = recentMessages;
     }
 
-	/**
+    /**
      * Gets the ID of the assistant.
      * 
      * @return The ID of the assistant.
@@ -52,15 +50,6 @@ public class AssistantState {
      */
     public boolean isExists() {
         return exists;
-    }
-
-    /**
-     * Gets status of assistant. Options are Uninitialzied, Active, or Expired.
-     * 
-     * @return The status of the assistant.
-     */
-    public String getStatus() {
-        return status;
     }
 
     /**
@@ -124,15 +113,6 @@ public class AssistantState {
      */
     public void setExists(boolean exists) {
         this.exists = exists;
-    }
-
-    /**
-     * Sets status of assistant. Options are Uninitialzied, Active, or Expired.
-     * 
-     * @param status The status of the assistant.
-     */
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     /**

@@ -79,8 +79,6 @@ public class ChatBot {
         @BindingName("chatId") String chatId,        
         @AssistantQuery(name = "ChatBotState", id = "{chatId}", timestampUtc = "{Query.timestampUTC}") AssistantState state,
         final ExecutionContext context) {
-            JSONObject response = new JSONObject();
-            response.put("state", state);
             return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
                 .body(state)

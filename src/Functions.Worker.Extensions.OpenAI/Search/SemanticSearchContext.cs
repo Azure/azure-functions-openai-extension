@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Azure;
 using Azure.AI.OpenAI;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 public class SemanticSearchContext

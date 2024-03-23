@@ -60,7 +60,7 @@ public class SemanticSearchOutputAttribute : OutputBindingAttribute
     /// <remarks>
     /// This property supports binding expressions.
     /// </remarks>
-    public string ChatModel { get; set; } = OpenAIModels.Gpt_35_Turbo;
+    public string ChatModel { get; set; } = OpenAIModels.DefaultChatModel;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.

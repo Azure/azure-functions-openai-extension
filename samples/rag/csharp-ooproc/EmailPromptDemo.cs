@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 using Microsoft.Azure.Functions.Worker.Http;
 

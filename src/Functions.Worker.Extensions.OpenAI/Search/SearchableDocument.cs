@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embedding;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 

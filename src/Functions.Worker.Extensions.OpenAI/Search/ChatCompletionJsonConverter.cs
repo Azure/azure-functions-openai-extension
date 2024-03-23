@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
-using Newtonsoft.Json.Linq;
 
 namespace WebJobs.Extensions.OpenAI.Search;
 public class ChatCompletionsJsonConverter : JsonConverter<ChatCompletions>

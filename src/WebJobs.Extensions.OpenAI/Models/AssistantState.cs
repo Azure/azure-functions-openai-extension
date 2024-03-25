@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Newtonsoft.Json;
@@ -40,12 +40,6 @@ public class AssistantState
     /// </summary>
     [JsonProperty("exists")]
     public bool Exists { get; set; }
-
-    /// <summary>
-    /// Gets status of assistant. Options are Uninitialzied, Active, or Expired.
-    /// </summary>
-    [JsonProperty("status")]
-    public string? Status { get; set; }
 
     /// <summary>
     /// Gets timestamp of when assistant is created.

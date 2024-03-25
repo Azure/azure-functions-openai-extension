@@ -2,7 +2,11 @@
 
 ## Prerequisites
 
-Please refer to the root level [README](../../../README.md#requirements) for prerequisites.
+The sample is available in the following language stacks:
+
+* [C# on the in process worker](csharp-inproc/)
+
+Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
 ## Running the sample
 
@@ -11,6 +15,18 @@ This sample requires creating a Kusto cluster and database. You can do this by f
 Once you have a Kusto cluster and database, you can run the sample by following these steps:
 
 1. Update the `KustoConnectionString` value in `local.settings.json` to match your Kusto cluster and database names.
+1. Always configure the search provider type in the `host.json` as shown in below snippet.
+
+    ```json
+    "extensions": {
+        "openai": {
+            "searchProvider": {
+                "type": "kusto"
+            }
+        }
+    }
+    ```
+
 1. Run the following command in [Azure Data Explorer](https://dataexplorer.azure.com/), in the context of your new Kusto database, to create a "Documents" table in your Kusto database. This is where the ingest function will save embeddings.
 
     ```sh
@@ -26,9 +42,10 @@ Once you have a Kusto cluster and database, you can run the sample by following 
 1. Build and start the app
 
     ```sh
-    dotnet build && cd bin/debug/net6.0 && func start
+    func start
     ```
 
+1. Refer the [demo.http](demo.http) file for the format of requests.
 1. Send an HTTP POST request to ingest a text file. You can do this multiple times with different files if you like.
 
     ```http

@@ -5,7 +5,7 @@ using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 /// <summary>
 /// Input binding attribute for converting function trigger input into OpenAI embeddings.
@@ -33,6 +33,9 @@ public sealed class EmbeddingsAttribute : Attribute
     /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
+    /// <remarks>
+    /// Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
+    /// </remarks>
     [AutoResolve]
     public string Model { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 

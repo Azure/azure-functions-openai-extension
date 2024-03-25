@@ -8,8 +8,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using WebJobs.Extensions.OpenAI;
-using WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
@@ -221,7 +219,7 @@ class DefaultAssistantService : IAssistantService
         // Add the chat message to the batch
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
 
-        string deploymentName = request.Model ?? OpenAIModels.Gpt_35_Turbo;
+        string deploymentName = request.Model ?? OpenAIModels.DefaultChatModel;
         IList<ChatCompletionsFunctionToolDefinition>? functions = this.skillInvoker.GetFunctionsDefinitions();
 
         // We loop if the model returns function calls. Otherwise, we break after receiving a response.

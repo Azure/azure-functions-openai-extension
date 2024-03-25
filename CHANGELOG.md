@@ -7,9 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.13.0 - Unreleased
 
+### Added
+
+- Added dotnet-isolated support for Embeddings
+- Added Azure AI Search support for Semantic Search.
+
 ### Breaking changes
 
 - Changed default embeddings model from `text-embedding-ada-002` to `text-embedding-3-small`
+
+### Changes
+
+- Azure.AI.OpenAI package updated to 1.0.0-beta.15
 
 ## v0.12.0 - 2024/03/01
 

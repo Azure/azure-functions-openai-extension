@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
+
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 /// <summary>
@@ -8,6 +10,11 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 /// </summary>
 public interface ISearchProvider
 {
+    /// <summary>
+    /// Name of the Search Provider.
+    /// </summary>
+    string Name { get; }
+
     /// <summary>
     /// Adds a document to a search provider index.
     /// </summary>
@@ -31,7 +38,7 @@ public record SearchableDocument(
     public ConnectionInfo? ConnectionInfo { get; set; }
 }
 
-public record ConnectionInfo(string ConnectionName, string CollectionName);
+public record ConnectionInfo(string ConnectionName, string CollectionName, string? Credentials);
 
 public record SearchRequest(
     string Query,

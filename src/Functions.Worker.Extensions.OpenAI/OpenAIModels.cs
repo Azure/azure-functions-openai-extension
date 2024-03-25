@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
 
 static class OpenAIModels
 {

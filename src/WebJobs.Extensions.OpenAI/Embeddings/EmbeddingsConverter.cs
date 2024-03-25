@@ -17,7 +17,7 @@ class EmbeddingsConverter :
     // Note: we need this converter as Azure.AI.OpenAI does not support System.Text.Json serialization since their constructors are internal
     static readonly JsonSerializerOptions options = new()
     {
-        Converters = { new EmbeddingsJsonConverter() }
+        Converters = { new EmbeddingsContextConverter() }
     };
 
     public EmbeddingsConverter(OpenAISDK.OpenAIClient openAIClient, ILoggerFactory loggerFactory)

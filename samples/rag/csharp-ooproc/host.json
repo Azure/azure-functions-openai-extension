@@ -1,5 +1,5 @@
 {
-    "version": "2.0",
+  "version": "2.0",
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
@@ -12,6 +12,13 @@
     "Host.Results": "Trace",
     "Function": "Trace",
     "Host.Aggregator": "Trace",
-    "Worker":  "Trace"
+    "Worker": "Trace"
+  },
+  "extensions": {
+    "openai": {
+      "searchProvider": {
+        "type": "kusto"
+      }
+    }
   }
 }

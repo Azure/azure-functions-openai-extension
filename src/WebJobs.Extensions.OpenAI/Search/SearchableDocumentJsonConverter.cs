@@ -5,10 +5,10 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text;
-using Azure.AI.OpenAI;
+using OpenAISDK = Azure.AI.OpenAI;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
@@ -19,12 +19,13 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         using JsonDocument jsonDocument = JsonDocument.ParseValue(ref reader);
 
         // Properties for SearchableDocument
-        EmbeddingsOptions embeddingsOptions = null;
-        Embeddings embeddings = null;
+        OpenAISDK.EmbeddingsOptions embeddingsOptions = null;
+        OpenAISDK.Embeddings embeddings = null;
         int count;
         string title = null;
         string connectionName = null;
         string collectionName = null;
+        string credentials = null;
 
         foreach (JsonProperty item in jsonDocument.RootElement.EnumerateObject())
         {
@@ -34,11 +35,11 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
                 {
                     if (embeddingContextItem.NameEquals("request"u8))
                     {
-                        embeddingsOptions = ModelReaderWriter.Read<EmbeddingsOptions>(BinaryData.FromString(embeddingContextItem.Value.GetRawText()))!;
+                        embeddingsOptions = ModelReaderWriter.Read<OpenAISDK.EmbeddingsOptions>(BinaryData.FromString(embeddingContextItem.Value.GetRawText()))!;
                     }
                     if (embeddingContextItem.NameEquals("response"u8))
                     {
-                        embeddings = ModelReaderWriter.Read<Embeddings>(BinaryData.FromString(embeddingContextItem.Value.GetRawText()))!;
+                        embeddings = ModelReaderWriter.Read<OpenAISDK.Embeddings>(BinaryData.FromString(embeddingContextItem.Value.GetRawText()))!;
                     }
                     if (embeddingContextItem.NameEquals("count"u8))
                     {
@@ -58,6 +59,10 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
                     {
                         collectionName = connectionInfoItem.Value.GetString();
                     }
+                    if (connectionInfoItem.NameEquals("credentials"u8))
+                    {
+                        credentials = connectionInfoItem.Value.GetString();
+                    }
                 }
             }
 
@@ -67,7 +72,7 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
             }
         }
         SearchableDocument searchableDocument = new SearchableDocument(title, new EmbeddingsContext(embeddingsOptions, embeddings));
-        searchableDocument.ConnectionInfo = new ConnectionInfo(connectionName, collectionName);
+        searchableDocument.ConnectionInfo = new ConnectionInfo(connectionName, collectionName, credentials);
         return searchableDocument;
     }
 
@@ -79,10 +84,10 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WriteStartObject();
 
         writer.WritePropertyName("request"u8);
-        ((IJsonModel<EmbeddingsOptions>)value.Embeddings.Request).Write(writer, modelReaderWriterOptions);
+        ((IJsonModel<OpenAISDK.EmbeddingsOptions>)value.Embeddings.Request).Write(writer, modelReaderWriterOptions);
 
         writer.WritePropertyName("response"u8);
-        ((IJsonModel<Embeddings>)value.Embeddings.Response).Write(writer, modelReaderWriterOptions);
+        ((IJsonModel<OpenAISDK.Embeddings>)value.Embeddings.Response).Write(writer, modelReaderWriterOptions);
 
         writer.WritePropertyName("count"u8);
         writer.WriteNumberValue(value.Embeddings.Count);
@@ -110,6 +115,17 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         else
         {
             writer.WriteStringValue(value.ConnectionInfo.CollectionName);
+        }
+
+        writer.WritePropertyName("credentials"u8);
+
+        if (value.ConnectionInfo == null)
+        {
+            writer.WriteNullValue();
+        }
+        else
+        {
+            writer.WriteStringValue(value.ConnectionInfo.Credentials);
         }
         writer.WriteEndObject();
 

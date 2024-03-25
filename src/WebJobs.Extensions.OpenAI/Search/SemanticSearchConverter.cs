@@ -5,7 +5,6 @@ using System.Text;
 using Azure;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embedding;
 using System.Text.Json;
 using WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Options;
@@ -26,7 +25,7 @@ class SemanticSearchConverter :
     {
         Converters = { 
             new SearchableDocumentJsonConverter(),
-            new EmbeddingsJsonConverter(),
+            new EmbeddingsContextConverter(),
             new EmbeddingsOptionsJsonConverter(),
             new ChatCompletionsJsonConverter()}
         };

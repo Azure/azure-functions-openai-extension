@@ -418,3 +418,7 @@ bin
 obj
 appsettings.json
 local.settings.json
+
+# Java files
+target/
+.idea/

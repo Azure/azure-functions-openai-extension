@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+  <groupId>com.microsoft.azure.functions</groupId>
+	<artifactId>azure-functions-java-library-openai</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+	
+  <parent>
+		<groupId>com.microsoft.maven</groupId>
+		<artifactId>java-8-parent</artifactId>
+		<version>8.0.1</version>
+	</parent>
+
+	<name>Microsoft Azure Functions Java Libary for OpenAI</name>
+	<description>This package contains all Java interfaces and annotations to interact with Microsoft Azure functions java runtime.</description>
+	<url>https://azure.microsoft.com/en-us/services/functions</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>https://opensource.org/licenses/MIT</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<connection>scm:git:https://github.com/Azure/azure-functions-openai-extension</connection>
+		<developerConnection>scm:git:git@github.com:Azure/azure-functions-openai-extension</developerConnection>
+		<url>https://github.com/Azure/azure-functions-openai-extension</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<developers>
+		<developer>
+			<id>amamounelsayed</id>
+			<name>Ahmed El Sayed</name>
+			<email>ahelsaye@microsoft.com</email>
+		</developer>
+		<developer>
+			<id>shreyas-gopalakrishna</id>
+			<name>Shreyas Gopalakrishna</name>
+			<email>shreyasg@microsoft.com</email>
+		</developer>
+		<developer>
+			<id>kamperiadis</id>
+			<name>Kirstyn Joy Amperiadis</name>
+			<email>kamperiadis@microsoft.com</email>
+		</developer>
+	</developers>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<name>Sonatype Snapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<uniqueVersion>true</uniqueVersion>
+			<layout>default</layout>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<repositories>
+		<repository>
+			<id>maven.snapshots</id>
+			<name>Maven Central Snapshot Repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.microsoft.azure.functions</groupId>
+			<artifactId>azure-functions-java-library</artifactId>
+			<version>3.1.0</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.0.0-M2</version>
+				<executions>
+					<execution>
+						<id>enforce-maven</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.2.0</version>
+								</requireMavenVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<workingDirectory>${project.build.directory}</workingDirectory>
+					<systemProperties>
+						<property>
+							<name>testing-project-jar</name>
+							<value>${project.artifactId}-${project.version}-tests.jar</value>
+						</property>
+					</systemProperties>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -76,7 +76,7 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 Additionally, if you want to run the sample with Cosmos DB, then you must also do the following:
 
 * Install the [Azure Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator), or get a connection string to a real Azure Cosmos DB resource.
-* Uncomment the `CosmosDbConnectionString` setting in the `local.settings.json` file and configure it with the connection string to your Cosmos DB resource (local or Azure).
+* Update the `CosmosDbConnectionString` setting in the `local.settings.json` file and configure it with the connection string to your Cosmos DB resource (local or Azure).
 
 Also note that the storage of chat history is done via table storage. You may configure the `host.json` file within the project to be as follows:
 
@@ -184,7 +184,6 @@ Also note that the storage of chat history is done via table storage. You may co
     {
       "id": "assistant123",
       "exists": true,
-      "status": "Active",
       "createdAt": "2023-11-26T00:40:56.7864809Z",
       "lastUpdatedAt": "2023-11-26T00:41:21.0153489Z",
       "totalMessages": 10,

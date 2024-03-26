@@ -56,7 +56,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticSearchEmbeddings", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-ooproc\AssistantSample\AssistantSample.csproj", "{8573FE76-9920-4A95-9D29-911FD6B0AB25}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.AzureAISearch", "src\WebJobs.Extensions.OpenAI.AISearch\WebJobs.Extensions.OpenAI.AzureAISearch.csproj", "{32196912-898F-428E-94EF-4C2333367977}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.AzureAISearch", "src\WebJobs.Extensions.OpenAI.AzureAISearch\WebJobs.Extensions.OpenAI.AzureAISearch.csproj", "{32196912-898F-428E-94EF-4C2333367977}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.Kusto", "src\WebJobs.Extensions.OpenAI.Kusto\WebJobs.Extensions.OpenAI.Kusto.csproj", "{346BE57C-341F-4EF4-A81A-BAC9D2F5B938}"
 EndProject

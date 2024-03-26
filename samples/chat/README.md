@@ -103,7 +103,6 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     {
       "id": "test123",
       "exists": true,
-      "status": "Active",
       "createdAt": "2024-01-15T22:33:15.0664078Z",
       "lastUpdatedAt": "2024-01-15T22:33:45.5591906Z",
       "totalMessages": 3,
@@ -151,7 +150,6 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     {
       "id": "test123",
       "exists": true,
-      "status": "Active",
       "createdAt": "2024-01-15T22:33:15.0664078Z",
       "lastUpdatedAt": "2024-01-15T22:36:32.3760309Z",
       "totalMessages": 5,

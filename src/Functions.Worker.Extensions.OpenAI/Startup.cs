@@ -6,9 +6,8 @@ using Microsoft.Azure.Functions.Worker.Core;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI;
-using Functions.Worker.Extensions.OpenAI.Search;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
-using WebJobs.Extensions.OpenAI.Search;
 
 [assembly: WorkerExtensionStartup(typeof(Startup))]
 

@@ -9,7 +9,6 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Azure.WebJobs.Host.Config;
 using Newtonsoft.Json.Linq;
-using WebJobs.Extensions.OpenAI.Search;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 

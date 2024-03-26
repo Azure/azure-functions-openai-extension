@@ -4,7 +4,7 @@
 
 The sample is available in the following language stacks:
 
-* [C# on the in process worker](csharp-inproc/)
+* [C# on the out of process worker](csharp-ooproc/)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

@@ -6,8 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 
-namespace WebJobs.Extensions.OpenAI.Search;
-public class EmbeddingsOptionsJsonConverter : JsonConverter<EmbeddingsOptions>
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
+class EmbeddingsOptionsJsonConverter : JsonConverter<EmbeddingsOptions>
 {
     static readonly ModelReaderWriterOptions modelReaderWriterOptions = new("J");
     public override EmbeddingsOptions Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

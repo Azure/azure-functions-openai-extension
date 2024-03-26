@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 
+/// <summary>
+/// Searchable document containing the title and embeddings context.
+/// </summary>
 public class SearchableDocument
 {
     public SearchableDocument(string title, EmbeddingsContext embeddingsContext)

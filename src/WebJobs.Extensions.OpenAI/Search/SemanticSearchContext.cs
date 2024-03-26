@@ -4,7 +4,7 @@
 using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
-namespace WebJobs.Extensions.OpenAI.Search;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 public class SemanticSearchContext
 {
     /// <summary>

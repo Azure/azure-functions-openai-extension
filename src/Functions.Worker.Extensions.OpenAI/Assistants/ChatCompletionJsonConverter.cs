@@ -1,15 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.AI.OpenAI;
 
-namespace WebJobs.Extensions.OpenAI.Search;
+namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 public class ChatCompletionsJsonConverter : JsonConverter<ChatCompletions>
 {
     static readonly ModelReaderWriterOptions modelReaderWriterOptions = new("J");

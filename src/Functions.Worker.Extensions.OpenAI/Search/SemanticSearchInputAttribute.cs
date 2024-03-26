@@ -6,7 +6,7 @@ using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 
 /// <summary>
-/// Binding attribute for semantic search (input bindings) and semantic document storage (output bindings).
+/// Binding attribute for semantic search (input bindings).
 /// </summary>
 public class SemanticSearchInputAttribute : InputBindingAttribute
 {
@@ -42,6 +42,16 @@ public class SemanticSearchInputAttribute : InputBindingAttribute
     /// This property supports binding expressions.
     /// </remarks>
     public string Collection { get; set; }
+
+    /// <summary>
+    /// The name of the app setting or environment variable containing the required credentials 
+    /// for authenticating with the search provider. See the documentation for the search provider
+    /// extension to know what format the underlying credential value requires.
+    /// </summary>
+    /// <remarks>
+    /// This property supports binding expressions.
+    /// </remarks>
+    public string? CredentialSettingName { get; set; }
 
     /// <summary>
     /// Gets or sets the semantic query text to use for searching.

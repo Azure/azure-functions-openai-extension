@@ -1,10 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
@@ -23,8 +19,14 @@ public class SemanticSearchContext
         
     }
 
+    /// <summary>
+    /// Gets the embeddings context associated with the semantic search.
+    /// </summary>
     public EmbeddingsContext Embeddings { get; }
 
+    /// <summary>
+    /// Gets the chat response from the large language model.
+    /// </summary>
     public ChatCompletions Chat { get; }
 
     

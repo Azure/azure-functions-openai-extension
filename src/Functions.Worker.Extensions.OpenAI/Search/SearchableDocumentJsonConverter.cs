@@ -13,8 +13,7 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
     static readonly ModelReaderWriterOptions modelReaderWriterOptions = new("J");
     public override SearchableDocument Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        using JsonDocument jsonDocument = JsonDocument.ParseValue(ref reader);
-        return new SearchableDocument("lol", null);
+        throw new NotImplementedException();
     }
 
     public override void Write(Utf8JsonWriter writer, SearchableDocument value, JsonSerializerOptions options)
@@ -50,6 +49,10 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WritePropertyName("collectionName"u8);
 
         if (value.ConnectionInfo == null)
+        {
+            writer.WriteNullValue();
+        }
+        else if (value.ConnectionInfo.CollectionName == null)
         {
             writer.WriteNullValue();
         }

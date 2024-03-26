@@ -1,11 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Azure.AI.OpenAI;
-using Azure;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 namespace WebJobs.Extensions.OpenAI.Search;

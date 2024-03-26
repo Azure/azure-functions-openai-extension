@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added dotnet-isolated support for Embeddings
 - Added Azure AI Search support for Semantic Search.
+- Added dotnet-isolated support for Semantic Search.
 
 ### Breaking changes
 

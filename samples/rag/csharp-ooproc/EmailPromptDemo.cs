@@ -1,18 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace CSharpInProcSamples.Demos;
+namespace SemanticSearchEmbeddings;
 
 public class EmailPromptDemo
 {
@@ -39,9 +37,16 @@ public class EmailPromptDemo
         string request = await reader.ReadToEndAsync();
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
+
+        if (requestBody == null)
+        {
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"filePath\": value } as the request body.");
+        }
+
         string title = Path.GetFileNameWithoutExtension(requestBody.FilePath);
 
-        var response = new OkObjectResult(new { status = "success", title, chunks = embeddings.Count });
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(new { status = "success", title, chunks = embeddings.Count });
 
         return new SemanticSearchOutputResponse
         {
@@ -55,7 +60,7 @@ public class EmailPromptDemo
         [SemanticSearchOutput("KustoConnectionString", "Documents", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public SearchableDocument SearchableDocument { get; set; }
 
-        public IActionResult? HttpResponse { get; set; }
+        public HttpResponseData? HttpResponse { get; set; }
     }
 
     [Function("PromptEmail")]

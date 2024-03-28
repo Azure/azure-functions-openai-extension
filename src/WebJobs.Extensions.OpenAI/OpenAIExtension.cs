@@ -53,8 +53,10 @@ partial class OpenAIExtension : IExtensionConfigProvider
         // Semantic search input binding support
         var semanticSearchRule = context.AddBindingRule<SemanticSearchAttribute>();
         semanticSearchRule.BindToInput<SemanticSearchContext>(this.semanticSearchConverter);
+        semanticSearchRule.BindToInput<string>(this.semanticSearchConverter);
         // TODO: Add string binding support to enable binding in non-.NET languages.
         semanticSearchRule.BindToCollector<SearchableDocument>(this.semanticSearchConverter);
+        context.AddConverter<string, SearchableDocument>(this.semanticSearchConverter.ToSearchableDocument);
 
         // Assistant support
         var chatBotCreateRule = context.AddBindingRule<AssistantCreateAttribute>();

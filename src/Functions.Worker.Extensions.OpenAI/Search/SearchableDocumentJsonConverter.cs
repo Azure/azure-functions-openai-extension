@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
-using OpenAISDK = Azure.AI.OpenAI;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OpenAISDK = Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
+
 class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
 {
     static readonly ModelReaderWriterOptions modelReaderWriterOptions = new("J");

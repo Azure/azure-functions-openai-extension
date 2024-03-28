@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<Description>Microsoft Azure WebJobs SDK Extension for OpenAI - Azure AI Search Package.</Description>
+  <PropertyGroup>
+    <Description>Microsoft Azure WebJobs SDK Extension for OpenAI - Azure AI Search Package.</Description>
     <Version>$(AzureAISearchVersion)</Version>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Azure.Search.Documents" Version="11.5.1" />
-		<PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-	</ItemGroup>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Azure.Search.Documents" Version="11.5.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
+  </ItemGroup>
 
 </Project>

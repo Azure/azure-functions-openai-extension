@@ -5,6 +5,10 @@ using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
+
+/// <summary>
+/// Input binding target for the <see cref="SemanticSearchAttribute"/>.
+/// </summary>
 public class SemanticSearchContext
 {
     /// <summary>
@@ -19,8 +23,14 @@ public class SemanticSearchContext
 
     }
 
+    /// <summary>
+    /// Embeddings context that contains embedings request and response from OpenAI for searchable document.
+    /// </summary>
     public EmbeddingsContext Embeddings { get; }
 
+    /// <summary>
+    /// Chat response from the chat completions request.
+    /// </summary>
     public ChatCompletions Chat { get; }
 
 

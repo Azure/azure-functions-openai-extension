@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text;
 using Azure;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using Microsoft.Extensions.Options;
 using OpenAISDK = Azure.AI.OpenAI;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 

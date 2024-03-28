@@ -57,7 +57,7 @@ public class EmailPromptDemo
 
     public class SemanticSearchOutputResponse
     {
-        [SemanticSearchOutput("KustoConnectionString", "Documents", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [SemanticSearchOutput("KustoConnectionString", "Documents", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public SearchableDocument SearchableDocument { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }

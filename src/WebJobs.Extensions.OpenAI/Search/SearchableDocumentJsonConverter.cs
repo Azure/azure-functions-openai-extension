@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using System.ClientModel.Primitives;
-using OpenAISDK = Azure.AI.OpenAI;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
+using OpenAISDK = Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>

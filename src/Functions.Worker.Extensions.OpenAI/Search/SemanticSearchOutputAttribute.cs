@@ -64,15 +64,6 @@ public class SemanticSearchOutputAttribute : OutputBindingAttribute
     public string EmbeddingsModel { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 
     /// <summary>
-    /// Gets or sets the name of the Large Language Model to invoke for chat responses.
-    /// The default value is "gpt-3.5-turbo".
-    /// </summary>
-    /// <remarks>
-    /// This property supports binding expressions.
-    /// </remarks>
-    public string ChatModel { get; set; } = OpenAIModels.DefaultChatModel;
-
-    /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.
     /// </summary>
     /// <remarks>

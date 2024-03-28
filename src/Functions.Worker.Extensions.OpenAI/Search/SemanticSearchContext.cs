@@ -5,6 +5,10 @@ using Azure.AI.OpenAI;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
+
+/// <summary>
+/// Input binding target for semantic search.
+/// </summary>
 public class SemanticSearchContext
 {
     /// <summary>

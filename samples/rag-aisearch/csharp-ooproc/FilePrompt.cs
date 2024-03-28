@@ -57,7 +57,7 @@ public static class FilePrompt
 
     public class SemanticSearchOutputResponse
     {
-        [SemanticSearchOutput("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [SemanticSearchOutput("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public SearchableDocument SearchableDocument { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }

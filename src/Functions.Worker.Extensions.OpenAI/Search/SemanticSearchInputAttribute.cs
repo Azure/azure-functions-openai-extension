@@ -79,4 +79,33 @@ public class SemanticSearchInputAttribute : InputBindingAttribute
     /// This property supports binding expressions.
     /// </remarks>
     public string ChatModel { get; set; } = OpenAIModels.DefaultChatModel;
+
+    /// <summary>
+    /// Gets or sets the system prompt to use for prompting the large language model.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The system prompt will be appended with knowledge that is fetched as a result of the <see cref="Query"/>.
+    /// The combined prompt will then be sent to the OpenAI Chat API.
+    /// </para><para>
+    /// This property supports binding expressions.
+    /// </para>
+    /// </remarks>
+    public string SystemPrompt { get; set; } = """
+        You are a helpful assistant. You are responding to requests from a user about internal emails and documents.
+        You can and should refer to the internal documents to help respond to requests. If a user makes a request that's
+        not covered by the internal emails and documents, explain that you don't know the answer or that you don't have
+        access to the information.
+
+        The following is a list of documents that you can refer to when answering questions. The documents are in the format
+        [filename]: [text] and are separated by newlines. If you answer a question by referencing any of the documents,
+        please cite the document in your answer. For example, if you answer a question by referencing info.txt,
+        you should add "Reference: info.txt" to the end of your answer on a separate line.
+
+        """;
+
+    /// <summary>
+    /// Gets or sets the number of knowledge items to inject into the <see cref="SystemPrompt"/>.
+    /// </summary>
+    public int MaxKnowledgeCount { get; set; } = 1;
 }

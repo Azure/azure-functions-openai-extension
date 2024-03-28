@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace SemanticAISearchEmbeddings;
 

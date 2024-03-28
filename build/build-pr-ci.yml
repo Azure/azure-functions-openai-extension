@@ -74,7 +74,7 @@ steps:
 
       sleep 10s
 
-      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion)
+      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion)
     displayName: Create/Copy NuGet Package to local directory and Build
 
   - script: dotnet test --configuration $(config) --no-build --verbosity normal

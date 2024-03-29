@@ -159,7 +159,7 @@ class SemanticSearchConverter :
 
         public Task AddAsync(SearchableDocument item, CancellationToken cancellationToken = default)
         {
-            if (item.ConnectionInfo == null || item.ConnectionInfo.CollectionName == null || item.ConnectionInfo.ConnectionName == null)
+            if (item.ConnectionInfo == null || item.ConnectionInfo.CollectionName == null || item.ConnectionInfo.CollectionName == null)
             {
                 item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection, this.attribute.CredentialSettingName);
             }

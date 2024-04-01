@@ -69,9 +69,9 @@ steps:
 
       sleep 10s
       
-      ls ~
+      ls ~/../..
 
-      dotnet nuget add source ~/NuGetPackagesLocal --configfile ~/etc/opt/NuGet/Config
+      dotnet nuget add source ~/NuGetPackagesLocal --configfile ~/../../etc/opt/NuGet/Config
       dotnet nuget list source
 
       sleep 10s

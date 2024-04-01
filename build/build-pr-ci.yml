@@ -70,7 +70,7 @@ steps:
       sleep 10s
       ls ~/.nuget/NuGet
 
-      dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/Config
+      dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/NuGet.Config
       dotnet nuget list source
 
       sleep 10s

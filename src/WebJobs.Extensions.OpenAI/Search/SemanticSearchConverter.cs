@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text;
 using Azure;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,26 +12,23 @@ using OpenAISDK = Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
-/// <summary>
-/// Input binding target for the <see cref="SemanticSearchAttribute"/>.
-/// </summary>
-/// <param name="Embeddings">The embeddings context associated with the semantic search.</param>
-/// <param name="Chat">The chat response from the large language model.</param>
-public record SemanticSearchContext(EmbeddingsContext Embeddings, Response<OpenAISDK.ChatCompletions> Chat)
-{
-    /// <summary>
-    /// Gets the latest response message from the OpenAI Chat API.
-    /// </summary>
-    public string Response => this.Chat.Value.Choices.Last().Message.Content;
-}
-
 class SemanticSearchConverter :
     IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>,
-    IAsyncConverter<SemanticSearchAttribute, IAsyncCollector<SearchableDocument>>
+    IAsyncConverter<SemanticSearchAttribute, IAsyncCollector<SearchableDocument>>,
+    IAsyncConverter<SemanticSearchAttribute, string>
 {
     readonly OpenAISDK.OpenAIClient openAIClient;
     readonly ILogger logger;
     readonly ISearchProvider? searchProvider;
+
+    static readonly JsonSerializerOptions options = new()
+    {
+        Converters = { 
+            new SearchableDocumentJsonConverter(),
+            new EmbeddingsContextConverter(),
+            new EmbeddingsOptionsJsonConverter(),
+            new ChatCompletionsJsonConverter()}
+        };
 
     public SemanticSearchConverter(
         OpenAISDK.OpenAIClient openAIClient,
@@ -60,7 +59,7 @@ class SemanticSearchConverter :
         return Task.FromResult(collector);
     }
 
-    async Task<SemanticSearchContext> IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>.ConvertAsync(
+    async Task<SemanticSearchContext> ConvertHelperAsync(
         SemanticSearchAttribute attribute,
         CancellationToken cancellationToken)
     {
@@ -126,6 +125,27 @@ class SemanticSearchConverter :
         return new SemanticSearchContext(new EmbeddingsContext(embeddingsRequest, embeddingsResponse), chatResponse);
     }
 
+    async Task<SemanticSearchContext> IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>.ConvertAsync(
+        SemanticSearchAttribute attribute,
+        CancellationToken cancellationToken)
+    {
+        return await this.ConvertHelperAsync(attribute, cancellationToken);
+    }
+
+    // Called by the host when processing binding requests from out-of-process workers.
+    internal SearchableDocument ToSearchableDocument(string json)
+    {
+        this.logger.LogDebug("Creating searchable document from JSON string: {Text}", json);
+        SearchableDocument document = JsonSerializer.Deserialize<SearchableDocument>(json, options);
+        return document ?? throw new ArgumentException("Invalid assistant post request");
+    }
+
+    async Task<string> IAsyncConverter<SemanticSearchAttribute, string>.ConvertAsync(SemanticSearchAttribute input, CancellationToken cancellationToken)
+    {
+        SemanticSearchContext semanticSearchContext = await this.ConvertHelperAsync(input, cancellationToken);
+        return JsonSerializer.Serialize(semanticSearchContext, options);
+    }
+
     sealed class SemanticDocumentCollector : IAsyncCollector<SearchableDocument>
     {
         readonly SemanticSearchAttribute attribute;
@@ -139,7 +159,7 @@ class SemanticSearchConverter :
 
         public Task AddAsync(SearchableDocument item, CancellationToken cancellationToken = default)
         {
-            if (item.ConnectionInfo == null)
+            if (item.ConnectionInfo == null || item.ConnectionInfo.CollectionName == null || item.ConnectionInfo.CollectionName == null)
             {
                 item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection, this.attribute.CredentialSettingName);
             }

@@ -69,7 +69,7 @@ steps:
 
       sleep 10s
 
-      nuget config -set repositoryPath=~/NuGetPackagesLocal -configfile $(System.DefaultWorkingDirectory)/nuget.config"
+      nuget config -set repositoryPath=~/NuGetPackagesLocal -configfile $(System.DefaultWorkingDirectory)/nuget.config
       
       dotnet nuget list source
 

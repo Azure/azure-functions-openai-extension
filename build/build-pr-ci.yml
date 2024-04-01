@@ -68,11 +68,8 @@ steps:
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
 
       sleep 10s
-
-      nuget config -set repositoryPath=~/NuGetPackagesLocal -configfile $(System.DefaultWorkingDirectory)/nuget.config
-      nuget config -set repositoryPath=~/NuGetPackagesLocal
-      nuget list
       
+      dotnet nuget add source ~/NuGetPackagesLocal --configfile /etc/opt/NuGet/Config
       dotnet nuget list source
 
       sleep 10s

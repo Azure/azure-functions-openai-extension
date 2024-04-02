@@ -18,7 +18,7 @@ RUN cd /root/samples/chat/csharp-ooproc && \
     dotnet publish --no-restore -c Release -o /home/site/wwwroot -p:WebJobsVersion=$testVersion -p:Version=$testVersion
 
 # The final image is based on the Azure Functions 4.0 runtime image
-FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4
+FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0
 
 # This is the standard setup for Azure Functions running in Docker containers
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \

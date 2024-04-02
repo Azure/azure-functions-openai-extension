@@ -36,7 +36,9 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 
     Functions:
 
-            (list of functions)
+        GenericCompletion: [POST] http://localhost:7071/api/GenericCompletion
+
+        WhoIs: [GET] http://localhost:7071/api/whois/{name}
     ```
 
 ## Running the "who is" Text Completion sample

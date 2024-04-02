@@ -41,7 +41,7 @@ public class TextCompletions {
         final ExecutionContext context) {
         return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
-            .body(response)
+            .body(response.getContent())
             .build();
     }
     
@@ -60,7 +60,7 @@ public class TextCompletions {
         final ExecutionContext context) {
         return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
-            .body(response)
+            .body(response.getContent())
             .build();
     }
 }

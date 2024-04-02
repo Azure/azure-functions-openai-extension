@@ -6,8 +6,6 @@
 
 package com.microsoft.azure.functions.openai.annotation.assistant;
 
-import java.time.LocalDateTime;
-
 /**
  * Assistant create request which is used to create a assistant.
  */
@@ -15,8 +13,7 @@ public class AssistantCreateRequest {
 
     private String id;
     private String instructions = "You are a helpful assistant.";
-    private LocalDateTime expiresAt;
-    
+
     public AssistantCreateRequest(String id) {
         this.id = id;
     }
@@ -59,28 +56,10 @@ public class AssistantCreateRequest {
     /**
      * Sets the instructions that are provided to assistant to follow.
      * 
-     * @param instructions The instructions that are provided to assistant to follow.
+     * @param instructions The instructions that are provided to assistant to
+     *                     follow.
      */
     public void setInstructions(String instructions) {
         this.instructions = instructions;
     }
-
-    /**
-     * Gets time when assistant request is set to expire
-     * 
-     * @return The time when assistant request is set to expire
-     */
-    public LocalDateTime getExpiresAt() {
-        return expiresAt;
-    }
-
-    /**
-     * Sets time when assistant request is set to expire
-     * 
-     * @param expiresAt The time when assistant request is set to expire
-     */
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
-    }   
-    
 }

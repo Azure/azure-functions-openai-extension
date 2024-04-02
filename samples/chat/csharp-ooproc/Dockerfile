@@ -13,8 +13,8 @@ RUN cd /root/samples/chat/csharp-ooproc && \
     mkdir ~/NuGetPackagesLocal && \
     dotnet build ../../../src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj -p:WebJobsVersion=$testVersion -p:Version=$testVersion && \
     cp "/root/src/WebJobs.Extensions.OpenAI/bin/Debug/Microsoft.Azure.WebJobs.Extensions.OpenAI.${testVersion}.nupkg" ~/NuGetPackagesLocal && \
-    dotnet nuget add source ~/NuGetPackagesLocal && \
-    dotnet build -c Release -p:WebJobsVersion=$testVersion -p:Version=$testVersion && \
+    dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/NuGet.Config && \
+    dotnet build -c Release -p:WebJobsVersion=$testVersion -p:Version=$testVersion --configfile ~/.nuget/NuGet/NuGet.Config && \
     dotnet publish --no-restore -c Release -o /home/site/wwwroot -p:WebJobsVersion=$testVersion -p:Version=$testVersion
 
 # The final image is based on the Azure Functions 4.0 runtime image

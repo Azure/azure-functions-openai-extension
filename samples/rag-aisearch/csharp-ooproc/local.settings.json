@@ -2,7 +2,7 @@
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "SearchAPIKey": "",
     "AISearchEndpoint": "https://<resource-name>.search.windows.net",
     "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",

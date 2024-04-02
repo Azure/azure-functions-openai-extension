@@ -15,6 +15,7 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 
 - Added dotnet-isolated support for Embeddings
 - Added support for multiple search providers.
+- Added dotnet-isolated support for Kusto and Azure AI Search RAG scenarios.
 
 ### Breaking changes
 

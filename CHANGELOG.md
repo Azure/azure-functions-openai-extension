@@ -24,6 +24,7 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 ### Changes
 
 - Azure.AI.OpenAI package updated to 1.0.0-beta.15
+- Updated Worker SDK package to 1.17.2 and updated csharp isolated samples to run on dotnet 8.
 
 ## v0.12.0 - 2024/03/01
 

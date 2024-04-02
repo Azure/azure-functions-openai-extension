@@ -19,6 +19,8 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
 )<br/>
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto)<br/>
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.svg?label=microsoft.azure.webjobs.extensions.openai.azureaisearch)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.functions.worker.extensions.openAI.kusto)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch.svg?label=microsoft.azure.functions.worker.extensions.openAI.azureAISearch)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch)
 
 ## Requirements
 
@@ -269,36 +271,60 @@ The semantic search feature allows you to import documents into a vector databas
 
  More may be added over time.
 
-#### [C# document storage example](./samples/rag-aisearch/csharp-inproc/FilePrompt.cs)
+#### [C# document storage example](./samples/rag-aisearch/csharp-ooproc/FilePrompt.cs)
 
 This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into an Azure AI Search Index.
 
 ```csharp
-public record EmbeddingsRequest(string FilePath);
-
-[FunctionName("IngestFile")]
-public static async Task<IActionResult> IngestFile(
-    [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-    [Embeddings("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
-    [SemanticSearch("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] IAsyncCollector<SearchableDocument> output)
+public class EmbeddingsRequest
 {
-    string title = Path.GetFileNameWithoutExtension(req.FilePath);
-    await output.AddAsync(new SearchableDocument(title, embeddings));
-    return new OkObjectResult(new { status = "success", title, chunks = embeddings.Count });
+    [JsonPropertyName("FilePath")]
+    public string? FilePath { get; set; }
+}
+
+[Function("IngestFile")]
+public static async Task<SemanticSearchOutputResponse> IngestFile(
+    [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
+    [EmbeddingsInput("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+{
+    using StreamReader reader = new(req.Body);
+    string request = await reader.ReadToEndAsync();
+
+    EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
+
+    if (requestBody == null)
+    {
+        throw new ArgumentException("Invalid request body. Make sure that you pass in {\"filePath\": value } as the request body.");
+    }
+
+    string title = Path.GetFileNameWithoutExtension(requestBody.FilePath);
+
+    HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+    await response.WriteAsJsonAsync(new { status = "success", title, chunks = embeddings.Count });
+
+    return new SemanticSearchOutputResponse
+    {
+        HttpResponse = response,
+        SearchableDocument = new SearchableDocument(title, embeddings)
+    };
 }
 ```
 
-#### [C# document query example](./samples/rag-aisearch/csharp-inproc/FilePrompt.cs)
+#### [C# document query example](./samples/rag-aisearch/csharp-ooproc/FilePrompt.cs)
 
 This HTTP trigger function takes a query prompt as input, pulls in semantically similar document chunks into a prompt, and then sends the combined prompt to OpenAI. The results are then made available to the function, which simply returns that chat response to the caller.
 
 ```csharp
-public record SemanticSearchRequest(string Prompt);
+public class SemanticSearchRequest
+{
+    [JsonPropertyName("Prompt")]
+    public string? Prompt { get; set; }
+}
 
-[FunctionName("PromptFile")]
+[Function("PromptFile")]
 public static IActionResult PromptFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+    [SemanticSearchInput("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -331,7 +357,7 @@ All samples in this project rely on default model selection, which assumes the m
 
 ```csharp
 // "gpt-35-turbo" is the name of an Azure OpenAI deployment
-[FunctionName(nameof(WhoIs))]
+[Function(nameof(WhoIs))]
 public static string WhoIs(
     [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequest req,
     [TextCompletion("Who is {name}?", Model = "gpt-35-turbo")] TextCompletionResponse response)
@@ -344,7 +370,7 @@ public static string WhoIs(
 public record SemanticSearchRequest(string Prompt);
 
 // "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-3-small models, respectively
-[FunctionName("PromptEmail")]
+[Function("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
     [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "my-gpt-4", EmbeddingsModel = "my-ada-2")] SemanticSearchContext result)

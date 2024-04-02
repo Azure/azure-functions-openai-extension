@@ -11,7 +11,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 /// <summary>
 /// Embeddings JSON converter needed to serialize the EmbeddingsContext object.
 /// </summary>
-class EmbeddingsJsonConverter : JsonConverter<EmbeddingsContext>
+class EmbeddingsContextConverter : JsonConverter<EmbeddingsContext>
 {
     static readonly ModelReaderWriterOptions modelReaderWriterOptions = new("J");
     public override EmbeddingsContext Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

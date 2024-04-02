@@ -40,7 +40,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "textcompletion", "textcompl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextCompletion", "samples\textcompletion\csharp-ooproc\TextCompletion.csproj", "{8C478DB0-2F1E-40B2-82E9-7E89DFF2495D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpIsolatedSamples", "samples\chat\csharp-ooproc\CSharpIsolatedSamples.csproj", "{6701A54D-E00F-46E8-9344-B1547805459E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatBot", "samples\chat\csharp-ooproc\ChatBot.csproj", "{6701A54D-E00F-46E8-9344-B1547805459E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assistant", "assistant", "{C5578BE5-AAC7-4616-9A35-41CA5903882A}"
 	ProjectSection(SolutionItems) = preProject

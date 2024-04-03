@@ -84,7 +84,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
                 Guid.NewGuid().ToString("N"),
                 Path.GetFileNameWithoutExtension(document.Title),
                 document.Embeddings.Request.Input![i],
-                GetEmbeddingsString(document.Embeddings.Response.Data[i].Embedding),
+                GetEmbeddingsArray(document.Embeddings.Response.Data[i].Embedding),
                 DateTime.UtcNow);
         }
 
@@ -171,15 +171,27 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
 
     static string GetEmbeddingsString(ReadOnlyMemory<float> embedding)
     {
-        ReadOnlySpan<float> span = embedding.Span;
-        StringBuilder builder = new(span.Length * 10); // 9 is the longest string length of a float + 1 for comma
-
-        for (int i = 0; i < span.Length; i++)
+        StringBuilder sb = new();
+        foreach (float value in embedding.Span)
         {
-            builder.Append(span[i]).Append(',');
+            sb.Append(value.ToString());
+            sb.Append(",");
         }
-        builder.Remove(builder.Length - 1, 1);
+        sb.Length--; // remove the trailing comma
+        return sb.ToString();
+    }
 
-        return builder.ToString();
+    static string GetEmbeddingsArray(ReadOnlyMemory<float> embedding)
+    {
+        StringBuilder sb = new();
+        sb.Append("[");
+        foreach (float value in embedding.Span)
+        {
+            sb.Append(value.ToString());
+            sb.Append(",");
+        }
+        sb.Length--; // remove the trailing comma
+        sb.Append("]");
+        return sb.ToString();
     }
 }

@@ -5,12 +5,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
-namespace CSharpIsolatedSamples;
+namespace ChatBot;
 
 /// <summary>
 /// The ChatBot sample allows you to create chat bots with a specified set of initial instructions.
 /// </summary>
-public static class ChatBotIsolated
+public static class ChatBot
 {
     public class CreateRequest
     {

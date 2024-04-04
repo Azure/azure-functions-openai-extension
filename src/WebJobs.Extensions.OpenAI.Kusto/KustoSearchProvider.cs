@@ -84,7 +84,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
                 Guid.NewGuid().ToString("N"),
                 Path.GetFileNameWithoutExtension(document.Title),
                 document.Embeddings.Request.Input![i],
-                GetEmbeddingsArray(document.Embeddings.Response.Data[i].Embedding),
+                GetEmbeddings(document.Embeddings.Response.Data[i].Embedding, false),
                 DateTime.UtcNow);
         }
 
@@ -110,7 +110,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         // https://learn.microsoft.com/azure/data-explorer/kusto/query/queryparametersstatement
         // NOTE: Vector similarity reference:
         // https://techcommunity.microsoft.com/t5/azure-data-explorer-blog/azure-data-explorer-for-vector-similarity-search/ba-p/3819626
-        string embeddingsList = GetEmbeddingsString(request.Embeddings);
+        string embeddingsList = GetEmbeddings(request.Embeddings, true);
         string? tableName = request.ConnectionInfo.CollectionName?.Trim();
         if (string.IsNullOrEmpty(tableName) ||
             tableName.Contains('/') ||
@@ -169,29 +169,27 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         return new KustoConnectionStringBuilder(connectionString);
     }
 
-    static string GetEmbeddingsString(ReadOnlyMemory<float> embedding)
+    static string GetEmbeddings(ReadOnlyMemory<float> embedding, bool returnString = false)
     {
         StringBuilder sb = new();
-        foreach (float value in embedding.Span)
-        {
-            sb.Append(value.ToString());
-            sb.Append(",");
-        }
-        sb.Length--; // remove the trailing comma
-        return sb.ToString();
-    }
 
-    static string GetEmbeddingsArray(ReadOnlyMemory<float> embedding)
-    {
-        StringBuilder sb = new();
-        sb.Append("[");
+        if (!returnString)
+        {
+            sb.Append("[");
+        }
+
         foreach (float value in embedding.Span)
         {
-            sb.Append(value.ToString());
-            sb.Append(",");
+            sb.Append(value).Append(",");
         }
+
         sb.Length--; // remove the trailing comma
-        sb.Append("]");
+
+        if (!returnString)
+        {
+            sb.Append("]");
+        }
+
         return sb.ToString();
     }
 }

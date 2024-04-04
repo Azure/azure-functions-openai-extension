@@ -84,7 +84,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
                 Guid.NewGuid().ToString("N"),
                 Path.GetFileNameWithoutExtension(document.Title),
                 document.Embeddings.Request.Input![i],
-                GetEmbeddings(document.Embeddings.Response.Data[i].Embedding, false),
+                GetEmbeddingsString(document.Embeddings.Response.Data[i].Embedding, true),
                 DateTime.UtcNow);
         }
 
@@ -110,7 +110,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         // https://learn.microsoft.com/azure/data-explorer/kusto/query/queryparametersstatement
         // NOTE: Vector similarity reference:
         // https://techcommunity.microsoft.com/t5/azure-data-explorer-blog/azure-data-explorer-for-vector-similarity-search/ba-p/3819626
-        string embeddingsList = GetEmbeddings(request.Embeddings, true);
+        string embeddingsList = GetEmbeddingsString(request.Embeddings, false);
         string? tableName = request.ConnectionInfo.CollectionName?.Trim();
         if (string.IsNullOrEmpty(tableName) ||
             tableName.Contains('/') ||
@@ -169,11 +169,11 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         return new KustoConnectionStringBuilder(connectionString);
     }
 
-    static string GetEmbeddings(ReadOnlyMemory<float> embedding, bool returnString = false)
+    static string GetEmbeddingsString(ReadOnlyMemory<float> embedding, bool asArray)
     {
         StringBuilder sb = new();
 
-        if (!returnString)
+        if (asArray)
         {
             sb.Append("[");
         }
@@ -185,7 +185,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
 
         sb.Length--; // remove the trailing comma
 
-        if (!returnString)
+        if (asArray)
         {
             sb.Append("]");
         }

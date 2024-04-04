@@ -169,11 +169,11 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         return new KustoConnectionStringBuilder(connectionString);
     }
 
-    static string GetEmbeddingsString(ReadOnlyMemory<float> embedding, bool asArray)
+    static string GetEmbeddingsString(ReadOnlyMemory<float> embedding, bool asJsonArray)
     {
         StringBuilder sb = new();
 
-        if (asArray)
+        if (asJsonArray)
         {
             sb.Append("[");
         }
@@ -185,7 +185,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
 
         sb.Length--; // remove the trailing comma
 
-        if (asArray)
+        if (asJsonArray)
         {
             sb.Append("]");
         }

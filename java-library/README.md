@@ -16,7 +16,7 @@ This project contains the necessary annotations and classes needed for the inter
 
 ## Release
 
-1. Build and install the unsigned jars into your local maven repository using `mvn clean install -Dgpg.skip`. This should install the jars at - `C:\Users\<username>\.m2\repository\com\microsoft\azure\functions\azure-functions-java-library-openai\1.0.0-SNAPSHOT`(`Users/<username>/.m2/*` for Mac, and, `/home/<username>/.m2/*` for Linux)
+1. Build and install the unsigned jars into your local maven repository using `mvn clean install -Dgpg.skip`. This should install the jars at - `C:\Users\<username>\.m2\repository\com\microsoft\azure\functions\azure-functions-java-library-openai\0.1.0-preview`(`Users/<username>/.m2/*` for Mac, and, `/home/<username>/.m2/*` for Linux)
 1. Use the steps at [Partner release pipeline[(https://dev.azure.com/azure-sdk/internal/_wiki/wikis/internal.wiki/1/Partner-Release-Pipeline) that involve:
 1. Uploading the jars to the [drops](https://azuresdkpartnerdrops.blob.core.windows.net/drops) container. The location for azure functions java is at -  `drops / azure-functions / java / azure-functions-java-library-openai`
 1. Trigger the [java - partner-release](https://dev.azure.com/azure-sdk/internal/_build?definitionId=1809&_a=summary) pipeline to release the library to sonatype and maven.

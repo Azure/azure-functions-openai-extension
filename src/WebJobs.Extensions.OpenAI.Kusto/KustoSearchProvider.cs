@@ -84,7 +84,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
                 Guid.NewGuid().ToString("N"),
                 Path.GetFileNameWithoutExtension(document.Title),
                 document.Embeddings.Request.Input![i],
-                GetEmbeddingsString(document.Embeddings.Response.Data[i].Embedding),
+                GetEmbeddingsString(document.Embeddings.Response.Data[i].Embedding, true),
                 DateTime.UtcNow);
         }
 
@@ -110,7 +110,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         // https://learn.microsoft.com/azure/data-explorer/kusto/query/queryparametersstatement
         // NOTE: Vector similarity reference:
         // https://techcommunity.microsoft.com/t5/azure-data-explorer-blog/azure-data-explorer-for-vector-similarity-search/ba-p/3819626
-        string embeddingsList = GetEmbeddingsString(request.Embeddings);
+        string embeddingsList = GetEmbeddingsString(request.Embeddings, false);
         string? tableName = request.ConnectionInfo.CollectionName?.Trim();
         if (string.IsNullOrEmpty(tableName) ||
             tableName.Contains('/') ||
@@ -169,17 +169,27 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         return new KustoConnectionStringBuilder(connectionString);
     }
 
-    static string GetEmbeddingsString(ReadOnlyMemory<float> embedding)
+    static string GetEmbeddingsString(ReadOnlyMemory<float> embedding, bool asJsonArray)
     {
-        ReadOnlySpan<float> span = embedding.Span;
-        StringBuilder builder = new(span.Length * 10); // 9 is the longest string length of a float + 1 for comma
+        StringBuilder sb = new();
 
-        for (int i = 0; i < span.Length; i++)
+        if (asJsonArray)
         {
-            builder.Append(span[i]).Append(',');
+            sb.Append("[");
         }
-        builder.Remove(builder.Length - 1, 1);
 
-        return builder.ToString();
+        foreach (float value in embedding.Span)
+        {
+            sb.Append(value).Append(",");
+        }
+
+        sb.Length--; // remove the trailing comma
+
+        if (asJsonArray)
+        {
+            sb.Append("]");
+        }
+
+        return sb.ToString();
     }
 }

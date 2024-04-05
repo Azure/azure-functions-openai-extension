@@ -30,7 +30,7 @@ The following NuGet packages are available as part of this project.
     If using environment variables, Learn more in [.env readme](./env/README.md).
     1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
-* The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
+* The target language runtime (e.g. dotnet, nodejs, powershell, python, java) installed on your machine. Refer the official supported versions.
 
 ## Features
 

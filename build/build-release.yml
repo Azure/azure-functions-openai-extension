@@ -11,9 +11,8 @@ trigger:
   paths:
     include:
       - src/Directory.Build.props
-      - src/Functions.Worker.Extensions.OpenAI/AssemblyInfo.cs
-    exclude:
-      - '**.md'
+      - build/*
+      - '**.csproj'
 
 continueOnError: false
 pool:
@@ -23,9 +22,9 @@ pool:
 
 steps:
   - task: UseDotNet@2
-    displayName: 'Install .NET 6'
+    displayName: 'Install .NET 8'
     inputs:
-      version: 6.0.x
+      version: 8.0.x
       packageType: sdk
 
   - task: UseDotNet@2

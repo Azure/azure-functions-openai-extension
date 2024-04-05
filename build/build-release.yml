@@ -11,8 +11,8 @@ trigger:
   paths:
     include:
       - src/Directory.Build.props
-    exclude:
-      - '**.md'
+      - build/*
+      - '**.csproj'
 
 continueOnError: false
 pool:

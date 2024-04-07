@@ -77,7 +77,7 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 
 ### Changes
 
-- Migrated from Betalgo to Azure Open AI 1.0.0-beta.12
+- Migrated from Betalgo to Azure OpenAI 1.0.0-beta.12
 - Text Completion default model updated.
 
 ## v0.5.0 - 2024/01/03

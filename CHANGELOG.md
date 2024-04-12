@@ -9,7 +9,11 @@ Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will ma
 
 Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
 
-## v0.13.0 - Unreleased
+## v0.14.0 - Unreleased
+### Changes
+- Updated Azure.Identity from 1.10.4 to 1.11.0
+  
+## v0.13.0 - 2024/04/05
 
 ### Added
 
@@ -77,7 +81,7 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 
 ### Changes
 
-- Migrated from Betalgo to Azure Open AI 1.0.0-beta.12
+- Migrated from Betalgo to Azure OpenAI 1.0.0-beta.12
 - Text Completion default model updated.
 
 ## v0.5.0 - 2024/01/03

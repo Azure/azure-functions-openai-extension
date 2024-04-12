@@ -22,6 +22,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{865C9FB5-1043-47BE-B650-25A2B42030A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "chat", "chat", "{46888A9D-8058-499C-9F2F-07800FF686EB}"
+	ProjectSection(SolutionItems) = preProject
+		samples\chat\demo.http = samples\chat\demo.http
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B99948E2-9853-4D9C-B784-19C2503CDA8B}"
 EndProject
@@ -37,6 +40,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI", "src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj", "{3D9FE0C4-07FA-4D64-AB45-54D9829F3790}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "textcompletion", "textcompletion", "{066E5306-2BBF-4C3F-BEDD-9529AE2FB60C}"
+	ProjectSection(SolutionItems) = preProject
+		samples\textcompletion\demo.http = samples\textcompletion\demo.http
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TextCompletion", "samples\textcompletion\csharp-ooproc\TextCompletion.csproj", "{8C478DB0-2F1E-40B2-82E9-7E89DFF2495D}"
 EndProject

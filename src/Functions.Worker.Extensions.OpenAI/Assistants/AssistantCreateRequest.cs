@@ -38,9 +38,4 @@ public class AssistantCreateRequest
     /// Instructions that are provided to assistant to follow.
     /// </summary>
     public string Instructions { get; set; } = "You are a helpful assistant.";
-
-    /// <summary>
-    /// Gets time when assistant request is set to expire.
-    /// </summary>
-    public DateTime? ExpiresAt { get; set; }
 }

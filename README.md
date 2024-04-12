@@ -11,13 +11,9 @@ This extension depends on the [Azure AI OpenAI SDK](https://github.com/Azure/azu
 
 The following NuGet packages are available as part of this project.
 
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.svg?label=microsoft.azure.webjobs.extensions.openai)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI)<br/>
-[![NuGet](
-https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.svg?label=microsoft.azure.functions.worker.extensions.openai
-)](
-https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI
-)<br/>
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto)<br/>
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.svg?label=microsoft.azure.webjobs.extensions.openai)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.svg?label=microsoft.azure.functions.worker.extensions.openai)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto)
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.svg?label=microsoft.azure.webjobs.extensions.openai.azureaisearch)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch)
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch.svg?label=microsoft.azure.webjobs.extensions.openai.cosmosdbsearch)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch)
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.functions.worker.extensions.openAI.kusto)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto)
@@ -36,7 +32,7 @@ https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenA
     If using environment variables, Learn more in [.env readme](./env/README.md).
     1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
-* The target language runtime (e.g. .NET, Node.js, PowerShell, Python etc.) installed on your machine
+* The target language runtime (e.g. dotnet, nodejs, powershell, python, java) installed on your machine. Refer the official supported versions.
 
 ## Features
 

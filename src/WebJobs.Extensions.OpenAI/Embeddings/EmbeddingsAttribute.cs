@@ -119,8 +119,8 @@ public sealed class EmbeddingsAttribute : Attribute
         sentenceEndings ??= new[] { '.', '!', '?' };
         wordBreaks ??= new[] { ',', ';', ':', ' ', '(', ')', '[', ']', '{', '}', '\t', '\n' };
 
-        var sentenceEndingsSet = new HashSet<char>(sentenceEndings);
-        var wordBreaksSet = new HashSet<char>(wordBreaks);
+        HashSet<char> sentenceEndingsSet = new (sentenceEndings);
+        HashSet<char> wordBreaksSet = new (wordBreaks);
 
         int bytesRead;
         while ((bytesRead = reader.Read(buffer, startIndex, maxChunkSize - startIndex)) > 0)

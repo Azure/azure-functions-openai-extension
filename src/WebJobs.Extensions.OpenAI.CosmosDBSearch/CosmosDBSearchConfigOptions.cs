@@ -8,8 +8,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 /// </summary>
 public class CosmosDBSearchConfigOptions
 {
-    public bool IsSemanticSearchEnabled { get; set; }
-
     // Number of dimensions for vector similarity. The maximum number of supported dimensions is 2000.
     public int VectorSearchDimensions { get; set; } = 1536;
 

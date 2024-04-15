@@ -18,12 +18,12 @@ sealed class AzureAISearchProvider : ISearchProvider
 {
     readonly IConfiguration configuration;
     readonly ILogger logger;
+    readonly bool isSemanticSearchEnabled = false;
+    readonly bool useSemanticCaptions = false;
+    readonly int vectorSearchDimensions = 1536;
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
     const string vectorSearchProfile = "openai-vector-profile";
-    bool isSemanticSearchEnabled = false;
-    bool useSemanticCaptions = false;
-    int vectorSearchDimensions = 1536;
 
     public string Name { get; set; } = "AzureAISearch";
 
@@ -42,7 +42,15 @@ sealed class AzureAISearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        this.GetAzureAISearchConfig(azureAiSearchConfigOptions);
+        this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
+        this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
+        int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
+        if (value < 2 || value > 3072)
+        {
+            throw new ArgumentOutOfRangeException(nameof(AzureAISearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 3072");
+        }
+
+        this.vectorSearchDimensions = value;
 
         this.logger = loggerFactory.CreateLogger<AzureAISearchProvider>();
     }
@@ -158,19 +166,6 @@ sealed class AzureAISearchProvider : ISearchProvider
 
         SearchResponse response = new(results);
         return response;
-    }
-
-    void GetAzureAISearchConfig(IOptions<AzureAISearchConfigOptions> azureAiSearchConfigOptions)
-    {
-        this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
-        this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
-        int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
-        if (value < 2 || value > 3072)
-        {
-            throw new ArgumentOutOfRangeException(nameof(AzureAISearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 3072");
-        }
-
-        this.vectorSearchDimensions = value;
     }
 
     async Task CreateIndexIfDoesntExist(SearchIndexClient searchIndexClient, string searchIndexName, CancellationToken cancellationToken = default)

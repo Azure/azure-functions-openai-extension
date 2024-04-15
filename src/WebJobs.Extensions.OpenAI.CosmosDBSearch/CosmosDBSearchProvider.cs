@@ -16,11 +16,10 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 {
     readonly IConfiguration configuration;
     readonly ILogger logger;
+    readonly int vectorSearchDimensions = 1536;
+    readonly int numLists = 1;
     const string defaultSearchIndexName = "openai-index";
-    const string databaseName = "openai-database-new-new";
-    bool isSemanticSearchEnabled = false;
-    int vectorSearchDimensions = 1536;
-    int numLists = 1;
+    const string databaseName = "openai-database";
 
     public string Name { get; set; } = "CosmosDBSearch";
 
@@ -49,7 +48,14 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        this.GetAzureAISearchConfig(cosmosDBSearchConfigOptions);
+        int value = cosmosDBSearchConfigOptions.Value.VectorSearchDimensions;
+        if (value < 2 || value > 2000)
+        {
+            throw new ArgumentOutOfRangeException(nameof(CosmosDBSearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 2000");
+        }
+
+        this.vectorSearchDimensions = value;
+        this.numLists = cosmosDBSearchConfigOptions.Value.NumLists;
 
         this.logger = loggerFactory.CreateLogger<CosmosDBSearchProvider>();
 
@@ -69,11 +75,11 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
         string connectionString = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
 
-        MongoClient searchIndexClient = await this.GetMongoClientAsync(connectionString);
+        MongoClient mongoClient = await this.GetMongoClientAsync(connectionString);
 
-        this.CreateVectorIndexIfNotExists(searchIndexClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        this.CreateVectorIndexIfNotExists(mongoClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
-        await this.UpsertVectorAsync(searchIndexClient, document, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        await this.UpsertVectorAsync(mongoClient, document, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
     }
 
     /// <summary>
@@ -85,9 +91,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     /// <exception cref="InvalidOperationException">Throws the invalid operation exception if search result response is null.</exception>
     public async Task<SearchResponse> SearchAsync(SearchRequest request)
     {
-        if (request.Query is null && request.Embeddings.IsEmpty)
+        if (request.Embeddings.IsEmpty)
         {
-            throw new ArgumentException("Either query or embeddings must be provided");
+            throw new ArgumentException("Emeddings must be provided");
         }
 
         if (request.ConnectionInfo is null)
@@ -96,11 +102,11 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
 
         string connectionString = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        MongoClient searchIndexClient = await this.GetMongoClientAsync(connectionString);
+        MongoClient mongoClient = await this.GetMongoClientAsync(connectionString);
 
         try
         {
-            IMongoCollection<BsonDocument> collection = searchIndexClient.GetDatabase(databaseName).GetCollection<BsonDocument>(request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+            IMongoCollection<BsonDocument> collection = mongoClient.GetDatabase(databaseName).GetCollection<BsonDocument>(request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
             // Search Azure Cosmos DB for MongoDB vCore collection for similar embeddings and project fields.
             BsonDocument[] pipeline = new BsonDocument[]
@@ -115,7 +121,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                                 {
                                     { "vector", !(request.Embeddings.IsEmpty) ? new BsonArray(request.Embeddings.ToArray()) : new BsonArray()},
                                     { "path", "embedding" },
-                                    { "k", this.isSemanticSearchEnabled && !request.Embeddings.IsEmpty ? Math.Max(50, request.MaxResults) : request.MaxResults }
+                                    { "k", request.MaxResults }
                                 }
                             },
                             { "returnStoredSource", true }
@@ -157,18 +163,6 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             this.logger.LogError($"Exception: SearchAsync(): {ex.Message}");
             throw;
         }
-    }
-
-    void GetAzureAISearchConfig(IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions)
-    {
-        this.isSemanticSearchEnabled = cosmosDBSearchConfigOptions.Value.IsSemanticSearchEnabled;
-        int value = cosmosDBSearchConfigOptions.Value.VectorSearchDimensions;
-        if (value < 2 || value > 2000)
-        {
-            throw new ArgumentOutOfRangeException(nameof(CosmosDBSearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 2000");
-        }
-
-        this.vectorSearchDimensions = value;
     }
 
     public void CreateVectorIndexIfNotExists(MongoClient client, string collectionName)
@@ -259,6 +253,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     async Task<MongoClient> GetMongoClientAsync(string connectionString)
     {
+        // TODO: Add suport for managed identity
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException($"""

@@ -9,7 +9,6 @@
     "openai": {
       "searchProvider": {
         "type": "cosmosDBSearch",
-        "isSemanticSearchEnabled": true,
         "vectorSearchDimensions": 1536,
         "numLists":  1
       }

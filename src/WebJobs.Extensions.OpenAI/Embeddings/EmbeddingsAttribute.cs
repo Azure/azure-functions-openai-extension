@@ -52,6 +52,11 @@ public sealed class EmbeddingsAttribute : Attribute
     public int MaxChunkLength { get; set; } = 8 * 1024; // REVIEW: Is 8K a good default?
 
     /// <summary>
+    /// Gets or sets the maximum number of characters to overlap between chunks.
+    /// </summary>
+    public int MaxOverlap { get; set; } = 128;
+
+    /// <summary>
     /// Gets the input to generate embeddings for.
     /// </summary>
     [AutoResolve]
@@ -65,7 +70,12 @@ public sealed class EmbeddingsAttribute : Attribute
     internal EmbeddingsOptions BuildRequest()
     {
         using TextReader reader = this.GetTextReader();
-        List<string> chunks = GetTextChunks(reader, 0, this.MaxChunkLength).ToList();
+        if (this.MaxOverlap >= this.MaxChunkLength)
+        {
+            throw new ArgumentOutOfRangeException($"MaxOverlap ({this.MaxOverlap}) must be less than MaxChunkLength ({this.MaxChunkLength}).");
+        }
+
+        List<string> chunks = GetTextChunks(reader, 0, this.MaxChunkLength, this.MaxOverlap).ToList();
         return new EmbeddingsOptions(this.Model, chunks);
     }
 
@@ -89,15 +99,28 @@ public sealed class EmbeddingsAttribute : Attribute
         TextReader reader,
         int minChunkSize,
         int maxChunkSize,
-        char[]? terminatorChars = null)
+        int overlap,
+        char[]? sentenceEndings = null,
+        char[]? wordBreaks = null)
     {
+        if (reader == null)
+        {
+            throw new ArgumentNullException("reader");
+        }
+
+        if (minChunkSize < 0 || maxChunkSize <= 0 || overlap < 0 || minChunkSize > maxChunkSize || overlap > maxChunkSize)
+        {
+            throw new ArgumentException("Invalid chunk size or overlap");
+        }
+
         char[] buffer = new char[maxChunkSize];
         int startIndex = 0;
 
-        if (terminatorChars == null)
-        {
-            terminatorChars = new[] { '\n' };
-        }
+        sentenceEndings ??= new[] { '.', '!', '?' };
+        wordBreaks ??= new[] { ',', ';', ':', ' ', '(', ')', '[', ']', '{', '}', '\t', '\n' };
+
+        var sentenceEndingsSet = new HashSet<char>(sentenceEndings);
+        var wordBreaksSet = new HashSet<char>(wordBreaks);
 
         int bytesRead;
         while ((bytesRead = reader.Read(buffer, startIndex, maxChunkSize - startIndex)) > 0)
@@ -105,41 +128,53 @@ public sealed class EmbeddingsAttribute : Attribute
             int endIndex = startIndex + bytesRead;
             int boundaryIndex = -1;
 
-            // Search backwards to end the chunk with a terminator character
+            // Search backwards to end the chunk with a terminator character  
             for (int i = endIndex - 1; i >= startIndex && i >= minChunkSize; i--)
             {
-                char c = buffer[i];
-                if (Array.IndexOf(terminatorChars, c, 0) >= 0)
+                if (sentenceEndingsSet.Contains(buffer[i]))
                 {
                     boundaryIndex = i + 1;
                     break;
                 }
             }
 
-            // Didn't find anything to use as a boundary - just take the whole buffer
-            if (boundaryIndex <= 0)
+            // If sentence boundary not found, look for word breaks      
+            if (boundaryIndex == -1)
             {
-                boundaryIndex = endIndex;
+                for (int i = endIndex - 1; i >= startIndex && i >= minChunkSize; i--)
+                {
+                    if (wordBreaksSet.Contains(buffer[i]) && i < maxChunkSize)
+                    {
+                        boundaryIndex = i + 1;
+                        break;
+                    }
+                }
             }
 
-            // Yield this section of the buffer
+            // Didn't find anything to use as a boundary - just take the whole buffer  
+            boundaryIndex = (boundaryIndex <= 0) ? endIndex : boundaryIndex;
+
+            // Yield this section of the buffer  
             string textChunk = new string(buffer, 0, boundaryIndex).Trim();
             yield return textChunk;
 
-            if (boundaryIndex == endIndex)
+            // Find overlap start without word truncation
+            int overlapIndex = Math.Max(0, boundaryIndex - overlap);
+            while (overlapIndex < boundaryIndex && !wordBreaksSet.Contains(buffer[overlapIndex]))
             {
-                // all bytes were yielded
-                startIndex = 0;
+                overlapIndex++;
+            }
+
+            // Shift the remaining bytes including overlap into the front of the buffer  
+            int remainingBytes = endIndex - overlapIndex;
+            if (remainingBytes > 0)
+            {
+                Array.Copy(buffer, overlapIndex, buffer, 0, remainingBytes);
+                startIndex = remainingBytes;
             }
             else
             {
-                // shift the remaining bytes into the front of the buffer
-                int remainingBytes = endIndex - boundaryIndex;
-                if (remainingBytes > 0)
-                {
-                    Array.Copy(buffer, boundaryIndex, buffer, 0, remainingBytes);
-                    startIndex = remainingBytes;
-                }
+                startIndex = 0;
             }
         }
     }

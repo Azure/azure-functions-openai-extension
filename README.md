@@ -23,12 +23,12 @@ The following NuGet packages are available as part of this project.
 * [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or greater (Visual Studio 2022 recommended)
 * [Azure Functions Core Tools v4.x](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Cnode%2Cportal%2Cbash)
 * Update settings in Azure Function or the `local.settings.json` file for local development with the following keys:
-    1. `AZURE_OPENAI_ENDPOINT` - [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) (e.g. `https://***.openai.azure.com/`) set. For authentication, use one of the below two options:
-        * System Managed Identity - assign the user/function app `Cognitive Services OpenAI User` role on the Azure OpenAI resource. **OR**
-        * `AZURE_OPENAI_KEY` - Key of the Azure OpenAI resource as a setting.
-    1. **OR** `OPENAI_API_KEY` -  Non-Azure Option - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
+    1. For Azure, `AZURE_OPENAI_ENDPOINT` - [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) (e.g. `https://***.openai.azure.com/`) set.
+    1. For Azure, assign the user or function app managed identity `Cognitive Services OpenAI User` role on the Azure OpenAI resource. Key based authentication is not supported for Azure OpenAI to avoid maintenance of secrets.
+    1. For non- Azure, `OPENAI_API_KEY` - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
     If using environment variables, Learn more in [.env readme](./env/README.md).
     1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
+    1. Visit binding specific samples README for additional settings that might be required for each binding.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
 * The target language runtime (e.g. dotnet, nodejs, powershell, python, java) installed on your machine. Refer the official supported versions.
 
@@ -260,7 +260,9 @@ public async Task GenerateEmbeddings_Http_RequestAsync(
 
 The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).
 
- The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
+Only raw text and file types with extension `.txt` are supported at present for data ingestion.
+
+The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
 
 * [Azure AI Search](https://learn.microsoft.com/azure/search/search-create-service-portal) - [source code](./src/WebJobs.Extensions.OpenAI.AISearch/)
 * [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [source code](./src/WebJobs.Extensions.OpenAI.Kusto/)

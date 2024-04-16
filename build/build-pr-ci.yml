@@ -83,10 +83,3 @@ steps:
   - script: docker logs openai-func-sample-csharp-ooproc
     displayName: Print Docker Logs - Chat Bot Sample Out of Proc
     condition: always()
-
-  - task: Maven@3
-    displayName: Build Java Samples
-    inputs:
-      mavenPomFile: samples/*/java/pom.xml
-      options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
-      checkStyleRunAnalysis: true

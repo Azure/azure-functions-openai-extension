@@ -57,7 +57,7 @@ public static class FilePrompt
 
     public class SemanticSearchOutputResponse
     {
-        [SemanticSearchOutput("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [SemanticSearchOutput("AISearchEndpoint", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public SearchableDocument SearchableDocument { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
@@ -66,7 +66,7 @@ public static class FilePrompt
     [Function("PromptFile")]
     public static IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-        [SemanticSearchInput("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+        [SemanticSearchInput("AISearchEndpoint", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
     {
         return new ContentResult { Content = result.Response, ContentType = "text/plain" };
     }

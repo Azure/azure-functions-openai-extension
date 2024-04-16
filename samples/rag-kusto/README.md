@@ -15,6 +15,7 @@ This sample requires creating a Kusto cluster and database. You can do this by f
 Once you have a Kusto cluster and database, you can run the sample by following these steps:
 
 1. Update the `KustoConnectionString` value in `local.settings.json` to match your Kusto cluster and database names.
+1. Add the user or function app managed identity as `database user` for database in Kusto cluster.
 1. Always configure the search provider type in the `host.json` as shown in below snippet.
 
     ```json

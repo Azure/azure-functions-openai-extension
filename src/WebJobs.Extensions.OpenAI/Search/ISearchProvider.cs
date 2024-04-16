@@ -38,7 +38,7 @@ public record SearchableDocument(
     public ConnectionInfo? ConnectionInfo { get; set; }
 }
 
-public record ConnectionInfo(string ConnectionName, string CollectionName, string? Credentials);
+public record ConnectionInfo(string ConnectionName, string CollectionName);
 
 public record SearchRequest(
     string Query,

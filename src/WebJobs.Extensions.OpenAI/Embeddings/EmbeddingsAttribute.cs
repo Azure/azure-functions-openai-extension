@@ -18,6 +18,9 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class EmbeddingsAttribute : Attribute
 {
+    static readonly char[] sentenceEndingsDefault = new[] { '.', '!', '?' };
+    static readonly char[] wordBreaksDefault = new[] { ',', ';', ':', ' ', '(', ')', '[', ']', '{', '}', '\t', '\n' };
+
     /// <summary>
     /// Initializes a new instance of the <see cref="EmbeddingsAttribute"/> class with the specified input.
     /// </summary>
@@ -116,11 +119,11 @@ public sealed class EmbeddingsAttribute : Attribute
         char[] buffer = new char[maxChunkSize];
         int startIndex = 0;
 
-        sentenceEndings ??= new[] { '.', '!', '?' };
-        wordBreaks ??= new[] { ',', ';', ':', ' ', '(', ')', '[', ']', '{', '}', '\t', '\n' };
+        sentenceEndings ??= sentenceEndingsDefault;
+        wordBreaks ??= wordBreaksDefault;
 
-        HashSet<char> sentenceEndingsSet = new (sentenceEndings);
-        HashSet<char> wordBreaksSet = new (wordBreaks);
+        HashSet<char> sentenceEndingsSet = new(sentenceEndings);
+        HashSet<char> wordBreaksSet = new(wordBreaks);
 
         int bytesRead;
         while ((bytesRead = reader.Read(buffer, startIndex, maxChunkSize - startIndex)) > 0)

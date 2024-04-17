@@ -78,7 +78,7 @@ steps:
     displayName: Create/Copy NuGet Package to local directory and Build
 
   - script: |
-      dotnet build $(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj --configuration $(config) /p:OutputPath="$(Build.BinariesDirectory)\$(buildConfiguration)/" /p:OutDir="$(Build.BinariesDirectory)\$(buildConfiguration)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(buildConfiguration)\\"'
+      dotnet build $(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj --configuration $(config) /p:OutputPath="$(Build.BinariesDirectory)\$(buildConfiguration)/" /p:OutDir="$(Build.BinariesDirectory)\$(buildConfiguration)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(buildConfiguration)\\"
     displayName: Build ChatBot
 
   - task: CopyFiles@2

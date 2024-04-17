@@ -78,20 +78,20 @@ steps:
     displayName: Create/Copy NuGet Package to local directory and Build
 
   - script: |
-      dotnet build $(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj --configuration $(config) /p:OutputPath="$(Build.BinariesDirectory)\$(buildConfiguration)/" /p:OutDir="$(Build.BinariesDirectory)\$(buildConfiguration)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(buildConfiguration)\\
+      dotnet build $(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj --configuration $(config) /p:OutputPath="$(Build.BinariesDirectory)\$(buildConfiguration)/" /p:OutDir="$(Build.BinariesDirectory)\$(buildConfiguration)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(buildConfiguration)\\"'
     displayName: Build ChatBot
 
   - task: CopyFiles@2
-    displayName: "Copy zip files to $(build.artifactstagingdirectory)"
+    displayName: 'Copy zip files to $(build.artifactstagingdirectory)'
     inputs:
-      SourceFolder: "$(Build.BinariesDirectory)/$(BuildConfiguration)"
+      SourceFolder: '$(Build.BinariesDirectory)/$(BuildConfiguration)'
       Contents: '**\*.zip'
-      TargetFolder: "$(build.artifactstagingdirectory)"
+      TargetFolder: '$(build.artifactstagingdirectory)'
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: "$(build.artifactstagingdirectory)"
-      ArtifactName: "functionapps"
+      PathtoPublish: '$(build.artifactstagingdirectory)'
+      ArtifactName: 'functionapps'
       publishLocation: Container
 
   - script: dotnet test --configuration $(config) --no-build --verbosity normal
@@ -100,4 +100,3 @@ steps:
   - script: docker logs openai-func-sample-csharp-ooproc
     displayName: Print Docker Logs - Chat Bot Sample Out of Proc
     condition: always()
-

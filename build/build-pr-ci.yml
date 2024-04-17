@@ -77,19 +77,13 @@ steps:
       dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
     displayName: Create/Copy NuGet Package to local directory and Build
 
-  - task: VSBuild@1
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Project'
     inputs:
-      solution: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
-      msbuildArgs: '/p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) /p:OutputPath="$(Build.BinariesDirectory)\$(config)/" /p:OutDir="$(Build.BinariesDirectory)\$(config)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(config)\\"'
-      platform: 'any cpu'
-      configuration: '$(config)'
-
-  - task: CopyFiles@2
-    displayName: 'Copy zip files to $(build.artifactstagingdirectory)'
-    inputs:
-      SourceFolder: '$(Build.BinariesDirectory)/$(config)'
-      Contents: '**\*.zip'
-      TargetFolder: '$(build.artifactstagingdirectory)'
+      command: publish
+      publishWebProjects: false
+      projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
+      arguments: '--configuration $(config) --output $(build.artifactstagingdirectory)'
 
   - task: PublishBuildArtifacts@1
     inputs:

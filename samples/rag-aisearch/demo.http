@@ -3,7 +3,7 @@
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"FilePath":"D:\\test\\test_file.txt"}
+{"RawText":"The Perks+ program offers broad categories of reimbursable items and services that are intended to be relevant, inclusive, and cover a broad range of life/career stages to support your physical, mental, emotional and financial wellbeing."}
 
 
 ### Ingest second file into database
@@ -17,7 +17,7 @@ Content-Type: application/json
 POST http://localhost:7071/api/PromptFile
 Content-Type: application/json
 
-{"Prompt":"INSERT PROMPT HERE."}
+{"Prompt":"What are Perks Plus categories?"}
 
 
 ### Send a search query (Example #2)

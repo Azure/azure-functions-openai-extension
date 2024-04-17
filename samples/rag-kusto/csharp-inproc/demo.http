@@ -1,0 +1,27 @@
+### Ingest first email into database
+
+POST http://localhost:7071/api/IngestEmail
+Content-Type: application/json
+
+{"FilePath":"D:\\test\\test_file.txt"}
+
+
+### Ingest second email into database
+POST http://localhost:7071/api/IngestEmail
+Content-Type: application/json
+
+{"FilePath":"D:\\test\\test_file.txt"}
+
+
+### Send a search query (Example #1)
+POST http://localhost:7071/api/PromptEmail
+Content-Type: application/json
+
+{"Prompt":"INSERT PROMPT HERE"}
+
+
+### Send a search query (Example #2)
+POST http://localhost:7071/api/PromptEmail
+Content-Type: application/json
+
+{"Prompt":"INSERT PROMPT HERE"}

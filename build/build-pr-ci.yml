@@ -74,13 +74,9 @@ steps:
 
       sleep 10s
 
-      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
+      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config /p:OutputPath="$(Build.BinariesDirectory)\$(config)/" /p:OutDir="$(Build.BinariesDirectory)\$(config)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(config)\\"
     displayName: Create/Copy NuGet Package to local directory and Build
-
-  - script: |
-      dotnet build $(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config /p:OutputPath="$(Build.BinariesDirectory)\$(config)/" /p:OutDir="$(Build.BinariesDirectory)\$(config)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(config)\\"
-    displayName: Build ChatBot
-
+    
   - task: CopyFiles@2
     displayName: 'Copy zip files to $(build.artifactstagingdirectory)'
     inputs:

@@ -77,11 +77,12 @@ steps:
       dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
     displayName: Create/Copy NuGet Package to local directory and Build
 
-  - task: MSBuild@1
+  - task: VSBuild@1
     inputs:
       solution: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
+      msbuildArgs: '/p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) /p:OutputPath="$(Build.BinariesDirectory)\$(config)/" /p:OutDir="$(Build.BinariesDirectory)\$(config)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(config)\\"'
+      platform: 'any cpu'
       configuration: '$(config)'
-      msbuildArguments: '/p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) /p:OutputPath="$(Build.BinariesDirectory)\$(config)/" /p:OutDir="$(Build.BinariesDirectory)\$(config)\\" /p:ReferencesLogFolder=$(Agent.BuildDirectory) /p:GenerateProjectSpecificOutputFolder=true /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(Build.BinariesDirectory)\$(config)\\"'
 
   - task: CopyFiles@2
     displayName: 'Copy zip files to $(build.artifactstagingdirectory)'

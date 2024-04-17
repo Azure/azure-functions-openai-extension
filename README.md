@@ -260,7 +260,7 @@ The semantic search feature allows you to import documents into a vector databas
 
  The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
 
-* [Azure AI Search](https://learn.microsoft.com/azure/search/search-create-service-portal) - [source code](./src/WebJobs.Extensions.OpenAI.AISearch/)
+* [Azure AI Search](https://learn.microsoft.com/azure/search/search-create-service-portal) - See [source code](./src/WebJobs.Extensions.OpenAI.AISearch/)
 * [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [source code](./src/WebJobs.Extensions.OpenAI.Kusto/)
 * [Azure Cosmos DB using MongoDB](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/introduction) - See [source code](./src/WebJobs.Extensions.OpenAI.CosmosDBSearch/)
 
@@ -305,9 +305,12 @@ public static async Task<SemanticSearchOutputResponse> IngestFile(
 }
 ```
 
+**Tip** - To improve context preservation between chunks in case of large documents, specify the max overlap between chunks and also the chunk size. The default values for `MaxChunkSize` and `MaxOverlap` are 8 * 1024 and 128 characters respectively.
+
 #### [C# document query example](./samples/rag-aisearch/csharp-ooproc/FilePrompt.cs)
 
 This HTTP trigger function takes a query prompt as input, pulls in semantically similar document chunks into a prompt, and then sends the combined prompt to OpenAI. The results are then made available to the function, which simply returns that chat response to the caller.
+**Tip** - To improve the knowledge for OpenAI model, the number of result sets being sent to the model with system prompt can be increased with binding property - `MaxKnowledgeCount` which has default value as 1. Also, the `SystemPrompt` in SemanticSearchRequest can be tweaked as per user instructions on how to process the knowledge sets being appended to it.
 
 ```csharp
 public class SemanticSearchRequest

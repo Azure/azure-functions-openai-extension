@@ -40,6 +40,11 @@ public class EmbeddingsInputAttribute : InputBindingAttribute
     public int MaxChunkLength { get; set; } = 8 * 1024; // REVIEW: Is 8K a good default?
 
     /// <summary>
+    /// Gets or sets the maximum number of characters to overlap between chunks.
+    /// </summary>
+    public int MaxOverlap { get; set; } = 128;
+
+    /// <summary>
     /// Gets the input to generate embeddings for.
     /// </summary>
     public string Input { get; }

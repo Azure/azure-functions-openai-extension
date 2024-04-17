@@ -84,8 +84,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functions.Worker.Extensions.OpenAI.CosmosDBSearch", "src\Functions.Worker.Extensions.OpenAI.CosmosDBSearch\Functions.Worker.Extensions.OpenAI.CosmosDBSearch.csproj", "{FD53AA42-6DC5-422F-919C-FB33591DC9E7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb", "rag-comosdb", "{24193510-C974-42E2-AE1F-1097E16A2445}"
+	ProjectSection(SolutionItems) = preProject
+		samples\rag-cosmosdb\demo.http = samples\rag-cosmosdb\demo.http
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticCosmosDBSearchEmbeddings", "samples\rag-cosmosdb\csharp-ooproc\SemanticCosmosDBSearchEmbeddings.csproj", "{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticCosmosDBSearchEmbeddings", "samples\rag-cosmosdb\csharp-ooproc\SemanticCosmosDBSearchEmbeddings.csproj", "{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

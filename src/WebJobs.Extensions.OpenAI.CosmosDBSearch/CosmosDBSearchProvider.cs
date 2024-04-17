@@ -160,7 +160,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
         catch (MongoException ex)
         {
-            this.logger.LogError($"Exception: SearchAsync(): {ex.Message}");
+            this.logger.LogError(ex, "CosmosDBSearchProvider:SearchAsync error");
             throw;
         }
     }
@@ -211,7 +211,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
         catch (MongoException ex)
         {
-            this.logger.LogError("MongoDbService CreateVectorIndexIfNotExists: " + ex.Message);
+            this.logger.LogError(ex, "CosmosDBSearchProvider:CreateVectorIndexIfNotExists error");
             throw;
         }
 
@@ -245,7 +245,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
         catch (MongoException ex)
         {
-            this.logger.LogError("MongoDbService UpsertVectorAsync: " + ex.Message);
+            this.logger.LogError(ex, "CosmosDBSearchProvider:UpsertVectorAsync error");
             throw;
         }
 
@@ -257,7 +257,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException($"""
-                No CosmosDB mongo connection string named '{connectionString}' was found.
+                No CosmosDB mongo connection string named '{nameof(connectionString)}' was found.
                 It's required to be specified as an app setting or environment variable.
                 """);
         }

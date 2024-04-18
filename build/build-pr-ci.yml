@@ -59,14 +59,13 @@ steps:
       projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
       arguments: '--configuration $(config) --output $(build.artifactstagingdirectory)'
 
-  - task: AzureRmWebAppDeployment@4
-    displayName: Deploy $(functionAppName)
+  - task: AzureFunctionApp@2
     inputs:
-      ConnectionType: 'AzureRM'
-      azureSubscription: $(serviceConnectionName)
+      connectedServiceNameARM: $(serviceConnectionName)
       appType: 'functionApp'
-      WebAppName: $(functionAppName)
-      packageForLinux: '$(build.artifactstagingdirectory)/csharp-ooproc.zip'
+      appName: $(functionAppName)
+      package: '$(build.artifactstagingdirectory)/csharp-ooproc.zip'
+      deploymentMethod: 'auto'
 
   - script: dotnet test --configuration $(config) --no-build --verbosity normal
     displayName: E2E Test - Chat Bot Sample Out of Proc

@@ -57,7 +57,7 @@ public class Chat
 
         // Ask a question using an HTTP POST request
         using HttpResponseMessage questionResponse = await client.PostAsync(
-            requestUri: $"{baseAddress}/api/chats/{chatId}",
+            requestUri: requestUriString,
             new StringContent("Who won the Superbowl in 2014?"),
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
@@ -66,7 +66,7 @@ public class Chat
         await ValidateAssistantResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
 
         using HttpResponseMessage followupResponse = await client.PostAsync(
-            requestUri: $"{baseAddress}/api/chats/{chatId}",
+            requestUri: requestUriString,
             new StringContent("Who performed the halftime show?"),
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
@@ -81,7 +81,7 @@ public class Chat
             while (!cts.IsCancellationRequested)
             {
                 using HttpResponseMessage stateResponse = await client.GetAsync(
-                    requestUri: $"{baseAddress}/api/chats/{chatId}?timestampUTC={Uri.EscapeDataString(timestamp.ToString("o"))}");
+                    requestUri: $"{requestUriString}&timestampUTC={Uri.EscapeDataString(timestamp.ToString("o"))}");
                 Assert.Equal(HttpStatusCode.OK, stateResponse.StatusCode);
                 Assert.StartsWith("application/json", stateResponse.Content.Headers.ContentType?.MediaType);
 

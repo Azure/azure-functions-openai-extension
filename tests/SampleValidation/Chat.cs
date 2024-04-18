@@ -30,7 +30,9 @@ public class Chat
         using CancellationTokenSource cts = new(delay: TimeSpan.FromMinutes(Debugger.IsAttached ? 5 : 1));
 
         string baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS") ?? "http://localhost:7071";
+        string funcCode = Environment.GetEnvironmentVariable("FUNC_CODE") ?? string.Empty;
         string chatId = $"superbowl-{Guid.NewGuid():N}";
+        string requestUriString = string.IsNullOrEmpty(funcCode) ? $"{baseAddress}/api/chats/{chatId}" : $"{baseAddress}/api/chats/{chatId}code={funcCode}";
 
         // The timestamp is used for message filtering and will be updated by the ValidateAssistantResponseAsync function
         DateTime timestamp = DateTime.UtcNow;
@@ -38,7 +40,7 @@ public class Chat
         // Create a new assistant using an HTTP PUT request
         var createRequest = new { instructions = "You are a helpful assistant. Prefix each response with 'Yo!'." };
         using HttpResponseMessage createResponse = await client.PutAsJsonAsync(
-            requestUri: $"{baseAddress}/api/chats/{chatId}",
+            requestUri: requestUriString,
             createRequest,
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);

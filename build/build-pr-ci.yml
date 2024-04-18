@@ -83,3 +83,4 @@ steps:
       scriptType: 'bash'
       scriptLocation: 'inlineScript'
       inlineScript: 'az functionapp stop --name $(functionAppName) --resource-group $(resourceGroupName)'
+    condition: always()

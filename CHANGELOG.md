@@ -5,12 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.13.0 - Unreleased
+Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI.Kusto/CHANGELOG.md)
+
+Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
+
+## v0.14.0 - Unreleased
+
+### Changes
+
+- Updated Azure.Identity from 1.10.4 to 1.11.0
+
+### Breaking Changes
+
+- Overlapping introduced to chunking in embeddings with word breaks and sentence endings.
+  
+## v0.13.0 - 2024/04/05
 
 ### Added
 
 - Added dotnet-isolated support for Embeddings
-- Added Azure AI Search support for Semantic Search.
+- Added support for multiple search providers.
+- Added dotnet-isolated support for Kusto and Azure AI Search RAG scenarios.
 
 ### Breaking changes
 
@@ -72,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
-- Migrated from Betalgo to Azure Open AI 1.0.0-beta.12
+- Migrated from Betalgo to Azure OpenAI 1.0.0-beta.12
 - Text Completion default model updated.
 
 ## v0.5.0 - 2024/01/03

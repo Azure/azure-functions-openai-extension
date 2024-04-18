@@ -60,17 +60,21 @@ steps:
     displayName: Create new directory
 
   - script: |
-      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $(config) -p:WebJobsVersion=$(fakeWebJobsPackageVersion) -p:Version=$(fakeWebJobsPackageVersion)
+      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $(config) -p:WebJobsVersion=$(fakeWebJobsPackageVersion) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(KustoVersion)
+      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/WebJobs.Extensions.OpenAI.Kusto.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(KustoVersion)
+      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/WebJobs.Extensions.OpenAI.AzureAISearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(KustoVersion)
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
-
-      sleep 10s
-      
-      dotnet nuget add source ~/NuGetPackagesLocal
-      dotnet nuget list source
+      sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
+      sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
 
       sleep 10s
 
-      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion)
+      dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/NuGet.Config
+      dotnet nuget list source --configfile  ~/.nuget/NuGet/NuGet.Config
+
+      sleep 10s
+
+      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
     displayName: Create/Copy NuGet Package to local directory and Build
 
   - script: dotnet test --configuration $(config) --no-build --verbosity normal

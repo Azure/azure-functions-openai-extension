@@ -30,9 +30,7 @@ public class Chat
         using CancellationTokenSource cts = new(delay: TimeSpan.FromMinutes(Debugger.IsAttached ? 5 : 1));
 
         string baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS") ?? "http://localhost:7071";
-        string funcCode = Environment.GetEnvironmentVariable("FUNC_CODE") ?? string.Empty;
         string chatId = $"superbowl-{Guid.NewGuid():N}";
-        string requestUriString = string.IsNullOrEmpty(funcCode) ? $"{baseAddress}/api/chats/{chatId}" : $"{baseAddress}/api/chats/{chatId}?code={funcCode}";
 
         // The timestamp is used for message filtering and will be updated by the ValidateAssistantResponseAsync function
         DateTime timestamp = DateTime.UtcNow;
@@ -40,7 +38,7 @@ public class Chat
         // Create a new assistant using an HTTP PUT request
         var createRequest = new { instructions = "You are a helpful assistant. Prefix each response with 'Yo!'." };
         using HttpResponseMessage createResponse = await client.PutAsJsonAsync(
-            requestUri: requestUriString,
+            requestUri: $"{baseAddress}/api/chats/{chatId}",
             createRequest,
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
@@ -57,7 +55,7 @@ public class Chat
 
         // Ask a question using an HTTP POST request
         using HttpResponseMessage questionResponse = await client.PostAsync(
-            requestUri: requestUriString,
+            requestUri: $"{baseAddress}/api/chats/{chatId}",
             new StringContent("Who won the Superbowl in 2014?"),
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
@@ -66,7 +64,7 @@ public class Chat
         await ValidateAssistantResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
 
         using HttpResponseMessage followupResponse = await client.PostAsync(
-            requestUri: requestUriString,
+            requestUri: $"{baseAddress}/api/chats/{chatId}",
             new StringContent("Who performed the halftime show?"),
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
@@ -81,7 +79,7 @@ public class Chat
             while (!cts.IsCancellationRequested)
             {
                 using HttpResponseMessage stateResponse = await client.GetAsync(
-                    requestUri: $"{requestUriString}&timestampUTC={Uri.EscapeDataString(timestamp.ToString("o"))}");
+                    requestUri: $"{baseAddress}/api/chats/{chatId}?timestampUTC={Uri.EscapeDataString(timestamp.ToString("o"))}");
                 Assert.Equal(HttpStatusCode.OK, stateResponse.StatusCode);
                 Assert.StartsWith("application/json", stateResponse.Content.Headers.ContentType?.MediaType);
 

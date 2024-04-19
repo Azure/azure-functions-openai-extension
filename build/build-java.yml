@@ -6,6 +6,7 @@ pr:
     include:
       - java-library/*
       - samples/*/java/*
+      - build/build-java.yml
     exclude:
       - '**.md'
 
@@ -17,6 +18,7 @@ trigger:
     include:
       - java-library/*
       - samples/*/java/*
+      - build/build-java.yml
     exclude:
       - '**.md'
 

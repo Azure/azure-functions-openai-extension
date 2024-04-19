@@ -262,7 +262,7 @@ The semantic search feature allows you to import documents into a vector databas
 
 * [Azure AI Search](https://learn.microsoft.com/azure/search/search-create-service-portal) - See [source code](./src/WebJobs.Extensions.OpenAI.AISearch/)
 * [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [source code](./src/WebJobs.Extensions.OpenAI.Kusto/)
-* [Azure Cosmos DB using MongoDB](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/introduction) - See [source code](./src/WebJobs.Extensions.OpenAI.CosmosDBSearch/)
+* [Azure Cosmos DB using MongoDB (vCore)](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/introduction) - See [source code](./src/WebJobs.Extensions.OpenAI.CosmosDBSearch/)
 
  More may be added over time.
 

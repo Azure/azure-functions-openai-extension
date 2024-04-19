@@ -75,7 +75,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
         string connectionString = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
 
-        MongoClient mongoClient = await this.GetMongoClientAsync(connectionString);
+        MongoClient mongoClient = await this.GetMongoClientAsync(connectionString, document.ConnectionInfo.ConnectionName);
 
         this.CreateVectorIndexIfNotExists(mongoClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
@@ -102,7 +102,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
 
         string connectionString = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        MongoClient mongoClient = await this.GetMongoClientAsync(connectionString);
+        MongoClient mongoClient = await this.GetMongoClientAsync(connectionString, request.ConnectionInfo.ConnectionName);
 
         try
         {
@@ -251,13 +251,13 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     }
 
-    async Task<MongoClient> GetMongoClientAsync(string connectionString)
+    async Task<MongoClient> GetMongoClientAsync(string connectionString, string connectionStringName)
     {
         // TODO: Add suport for managed identity
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException($"""
-                No CosmosDB mongo connection string named '{nameof(connectionString)}' was found.
+                No CosmosDB mongo connection string named '{connectionStringName}' was found.
                 It's required to be specified as an app setting or environment variable.
                 """);
         }

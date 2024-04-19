@@ -31,7 +31,7 @@ stages:
       Codeql.Language: java
     jobs:
       - job: BuildJavaLibrary
-        displayName: Build Java Library and Samples
+        displayName: Build Java Library
 
         pool:
           vmImage: 'windows-latest'

@@ -16,5 +16,10 @@ public enum InputType
     /// <summary>
     /// The input data is a file path that contains the text.
     /// </summary>
-    FilePath
+    FilePath,
+
+    /// <summary>
+    /// The input data is a URL that can be invoked to get the text.
+    /// </summary>
+    URL
 }

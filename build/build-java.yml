@@ -28,34 +28,17 @@ stages:
       Codeql.BuildIdentifier: java_library_samples
       Codeql.Language: java
     jobs:
-      - job: BuildJavaLibraryAndSamples
+      - job: BuildJavaLibrary
         displayName: Build Java Library and Samples
 
         pool:
           vmImage: 'windows-latest'
 
         steps:
-          - script: npm install -g azure-functions-core-tools
-            displayName: 'Install Azure Functions Core Tools'
-
           - task: Maven@3
             displayName: Build library
             inputs:
               mavenPomFile: java-library/pom.xml
-              options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
-              checkStyleRunAnalysis: true
-
-          - task: Maven@3
-            displayName: Build Chat Sample
-            inputs:
-              mavenPomFile: samples/chat/java/pom.xml
-              options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
-              checkStyleRunAnalysis: true
-
-          - task: Maven@3
-            displayName: Build Text Completion Sample
-            inputs:
-              mavenPomFile: samples/textcompletion/java/pom.xml
               options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
               checkStyleRunAnalysis: true
 
@@ -85,3 +68,27 @@ stages:
             displayName: Publish library package
             artifact: drop-java-library
             condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+
+      - job: BuildJavaSamples
+        displayName: Build Java Samples
+
+        pool:
+          vmImage: 'windows-latest'
+
+        steps:
+          - script: npm install -g azure-functions-core-tools
+            displayName: 'Install Azure Functions Core Tools'
+
+          - task: Maven@3
+            displayName: Build Chat Sample
+            inputs:
+              mavenPomFile: samples/chat/java/pom.xml
+              options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+              checkStyleRunAnalysis: true
+
+          - task: Maven@3
+            displayName: Build Text Completion Sample
+            inputs:
+              mavenPomFile: samples/textcompletion/java/pom.xml
+              options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+              checkStyleRunAnalysis: true

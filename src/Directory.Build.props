@@ -35,7 +35,10 @@
     <KustoVersion>0.13.0-alpha</KustoVersion>
     <!-- Version for azure AI search webjobs and worker project -->
     <AzureAISearchVersion>0.1.0-alpha</AzureAISearchVersion>
-  </PropertyGroup>
+    <!-- Version for CosmosDB search webjobs and worker project -->
+    <CosmosDBSearchVersion>0.1.0-alpha</CosmosDBSearchVersion>
+  
+</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.*" PrivateAssets="All" />

@@ -11,12 +11,10 @@ This extension depends on the [Azure AI OpenAI SDK](https://github.com/Azure/azu
 
 The following NuGet packages are available as part of this project.
 
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.svg?label=microsoft.azure.webjobs.extensions.openai)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI)
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.svg?label=microsoft.azure.functions.worker.extensions.openai)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI)
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.webjobs.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto)
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.svg?label=microsoft.azure.webjobs.extensions.openai.azureaisearch)](https://www.nuget.org/packages/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch)
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.functions.worker.extensions.openai.kusto)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto)
-[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch.svg?label=microsoft.azure.functions.worker.extensions.openai.azureaisearch)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.svg?label=microsoft.azure.functions.worker.extensions.openAI)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto.svg?label=microsoft.azure.functions.worker.extensions.openAI.kusto)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Kusto)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch.svg?label=microsoft.azure.functions.worker.extensions.openAI.azureAISearch)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch)
+[![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.CosmosDBSearch.svg?label=microsoft.azure.functions.worker.extensions.openAI.cosmosDBSearch)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.CosmosDBSearch)
 
 ## Requirements
 
@@ -264,6 +262,7 @@ The semantic search feature allows you to import documents into a vector databas
 
 * [Azure AI Search](https://learn.microsoft.com/azure/search/search-create-service-portal) - See [source code](./src/WebJobs.Extensions.OpenAI.AISearch/)
 * [Azure Data Explorer](https://azure.microsoft.com/services/data-explorer/) - See [source code](./src/WebJobs.Extensions.OpenAI.Kusto/)
+* [Azure Cosmos DB using MongoDB (vCore)](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/introduction) - See [source code](./src/WebJobs.Extensions.OpenAI.CosmosDBSearch/)
 
  More may be added over time.
 

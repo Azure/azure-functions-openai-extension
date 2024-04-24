@@ -18,6 +18,7 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 ### Breaking Changes
 
 - Overlapping introduced to chunking in embeddings with word breaks and sentence endings.
+- Removed authentication support based on Azure OpenAI Key, managed identity is default.
   
 ## v0.13.0 - 2024/04/05
 

@@ -20,7 +20,7 @@ public static class ChatBot
 
     [Function(nameof(CreateChatBot))]
     public static async Task<CreateChatBotOutput> CreateChatBot(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId)
     {
         var responseJson = new { chatId };
@@ -56,7 +56,7 @@ public static class ChatBot
 
     [Function(nameof(PostUserResponse))]
     public static async Task<PostResponseOutput> PostUserResponse(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId)
     {
         string? userMessage = await req.ReadAsStringAsync();
@@ -86,7 +86,7 @@ public static class ChatBot
 
     [Function(nameof(GetChatState))]
     public static async Task<HttpResponseData> GetChatState(
-       [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequestData req,
+       [HttpTrigger(AuthorizationLevel.Function, "get", Route = "chats/{chatId}")] HttpRequestData req,
        string chatId,
        [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state,
        FunctionContext context)

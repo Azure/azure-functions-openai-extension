@@ -44,16 +44,6 @@ public class SemanticSearchInputAttribute : InputBindingAttribute
     public string Collection { get; set; }
 
     /// <summary>
-    /// The name of the app setting or environment variable containing the required credentials 
-    /// for authenticating with the search provider. See the documentation for the search provider
-    /// extension to know what format the underlying credential value requires.
-    /// </summary>
-    /// <remarks>
-    /// This property supports binding expressions.
-    /// </remarks>
-    public string? CredentialSettingName { get; set; }
-
-    /// <summary>
     /// Gets or sets the semantic query text to use for searching.
     /// This property is only used for the semantic search input binding.
     /// </summary>

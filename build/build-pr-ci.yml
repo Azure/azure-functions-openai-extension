@@ -33,29 +33,6 @@ steps:
     inputs:
       version: '8.x'
 
-  - task: DockerInstaller@0
-    inputs:
-      dockerVersion: '25.0.3'
-
-  - script: docker build -f samples/chat/csharp-ooproc/Dockerfile -t openai-func-sample-csharp-ooproc .
-    displayName: Docker Build - Chat Bot Sample Out of Proc
-
-  - script: docker run -d -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite
-    displayName: Docker Run - Azurite
-
-  - script: |
-      docker run -d -p 7071:80 --name openai-func-sample-csharp-ooproc \
-            --add-host host.docker.internal:host-gateway \
-            --env AZURE_OPENAI_KEY=$(AZURE_OPENAI_KEY) \
-            --env AZURE_OPENAI_ENDPOINT=$(AZURE_OPENAI_ENDPOINT) \
-            --env CHAT_MODEL_DEPLOYMENT_NAME=$(AZURE_DEPLOYMENT_NAME) \
-            --env 'AzureWebJobsStorage=UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://host.docker.internal' \
-            openai-func-sample-csharp-ooproc
-    displayName: Docker Run - Chat Bot Sample Out of Proc
-
-  - script: sleep 10s
-    displayName: Sleep for 10 seconds
-
   - script: mkdir ~/NuGetPackagesLocal
     displayName: Create new directory
 
@@ -64,24 +41,50 @@ steps:
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/WebJobs.Extensions.OpenAI.Kusto.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(fakeWebJobsPackageVersion)
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/WebJobs.Extensions.OpenAI.AzureAISearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion)
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion)
+
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
 
-      sleep 10s
-
       dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/NuGet.Config
       dotnet nuget list source --configfile  ~/.nuget/NuGet/NuGet.Config
-
-      sleep 10s
 
       dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
     displayName: Create/Copy NuGet Package to local directory and Build
 
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish Project'
+    inputs:
+      command: publish
+      publishWebProjects: false
+      projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
+      arguments: '--configuration $(config) --output $(build.artifactstagingdirectory)'
+
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: $(serviceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az functionapp start --name $(functionAppName) --resource-group $(resourceGroupName)'
+
+  - task: AzureFunctionApp@2
+    inputs:
+      connectedServiceNameARM: $(serviceConnectionName)
+      appType: 'functionApp'
+      appName: $(functionAppName)
+      package: '$(build.artifactstagingdirectory)/csharp-ooproc.zip'
+      deploymentMethod: 'auto'
+
   - script: dotnet test --configuration $(config) --no-build --verbosity normal
+    env:
+      FUNC_DEFAULT_KEY: $(FUNC_DEFAULT_KEY) # value defined in pipeline variable secrets
     displayName: E2E Test - Chat Bot Sample Out of Proc
 
-  - script: docker logs openai-func-sample-csharp-ooproc
-    displayName: Print Docker Logs - Chat Bot Sample Out of Proc
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: $(serviceConnectionName)
+      scriptType: 'bash'
+      scriptLocation: 'inlineScript'
+      inlineScript: 'az functionapp stop --name $(functionAppName) --resource-group $(resourceGroupName)'
     condition: always()

@@ -68,10 +68,9 @@ sealed class AzureAISearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(document.ConnectionInfo));
         }
         string endpoint = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
-        string key = this.configuration.GetValue<string>(document.ConnectionInfo.Credentials);
 
-        SearchIndexClient searchIndexClient = GetSearchIndexClient(endpoint, key);
-        SearchClient searchClient = GetSearchClient(endpoint, key, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchIndexClient searchIndexClient = GetSearchIndexClient(endpoint);
+        SearchClient searchClient = GetSearchClient(endpoint, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
         await this.CreateIndexIfDoesntExist(searchIndexClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName, cancellationToken);
 
@@ -98,8 +97,7 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
 
         string endpoint = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        string key = this.configuration.GetValue<string>(request.ConnectionInfo.Credentials);
-        SearchClient searchClient = GetSearchClient(endpoint, key, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchClient searchClient = GetSearchClient(endpoint, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
         SearchOptions searchOptions = this.isSemanticSearchEnabled
             ? new SearchOptions
@@ -270,30 +268,13 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
     }
 
-    static SearchIndexClient GetSearchIndexClient(string endpoint, string key)
+    static SearchIndexClient GetSearchIndexClient(string endpoint)
     {
-        if (string.IsNullOrEmpty(key))
-        {
-            return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
-        }
-        else
-        {
-            return new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key));
-        }
+        return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
     }
 
-    static SearchClient GetSearchClient(string endpoint, string key, string searchIndexName)
+    static SearchClient GetSearchClient(string endpoint, string searchIndexName)
     {
-        SearchClient searchClient;
-        if (string.IsNullOrEmpty(key))
-        {
-            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
-        }
-        else
-        {
-            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new AzureKeyCredential(key));
-        }
-
-        return searchClient;
+        return new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
     }
 }

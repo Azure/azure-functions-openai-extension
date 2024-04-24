@@ -1,0 +1,96 @@
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - java-library/*
+      - samples/*/java/*
+      - build/build-java.yml
+    exclude:
+      - '**.md'
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - java-library/*
+      - samples/*/java/*
+      - build/build-java.yml
+    exclude:
+      - '**.md'
+
+stages:
+  - stage: BuildJava
+    displayName: 'Build Java'
+    dependsOn: []
+    variables:
+      Codeql.BuildIdentifier: java_library_samples
+      Codeql.Language: java
+    jobs:
+      - job: BuildJavaLibrary
+        displayName: Build Java Library
+
+        pool:
+          vmImage: 'windows-latest'
+
+        steps:
+          - task: Maven@3
+            displayName: Build library
+            inputs:
+              mavenPomFile: java-library/pom.xml
+              options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+              checkStyleRunAnalysis: true
+
+          - powershell: |
+              $source = 'java-library'
+              $destination = '$(Build.ArtifactStagingDirectory)/java-library'
+              $jar = Get-ChildItem $source/target/*.jar | Select-Object -First 1 | Select Name
+              $jar -match '\d+\.\d+\.\d+(-preview)?'
+              $version = $matches[0]
+              $prefix = 'azure-functions-java-library-openai-'+$version
+              New-Item $destination -ItemType Directory
+              Copy-Item "$source/pom.xml" "$destination/$prefix.pom"
+              Copy-Item "$source/target/$prefix.jar" "$destination/"
+              Copy-Item "$source/target/$prefix-javadoc.jar" "$destination/"
+              Copy-Item "$source/target/$prefix-sources.jar" "$destination/"
+            displayName: Copy output files
+            condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+
+          - task: ManifestGeneratorTask@0
+            displayName: Generate SBOM manifest
+            inputs:
+              buildDropPath: $(Build.ArtifactStagingDirectory)/java-library
+              packageName: Azure Functions OpenAI Java Bindings
+            condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+
+          - publish: $(Build.ArtifactStagingDirectory)
+            displayName: Publish library package
+            artifact: drop-java-library
+            condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+
+      - job: BuildJavaSamples
+        displayName: Build Java Samples
+
+        pool:
+          vmImage: 'windows-latest'
+
+        steps:
+          - script: npm install -g azure-functions-core-tools
+            displayName: 'Install Azure Functions Core Tools'
+
+          - task: Maven@3
+            displayName: Build Chat Sample
+            inputs:
+              mavenPomFile: samples/chat/java/pom.xml
+              options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+              checkStyleRunAnalysis: true
+
+          - task: Maven@3
+            displayName: Build Text Completion Sample
+            inputs:
+              mavenPomFile: samples/textcompletion/java/pom.xml
+              options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+              checkStyleRunAnalysis: true

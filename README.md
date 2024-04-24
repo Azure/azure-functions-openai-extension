@@ -259,7 +259,7 @@ public async Task GenerateEmbeddings_Http_RequestAsync(
 
 The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).
 
-Only raw text and file types with extension `.txt` are supported at present for data ingestion.
+Only raw text files are supported at present for data ingestion.
 
 The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
 

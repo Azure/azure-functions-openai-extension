@@ -32,7 +32,7 @@ public class Chat
         string baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS") ?? "http://localhost:7071";
         string chatId = $"superbowl-{Guid.NewGuid():N}";
 
-        string functionKey = Environment.GetEnvironmentVariable("FUNC_KEY") ?? throw new InvalidOperationException("Missing environment variable 'FUNC_KEY'");
+        string functionKey = Environment.GetEnvironmentVariable("FUNC_DEFAULT_KEY") ?? throw new InvalidOperationException("Missing environment variable 'FUNC_DEFAULT_KEY'");
         client.DefaultRequestHeaders.Add("x-functions-key", functionKey);
 
         // The timestamp is used for message filtering and will be updated by the ValidateAssistantResponseAsync function

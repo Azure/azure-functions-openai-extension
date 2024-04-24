@@ -41,7 +41,7 @@ steps:
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/WebJobs.Extensions.OpenAI.Kusto.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(fakeWebJobsPackageVersion)
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/WebJobs.Extensions.OpenAI.AzureAISearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion)
       dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion)
-      
+
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
       sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
@@ -77,8 +77,8 @@ steps:
       deploymentMethod: 'auto'
 
   - script: dotnet test --configuration $(config) --no-build --verbosity normal
-    env:  
-      FUNC_KEY: $(FUNC_KEY) 
+    env:
+      FUNC_DEFAULT_KEY: $(FUNC_DEFAULT_KEY) # value defined in pipeline variable secrets
     displayName: E2E Test - Chat Bot Sample Out of Proc
 
   - task: AzureCLI@2

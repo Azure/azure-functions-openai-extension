@@ -29,8 +29,11 @@ public class Chat
         using HttpClient client = new(new LoggingHandler(this.output));
         using CancellationTokenSource cts = new(delay: TimeSpan.FromMinutes(Debugger.IsAttached ? 5 : 1));
 
-        string baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS") ?? "http://localhost:7071";
+        string baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS_TEMP") ?? "http://localhost:7071";
         string chatId = $"superbowl-{Guid.NewGuid():N}";
+
+        string functionKey = Environment.GetEnvironmentVariable("FUNC_KEY") ?? throw new InvalidOperationException("Missing environment variable 'FUNC_KEY'");
+        client.DefaultRequestHeaders.Add("x-functions-key", functionKey);
 
         // The timestamp is used for message filtering and will be updated by the ValidateAssistantResponseAsync function
         DateTime timestamp = DateTime.UtcNow;

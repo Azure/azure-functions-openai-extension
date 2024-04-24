@@ -77,6 +77,8 @@ steps:
       deploymentMethod: 'auto'
 
   - script: dotnet test --configuration $(config) --no-build --verbosity normal
+    env:  
+      FUNC_KEY: $(FUNC_KEY) 
     displayName: E2E Test - Chat Bot Sample Out of Proc
 
   - task: AzureCLI@2

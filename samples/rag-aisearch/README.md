@@ -16,7 +16,11 @@ and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure
 Once you have an Azure AI Search resource, you can run the sample by following these steps:
 
 1. Update the `AISearchEndpoint` value in `local.settings.json` to match your Azure AI Search endpoint.
-1. Provide SearchAPIKey for API key based auth, skip setting it for managed identity based authentication.
+1. Update the AI search API access control to `Role based access control` (Settings -> Keys -> API Access Control). The extension doesn't support key based authentication to avoid maintenance of secrets.
+1. Make sure the user or function app managed identity has following roles assigned:
+    * `Search Service Contributor` – provides access to manage the search service's indexes, indexers, etc.
+    * `Search Index Data Contributor` – provides read/write access to search indexes
+    Visit [this](https://learn.microsoft.com/azure/search/search-security-rbac#built-in-roles-used-in-search) link for more info on the available roles in Search Service
 1. Always configure the search provider type in the `host.json` as shown in below snippet.
 1. Use of Semantic Search, Semantic Captions and Vector Search Dimensions are configurable. You may configure the `host.json` file within the project and following example shows the default values:
 

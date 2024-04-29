@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated Microsoft.Azure.WebJobs.Extensions.OpenAI to 0.14.0
 
+### Breaking
+
+- Removed authentication support based on Search API Key, managed identity is default.
+
 ## v0.1.0 - 2024/04/05
 
 ### Added

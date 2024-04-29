@@ -69,7 +69,7 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
             }
         }
         SearchableDocument searchableDocument = new SearchableDocument(title, new EmbeddingsContext(embeddingsOptions, embeddings));
-        searchableDocument.ConnectionInfo = new ConnectionInfo(connectionName, collectionName, credentials);
+        searchableDocument.ConnectionInfo = new ConnectionInfo(connectionName, collectionName);
         return searchableDocument;
     }
 
@@ -112,17 +112,6 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         else
         {
             writer.WriteStringValue(value.ConnectionInfo.CollectionName);
-        }
-
-        writer.WritePropertyName("credentials"u8);
-
-        if (value.ConnectionInfo == null)
-        {
-            writer.WriteNullValue();
-        }
-        else
-        {
-            writer.WriteStringValue(value.ConnectionInfo.Credentials);
         }
         writer.WriteEndObject();
 

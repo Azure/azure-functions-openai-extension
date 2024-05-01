@@ -86,6 +86,7 @@ The sample is available in the following language stacks:
 
 * [C# on the out-of-process worker](csharp-ooproc)
 * [nodejs](nodejs)
+* [python](python) - supported on host runtime version >= 4.34.0.0
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

@@ -3,7 +3,7 @@ import logging
 import os
 
 from azure.cosmos import CosmosClient
-
+from azure.cosmos import PartitionKey
 
 class TodoItem:
     def __init__(self, id, task):
@@ -40,10 +40,9 @@ class CosmosDbTodoManager(ITodoManager):
 
         if not cosmos_database_name or not cosmos_container_name:
             raise ValueError("CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json")
-
-        # ToDo: Update below to create database and container if they don't exist
-        self.database = self.cosmos_client.get_database_client(cosmos_database_name)
-        self.container = self.database.get_container_client(cosmos_container_name)
+        
+        self.database = self.cosmos_client.create_database_if_not_exists(cosmos_database_name)
+        self.container = self.database.create_container_if_not_exists(id=cosmos_container_name, partition_key=PartitionKey(path="/id"))
 
     def add_todo(self, todo: TodoItem):
         logging.info(

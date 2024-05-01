@@ -55,6 +55,26 @@ app.generic('AddTodo', {
 })
 ```
 
+Python example:
+
+```py
+
+skills = func.Blueprint()
+todo_manager = CreateTodoManager()
+
+@skills.function_name("AddTodo")
+@skills.generic_trigger(arg_name="taskDescription", type="assistantSkillTrigger", data_type=func.DataType.STRING, functionDescription="Create a new todo task")
+def add_todo(taskDescription: str) -> None:
+    if not taskDescription:
+        raise ValueError("Task description cannot be empty")
+
+    logging.info(f"Adding todo: {taskDescription}")
+
+    todo_id = str(uuid.uuid4())[0:6]
+    todo_manager.add_todo(TodoItem(id=todo_id, task=taskDescription))
+    return
+```
+
 The `AssistantSkillTrigger` attribute requires a `FunctionDescription` string value, which is text describing what the function does.
 This is critical for the AI assistant to be able to invoke the skill at the right time.
 The name of the function parameter (e.g., `taskDescription`) is also an important hint to the AI assistant about what kind of information to provide to the skill.
@@ -70,6 +90,7 @@ The sample is available in the following language stacks:
 
 * [C# on the out-of-process worker](csharp-ooproc)
 * [nodejs](nodejs)
+* [python](python) - supported on host runtime version >= 4.34.0.0
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

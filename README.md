@@ -255,6 +255,25 @@ public async Task GenerateEmbeddings_Http_RequestAsync(
 }
 ```
 
+#### [Python example](./samples/embeddings/python/)
+
+```python
+@app.function_name("GenerateEmbeddingsHttpRequest")
+@app.route(route="embeddings", methods=["POST"])
+@app.generic_input_binding(arg_name="embeddings", type="embeddings", data_type=func.DataType.STRING, input="{rawText}", input_type="rawText", model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
+def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> func.HttpResponse:
+    user_message = req.get_json()
+    embeddings_json = json.loads(embeddings)
+    embeddings_request = {
+        "raw_text": user_message.get("RawText"),
+        "file_path": user_message.get("FilePath")
+    }
+    logging.info(f'Received {embeddings_json.get("count")} embedding(s) for input text '
+        f'containing {len(embeddings_request.get("raw_text"))} characters.')
+    # TODO: Store the embeddings into a database or other storage.
+    return func.HttpResponse(status_code=202)
+```
+
 ### Semantic Search
 
 The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).

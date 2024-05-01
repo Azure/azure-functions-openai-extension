@@ -92,6 +92,12 @@ public sealed class EmbeddingsAttribute : Attribute
         {
             return new StreamReader(this.Input);
         }
+        else if (this.InputType == InputType.URL)
+        {
+            HttpClient client = new();
+            Stream stream = client.GetStreamAsync(this.Input).Result;
+            return new StreamReader(stream);
+        }
         else
         {
             throw new NotSupportedException($"InputType = '{this.InputType}' is not supported.");

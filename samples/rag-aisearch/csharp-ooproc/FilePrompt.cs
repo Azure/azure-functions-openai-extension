@@ -16,8 +16,8 @@ public static class FilePrompt
 {
     public class EmbeddingsRequest
     {
-        [JsonPropertyName("FilePath")]
-        public string? FilePath { get; set; }
+        [JsonPropertyName("URL")]
+        public string? URL { get; set; }
     }
 
     public class SemanticSearchRequest
@@ -31,19 +31,20 @@ public static class FilePrompt
     [Function("IngestFile")]
     public static async Task<SemanticSearchOutputResponse> IngestFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-        [EmbeddingsInput("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+        [EmbeddingsInput("{URL}", InputType.URL, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
 
-        if (requestBody == null)
+        if (requestBody == null || requestBody.URL == null)
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"filePath\": value } as the request body.");
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"URL\": value } as the request body.");
         }
 
-        string title = Path.GetFileNameWithoutExtension(requestBody.FilePath);
+        Uri uri = new(uriString: requestBody.URL);
+        string title = Path.GetFileNameWithoutExtension(uri.LocalPath);
 
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(new { status = "success", title, chunks = embeddings.Count });
@@ -58,7 +59,7 @@ public static class FilePrompt
     public class SemanticSearchOutputResponse
     {
         [SemanticSearchOutput("AISearchEndpoint", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
-        public SearchableDocument SearchableDocument { get; set; }
+        public SearchableDocument? SearchableDocument { get; set; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }

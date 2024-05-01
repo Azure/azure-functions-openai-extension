@@ -29,6 +29,9 @@ public class EmbeddingsGenerator
 
         [JsonPropertyName("FilePath")]
         public string? FilePath { get; set; }
+
+        [JsonPropertyName("URL")]
+        public string? URL { get; set; }
     }
 
     /// <summary>
@@ -70,6 +73,27 @@ public class EmbeddingsGenerator
             "Received {count} embedding(s) for input file '{path}'.",
             embeddings.Count,
             requestBody?.FilePath);
+
+        // TODO: Store the embeddings into a database or other storage.
+    }
+
+    /// <summary>
+    /// Example showing how to use the <see cref="EmbeddingsAttribute"/> input binding to generate embeddings
+    /// for text contained in a file on the file system.
+    /// </summary>
+    [Function(nameof(GetEmbeddings_Http_URL))]
+    public async Task GetEmbeddings_Http_URL(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-url")] HttpRequestData req,
+        [EmbeddingsInput("{URL}", InputType.URL, MaxChunkLength = 512, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+    {
+        using StreamReader reader = new(req.Body);
+        string request = await reader.ReadToEndAsync();
+
+        EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
+        this.logger.LogInformation(
+            "Received {count} embedding(s) for input file '{path}'.",
+            embeddings.Count,
+            requestBody?.URL);
 
         // TODO: Store the embeddings into a database or other storage.
     }

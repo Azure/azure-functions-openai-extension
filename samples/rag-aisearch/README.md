@@ -16,8 +16,8 @@ and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure
 Once you have an Azure AI Search resource, you can run the sample by following these steps:
 
 1. Update the `AISearchEndpoint` value in `local.settings.json` to match your Azure AI Search endpoint.
-1. Update the AI search API access control to `Role based access control` (Settings -> Keys -> API Access Control). The extension doesn't support key based authentication to avoid maintenance of secrets.
-1. Make sure the user or function app managed identity has following roles assigned:
+1. (Strongly Recommended) Update the AI search API access control to `Role based access control` (Settings -> Keys -> API Access Control). If the use of api keys is required, visit the [use of api keys](#use-of-api-key).
+1. (Strongly Recommended) Make sure the user or function app managed identity has following roles assigned:
     * `Search Service Contributor` – provides access to manage the search service's indexes, indexers, etc.
     * `Search Index Data Contributor` – provides read/write access to search indexes
     Visit [this](https://learn.microsoft.com/azure/search/search-security-rbac#built-in-roles-used-in-search) link for more info on the available roles in Search Service
@@ -73,3 +73,24 @@ Semantic Search binding for Azure AI Search expects/creates a very specific inde
 ### Vector Search Configuration
 
 Algorithm - HnswAlgorithmConfiguration
+
+### Use of API Key
+
+1. Update the AI search API access control to `API keys` or `Both` (Settings -> Keys -> API Access Control).
+1. You may configure the `host.json` file within the project and following example shows the default values:
+
+    ```json
+    "extensions": {
+        "openai": {
+            "searchProvider": {
+                "type": "azureAiSearch",
+                "isSemanticSearchEnabled": true,
+                "useSemanticCaptions": true,
+                "vectorSearchDimensions": 1536,
+                "searchAPIKeySetting": "SearchAPIKey"
+            }
+        }
+    }
+    ```
+
+1. Add the `SearchAPIKey` key and its value in `local.settings.json` or function app environment variables.

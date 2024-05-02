@@ -16,13 +16,13 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         using JsonDocument jsonDocument = JsonDocument.ParseValue(ref reader);
 
         // Properties for SearchableDocument
-        OpenAISDK.EmbeddingsOptions embeddingsOptions = null;
+        OpenAISDK.EmbeddingsOptions embeddingsOptions = new();
         OpenAISDK.Embeddings embeddings = null;
         int count;
-        string title = null;
-        string connectionName = null;
-        string collectionName = null;
-        string credentials = null;
+        string title = string.Empty;
+        string connectionName = string.Empty;
+        string collectionName = string.Empty;
+        string credentials = string.Empty;
 
         foreach (JsonProperty item in jsonDocument.RootElement.EnumerateObject())
         {

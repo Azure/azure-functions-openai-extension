@@ -13,4 +13,6 @@ public class AzureAISearchConfigOptions
     public bool UseSemanticCaptions { get; set; }
 
     public int VectorSearchDimensions { get; set; } = 1536;
+
+    public string? SearchAPIKeySetting { get; set; }
 }

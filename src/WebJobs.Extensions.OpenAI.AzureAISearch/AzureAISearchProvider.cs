@@ -21,6 +21,7 @@ sealed class AzureAISearchProvider : ISearchProvider
     readonly bool isSemanticSearchEnabled = false;
     readonly bool useSemanticCaptions = false;
     readonly int vectorSearchDimensions = 1536;
+    readonly string? searchAPIKeySetting = string.Empty;
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
     const string vectorSearchProfile = "openai-vector-profile";
@@ -44,6 +45,7 @@ sealed class AzureAISearchProvider : ISearchProvider
 
         this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
         this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
+        this.searchAPIKeySetting = azureAiSearchConfigOptions.Value.SearchAPIKeySetting;
         int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
         if (value < 2 || value > 3072)
         {
@@ -69,8 +71,8 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
         string endpoint = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
 
-        SearchIndexClient searchIndexClient = GetSearchIndexClient(endpoint);
-        SearchClient searchClient = GetSearchClient(endpoint, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchIndexClient searchIndexClient = this.GetSearchIndexClient(endpoint);
+        SearchClient searchClient = this.GetSearchClient(endpoint, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
         await this.CreateIndexIfDoesntExist(searchIndexClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName, cancellationToken);
 
@@ -97,7 +99,7 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
 
         string endpoint = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        SearchClient searchClient = GetSearchClient(endpoint, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchClient searchClient = this.GetSearchClient(endpoint, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
         SearchOptions searchOptions = this.isSemanticSearchEnabled
             ? new SearchOptions
@@ -268,13 +270,32 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
     }
 
-    static SearchIndexClient GetSearchIndexClient(string endpoint)
+    SearchIndexClient GetSearchIndexClient(string endpoint)
     {
-        return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
+        string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
+        if (string.IsNullOrEmpty(key))
+        {
+            return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
+        }
+        else
+        {
+            return new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key));
+        }
     }
 
-    static SearchClient GetSearchClient(string endpoint, string searchIndexName)
+    SearchClient GetSearchClient(string endpoint, string searchIndexName)
     {
-        return new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
+        string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
+        SearchClient searchClient;
+        if (string.IsNullOrEmpty(key))
+        {
+            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
+        }
+        else
+        {
+            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new AzureKeyCredential(key));
+        }
+
+        return searchClient;
     }
 }

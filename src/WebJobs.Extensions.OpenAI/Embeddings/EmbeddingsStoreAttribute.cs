@@ -6,27 +6,31 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
-/// <summary>
-/// Input binding attribute for converting function trigger input into OpenAI embeddings.
-/// </summary>
-/// <remarks>
-/// More information on OpenAI embeddings can be found at
-/// https://platform.openai.com/docs/guides/embeddings/what-are-embeddings.
-/// </remarks>
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class EmbeddingsAttribute : Attribute
+public sealed class EmbeddingsStoreAttribute : Attribute
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EmbeddingsAttribute"/> class with the specified input.
+    /// Initializes a new instance of the <see cref="EmbeddingsStoreAttribute"/> class with the specified connection
+    /// and collection names.
     /// </summary>
     /// <param name="input">The input source containing the data to generate embeddings for.</param>
     /// <param name="inputType">The type of the input.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="input"/> is <c>null</c>.</exception>
-    public EmbeddingsAttribute(string input, InputType inputType)
+    /// <param name="title">The title of the document to be stored.</param>
+    /// <param name="connectionName">
+    /// The name of an app setting or environment variable which contains a connection string value.
+    /// </param>
+    /// <param name="collection">The name of the collection or table to search or store.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="input"/> or <paramref name="title"/> or <paramref name="collection"/> or <paramref name="connectionName"/> are null.
+    /// </exception>
+    public EmbeddingsStoreAttribute(string input, InputType inputType, string title, string connectionName, string collection)
     {
         this.Input = input ?? throw new ArgumentNullException(nameof(input));
         this.InputType = inputType;
+        this.Title = title ?? throw new ArgumentNullException(nameof(title));
+        this.ConnectionName = connectionName ?? throw new ArgumentNullException(nameof(connectionName));
+        this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));
     }
 
     /// <summary>
@@ -62,7 +66,29 @@ public sealed class EmbeddingsAttribute : Attribute
     public string Input { get; }
 
     /// <summary>
+    /// Gets the title of the document to be stored.
+    /// </summary>
+    [AutoResolve]
+    public string Title { get; }
+
+    /// <summary>
     /// Gets the type of the input.
     /// </summary>
     public InputType InputType { get; }
+
+    /// <summary>
+    /// Gets or sets the name of an app setting or environment variable which contains a connection string value.
+    /// </summary>
+    /// <remarks>
+    /// This property supports binding expressions.
+    /// </remarks>
+    public string ConnectionName { get; set; }
+
+    /// <summary>
+    /// The name of the collection or table to search.
+    /// </summary>
+    /// <remarks>
+    /// This property supports binding expressions.
+    /// </remarks>
+    public string Collection { get; set; }
 }

@@ -18,6 +18,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
     readonly OpenAIClient openAIClient;
     readonly TextCompletionConverter textCompletionConverter;
     readonly EmbeddingsConverter embeddingsConverter;
+    readonly EmbeddingsStoreConverter embeddingsStoreConverter;
     readonly SemanticSearchConverter semanticSearchConverter;
     readonly AssistantBindingConverter chatBotConverter;
     readonly AssistantSkillTriggerBindingProvider assistantskillTriggerBindingProvider;
@@ -26,6 +27,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
         OpenAIClient openAIClient,
         TextCompletionConverter textCompletionConverter,
         EmbeddingsConverter embeddingsConverter,
+        EmbeddingsStoreConverter embeddingsStoreConverter,
         SemanticSearchConverter semanticSearchConverter,
         AssistantBindingConverter chatBotConverter,
         AssistantSkillTriggerBindingProvider assistantTriggerBindingProvider)
@@ -33,6 +35,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
         this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.textCompletionConverter = textCompletionConverter ?? throw new ArgumentNullException(nameof(textCompletionConverter));
         this.embeddingsConverter = embeddingsConverter ?? throw new ArgumentNullException(nameof(embeddingsConverter));
+        this.embeddingsStoreConverter = embeddingsStoreConverter ?? throw new ArgumentNullException(nameof(embeddingsStoreConverter));
         this.semanticSearchConverter = semanticSearchConverter ?? throw new ArgumentNullException(nameof(semanticSearchConverter));
         this.chatBotConverter = chatBotConverter ?? throw new ArgumentNullException(nameof(chatBotConverter));
         this.assistantskillTriggerBindingProvider = assistantTriggerBindingProvider ?? throw new ArgumentNullException(nameof(assistantTriggerBindingProvider));
@@ -50,13 +53,15 @@ partial class OpenAIExtension : IExtensionConfigProvider
         embeddingsRule.BindToInput<EmbeddingsContext>(this.embeddingsConverter);
         embeddingsRule.BindToInput<string>(this.embeddingsConverter);
 
+        // Embeddings store binding support
+        var embeddingsStoreRule = context.AddBindingRule<EmbeddingsStoreAttribute>();
+        embeddingsStoreRule.BindToInput<EmbeddingsContext>(this.embeddingsStoreConverter);
+        embeddingsStoreRule.BindToInput<string>(this.embeddingsStoreConverter);
+
         // Semantic search input binding support
         var semanticSearchRule = context.AddBindingRule<SemanticSearchAttribute>();
         semanticSearchRule.BindToInput<SemanticSearchContext>(this.semanticSearchConverter);
         semanticSearchRule.BindToInput<string>(this.semanticSearchConverter);
-        // TODO: Add string binding support to enable binding in non-.NET languages.
-        semanticSearchRule.BindToCollector<SearchableDocument>(this.semanticSearchConverter);
-        context.AddConverter<string, SearchableDocument>(this.semanticSearchConverter.ToSearchableDocument);
 
         // Assistant support
         var chatBotCreateRule = context.AddBindingRule<AssistantCreateAttribute>();

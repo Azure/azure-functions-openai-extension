@@ -18,6 +18,9 @@ public class EmailPromptDemo
     {
         [JsonPropertyName("URL")]
         public string? URL { get; set; }
+
+        [JsonPropertyName("Title")]
+        public string? Title { get; set; }
     }
 
     public class SemanticSearchRequest
@@ -29,39 +32,23 @@ public class EmailPromptDemo
     // REVIEW: There are several assumptions about how the Embeddings binding and the SemanticSearch bindings
     //         work together. We should consider creating a higher-level of abstraction for this.
     [Function("IngestEmail")]
-    public async Task<SemanticSearchOutputResponse> IngestEmail(
+    public async Task<HttpResponseData> IngestEmail(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-        [EmbeddingsInput("{URL}", InputType.URL, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+        [EmbeddingsStoreInput("{URL}", InputType.URL, "{Title}", "KustoConnectionString", "Documents", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
 
-        if (requestBody == null || requestBody.URL == null)
+        if (requestBody == null || requestBody.URL == null || requestBody.Title == null)
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"URL\": value , \"Title\": value} as the request body.");
         }
 
-        Uri uri = new(uriString: requestBody.URL);
-        string title = Path.GetFileNameWithoutExtension(uri.LocalPath);
-
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(new { status = "success", title, chunks = embeddings.Count });
-
-        return new SemanticSearchOutputResponse
-        {
-            HttpResponse = response,
-            SearchableDocument = new SearchableDocument(title, embeddings)
-        };
-    }
-
-    public class SemanticSearchOutputResponse
-    {
-        [SemanticSearchOutput("KustoConnectionString", "Documents", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
-        public SearchableDocument? SearchableDocument { get; set; }
-
-        public HttpResponseData? HttpResponse { get; set; }
+        await response.WriteAsJsonAsync(new { status = "success", requestBody.Title, chunks = embeddings.Count });
+        return response;
     }
 
     [Function("PromptEmail")]

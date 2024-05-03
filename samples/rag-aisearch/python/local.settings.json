@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AISearchEndpoint": "https://srch-openai-extension.search.windows.net",
+    "AZURE_OPENAI_ENDPOINT": "https://cog-tfd45kodbftis.openai.azure.com/",
+    "CHAT_MODEL_DEPLOYMENT_NAME": "chat",
+    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "embedding"
+  }
+}

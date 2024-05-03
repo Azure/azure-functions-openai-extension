@@ -19,7 +19,7 @@ public enum InputType
     FilePath,
 
     /// <summary>
-    /// The input data is a URL.
+    /// The input data is a Url.
     /// </summary>
-    URL
+    Url
 }

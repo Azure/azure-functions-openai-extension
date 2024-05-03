@@ -31,7 +31,7 @@ static class EmbeddingsHelper
         {
             return new StreamReader(input);
         }
-        else if (inputType == InputType.URL)
+        else if (inputType == InputType.Url)
         {
             HttpClient client = new();
             Stream stream = client.GetStreamAsync(input).Result;

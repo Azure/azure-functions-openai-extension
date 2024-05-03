@@ -3,14 +3,14 @@
 POST http://localhost:7071/api/IngestEmail
 Content-Type: application/json
 
-{"URL":"https://url/test/test_file.txt", "Title": "test_file"}
+{"Url":"https://url/test/test_file.txt", "Title": "test_file"}
 
 
 ### Ingest second email into database
 POST http://localhost:7071/api/IngestEmail
 Content-Type: application/json
 
-{"URL":"https://url/test/test_file.txt", "Title": "test_file"}
+{"Url":"https://url/test/test_file.txt", "Title": "test_file"}
 
 
 ### Send a search query (Example #1)

@@ -30,8 +30,8 @@ public class EmbeddingsGenerator
         [JsonPropertyName("FilePath")]
         public string? FilePath { get; set; }
 
-        [JsonPropertyName("URL")]
-        public string? URL { get; set; }
+        [JsonPropertyName("Url")]
+        public string? Url { get; set; }
     }
 
     /// <summary>
@@ -84,16 +84,16 @@ public class EmbeddingsGenerator
     [Function(nameof(GetEmbeddings_Http_URL))]
     public async Task GetEmbeddings_Http_URL(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-url")] HttpRequestData req,
-        [EmbeddingsInput("{URL}", InputType.URL, MaxChunkLength = 512, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+        [EmbeddingsInput("{Url}", InputType.Url, MaxChunkLength = 512, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
         this.logger.LogInformation(
-            "Received {count} embedding(s) for input file '{path}'.",
+            "Received {count} embedding(s) for input url '{path}'.",
             embeddings.Count,
-            requestBody?.URL);
+            requestBody?.Url);
 
         // TODO: Store the embeddings into a database or other storage.
     }

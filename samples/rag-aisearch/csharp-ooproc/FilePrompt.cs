@@ -16,8 +16,8 @@ public static class FilePrompt
 {
     public class EmbeddingsRequest
     {
-        [JsonPropertyName("URL")]
-        public string? URL { get; set; }
+        [JsonPropertyName("Url")]
+        public string? Url { get; set; }
 
         [JsonPropertyName("Title")]
         public string? Title { get; set; }
@@ -34,16 +34,16 @@ public static class FilePrompt
     [Function("IngestFile")]
     public static async Task<HttpResponseData> IngestFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-        [EmbeddingsStoreInput("{URL}", InputType.URL, "{Title}", "AISearchEndpoint", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+        [EmbeddingsStoreInput("{Url}", InputType.Url, "{Title}", "AISearchEndpoint", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
 
-        if (requestBody == null || requestBody.URL == null || requestBody.Title == null)
+        if (requestBody == null || requestBody.Url == null || requestBody.Title == null)
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"URL\": value , \"Title\": value} as the request body.");
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value , \"Title\": value} as the request body.");
         }
 
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);

@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 /// <summary>
 /// Binding attribute for semantic search (input bindings).
 /// </summary>
-public class SemanticSearchInputAttribute : InputBindingAttribute
+public sealed class SemanticSearchInputAttribute : InputBindingAttribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SemanticSearchInputAttribute"/> class with the specified connection

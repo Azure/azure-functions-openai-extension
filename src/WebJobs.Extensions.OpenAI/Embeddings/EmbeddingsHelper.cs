@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
@@ -8,10 +9,12 @@ static class EmbeddingsHelper
 {
     static readonly char[] sentenceEndingsDefault = new[] { '.', '!', '?' };
     static readonly char[] wordBreaksDefault = new[] { ',', ';', ':', ' ', '(', ')', '[', ']', '{', '}', '\t', '\n' };
+    static readonly string UserAgent = $"{typeof(OpenAIExtension).Namespace}/{FileVersionInfo.GetVersionInfo(typeof(OpenAIExtension).Assembly.Location).FileVersion}";
+    static readonly HttpClient httpClient = new();
 
-    public static EmbeddingsOptions BuildRequest(int maxOverlap, int maxChunkLength, string model, InputType inputType, string input)
+    public static async Task<EmbeddingsOptions> BuildRequest(int maxOverlap, int maxChunkLength, string model, InputType inputType, string input)
     {
-        using TextReader reader = GetTextReader(inputType, input);
+        using TextReader reader = await GetTextReader(inputType, input);
         if (maxOverlap >= maxChunkLength)
         {
             throw new ArgumentOutOfRangeException($"MaxOverlap ({maxOverlap}) must be less than MaxChunkLength ({maxChunkLength}).");
@@ -21,7 +24,7 @@ static class EmbeddingsHelper
         return new EmbeddingsOptions(model, chunks);
     }
 
-    static TextReader GetTextReader(InputType inputType, string input)
+    static async Task<TextReader> GetTextReader(InputType inputType, string input)
     {
         if (inputType == InputType.RawText)
         {
@@ -33,8 +36,8 @@ static class EmbeddingsHelper
         }
         else if (inputType == InputType.Url)
         {
-            HttpClient client = new();
-            Stream stream = client.GetStreamAsync(input).Result;
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
+            Stream stream = await httpClient.GetStreamAsync(input);
             return new StreamReader(stream);
         }
         else

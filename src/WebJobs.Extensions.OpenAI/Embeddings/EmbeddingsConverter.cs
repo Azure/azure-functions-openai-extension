@@ -3,6 +3,7 @@
 
 using System.Text.Json;
 using Azure;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Logging;
 using OpenAISDK = Azure.AI.OpenAI;
 
@@ -14,10 +15,11 @@ class EmbeddingsConverter :
 {
     readonly OpenAISDK.OpenAIClient openAIClient;
     readonly ILogger logger;
+
     // Note: we need this converter as Azure.AI.OpenAI does not support System.Text.Json serialization since their constructors are internal
     static readonly JsonSerializerOptions options = new()
     {
-        Converters = { new EmbeddingsContextConverter() }
+        Converters = { new EmbeddingsContextConverter(), new SearchableDocumentJsonConverter() }
     };
 
     public EmbeddingsConverter(OpenAISDK.OpenAIClient openAIClient, ILoggerFactory loggerFactory)
@@ -45,7 +47,7 @@ class EmbeddingsConverter :
         EmbeddingsAttribute attribute,
         CancellationToken cancellationToken)
     {
-        OpenAISDK.EmbeddingsOptions request = EmbeddingsHelper.BuildRequest(attribute.MaxOverlap, attribute.MaxChunkLength, attribute.Model, attribute.InputType, attribute.Input);
+        OpenAISDK.EmbeddingsOptions request = await EmbeddingsHelper.BuildRequest(attribute.MaxOverlap, attribute.MaxChunkLength, attribute.Model, attribute.InputType, attribute.Input);
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
         Response<OpenAISDK.Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
         this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);

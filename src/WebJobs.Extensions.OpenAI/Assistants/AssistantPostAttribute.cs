@@ -7,7 +7,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class AssistantPostAttribute : Attribute
+public sealed class AssistantPostAttribute : Attribute
 {
     public AssistantPostAttribute(string id)
     {

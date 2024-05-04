@@ -11,7 +11,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 /// </summary>
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class SemanticSearchAttribute : Attribute
+public sealed class SemanticSearchAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SemanticSearchAttribute"/> class with the specified connection

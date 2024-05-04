@@ -22,21 +22,29 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
 
         writer.WritePropertyName("embeddingsContext"u8);
         writer.WriteStartObject();
-        
-        writer.WritePropertyName("request"u8);
-        ((IJsonModel<OpenAISDK.EmbeddingsOptions>)value.EmbeddingsContext.Request).Write(writer, modelReaderWriterOptions);
 
-        writer.WritePropertyName("response"u8);
-        ((IJsonModel<OpenAISDK.Embeddings>)value.EmbeddingsContext.Response).Write(writer, modelReaderWriterOptions);
-        
-        writer.WritePropertyName("count"u8);
-        writer.WriteNumberValue(value.EmbeddingsContext.Count);
+        if (value.EmbeddingsContext?.Request is IJsonModel<OpenAISDK.EmbeddingsOptions> request)
+        {
+            writer.WritePropertyName("request"u8);
+            request.Write(writer, modelReaderWriterOptions);
+        }
+        if (value.EmbeddingsContext?.Response is IJsonModel<OpenAISDK.Embeddings> response)
+        {
+            writer.WritePropertyName("response"u8);
+            response.Write(writer, modelReaderWriterOptions);
+        }
+        if (value.EmbeddingsContext != null)
+        {
+            writer.WritePropertyName("count"u8);
+            writer.WriteNumberValue(value.EmbeddingsContext.Count);
+        }
+
         writer.WriteEndObject();
 
         writer.WritePropertyName("connectionInfo"u8);
         writer.WriteStartObject();
         writer.WritePropertyName("connectionName"u8);
-        
+
         if (value.ConnectionInfo == null)
         {
             writer.WriteNullValue();
@@ -45,7 +53,7 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         {
             writer.WriteStringValue(value.ConnectionInfo.ConnectionName);
         }
-       
+
         writer.WritePropertyName("collectionName"u8);
 
         if (value.ConnectionInfo == null)
@@ -61,7 +69,7 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
             writer.WriteStringValue(value.ConnectionInfo.CollectionName);
         }
         writer.WriteEndObject();
-        
+
 
         writer.WritePropertyName("title");
         writer.WriteStringValue(value.Title);

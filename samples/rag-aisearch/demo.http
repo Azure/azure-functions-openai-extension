@@ -3,13 +3,13 @@
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"Url":"https://url/test/test_file.txt", "Title": "test_file"} 
+{"Url":"https://url/test/test_file.txt"}
 
 ### Ingest second file into database
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"Url":"https://url/test/test_file.txt", "Title": "test_file"} 
+{"Url":"https://url/test/test_file.txt"} 
 
 
 ### Send a search query (Example #1)

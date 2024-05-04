@@ -21,7 +21,7 @@ sealed class AzureAISearchProvider : ISearchProvider
     readonly bool isSemanticSearchEnabled = false;
     readonly bool useSemanticCaptions = false;
     readonly int vectorSearchDimensions = 1536;
-    readonly string? searchAPIKeySetting = string.Empty;
+    readonly string searchAPIKeySetting = "SearchAPIKey";
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
     const string vectorSearchProfile = "openai-vector-profile";
@@ -45,7 +45,7 @@ sealed class AzureAISearchProvider : ISearchProvider
 
         this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
         this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
-        this.searchAPIKeySetting = azureAiSearchConfigOptions.Value.SearchAPIKeySetting;
+        this.searchAPIKeySetting = azureAiSearchConfigOptions.Value.SearchAPIKeySetting ?? this.searchAPIKeySetting;
         int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
         if (value < 2 || value > 3072)
         {
@@ -229,7 +229,7 @@ sealed class AzureAISearchProvider : ISearchProvider
     {
         int iteration = 0;
         IndexDocumentsBatch<SearchDocument> batch = new();
-        for (int i = 0; i < document.Embeddings.Response.Data.Count; i++)
+        for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
         {
             batch.Actions.Add(new IndexDocumentsAction<SearchDocument>(
                 IndexActionType.MergeOrUpload,
@@ -245,13 +245,7 @@ sealed class AzureAISearchProvider : ISearchProvider
             if (iteration % 1_000 is 0)
             {
                 // Every one thousand documents, batch create.
-                IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
-                int succeeded = result.Results.Count(r => r.Succeeded);
-                this.logger.LogInformation("""
-                        Indexed {Count} sections, {Succeeded} succeeded
-                        """,
-                        batch.Actions.Count,
-                        succeeded);
+                await this.IndexDocumentsBatchAsync(searchClient, batch, cancellationToken);
 
                 batch = new();
             }
@@ -260,14 +254,19 @@ sealed class AzureAISearchProvider : ISearchProvider
         if (batch is { Actions.Count: > 0 })
         {
             // Any remaining documents, batch create.
-            IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
-            int succeeded = result.Results.Count(r => r.Succeeded);
-            this.logger.LogInformation("""
+            await this.IndexDocumentsBatchAsync(searchClient, batch, cancellationToken);
+        }
+    }
+
+    async Task IndexDocumentsBatchAsync(SearchClient searchClient, IndexDocumentsBatch<SearchDocument> batch, CancellationToken cancellationToken)
+    {
+        IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
+        int succeeded = result.Results.Count(r => r.Succeeded);
+        this.logger.LogInformation("""
                         Indexed {Count} sections, {Succeeded} succeeded
                         """,
-                    batch.Actions.Count,
-                    succeeded);
-        }
+                batch.Actions.Count,
+                succeeded);
     }
 
     SearchIndexClient GetSearchIndexClient(string endpoint)

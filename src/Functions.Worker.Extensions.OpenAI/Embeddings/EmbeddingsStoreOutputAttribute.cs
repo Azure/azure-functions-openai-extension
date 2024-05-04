@@ -1,15 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
-public class EmbeddingsStoreInputAttribute : InputBindingAttribute
+public class EmbeddingsStoreOutputAttribute : OutputBindingAttribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="EmbeddingsStoreAttribute"/> class with the specified connection
@@ -17,19 +13,17 @@ public class EmbeddingsStoreInputAttribute : InputBindingAttribute
     /// </summary>
     /// <param name="input">The input source containing the data to generate embeddings for.</param>
     /// <param name="inputType">The type of the input.</param>
-    /// <param name="title">The title of the document to be stored.</param>
     /// <param name="connectionName">
     /// The name of an app setting or environment variable which contains a connection string value.
     /// </param>
     /// <param name="collection">The name of the collection or table to search or store.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="input"/> or <paramref name="title"/> or <paramref name="collection"/> or <paramref name="connectionName"/> are null.
+    /// Thrown if <paramref name="input"/> or <paramref name="collection"/> or <paramref name="connectionName"/> are null.
     /// </exception>
-    public EmbeddingsStoreInputAttribute(string input, InputType inputType, string title, string connectionName, string collection)
+    public EmbeddingsStoreOutputAttribute(string input, InputType inputType, string connectionName, string collection)
     {
         this.Input = input ?? throw new ArgumentNullException(nameof(input));
         this.InputType = inputType;
-        this.Title = title ?? throw new ArgumentNullException(nameof(title));
         this.ConnectionName = connectionName ?? throw new ArgumentNullException(nameof(connectionName));
         this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));
     }
@@ -63,11 +57,6 @@ public class EmbeddingsStoreInputAttribute : InputBindingAttribute
     /// Gets the input to generate embeddings for.
     /// </summary>
     public string Input { get; }
-
-    /// <summary>
-    /// Gets the title of the document to be stored.
-    /// </summary>
-    public string Title { get; }
 
     /// <summary>
     /// Gets the type of the input.

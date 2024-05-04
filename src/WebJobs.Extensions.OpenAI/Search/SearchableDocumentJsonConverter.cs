@@ -17,12 +17,11 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
 
         // Properties for SearchableDocument
         OpenAISDK.EmbeddingsOptions embeddingsOptions = new();
-        OpenAISDK.Embeddings embeddings = null;
+        OpenAISDK.Embeddings? embeddings = null;
         int count;
         string title = string.Empty;
         string connectionName = string.Empty;
         string collectionName = string.Empty;
-        string credentials = string.Empty;
 
         foreach (JsonProperty item in jsonDocument.RootElement.EnumerateObject())
         {
@@ -56,10 +55,6 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
                     {
                         collectionName = connectionInfoItem.Value.GetString();
                     }
-                    if (connectionInfoItem.NameEquals("credentials"u8))
-                    {
-                        credentials = connectionInfoItem.Value.GetString();
-                    }
                 }
             }
 
@@ -68,8 +63,11 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
                 title = item.Value.GetString();
             }
         }
-        SearchableDocument searchableDocument = new SearchableDocument(title, new EmbeddingsContext(embeddingsOptions, embeddings));
-        searchableDocument.ConnectionInfo = new ConnectionInfo(connectionName, collectionName);
+        SearchableDocument searchableDocument = new SearchableDocument(title)
+        {
+            Embeddings = new EmbeddingsContext(embeddingsOptions, embeddings),
+            ConnectionInfo = new ConnectionInfo(connectionName, collectionName),
+        };
         return searchableDocument;
     }
 
@@ -80,14 +78,23 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WritePropertyName("embeddingsContext"u8);
         writer.WriteStartObject();
 
-        writer.WritePropertyName("request"u8);
-        ((IJsonModel<OpenAISDK.EmbeddingsOptions>)value.Embeddings.Request).Write(writer, modelReaderWriterOptions);
+        if (value.Embeddings?.Request is IJsonModel<OpenAISDK.EmbeddingsOptions> request)
+        {
+            writer.WritePropertyName("request"u8);
+            request.Write(writer, modelReaderWriterOptions);
+        }
 
-        writer.WritePropertyName("response"u8);
-        ((IJsonModel<OpenAISDK.Embeddings>)value.Embeddings.Response).Write(writer, modelReaderWriterOptions);
+        if (value.Embeddings?.Response is IJsonModel<OpenAISDK.Embeddings> response)
+        {
+            writer.WritePropertyName("response"u8);
+            response.Write(writer, modelReaderWriterOptions);
+        }
 
-        writer.WritePropertyName("count"u8);
-        writer.WriteNumberValue(value.Embeddings.Count);
+        if (value.Embeddings != null)
+        {
+            writer.WritePropertyName("count"u8);
+            writer.WriteNumberValue(value.Embeddings.Count);
+        }
         writer.WriteEndObject();
 
         writer.WritePropertyName("connectionInfo"u8);

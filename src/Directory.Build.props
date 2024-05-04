@@ -32,13 +32,13 @@
     <!-- FileVersionRevision is expected to be set by the CI. This is useful for distinguishing between multiple builds of the same version. -->
     <FileVersion Condition="'$(FileVersionRevision)' != ''">$(VersionPrefix).$(FileVersionRevision)</FileVersion>
     <!-- Version for kusto webjobs and worker project -->
-    <KustoVersion>0.14.0-alpha</KustoVersion>
+    <KustoVersion>0.15.0-alpha</KustoVersion>
     <!-- Version for azure AI search webjobs and worker project -->
     <AzureAISearchVersion>0.3.0-alpha</AzureAISearchVersion>
     <!-- Version for CosmosDB search webjobs and worker project -->
-    <CosmosDBSearchVersion>0.1.0-alpha</CosmosDBSearchVersion>
-  
-</PropertyGroup>
+    <CosmosDBSearchVersion>0.2.0-alpha</CosmosDBSearchVersion>
+
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.*" PrivateAssets="All" />

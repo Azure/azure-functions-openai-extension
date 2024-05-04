@@ -53,7 +53,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     POST http://localhost:7071/api/IngestEmail
     Content-Type: application/json
 
-    {"FilePath":"/path/to/file.txt"}
+    {"Url":"https://url/test/test_file.txt"}
     ```
 
     The results of the request will be the embeddings of the text file, which will be saved to your Kusto database.

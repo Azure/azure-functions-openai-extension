@@ -55,8 +55,8 @@ partial class OpenAIExtension : IExtensionConfigProvider
 
         // Embeddings store binding support
         var embeddingsStoreRule = context.AddBindingRule<EmbeddingsStoreAttribute>();
-        embeddingsStoreRule.BindToInput<EmbeddingsContext>(this.embeddingsStoreConverter);
-        embeddingsStoreRule.BindToInput<string>(this.embeddingsStoreConverter);
+        embeddingsStoreRule.BindToCollector<SearchableDocument>(this.embeddingsStoreConverter);
+        context.AddConverter<string, SearchableDocument>(this.embeddingsStoreConverter.ToSearchableDocument);
 
         // Semantic search input binding support
         var semanticSearchRule = context.AddBindingRule<SemanticSearchAttribute>();

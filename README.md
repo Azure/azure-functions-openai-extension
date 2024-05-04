@@ -16,6 +16,17 @@ The following NuGet packages are available as part of this project.
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch.svg?label=microsoft.azure.functions.worker.extensions.openai.azureaisearch)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.AzureAISearch)
 [![NuGet](https://img.shields.io/nuget/v/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.CosmosDBSearch.svg?label=microsoft.azure.functions.worker.extensions.openai.cosmosdbsearch)](https://www.nuget.org/packages/Microsoft.Azure.Functions.Worker.Extensions.OpenAI.CosmosDBSearch)
 
+## Preview Bundle
+
+Add following section to `host.json` of the function app for non dotnet languages to utilise the preview bundle and consume extension packages:
+
+```json
+"extensionBundle": {
+    "id": "Microsoft.Azure.Functions.ExtensionBundle.Preview",
+    "version": "[4.*, 5.0.0)"
+  }
+````
+
 ## Requirements
 
 * [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or greater (Visual Studio 2022 recommended)
@@ -271,39 +282,38 @@ The supported list of vector databases is extensible, and more can be added by a
 
 #### [C# document storage example](./samples/rag-aisearch/csharp-ooproc/FilePrompt.cs)
 
-This HTTP trigger function takes a path to a local file as input, generates embeddings for the file, and stores the result into an Azure AI Search Index.
+This HTTP trigger function takes a URL of a file as input, generates embeddings for the file, and stores the result into an Azure AI Search Index.
 
 ```csharp
 public class EmbeddingsRequest
 {
-    [JsonPropertyName("FilePath")]
-    public string? FilePath { get; set; }
+    [JsonPropertyName("Url")]
+    public string? Url { get; set; }
 }
 
 [Function("IngestFile")]
-public static async Task<SemanticSearchOutputResponse> IngestFile(
-    [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-    [EmbeddingsInput("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
+    [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
 {
     using StreamReader reader = new(req.Body);
     string request = await reader.ReadToEndAsync();
 
     EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
 
-    if (requestBody == null)
+    if (requestBody == null || requestBody.Url == null)
     {
-        throw new ArgumentException("Invalid request body. Make sure that you pass in {\"filePath\": value } as the request body.");
+        throw new ArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
     }
 
-    string title = Path.GetFileNameWithoutExtension(requestBody.FilePath);
+    Uri uri = new(requestBody.Url);
+    string filename = Path.GetFileName(uri.AbsolutePath);
 
-    HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-    await response.WriteAsJsonAsync(new { status = "success", title, chunks = embeddings.Count });
+    HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
 
-    return new SemanticSearchOutputResponse
+    return new EmbeddingsStoreOutputResponse
     {
         HttpResponse = response,
-        SearchableDocument = new SearchableDocument(title, embeddings)
+        SearchableDocument = new SearchableDocument(filename)
     };
 }
 ```
@@ -325,7 +335,7 @@ public class SemanticSearchRequest
 [Function("PromptFile")]
 public static IActionResult PromptFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearchInput("AISearchEndpoint", "openai-index", CredentialSettingName = "SearchAPIKey", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+    [SemanticSearchInput("AISearchEndpoint", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }

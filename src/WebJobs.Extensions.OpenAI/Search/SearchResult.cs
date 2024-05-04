@@ -8,7 +8,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 /// </summary>
 public class SearchResult
 {
-    public SearchResult(string sourceName, string snippet)
+    public SearchResult(string? sourceName, string? snippet)
     {
         if (snippet == null)
         {

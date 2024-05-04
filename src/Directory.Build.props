@@ -37,7 +37,14 @@
     <AzureAISearchVersion>0.3.0-alpha</AzureAISearchVersion>
     <!-- Version for CosmosDB search webjobs and worker project -->
     <CosmosDBSearchVersion>0.2.0-alpha</CosmosDBSearchVersion>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

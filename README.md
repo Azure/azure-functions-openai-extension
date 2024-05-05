@@ -25,7 +25,7 @@ Add following section to `host.json` of the function app for non dotnet language
     "id": "Microsoft.Azure.Functions.ExtensionBundle.Preview",
     "version": "[4.*, 5.0.0)"
   }
-````
+```
 
 ## Requirements
 

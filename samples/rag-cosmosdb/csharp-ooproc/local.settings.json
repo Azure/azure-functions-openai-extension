@@ -6,6 +6,6 @@
     "CosmosDBMongoVCoreConnectionString": "",
     "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",
     "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo",
-    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-3-small"
+    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
   }
 }

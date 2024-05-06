@@ -11,3 +11,9 @@ POST http://localhost:7071/api/embeddings-from-file
 Content-Type: application/json
 
 {"FilePath": "D:\\test\\test_file.txt"}
+
+### Embeddings from Url
+POST http://localhost:7071/api/embeddings-from-url
+Content-Type: application/json
+
+{"Url":"https://url/test/test_file.txt"} 

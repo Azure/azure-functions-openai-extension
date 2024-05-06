@@ -11,18 +11,14 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 public class SearchableDocument
 {
     /// <summary>
-    /// Searchable document containing the title and embeddings context.
+    /// Searchable document containing the title.
     /// </summary>
     /// <param name="title">
     /// Title of the searchable document.
     /// </param>
-    /// <param name="embeddingsContext">
-    /// The embeddings context associated with the searchable document.
-    /// </param>
-    public SearchableDocument(string title, EmbeddingsContext embeddingsContext)
+    public SearchableDocument(string title)
     {
         this.Title = title;
-        this.EmbeddingsContext = embeddingsContext;
     }
 
     /// <summary>
@@ -38,5 +34,5 @@ public class SearchableDocument
     /// <summary>
     /// Embeddings context that contains embedings request and response from OpenAI for searchable document.
     /// </summary>
-    public EmbeddingsContext EmbeddingsContext { get; }
+    public EmbeddingsContext? EmbeddingsContext { get; set; }
 }

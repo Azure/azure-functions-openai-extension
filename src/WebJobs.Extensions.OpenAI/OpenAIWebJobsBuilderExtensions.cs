@@ -34,8 +34,13 @@ public static class OpenAIWebJobsBuilderExtensions
         // Register the client for Azure Open AI
         Uri? azureOpenAIEndpoint = GetAzureOpenAIEndpoint();
         string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+        string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
 
-        if (azureOpenAIEndpoint != null)
+        if (azureOpenAIEndpoint != null && !string.IsNullOrEmpty(azureOpenAIKey))
+        {
+            RegisterAzureOpenAIClient(builder.Services, azureOpenAIEndpoint, azureOpenAIKey);
+        }
+        else if (azureOpenAIEndpoint != null)
         {
             RegisterAzureOpenAIADAuthClient(builder.Services, azureOpenAIEndpoint);
         }
@@ -54,6 +59,7 @@ public static class OpenAIWebJobsBuilderExtensions
         // Service objects that will be used by the extension
         builder.Services.AddSingleton<TextCompletionConverter>();
         builder.Services.AddSingleton<EmbeddingsConverter>();
+        builder.Services.AddSingleton<EmbeddingsStoreConverter>();
         builder.Services.AddSingleton<SemanticSearchConverter>();
         builder.Services.AddSingleton<AssistantBindingConverter>();
 
@@ -79,6 +85,14 @@ public static class OpenAIWebJobsBuilderExtensions
         }
 
         return null;
+    }
+
+    static void RegisterAzureOpenAIClient(IServiceCollection services, Uri azureOpenAIEndpoint, string azureOpenAIKey)
+    {
+        services.AddAzureClients(clientBuilder =>
+        {
+            clientBuilder.AddOpenAIClient(azureOpenAIEndpoint, new AzureKeyCredential(azureOpenAIKey));
+        });
     }
 
     static void RegisterAzureOpenAIADAuthClient(IServiceCollection services, Uri azureOpenAIEndpoint)

@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 /// <summary>
 /// Assistant post output attribute which is used to update the assistant.
 /// </summary>
-public class AssistantPostOutputAttribute : OutputBindingAttribute
+public sealed class AssistantPostOutputAttribute : OutputBindingAttribute
 {
     public AssistantPostOutputAttribute(string id)
     {

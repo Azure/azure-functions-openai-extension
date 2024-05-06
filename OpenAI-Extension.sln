@@ -55,7 +55,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assistant", "assistant", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-kusto", "rag-kusto", "{4CD51D81-D334-4FBC-A82B-8E2408913B7D}"
 	ProjectSection(SolutionItems) = preProject
-		samples\rag-kusto\csharp-ooproc\demo.http = samples\rag-kusto\csharp-ooproc\demo.http
+		samples\rag-kusto\demo.http = samples\rag-kusto\demo.http
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticSearchEmbeddings", "samples\rag-kusto\csharp-ooproc\SemanticSearchEmbeddings.csproj", "{3E9B9A7F-A98D-4CDD-9528-6D3077CAA4DA}"

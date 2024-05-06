@@ -76,9 +76,8 @@ Algorithm - HnswAlgorithmConfiguration
 
 ### Use of API Key
 
-Azure AI Search offers key-based authentication that you can use on connections to your search service. [More information](https://learn.microsoft.com/azure/search/search-security-api-keys)
+Azure AI Search offers key-based authentication that you can use on connections to your search service. [More information](https://learn.microsoft.com/azure/search/search-security-api-keys). Use of API Key is optional and managed identities are recommended way for authentication.
 
-1. Use of API Key is optional and managed identities are recommended way for authentication.
 1. Update the AI search API access control to `API keys` or `Both` (Settings -> Keys -> API Access Control).
 1. You may configure the `host.json` file within the project and following example shows the default values:
 

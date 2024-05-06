@@ -9,9 +9,10 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class AssistantPostAttribute : Attribute
 {
-    public AssistantPostAttribute(string id)
+    public AssistantPostAttribute(string id, string userMessage)
     {
         this.Id = id;
+        this.UserMessage = userMessage;
     }
 
     /// <summary>
@@ -28,11 +29,10 @@ public sealed class AssistantPostAttribute : Attribute
     /// </remarks>
     [AutoResolve]
     public string? Model { get; set; }
-}
 
-public record AssistantPostRequest(string UserMessage)
-{
-    public string Id { get; set; } = string.Empty;
-
-    public string? Model { get; set; }
+    /// <summary>
+    /// Gets or sets the user message to OpenAI.
+    /// </summary>
+    [AutoResolve]
+    public string UserMessage { get; }
 }

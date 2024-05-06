@@ -31,16 +31,11 @@ def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
 
 @app.function_name("PostUserResponse")
 @app.route(route="chats/{chatID}", methods=["POST"])
-@app.generic_output_binding(arg_name="messages", type="assistantPost", data_type=func.DataType.STRING, id="{chatID}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
-def post_user_response(req: func.HttpRequest, messages: func.Out[str]) -> func.HttpResponse:
-    userMessage = req.get_body().decode("utf-8")
-    if not userMessage:
-        return func.HttpResponse(json.dumps({"message": "No message provided"}), status_code=400, mimetype="application/json")
-    chat_post_request = {
-        "chatId": req.route_params.get("chatID"),
-        "userMessage": userMessage
-    }
-    logging.info(
-        f"Creating post request with parameters: ${json.dumps(chat_post_request)}")
-    messages.set(json.dumps(chat_post_request))
-    return func.HttpResponse(status_code=202)
+@app.generic_input_binding(arg_name="state", type="assistantPost", data_type=func.DataType.STRING, id="{chatID}", userMessage="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
+    # Parse the JSON string into a dictionary
+    data = json.loads(state)
+
+    # Extract the content of the recentMessage
+    recent_message_content = data['recentMessages'][0]['content']
+    return func.HttpResponse(recent_message_content, status_code=200, mimetype="text/plain")

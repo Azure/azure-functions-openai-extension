@@ -13,9 +13,13 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 
 ### Changed
 
-- Added EmbeddingsStore binding and split SemanticSearch binding into two bindings: EmbeddingsStore and SemanticSearch
 - Added support for azure openai key authentication back (use of managed identity is always recommended)
 - Changed default embeddings model from `text-embedding-3-small` to `text-embedding-ada-002` as it is available in all regions of Azure.
+
+### Breaking changes
+
+- Added EmbeddingsStore binding and split SemanticSearch binding into two bindings: EmbeddingsStore and SemanticSearch
+- AssistantPostOutput changed to AssistantPostInput
 
 ## v0.14.0 - 2024/04/24
 

@@ -32,8 +32,11 @@ public class Chat
         string baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS") ?? "http://localhost:7071";
         string chatId = $"superbowl-{Guid.NewGuid():N}";
 
+#if RELEASE
+        // Use the default key for the Azure Functions app in RELEASE mode; for local development, DEBUG mode can be used.
         string functionKey = Environment.GetEnvironmentVariable("FUNC_DEFAULT_KEY") ?? throw new InvalidOperationException("Missing environment variable 'FUNC_DEFAULT_KEY'");
         client.DefaultRequestHeaders.Add("x-functions-key", functionKey);
+#endif
 
         // The timestamp is used for message filtering and will be updated by the ValidateAssistantResponseAsync function
         DateTime timestamp = DateTime.UtcNow;
@@ -57,20 +60,23 @@ public class Chat
         await ValidateAssistantResponseAsync(expectedMessageCount: 1, expectedContent: createRequest.instructions);
 
         // Ask a question using an HTTP POST request
+        string questionRequest1 = "Who won the Superbowl in 2014?";
         using HttpResponseMessage questionResponse = await client.PostAsync(
-            requestUri: $"{baseAddress}/api/chats/{chatId}",
-            new StringContent("Who won the Superbowl in 2014?"),
+            requestUri: $"{baseAddress}/api/chats/{chatId}?message={questionRequest1}", null,
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, questionResponse.StatusCode);
+        Assert.StartsWith("text/plain", questionResponse.Content.Headers.ContentType?.MediaType);
 
         // Ensure that the model responded and mentioned the Seahawks as the 2014 Superbowl winners.
         await ValidateAssistantResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
 
+        string questionRequest2 = "Who performed the halftime show?";
+
         using HttpResponseMessage followupResponse = await client.PostAsync(
-            requestUri: $"{baseAddress}/api/chats/{chatId}",
-            new StringContent("Who performed the halftime show?"),
+            requestUri: $"{baseAddress}/api/chats/{chatId}?message={questionRequest2}", null,
             cancellationToken: cts.Token);
-        Assert.Equal(HttpStatusCode.Created, questionResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, questionResponse.StatusCode);
+        Assert.StartsWith("text/plain", questionResponse.Content.Headers.ContentType?.MediaType);
 
         // Ensure that the model responded with Bruno Mars as the halftime show performer.
         await ValidateAssistantResponseAsync(expectedMessageCount: 5, expectedContent: "Bruno Mars", hasTotalTokens: true);

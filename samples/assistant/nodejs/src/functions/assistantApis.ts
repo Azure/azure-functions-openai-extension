@@ -44,7 +44,7 @@ app.http('PostUserResponse', {
         const chatState: any = context.extraInputs.get(assistantPostInput)
         return { status: 200, jsonBody: chatState.recentMessages[0].content }
     }
-});
+})
 
 
 const chatBotQueryInput = input.generic({

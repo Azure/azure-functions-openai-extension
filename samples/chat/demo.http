@@ -9,9 +9,11 @@ Content-Type: application/json
 
 ### Send the first message to the chatbot
 POST http://localhost:7071/api/chats/test123
-Content-Type: text/plain
+Content-Type: application/json
 
-Who won SuperBowl XLVIII in 2014?
+{
+  "message": "Who won SuperBowl XLVIII in 2014?"
+}
 
 
 ### Get the chatbot's response
@@ -20,6 +22,9 @@ GET http://localhost:7071/api/chats/test123?timestampUTC=2023-08-10T07:51:10Z
 
 ### Send the second message to the chatbot
 POST http://localhost:7071/api/chats/test123
-Content-Type: text/plain
+Content-Type: application/json
 
-Amazing! Do you know who performed the halftime show?
+{
+  "message": "Amazing! Do you know who performed the halftime show?"
+}
+

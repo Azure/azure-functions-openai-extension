@@ -65,9 +65,8 @@ partial class OpenAIExtension : IExtensionConfigProvider
         context.AddConverter<string, AssistantCreateRequest>(this.chatBotConverter.ToAssistantCreateRequest);
 
         var chatBotPostRule = context.AddBindingRule<AssistantPostAttribute>();
-        chatBotPostRule.BindToCollector<AssistantPostRequest>(this.chatBotConverter);
-        context.AddConverter<JObject, AssistantPostRequest>(this.chatBotConverter.ToAssistantPostRequest);
-        context.AddConverter<string, AssistantPostRequest>(this.chatBotConverter.ToAssistantPostRequest);
+        chatBotPostRule.BindToInput<AssistantState>(this.chatBotConverter);
+        chatBotPostRule.BindToInput<string>(this.chatBotConverter);
 
         var chatBotQueryRule = context.AddBindingRule<AssistantQueryAttribute>();
         chatBotQueryRule.BindToInput<AssistantState>(this.chatBotConverter);

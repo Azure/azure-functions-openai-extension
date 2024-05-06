@@ -15,7 +15,7 @@ public interface IAssistantService
 {
     Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken);
     Task<AssistantState> GetStateAsync(string id, DateTime since, CancellationToken cancellationToken);
-    Task PostMessageAsync(AssistantPostRequest request, CancellationToken cancellationToken);
+    Task<AssistantState> PostMessageAsync(AssistantPostAttribute attribute, CancellationToken cancellationToken);
 }
 
 class DefaultAssistantService : IAssistantService
@@ -180,46 +180,47 @@ class DefaultAssistantService : IAssistantService
         return state;
     }
 
-    public async Task PostMessageAsync(AssistantPostRequest request, CancellationToken cancellationToken)
+    public async Task<AssistantState> PostMessageAsync(AssistantPostAttribute attribute, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(request.Id))
+        DateTime timeFilter = DateTime.UtcNow;
+        if (string.IsNullOrEmpty(attribute.Id))
         {
-            throw new ArgumentException("The assistant ID must be specified.", nameof(request));
+            throw new ArgumentException("The assistant ID must be specified.", nameof(attribute));
         }
 
-        if (string.IsNullOrEmpty(request.UserMessage))
+        if (string.IsNullOrEmpty(attribute.UserMessage))
         {
-            throw new ArgumentException("The assistant must have a user message", nameof(request));
+            throw new ArgumentException("The assistant must have a user message", nameof(attribute));
         }
 
-        this.logger.LogInformation("Posting message to assistant entity '{Id}'", request.Id);
+        this.logger.LogInformation("Posting message to assistant entity '{Id}'", attribute.Id);
 
-        InternalChatState? chatState = await this.LoadChatStateAsync(request.Id, cancellationToken);
+        InternalChatState? chatState = await this.LoadChatStateAsync(attribute.Id, cancellationToken);
 
         // Check if assistant has been deactivated
         if (chatState is null || !chatState.Metadata.Exists)
         {
-            this.logger.LogWarning("[{Id}] Ignoring request sent to nonexistent assistant.", request.Id);
-            return;
+            this.logger.LogWarning("[{Id}] Ignoring request sent to nonexistent assistant.", attribute.Id);
+            return new AssistantState(attribute.Id, false, default, default, 0, 0, Array.Empty<ChatMessage>());
         }
 
-        this.logger.LogInformation("[{Id}] Received message: {Text}", request.Id, request.UserMessage);
+        this.logger.LogInformation("[{Id}] Received message: {Text}", attribute.Id, attribute.UserMessage);
 
         // Create a batch of table transaction actions
         List<TableTransactionAction> batch = new();
 
         // Add the user message as a new Chat message entity
         ChatMessageTableEntity chatMessageEntity = new(
-            partitionKey: request.Id,
+            partitionKey: attribute.Id,
             messageIndex: ++chatState.Metadata.TotalMessages,
-            content: request.UserMessage,
+            content: attribute.UserMessage,
             role: ChatRole.User);
         chatState.Messages.Add(chatMessageEntity);
 
         // Add the chat message to the batch
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
 
-        string deploymentName = request.Model ?? OpenAIModels.DefaultChatModel;
+        string deploymentName = attribute.Model ?? OpenAIModels.DefaultChatModel;
         IList<ChatCompletionsFunctionToolDefinition>? functions = this.skillInvoker.GetFunctionsDefinitions();
 
         // We loop if the model returns function calls. Otherwise, we break after receiving a response.
@@ -248,13 +249,13 @@ class DefaultAssistantService : IAssistantService
             {
                 this.logger.LogInformation(
                     "[{Id}] Got LLM response consisting of {Count} tokens: {Text}",
-                    request.Id,
+                    attribute.Id,
                     response.Value.Usage.CompletionTokens,
                     replyMessage);
 
                 // Add the user message as a new Chat message entity
                 ChatMessageTableEntity replyFromAssistantEntity = new(
-                    partitionKey: request.Id,
+                    partitionKey: attribute.Id,
                     messageIndex: ++chatState.Metadata.TotalMessages,
                     content: replyMessage,
                     role: ChatRole.Assistant);
@@ -265,7 +266,7 @@ class DefaultAssistantService : IAssistantService
 
                 this.logger.LogInformation(
                     "[{Id}] Chat length is now {Count} messages",
-                    request.Id,
+                    attribute.Id,
                     chatState.Metadata.TotalMessages);
             }
 
@@ -289,7 +290,7 @@ class DefaultAssistantService : IAssistantService
                 // to avoid infinite loops and to avoid exceeding the batch size limit of 100.
                 this.logger.LogWarning(
                     "[{Id}] Ignoring {Count} function call(s) in response due to exceeding the limit of {Limit}.",
-                    request.Id,
+                    attribute.Id,
                     functionCalls.Count,
                     FunctionCallBatchLimit);
                 break;
@@ -298,7 +299,7 @@ class DefaultAssistantService : IAssistantService
             // Loop case: found some functions to execute
             this.logger.LogInformation(
                 "[{Id}] Found {Count} function call(s) in response",
-                request.Id,
+                attribute.Id,
                 functionCalls.Count);
 
             // Invoke the function calls and add the responses to the chat history.
@@ -308,7 +309,7 @@ class DefaultAssistantService : IAssistantService
                 // CONSIDER: Call these in parallel
                 this.logger.LogInformation(
                     "[{Id}] Calling function '{Name}' with arguments: {Args}",
-                    request.Id,
+                    attribute.Id,
                     call.Name,
                     call.Arguments);
 
@@ -321,7 +322,7 @@ class DefaultAssistantService : IAssistantService
 
                     this.logger.LogInformation(
                         "[{id}] Function '{Name}' returned the following content: {Content}",
-                        request.Id,
+                        attribute.Id,
                         call.Name,
                         functionResult);
                 }
@@ -330,7 +331,7 @@ class DefaultAssistantService : IAssistantService
                     this.logger.LogError(
                         ex,
                         "[{id}] Function '{Name}' failed with an unhandled exception",
-                        request.Id,
+                        attribute.Id,
                         call.Name);
 
                     // CONSIDER: Automatic retries?
@@ -346,7 +347,7 @@ class DefaultAssistantService : IAssistantService
                 }
 
                 ChatMessageTableEntity functionResultEntity = new(
-                    partitionKey: request.Id,
+                    partitionKey: attribute.Id,
                     messageIndex: ++chatState.Metadata.TotalMessages,
                     content: functionResult,
                     role: ChatRole.Function,
@@ -364,6 +365,27 @@ class DefaultAssistantService : IAssistantService
 
         // Add the batch of table transaction actions to the table
         await this.tableClient.SubmitTransactionAsync(batch, cancellationToken);
+
+        // return the latest message in the chat state
+        List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
+            .Where(msg => msg.CreatedAt > timeFilter)
+            .ToList();
+
+        this.logger.LogInformation(
+            "Returning {Count}/{Total} chat messages from entity '{Id}'",
+            filteredChatMessages.Count,
+            chatState.Metadata.TotalMessages, attribute.Id);
+
+        AssistantState state = new(
+            attribute.Id,
+            true,
+            chatState.Metadata.CreatedAt,
+            chatState.Metadata.LastUpdatedAt,
+            chatState.Metadata.TotalMessages,
+            chatState.Metadata.TotalTokens,
+            filteredChatMessages.Select(msg => new ChatMessage(msg.Content, msg.Role, msg.Name)).ToList());
+
+        return state;
     }
 
     async Task<InternalChatState?> LoadChatStateAsync(string id, CancellationToken cancellationToken)

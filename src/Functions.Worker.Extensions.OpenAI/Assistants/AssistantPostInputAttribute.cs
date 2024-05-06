@@ -8,11 +8,12 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 /// <summary>
 /// Assistant post output attribute which is used to update the assistant.
 /// </summary>
-public class AssistantPostOutputAttribute : OutputBindingAttribute
+public class AssistantPostInputAttribute : InputBindingAttribute
 {
-    public AssistantPostOutputAttribute(string id)
+    public AssistantPostInputAttribute(string id, string UserMessage)
     {
         this.Id = id;
+        this.UserMessage = UserMessage;
     }
 
     /// <summary>
@@ -27,4 +28,9 @@ public class AssistantPostOutputAttribute : OutputBindingAttribute
     /// When using Azure OpenAI, then should be the name of the model <em>deployment</em>.
     /// </remarks>
     public string? Model { get; set; }
+
+    /// <summary>
+    /// Gets user message that user has entered for assistant to respond to.
+    /// </summary>
+    public string UserMessage { get; }
 }

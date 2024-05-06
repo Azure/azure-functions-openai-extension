@@ -158,38 +158,16 @@ Also note that the storage of chat history is done via table storage. You may co
 
     ```http
     POST http://localhost:7168/api/assistants/assistant123
-    Content-Type: text/plain
+    Content-Type: application/json
 
-    Remind me to call my dad
-    ```
-
-    The response should be an HTTP 200 and something like below:
-
-    ```json
     {
-      "id": "assistant123",
-      "exists": true,
-      "createdAt": "2024-05-06T14:49:16.6429392Z",
-      "lastUpdatedAt": "2024-05-06T14:49:31.7259815Z",
-      "totalMessages": 4,
-      "totalTokens": 139,
-      "recentMessages": [
-        {
-          "content": "Remind me to call my dad",
-          "role": "user"
-        },
-        {
-          "content": "The function call succeeded. Let the user know that you completed the action.",
-          "role": "function",
-          "name": "AddTodo"
-        },
-        {
-          "content": "I've added the task \"call my dad\" to your to-do list.",
-          "role": "assistant"
-        }
-      ]
+      "message": "Remind me to call my dad"
     }
     ```
+
+    The response should be an HTTP 202, indicating that the request was accepted. You should also see some relevant log output in the terminal window where the app is running.
+
+    > **NOTE:** The AI assistant runs asynchronously in the background, so it doesn't respond immediately to prompts.  You should wait for about 10 seconds before sending subsequent messages to the assistant to give it time to finish processing the previous prompt.
 
     In the function log output, you should observe that the `AddTodo` function was triggered. This function is a custom skill that was automatically registered with the assistant when the app was started.
 
@@ -197,9 +175,11 @@ Also note that the storage of chat history is done via table storage. You may co
 
     ```http
     POST http://localhost:7168/api/assistants/assistant123
-    Content-Type: text/plain
+    Content-Type: application/json
 
-    Oh, and to take out the trash
+    {
+      "message": "Oh, and to take out the trash"
+    }
     ```
 
     The AI assistant remembers the context from the chat, so it knows that you're still talking about todo items, even if your prompt doesn't mention this explicitly.
@@ -210,40 +190,14 @@ Also note that the storage of chat history is done via table storage. You may co
 
     ```http
     POST http://localhost:7168/api/assistants/assistant123
-    Content-Type: text/plain
+    Content-Type: application/json
 
-    What do I need to do today?
-    ```
-
-    The response should be an HTTP 200 and something like below -
-
-    ```json
     {
-      "id": "assistant123",
-      "exists": true,
-      "createdAt": "2024-05-06T14:49:16.6429392Z",
-      "lastUpdatedAt": "2024-05-06T14:52:44.2639417Z",
-      "totalMessages": 10,
-      "totalTokens": 264,
-      "recentMessages": [
-        {
-          "content": "What do I need to do today?",
-          "role": "user"
-        },
-        {
-          "content": "The function call succeeded. Let the user know that you completed the action.",
-          "role": "function",
-          "name": "GetTodos"
-        },
-        {
-          "content": "Here is your to-do list for today: \n1. Call my dad \n2. Take out the trash. \n\nLet me know if you need help with anything else.",
-          "role": "assistant"
-        }
-      ]
+      "message": "What do I need to do today?"
     }
     ```
 
-    In the function log output, you should observe that the `GetTodos` function was triggered. This function is a custom skill that the assistant users to query any previously saved todos.
+    The response should be an HTTP 202, indicating that the prompt was accepted. In the function log output, you should observe that the `GetTodos` function was triggered. This function is a custom skill that the assistant users to query any previously saved todos.
 
 1. Query the chat history by sending a `GET` request to the `GetChatState` function. The following is an example request:
 
@@ -257,53 +211,50 @@ Also note that the storage of chat history is done via table storage. You may co
     {
       "id": "assistant123",
       "exists": true,
-      "createdAt": "2024-05-06T14:49:16.6429392Z",
-      "lastUpdatedAt": "2024-05-06T14:52:44.2639417Z",
+      "createdAt": "2023-11-26T00:40:56.7864809Z",
+      "lastUpdatedAt": "2023-11-26T00:41:21.0153489Z",
       "totalMessages": 10,
-      "totalTokens": 264,
+      "totalTokens": 153,
       "recentMessages": [
         {
+          "role": "system",
           "content": "Don't make assumptions about what values to plug into functions.\r\nAsk for clarification if a user request is ambiguous.",
-          "role": "system"
         },
         {
-          "content": "Remind me to call my dad",
-          "role": "user"
+          "role": "user",
+          "content": "Remind me to call my dad"
         },
         {
-          "content": "The function call succeeded. Let the user know that you completed the action.",
           "role": "function",
-          "name": "AddTodo"
-        },
-        {
-          "content": "I've added the task \"call my dad\" to your to-do list.",
-          "role": "assistant"
-        },
-        {
-          "content": "Oh, and to take out the trash",
-          "role": "user"
-        },
-        {
           "content": "The function call succeeded. Let the user know that you completed the action.",
+        },
+        {
+          "role": "assistant",
+          "content": "I have added a reminder for you to call your dad."
+        },
+        {
+          "role": "user",
+          "content": "Oh, and to take out the trash"
+        },
+        {
           "role": "function",
-          "name": "AddTodo"
-        },
-        {
-          "content": "I've also added the task \"take out the trash\" to your to-do list.",
-          "role": "assistant"
-        },
-        {
-          "content": "What do I need to do today?",
-          "role": "user"
-        },
-        {
           "content": "The function call succeeded. Let the user know that you completed the action.",
-          "role": "function",
-          "name": "GetTodos"
         },
         {
-          "content": "Here is your to-do list for today: \n1. Call my dad \n2. Take out the trash. \n\nLet me know if you need help with anything else.",
-          "role": "assistant"
+          "role": "assistant",
+          "content": "I have added a reminder for you to take out the trash."
+        },
+        {
+          "role": "user",
+          "content": "What do I need to do today?"
+        },
+        {
+          "role": "function",
+          "content": "[{\"Id\":\"4d3170\",\"Task\":\"Call my dad\"},{\"Id\":\"f1413f\",\"Task\":\"Take out the trash\"}]",
+        },
+        {
+          "role": "assistant",
+          "content": "Today, you need to:\n- Call your dad\n- Take out the trash"
         }
       ]
     }

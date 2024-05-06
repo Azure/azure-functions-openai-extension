@@ -44,13 +44,11 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     For example, if you were running the chat bot scenario using the Azure OpenAI, you would have created a deployment name here as specified in step #6 [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal#deploy-a-model). Here is an example of what this would look like:
 
     ```csharp
-    public class PostResponseOutput
-    {
-        [AssistantPostOutput("{chatId}", Model = "DeploymentName")]
-        public AssistantPostRequest? ChatBotPostRequest { get; set; }
-
-        public HttpResponseData? HttpResponse { get; set; }
-    }
+    [Function(nameof(PostUserResponse))]
+    public static async Task<HttpResponseData> PostUserResponse(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
+        string chatId,
+        [AssistantPostInput("{chatId}", "{message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
 
     ```
 
@@ -88,7 +86,29 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     Who won the SuperBowl in 2014?
     ```
 
-    The response should be an HTTP 202 Accepted response with an empty body. This means the chatbot is processing the request.
+    The response should look something like the following exampl with Status 200 OK, formatted for readability.
+
+    ```json
+    {
+        "id": "test123",
+        "exists": true,
+        "createdAt": "2024-05-06T14:40:31.9501558Z",
+        "lastUpdatedAt": "2024-05-06T14:40:43.3876176Z",
+        "totalMessages": 3,
+        "totalTokens": 107,
+        "recentMessages": [
+            {
+            "content": "Who won SuperBowl XLVIII in 2014?",
+            "role": "user"
+            },
+            {
+            "content": "Indeed, 'twas the sturdy Seahawks of Seattle that did lay claim to the victory in Super Bowl XLVIII, in the year of our Lord, two thousand and fourteen. Verily, they did vanquish the Broncos of Denver upon the field of battle, boasting an advantage most definitive in the score.",
+            "role": "assistant"
+            }
+        ]
+    }
+    ```
+
     You should also see additional log output in the terminal window where the app is running.
 
 5. Use an HTTP client to get the latest chat history for the `test123` chat bot.
@@ -102,26 +122,26 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 
     ```json
     {
-      "id": "test123",
-      "exists": true,
-      "createdAt": "2024-01-15T22:33:15.0664078Z",
-      "lastUpdatedAt": "2024-01-15T22:33:45.5591906Z",
-      "totalMessages": 3,
-      "totalTokens": 139,
-      "recentMessages": [
-          {
-              "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare.",
-              "role": "system"
-          },
-          {
-              "content": "Who won the SuperBowl in 2014?",
-              "role": "user"
-          },
-          {
-              "content": "Alas, in the year of our Lord 2014, the SuperBowl victor was the illustrious Seattle Seahawks. They demonstrated great prowess and prevailed over their worthy adversaries, the Denver Broncos.",
-              "role": "assistant"
-          }
-      ]
+        "id": "test123",
+        "exists": true,
+        "createdAt": "2024-01-15T22:33:15.0664078Z",
+        "lastUpdatedAt": "2024-01-15T22:33:45.5591906Z",
+        "totalMessages": 3,
+        "totalTokens": 139,
+        "recentMessages": [
+            {
+                "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare.",
+                "role": "system"
+            },
+            {
+                "content": "Who won the SuperBowl in 2014?",
+                "role": "user"
+            },
+            {
+                "content": "Alas, in the year of our Lord 2014, the SuperBowl victor was the illustrious Seattle Seahawks. They demonstrated great prowess and prevailed over their worthy adversaries, the Denver Broncos.",
+                "role": "assistant"
+            }
+        ]
     }
     ```
 
@@ -139,27 +159,25 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     Amazing! Do you know who performed the halftime show?
     ```
 
-    You can then see the response by sending another `GET` request to the chatbot, as in the following example.
+   Response will look something like below:
 
-    ```http
-    GET http://localhost:7071/api/chats/test123?timestampUTC=2024-01-15T22:36:00
-    ```
-
-    Assuming that the `timestampUTC` property correctly filters out all but the last message, you can expect to see a response similar to the following:
-
-    ```json
-    {
-      "id": "test123",
-      "exists": true,
-      "createdAt": "2024-01-15T22:33:15.0664078Z",
-      "lastUpdatedAt": "2024-01-15T22:36:32.3760309Z",
-      "totalMessages": 5,
-      "totalTokens": 178,
-      "recentMessages": [
-          {
-              "content": "Ah, verily! The halftime show at the SuperBowl of 2014 was graced by the presence of the fair enchantress known as Bruno Mars. With his dulcet voice and captivating melodies, he entertained the masses gathered with his musical prowess.",
-              "role": "assistant"
-          }
-      ]
+   ```json
+   {
+        "id": "test123",
+        "exists": true,
+        "createdAt": "2024-05-06T14:40:31.9501558Z",
+        "lastUpdatedAt": "2024-05-06T14:44:15.224163Z",
+        "totalMessages": 5,
+        "totalTokens": 218,
+        "recentMessages": [
+            {
+            "content": "Amazing! Do you know who performed the halftime show?",
+            "role": "user"
+            },
+            {
+            "content": "Verily, I do recall 'twas the musician hight Bruno Mars, a minstrel of great renown, who didst command the stage at the halftime show, accompanied by the percussive ensemble known as the Red Hot Chili Peppers. This spectacle exquisite, full of vim and vigour, was a feast for the eyes and ears of all spectators at Super Bowl XLVIII, in the year of our Lord, two thousand and fourteen.",
+            "role": "assistant"
+            }
+        ]
     }
-    ```
+   ```

@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Net;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.Functions.Worker.Http;
 
 namespace AssistantSample;
@@ -13,6 +15,11 @@ namespace AssistantSample;
 /// </summary>
 static class AssistantApis
 {
+    public class AssistantPostRequest
+    {
+        [JsonPropertyName("message")]
+        public string? UserMessage { get; set; }
+    }
 
     /// <summary>
     /// HTTP PUT function that creates a new assistant chat bot with the specified ID.
@@ -56,33 +63,26 @@ static class AssistantApis
     /// HTTP POST function that sends user prompts to the assistant chat bot.
     /// </summary>
     [Function(nameof(PostUserQuery))]
-    public static async Task<PostResponseOutput> PostUserQuery(
+    public static async Task<HttpResponseData> PostUserQuery(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
-        string assistantId)
+        string assistantId,
+        [AssistantPostInput("{assistantId}", "{message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
-        string? userMessage = await req.ReadAsStringAsync();
-        if (string.IsNullOrEmpty(userMessage))
+        using StreamReader reader = new(req.Body);
+        string request = await reader.ReadToEndAsync();
+
+        AssistantPostRequest? requestBody = JsonSerializer.Deserialize<AssistantPostRequest>(request);
+
+        if (requestBody is null || string.IsNullOrEmpty(requestBody.UserMessage))
         {
             HttpResponseData badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
-            await badResponse.WriteStringAsync("Request body is empty");
-            return new PostResponseOutput { HttpResponse = badResponse };
+            await badResponse.WriteStringAsync("Invalid request body. Make sure that you pass in {\"message\": value } as the request body.");
+            return badResponse;
         }
 
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.Accepted);
-
-        return new PostResponseOutput
-        {
-            HttpResponse = response,
-            ChatBotPostRequest = new AssistantPostRequest { UserMessage = userMessage, Id = assistantId }
-        };
-    }
-
-    public class PostResponseOutput
-    {
-        [AssistantPostOutput("{assistantId}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")]
-        public AssistantPostRequest? ChatBotPostRequest { get; set; }
-
-        public HttpResponseData? HttpResponse { get; set; }
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+        await response.WriteAsJsonAsync(state);
+        return response;
     }
 
     /// <summary>

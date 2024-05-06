@@ -18,12 +18,6 @@ public static class ChatBot
         public string? Instructions { get; set; }
     }
 
-    public class AssistantPostRequest
-    {
-        [JsonPropertyName("message")]
-        public string? UserMessage { get; set; }
-    }
-
     [Function(nameof(CreateChatBot))]
     public static async Task<CreateChatBotOutput> CreateChatBot(
         [HttpTrigger(AuthorizationLevel.Function, "put", Route = "chats/{chatId}")] HttpRequestData req,
@@ -64,22 +58,10 @@ public static class ChatBot
     public static async Task<HttpResponseData> PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
-        [AssistantPostInput("{chatId}", "{message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
+        [AssistantPostInput("{chatId}", "{Query}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
-        using StreamReader reader = new(req.Body);
-        string request = await reader.ReadToEndAsync();
-
-        AssistantPostRequest? requestBody = JsonSerializer.Deserialize<AssistantPostRequest>(request);
-
-        if (requestBody is null || string.IsNullOrEmpty(requestBody.UserMessage))
-        {
-            HttpResponseData badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
-            await badResponse.WriteStringAsync("Invalid request body. Make sure that you pass in {\"message\": value } as the request body.");
-            return badResponse;
-        }
-
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(state);
+        await response.WriteAsJsonAsync(state.RecentMessages.FirstOrDefault()?.Content);
         return response;
     }
 

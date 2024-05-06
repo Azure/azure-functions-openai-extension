@@ -33,6 +33,7 @@ public class Chat
         string chatId = $"superbowl-{Guid.NewGuid():N}";
 
 #if RELEASE
+        // Use the default key for the Azure Functions app in RELEASE mode; for local development, DEBUG mode can be used.
         string functionKey = Environment.GetEnvironmentVariable("FUNC_DEFAULT_KEY") ?? throw new InvalidOperationException("Missing environment variable 'FUNC_DEFAULT_KEY'");
         client.DefaultRequestHeaders.Add("x-functions-key", functionKey);
 #endif

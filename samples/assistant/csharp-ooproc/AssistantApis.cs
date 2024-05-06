@@ -15,12 +15,6 @@ namespace AssistantSample;
 /// </summary>
 static class AssistantApis
 {
-    public class AssistantPostRequest
-    {
-        [JsonPropertyName("message")]
-        public string? UserMessage { get; set; }
-    }
-
     /// <summary>
     /// HTTP PUT function that creates a new assistant chat bot with the specified ID.
     /// </summary>
@@ -66,22 +60,10 @@ static class AssistantApis
     public static async Task<HttpResponseData> PostUserQuery(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId,
-        [AssistantPostInput("{assistantId}", "{message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
+        [AssistantPostInput("{assistantId}", "{Query}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
-        using StreamReader reader = new(req.Body);
-        string request = await reader.ReadToEndAsync();
-
-        AssistantPostRequest? requestBody = JsonSerializer.Deserialize<AssistantPostRequest>(request);
-
-        if (requestBody is null || string.IsNullOrEmpty(requestBody.UserMessage))
-        {
-            HttpResponseData badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
-            await badResponse.WriteStringAsync("Invalid request body. Make sure that you pass in {\"message\": value } as the request body.");
-            return badResponse;
-        }
-
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(state);
+        await response.WriteAsJsonAsync(state.RecentMessages.FirstOrDefault()?.Content);
         return response;
     }
 

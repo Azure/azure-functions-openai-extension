@@ -366,9 +366,9 @@ class DefaultAssistantService : IAssistantService
         // Add the batch of table transaction actions to the table
         await this.tableClient.SubmitTransactionAsync(batch, cancellationToken);
 
-        // return the latest message in the chat state
+        // return the latest assistant message in the chat state
         List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
-            .Where(msg => msg.CreatedAt > timeFilter)
+            .Where(msg => msg.CreatedAt > timeFilter && msg.Role == ChatRole.Assistant)
             .ToList();
 
         this.logger.LogInformation(

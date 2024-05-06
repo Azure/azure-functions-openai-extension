@@ -65,6 +65,7 @@ public class Chat
             requestUri: $"{baseAddress}/api/chats/{chatId}?message={questionRequest1}", null,
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.OK, questionResponse.StatusCode);
+        Assert.StartsWith("text/plain", questionResponse.Content.Headers.ContentType?.MediaType);
 
         // Ensure that the model responded and mentioned the Seahawks as the 2014 Superbowl winners.
         await ValidateAssistantResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
@@ -75,6 +76,7 @@ public class Chat
             requestUri: $"{baseAddress}/api/chats/{chatId}?message={questionRequest2}", null,
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.OK, questionResponse.StatusCode);
+        Assert.StartsWith("text/plain", questionResponse.Content.Headers.ContentType?.MediaType);
 
         // Ensure that the model responded with Bruno Mars as the halftime show performer.
         await ValidateAssistantResponseAsync(expectedMessageCount: 5, expectedContent: "Bruno Mars", hasTotalTokens: true);

@@ -374,7 +374,8 @@ class DefaultAssistantService : IAssistantService
         this.logger.LogInformation(
             "Returning {Count}/{Total} chat messages from entity '{Id}'",
             filteredChatMessages.Count,
-            chatState.Metadata.TotalMessages, attribute.Id);
+            chatState.Metadata.TotalMessages,
+            attribute.Id);
 
         AssistantState state = new(
             attribute.Id,

@@ -63,7 +63,8 @@ static class AssistantApis
         [AssistantPostInput("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(state.RecentMessages.FirstOrDefault()?.Content);
+        response.Headers.Add("Content-Type", "text/plain");
+        await response.WriteStringAsync(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
         return response;
     }
 

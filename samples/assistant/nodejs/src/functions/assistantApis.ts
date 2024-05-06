@@ -42,7 +42,14 @@ app.http('PostUserResponse', {
     extraInputs: [assistantPostInput],
     handler: async (_, context) => {
         const chatState: any = context.extraInputs.get(assistantPostInput)
-        return { status: 200, jsonBody: chatState.recentMessages[0].content }
+        const content = chatState.recentMessages[0].content
+        return {
+            status: 200,
+            body: content,
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        };
     }
 })
 

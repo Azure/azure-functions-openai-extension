@@ -86,8 +86,8 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 
     The response should look something like the following example with Status 200 OK, formatted for readability.
 
-    ```json
-    "'Twas the team of Seattle, the Seahawks by name, who vanquished the Denver Broncos in the Super Bowl XLVIII, forsooth, in the year of our Lord two thousand and fourteen. This grand victory brought much rejoicing to the good people of Seattle. Mayhap thou didst revel in the joy of their triumph too, noble interlocutor?"
+    ```text
+    'Twas the team of Seattle, the Seahawks by name, who vanquished the Denver Broncos in the Super Bowl XLVIII, forsooth, in the year of our Lord two thousand and fourteen. This grand victory brought much rejoicing to the good people of Seattle. Mayhap thou didst revel in the joy of their triumph too, noble interlocutor?
     ```
 
     You should also see additional log output in the terminal window where the app is running.
@@ -140,6 +140,6 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 
    Response will look something like below with Status 200 OK:
 
-   ```json
-   "Indeed, mine memory doth serve me well. The halftime show, a spectacle of music and merriment, was carried forth by the lauded Bruno Mars and the Red Hot Chili Peppers, who lent their musical talents to the grand event. Their harmonies echoed through the field, enriching the exultation of this sporting feast. Twas a performance recalled with pleasure, methinks."
+   ```text
+   Indeed, mine memory doth serve me well. The halftime show, a spectacle of music and merriment, was carried forth by the lauded Bruno Mars and the Red Hot Chili Peppers, who lent their musical talents to the grand event. Their harmonies echoed through the field, enriching the exultation of this sporting feast. Twas a performance recalled with pleasure, methinks.
    ```

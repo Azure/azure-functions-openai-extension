@@ -169,8 +169,8 @@ Also note that the storage of chat history is done via table storage. You may co
 
     The response should be an HTTP 200 and something like below:
 
-    ```json
-    "I've added \"Call my dad\" to your todo list."
+    ```text
+    I've added \"Call my dad\" to your todo list.
     ```
 
     In the function log output, you should observe that the `AddTodo` function was triggered. This function is a custom skill that was automatically registered with the assistant when the app was started.
@@ -197,8 +197,8 @@ Also note that the storage of chat history is done via table storage. You may co
 
     The response should be an HTTP 200 and something like below -
 
-    ```json
-    "Here are your tasks for today:\n\n1. Call my dad\n2. Take out the trash"
+    ```text
+    Here are your tasks for today:\n\n1. Call my dad\n2. Take out the trash
     ```
 
     In the function log output, you should observe that the `GetTodos` function was triggered. This function is a custom skill that the assistant users to query any previously saved todos.

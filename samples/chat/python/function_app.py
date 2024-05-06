@@ -38,4 +38,4 @@ def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
 
     # Extract the content of the recentMessage
     recent_message_content = data['recentMessages'][0]['content']
-    return func.HttpResponse(recent_message_content, status_code=200, mimetype="application/json")
+    return func.HttpResponse(recent_message_content, status_code=200, mimetype="text/plain")

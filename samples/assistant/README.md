@@ -12,6 +12,11 @@ In both cases, the skills are defined in your app and any the language model doe
 This OpenAI extension internally uses the [function calling](https://platform.openai.com/docs/guides/function-calling) functionality available in
 `gpt-3.5-turbo` and `gpt-4` models to implement assistant skills.
 
+## Supported model version and known issues
+
+Assistant Functions are supported on model version `0613` of both GPT 3.5 Turbo and GPT 4.
+Model versions 0301 and 1106 have some known issues, check the repo issues for progress as the team add support for these model versions too.
+
 ## Defining skills
 
 You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following example shows a skill that adds a todo item to a database:

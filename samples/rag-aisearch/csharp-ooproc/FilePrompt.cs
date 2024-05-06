@@ -16,8 +16,8 @@ public static class FilePrompt
 {
     public class EmbeddingsRequest
     {
-        [JsonPropertyName("FilePath")]
-        public string? FilePath { get; set; }
+        [JsonPropertyName("Url")]
+        public string? Url { get; set; }
     }
 
     public class SemanticSearchRequest
@@ -26,39 +26,36 @@ public static class FilePrompt
         public string? Prompt { get; set; }
     }
 
-    // REVIEW: There are several assumptions about how the Embeddings binding and the SemanticSearch bindings
-    //         work together. We should consider creating a higher-level of abstraction for this.
     [Function("IngestFile")]
-    public static async Task<SemanticSearchOutputResponse> IngestFile(
-        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-        [EmbeddingsInput("{FilePath}", InputType.FilePath, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+    public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
+        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
 
-        if (requestBody == null)
+        if (requestBody == null || requestBody.Url == null)
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"filePath\": value } as the request body.");
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
         }
 
-        string title = Path.GetFileNameWithoutExtension(requestBody.FilePath);
+        Uri uri = new(requestBody.Url);
+        string filename = Path.GetFileName(uri.AbsolutePath);
 
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(new { status = "success", title, chunks = embeddings.Count });
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
 
-        return new SemanticSearchOutputResponse
+        return new EmbeddingsStoreOutputResponse
         {
             HttpResponse = response,
-            SearchableDocument = new SearchableDocument(title, embeddings)
+            SearchableDocument = new SearchableDocument(filename)
         };
     }
 
-    public class SemanticSearchOutputResponse
+    public class EmbeddingsStoreOutputResponse
     {
-        [SemanticSearchOutput("AISearchEndpoint", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
-        public SearchableDocument SearchableDocument { get; set; }
+        [EmbeddingsStoreOutput("{Url}", InputType.Url, "AISearchEndpoint", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        public required SearchableDocument SearchableDocument { get; init; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }

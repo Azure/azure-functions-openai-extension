@@ -11,7 +11,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 /// </summary>
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class SemanticSearchAttribute : Attribute
+public sealed class SemanticSearchAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SemanticSearchAttribute"/> class with the specified connection
@@ -60,7 +60,7 @@ public class SemanticSearchAttribute : Attribute
 
     /// <summary>
     /// Gets or sets the ID of the model to use for embeddings.
-    /// The default value is "text-embedding-3-small".
+    /// The default value is "text-embedding-ada-002".
     /// </summary>
     /// <remarks>
     /// This property supports binding expressions.

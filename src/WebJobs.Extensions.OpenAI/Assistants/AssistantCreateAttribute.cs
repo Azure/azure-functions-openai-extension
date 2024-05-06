@@ -7,7 +7,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class AssistantCreateAttribute : Attribute
+public sealed class AssistantCreateAttribute : Attribute
 {
     // No configuration needed
 }

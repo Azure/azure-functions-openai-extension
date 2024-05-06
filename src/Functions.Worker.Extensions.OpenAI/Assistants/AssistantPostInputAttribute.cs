@@ -6,9 +6,9 @@ using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
 /// <summary>
-/// Assistant post output attribute which is used to update the assistant.
+/// Assistant post input attribute which is used to update the assistant.
 /// </summary>
-public class AssistantPostInputAttribute : InputBindingAttribute
+public sealed class AssistantPostInputAttribute : InputBindingAttribute
 {
     public AssistantPostInputAttribute(string id, string UserMessage)
     {

@@ -20,7 +20,6 @@ public class SemanticSearchContext
     {
         this.Embeddings = Embeddings;
         this.Chat = Chat;
-
     }
 
     /// <summary>
@@ -32,7 +31,6 @@ public class SemanticSearchContext
     /// Chat response from the chat completions request.
     /// </summary>
     public ChatCompletions Chat { get; }
-
 
     /// <summary>
     /// Gets the latest response message from the OpenAI Chat API.

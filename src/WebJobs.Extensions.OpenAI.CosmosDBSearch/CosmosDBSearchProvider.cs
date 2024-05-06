@@ -25,11 +25,17 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     internal class OutputDocument
     {
+        public OutputDocument(string title, string text)
+        {
+            this.Title = title;
+            this.Text = text;
+        }
+
         [BsonElement("text")]
-        public string? Text { get; set; }
+        public string Text { get; set; }
 
         [BsonElement("title")]
-        public string? Title { get; set; }
+        public string Title { get; set; }
     }
 
     /// <summary>
@@ -75,7 +81,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
         string connectionString = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
 
-        MongoClient mongoClient = this.GetMongoClientAsync(connectionString, document.ConnectionInfo.ConnectionName);
+        MongoClient mongoClient = this.GetMongoClient(connectionString, document.ConnectionInfo.ConnectionName);
 
         this.CreateVectorIndexIfNotExists(mongoClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
@@ -102,7 +108,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
 
         string connectionString = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        MongoClient mongoClient = this.GetMongoClientAsync(connectionString, request.ConnectionInfo.ConnectionName);
+        MongoClient mongoClient = this.GetMongoClient(connectionString, request.ConnectionInfo.ConnectionName);
 
         try
         {
@@ -248,7 +254,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     }
 
-    MongoClient GetMongoClientAsync(string connectionString, string connectionStringName)
+    MongoClient GetMongoClient(string connectionString, string connectionStringName)
     {
         // TODO: Add suport for managed identity
         if (string.IsNullOrEmpty(connectionString))

@@ -53,8 +53,8 @@ public class EmailPromptDemo
     }
     public class EmbeddingsStoreOutputResponse
     {
-        [EmbeddingsStoreOutput("{url}", InputType.Url, "KustoConnectionString", "Documents", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
-        public SearchableDocument? SearchableDocument { get; set; }
+        [EmbeddingsStoreOutput("{Url}", InputType.Url, "KustoConnectionString", "Documents", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        public required SearchableDocument SearchableDocument { get; init; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }

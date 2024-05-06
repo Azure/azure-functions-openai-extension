@@ -11,7 +11,8 @@ public class EmbeddingsStoreOutputAttribute : OutputBindingAttribute
     /// Initializes a new instance of the <see cref="EmbeddingsStoreAttribute"/> class with the specified connection
     /// and collection names.
     /// </summary>
-    /// <param name="input">The input source containing the data to generate embeddings for.</param>
+    /// <param name="input">The input source containing the data to generate embeddings for
+    /// and is interpreted based on the value for <paramref name="inputType"/>.</param>
     /// <param name="inputType">The type of the input.</param>
     /// <param name="connectionName">
     /// The name of an app setting or environment variable which contains a connection string value.

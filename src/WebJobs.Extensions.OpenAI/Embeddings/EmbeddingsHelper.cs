@@ -12,6 +12,11 @@ static class EmbeddingsHelper
     static readonly string UserAgent = $"{typeof(OpenAIExtension).Namespace}/{FileVersionInfo.GetVersionInfo(typeof(OpenAIExtension).Assembly.Location).FileVersion}";
     static readonly HttpClient httpClient = new();
 
+    static EmbeddingsHelper()
+    {
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
+    }
+
     public static async Task<EmbeddingsOptions> BuildRequest(int maxOverlap, int maxChunkLength, string model, InputType inputType, string input)
     {
         using TextReader reader = await GetTextReader(inputType, input);
@@ -36,7 +41,6 @@ static class EmbeddingsHelper
         }
         else if (inputType == InputType.Url)
         {
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
             Stream stream = await httpClient.GetStreamAsync(input);
             return new StreamReader(stream);
         }

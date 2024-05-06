@@ -380,7 +380,7 @@ public static string WhoIs(
 ```csharp
 public record SemanticSearchRequest(string Prompt);
 
-// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-3-small models, respectively
+// "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-ada-002 models, respectively
 [Function("PromptEmail")]
 public static IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
@@ -393,7 +393,7 @@ public static IActionResult PromptEmail(
 ## Default OpenAI models
 
 1. Chat Completion - gpt-3.5-turbo
-1. Embeddings - text-embedding-3-small
+1. Embeddings - text-embedding-ada-002
 1. Text Completion - gpt-3.5-turbo
 
 While using non-Azure OpenAI, you can omit the Model specification in attributes to use the default models.

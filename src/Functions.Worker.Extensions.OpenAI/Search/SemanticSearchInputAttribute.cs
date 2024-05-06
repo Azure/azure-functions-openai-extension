@@ -54,7 +54,7 @@ public sealed class SemanticSearchInputAttribute : InputBindingAttribute
 
     /// <summary>
     /// Gets or sets the ID of the model to use for embeddings.
-    /// The default value is "text-embedding-3-small".
+    /// The default value is "text-embedding-ada-002".
     /// </summary>
     /// <remarks>
     /// This property supports binding expressions.

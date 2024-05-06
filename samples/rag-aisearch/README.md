@@ -37,7 +37,7 @@ Once you have an Azure AI Search resource, you can run the sample by following t
     }
     ```
 
-    `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 3072 floating point values each](https://learn.microsoft.com/azure/search/search-get-started-vector#:~:text=dimensions%20attribute%20has%20a%20minimum%20of%202%20and%20a%20maximum%20of%203072%20floating%20point%20values%20each). By default, the length of the embedding vector will be 1536 for text-embedding-3-small.
+    `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 3072 floating point values each](https://learn.microsoft.com/azure/search/search-get-started-vector#:~:text=dimensions%20attribute%20has%20a%20minimum%20of%202%20and%20a%20maximum%20of%203072%20floating%20point%20values%20each). By default, the length of the embedding vector will be 1536 for text-embedding-ada-002.
 
 1. Use a terminal window to navigate to the sample directory
 
@@ -76,6 +76,9 @@ Algorithm - HnswAlgorithmConfiguration
 
 ### Use of API Key
 
+Azure AI Search offers key-based authentication that you can use on connections to your search service. [More information](https://learn.microsoft.com/azure/search/search-security-api-keys)
+
+1. Use of API Key is optional and managed identities are recommended way for authentication.
 1. Update the AI search API access control to `API keys` or `Both` (Settings -> Keys -> API Access Control).
 1. You may configure the `host.json` file within the project and following example shows the default values:
 

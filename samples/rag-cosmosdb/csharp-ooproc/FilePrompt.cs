@@ -54,8 +54,8 @@ public static class FilePrompt
 
     public class EmbeddingsStoreOutputResponse
     {
-        [EmbeddingsStoreOutput("{url}", InputType.Url, "CosmosDBMongoVCoreConnectionString", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
-        public SearchableDocument? SearchableDocument { get; set; }
+        [EmbeddingsStoreOutput("{Url}", InputType.Url, "CosmosDBMongoVCoreConnectionString", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        public required SearchableDocument SearchableDocument { get; init; }
 
         public HttpResponseData? HttpResponse { get; set; }
     }

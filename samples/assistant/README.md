@@ -162,38 +162,15 @@ Also note that the storage of chat history is done via table storage. You may co
 1. Ask the assistant to create a todo item by sending a `POST` request to the `PostUserQuery` function to send a prompt to the assistant. The following is an example request:
 
     ```http
-    POST http://localhost:7168/api/assistants/assistant123
-    Content-Type: text/plain
+    ### Reminder #1 - Remind me to call my dad
+    POST http://localhost:7071/api/assistants/assistant123?message=Remind%20me%20to%20call%20my%20dad
 
-    Remind me to call my dad
     ```
 
     The response should be an HTTP 200 and something like below:
 
     ```json
-    {
-      "id": "assistant123",
-      "exists": true,
-      "createdAt": "2024-05-06T14:49:16.6429392Z",
-      "lastUpdatedAt": "2024-05-06T14:49:31.7259815Z",
-      "totalMessages": 4,
-      "totalTokens": 139,
-      "recentMessages": [
-        {
-          "content": "Remind me to call my dad",
-          "role": "user"
-        },
-        {
-          "content": "The function call succeeded. Let the user know that you completed the action.",
-          "role": "function",
-          "name": "AddTodo"
-        },
-        {
-          "content": "I've added the task \"call my dad\" to your to-do list.",
-          "role": "assistant"
-        }
-      ]
-    }
+    "I've added \"Call my dad\" to your todo list."
     ```
 
     In the function log output, you should observe that the `AddTodo` function was triggered. This function is a custom skill that was automatically registered with the assistant when the app was started.
@@ -201,10 +178,9 @@ Also note that the storage of chat history is done via table storage. You may co
 1. Ask the assistant to create another todo item using another `POST` request to the `PostUserQuery` function. The following is an example request:
 
     ```http
-    POST http://localhost:7168/api/assistants/assistant123
-    Content-Type: text/plain
+    ### Reminder #2 - Oh, and to take out the trash
+    POST http://localhost:7071/api/assistants/assistant123?message=Oh,%20and%20to%20take%20out%20the%20trash
 
-    Oh, and to take out the trash
     ```
 
     The AI assistant remembers the context from the chat, so it knows that you're still talking about todo items, even if your prompt doesn't mention this explicitly.
@@ -214,38 +190,15 @@ Also note that the storage of chat history is done via table storage. You may co
 1. Ask the assistant to list your todo items by sending a `POST` request to the `PostUserQuery` function. The following is an example request:
 
     ```http
-    POST http://localhost:7168/api/assistants/assistant123
-    Content-Type: text/plain
+    ### Get the list of tasks - What do I need to do today?
+    POST http://localhost:7071/api/assistants/assistant123?message=What%20do%20I%20need%20to%20do%20today%3F
 
-    What do I need to do today?
     ```
 
     The response should be an HTTP 200 and something like below -
 
     ```json
-    {
-      "id": "assistant123",
-      "exists": true,
-      "createdAt": "2024-05-06T14:49:16.6429392Z",
-      "lastUpdatedAt": "2024-05-06T14:52:44.2639417Z",
-      "totalMessages": 10,
-      "totalTokens": 264,
-      "recentMessages": [
-        {
-          "content": "What do I need to do today?",
-          "role": "user"
-        },
-        {
-          "content": "The function call succeeded. Let the user know that you completed the action.",
-          "role": "function",
-          "name": "GetTodos"
-        },
-        {
-          "content": "Here is your to-do list for today: \n1. Call my dad \n2. Take out the trash. \n\nLet me know if you need help with anything else.",
-          "role": "assistant"
-        }
-      ]
-    }
+    "Here are your tasks for today:\n\n1. Call my dad\n2. Take out the trash"
     ```
 
     In the function log output, you should observe that the `GetTodos` function was triggered. This function is a custom skill that the assistant users to query any previously saved todos.
@@ -262,10 +215,10 @@ Also note that the storage of chat history is done via table storage. You may co
     {
       "id": "assistant123",
       "exists": true,
-      "createdAt": "2024-05-06T14:49:16.6429392Z",
-      "lastUpdatedAt": "2024-05-06T14:52:44.2639417Z",
+      "createdAt": "2024-05-06T20:40:48.481582Z",
+      "lastUpdatedAt": "2024-05-06T20:43:49.9760621Z",
       "totalMessages": 10,
-      "totalTokens": 264,
+      "totalTokens": 242,
       "recentMessages": [
         {
           "content": "Don't make assumptions about what values to plug into functions.\r\nAsk for clarification if a user request is ambiguous.",
@@ -281,7 +234,7 @@ Also note that the storage of chat history is done via table storage. You may co
           "name": "AddTodo"
         },
         {
-          "content": "I've added the task \"call my dad\" to your to-do list.",
+          "content": "I've added \"Call my dad\" to your todo list.",
           "role": "assistant"
         },
         {
@@ -294,7 +247,7 @@ Also note that the storage of chat history is done via table storage. You may co
           "name": "AddTodo"
         },
         {
-          "content": "I've also added the task \"take out the trash\" to your to-do list.",
+          "content": "I've also added \"Take out the trash\" to your todo list.",
           "role": "assistant"
         },
         {
@@ -307,7 +260,7 @@ Also note that the storage of chat history is done via table storage. You may co
           "name": "GetTodos"
         },
         {
-          "content": "Here is your to-do list for today: \n1. Call my dad \n2. Take out the trash. \n\nLet me know if you need help with anything else.",
+          "content": "Here are your tasks for today:\n\n1. Call my dad\n2. Take out the trash",
           "role": "assistant"
         }
       ]

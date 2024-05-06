@@ -60,7 +60,7 @@ static class AssistantApis
     public static async Task<HttpResponseData> PostUserQuery(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId,
-        [AssistantPostInput("{assistantId}", "{Query}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
+        [AssistantPostInput("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
         await response.WriteAsJsonAsync(state.RecentMessages.FirstOrDefault()?.Content);

@@ -80,33 +80,14 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 4. Use an HTTP client to send a message to the `test123` chat bot.
 
     ```http
-    POST http://localhost:7071/api/chats/test123
-    Content-Type: text/plain
-
-    Who won the SuperBowl in 2014?
+    ### Send the first message to the chatbot - Who won SuperBowl XLVIII in 2014?
+    POST http://localhost:7071/api/chats/test123?message=Who%20won%20SuperBowl%20XLVIII%20in%202014?
     ```
 
-    The response should look something like the following exampl with Status 200 OK, formatted for readability.
+    The response should look something like the following example with Status 200 OK, formatted for readability.
 
     ```json
-    {
-        "id": "test123",
-        "exists": true,
-        "createdAt": "2024-05-06T14:40:31.9501558Z",
-        "lastUpdatedAt": "2024-05-06T14:40:43.3876176Z",
-        "totalMessages": 3,
-        "totalTokens": 107,
-        "recentMessages": [
-            {
-            "content": "Who won SuperBowl XLVIII in 2014?",
-            "role": "user"
-            },
-            {
-            "content": "Indeed, 'twas the sturdy Seahawks of Seattle that did lay claim to the victory in Super Bowl XLVIII, in the year of our Lord, two thousand and fourteen. Verily, they did vanquish the Broncos of Denver upon the field of battle, boasting an advantage most definitive in the score.",
-            "role": "assistant"
-            }
-        ]
-    }
+    "'Twas the team of Seattle, the Seahawks by name, who vanquished the Denver Broncos in the Super Bowl XLVIII, forsooth, in the year of our Lord two thousand and fourteen. This grand victory brought much rejoicing to the good people of Seattle. Mayhap thou didst revel in the joy of their triumph too, noble interlocutor?"
     ```
 
     You should also see additional log output in the terminal window where the app is running.
@@ -153,31 +134,12 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 6. Repeat steps 4 and 5 as many times as you want. For example, a followup question can be asked by sending another `POST` request to the chatbot, as in the following example.
 
     ```http
-    POST http://localhost:7071/api/chats/test123
-    Content-Type: text/plain
-
-    Amazing! Do you know who performed the halftime show?
+    ### Send the second message to the chatbot - Amazing! Do you know who performed the halftime show?
+    POST http://localhost:7071/api/chats/test123?message=Amazing!%20Do%20you%20know%20who%20performed%20the%20halftime%20show?
     ```
 
-   Response will look something like below:
+   Response will look something like below with Status 200 OK:
 
    ```json
-   {
-        "id": "test123",
-        "exists": true,
-        "createdAt": "2024-05-06T14:40:31.9501558Z",
-        "lastUpdatedAt": "2024-05-06T14:44:15.224163Z",
-        "totalMessages": 5,
-        "totalTokens": 218,
-        "recentMessages": [
-            {
-            "content": "Amazing! Do you know who performed the halftime show?",
-            "role": "user"
-            },
-            {
-            "content": "Verily, I do recall 'twas the musician hight Bruno Mars, a minstrel of great renown, who didst command the stage at the halftime show, accompanied by the percussive ensemble known as the Red Hot Chili Peppers. This spectacle exquisite, full of vim and vigour, was a feast for the eyes and ears of all spectators at Super Bowl XLVIII, in the year of our Lord, two thousand and fourteen.",
-            "role": "assistant"
-            }
-        ]
-    }
+   "Indeed, mine memory doth serve me well. The halftime show, a spectacle of music and merriment, was carried forth by the lauded Bruno Mars and the Red Hot Chili Peppers, who lent their musical talents to the grand event. Their harmonies echoed through the field, enriching the exultation of this sporting feast. Twas a performance recalled with pleasure, methinks."
    ```

@@ -59,7 +59,7 @@ steps:
       command: publish
       publishWebProjects: false
       projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
-      arguments: '--configuration $(config) --output $(build.artifactstagingdirectory)'
+      arguments: '--configuration $(config) --output $(build.artifactstagingdirectory) --no-restore'
 
   - task: AzureCLI@2
     inputs:

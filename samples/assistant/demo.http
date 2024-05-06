@@ -2,31 +2,16 @@
 PUT http://localhost:7071/api/assistants/assistant123
 
 
-### Reminder #1
-POST http://localhost:7071/api/assistants/assistant123
-Content-Type: application/json
-
-{
-  "message": "Remind me to call my dad"
-}
+### Reminder #1 - Remind me to call my dad
+POST http://localhost:7071/api/assistants/assistant123?message=Remind%20me%20to%20call%20my%20dad
 
 
-### Reminder #2
-POST http://localhost:7071/api/assistants/assistant123
-Content-Type: application/json
-
-{
-  "message": "Oh, and to take out the trash"
-}
+### Reminder #2 - Oh, and to take out the trash
+POST http://localhost:7071/api/assistants/assistant123?message=Oh,%20and%20to%20take%20out%20the%20trash
 
 
-### Get the list of tasks
-POST http://localhost:7071/api/assistants/assistant123
-Content-Type: application/json
-
-{
-  "message": "What do I need to do today?"
-}
+### Get the list of tasks - What do I need to do today?
+POST http://localhost:7071/api/assistants/assistant123?message=What%20do%20I%20need%20to%20do%20today%3F
 
 
 ### Query the chat history

@@ -60,20 +60,19 @@ public class Chat
         await ValidateAssistantResponseAsync(expectedMessageCount: 1, expectedContent: createRequest.instructions);
 
         // Ask a question using an HTTP POST request
-        var questionRequest1 = new { message = "Who won the Superbowl in 2014?" };
-        using HttpResponseMessage questionResponse = await client.PostAsJsonAsync(
-            requestUri: $"{baseAddress}/api/chats/{chatId}",
-            questionRequest1,
+        string questionRequest1 = "Who won the Superbowl in 2014?";
+        using HttpResponseMessage questionResponse = await client.PostAsync(
+            requestUri: $"{baseAddress}/api/chats/{chatId}?message={questionRequest1}", null,
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.OK, questionResponse.StatusCode);
 
         // Ensure that the model responded and mentioned the Seahawks as the 2014 Superbowl winners.
         await ValidateAssistantResponseAsync(expectedMessageCount: 3, expectedContent: "Seahawks", hasTotalTokens: true);
 
-        var questionRequest2 = new { message = "Who performed the halftime show?" };
+        string questionRequest2 = "Who performed the halftime show?";
 
-        using HttpResponseMessage followupResponse = await client.PostAsJsonAsync(
-            requestUri: $"{baseAddress}/api/chats/{chatId}", questionRequest2,
+        using HttpResponseMessage followupResponse = await client.PostAsync(
+            requestUri: $"{baseAddress}/api/chats/{chatId}?message={questionRequest2}", null,
             cancellationToken: cts.Token);
         Assert.Equal(HttpStatusCode.OK, questionResponse.StatusCode);
 

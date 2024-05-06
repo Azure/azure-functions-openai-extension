@@ -76,7 +76,9 @@ steps:
       package: '$(build.artifactstagingdirectory)/csharp-ooproc.zip'
       deploymentMethod: 'auto'
 
-  - script: dotnet test --configuration $(config) --no-build --verbosity normal
+  - script: |
+      sleep 20s
+      dotnet test --configuration $(config) --no-build --verbosity normal
     env:
       FUNC_DEFAULT_KEY: $(FUNC_DEFAULT_KEY) # value defined in pipeline variable secrets
     displayName: E2E Test - Chat Bot Sample Out of Proc

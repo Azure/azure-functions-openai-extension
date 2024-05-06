@@ -43,27 +43,19 @@ app.http('GetChatState', {
 });
 
 
-const chatBotPostOutput = output.generic({
+const assistantPostInput = output.generic({
     type: 'assistantPost',
     id: '{chatID}',
-    model: '%CHAT_MODEL_DEPLOYMENT_NAME%'
+    model: '%CHAT_MODEL_DEPLOYMENT_NAME%',
+    userMessage: '{Query.message}'
 })
 app.http('PostUserResponse', {
     methods: ['POST'],
     route: 'chats/{chatID}',
     authLevel: 'function',
-    extraOutputs: [chatBotPostOutput],
-    handler: async (request, context) => {
-        const userMessage = await request.text()
-        if (!userMessage) {
-            return { status: 400, bodyJson: { message: 'No message provided' } }
-        }
-        const chatPostRequest = {
-            chatId: request.params.chatID,
-            userMessage: userMessage
-        }
-        context.log(`Creating post request with parameters: ${JSON.stringify(chatPostRequest)}`)
-        context.extraOutputs.set(chatBotPostOutput, chatPostRequest)
-        return { status: 202 }
+    extraInputs: [assistantPostInput],
+    handler: async (_, context) => {
+        const chatState: any = context.extraInputs.get(assistantPostInput)
+        return { status: 200, jsonBody: chatState.recentMessages[0].content}
     }
 });

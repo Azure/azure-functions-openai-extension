@@ -1,0 +1,17 @@
+{
+  "version": "2.0",
+  "managedDependency": {
+    "enabled": true
+  },
+  "logging": {
+    "logLevel": {
+      "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
+    }
+  },
+  "extensions": {
+    "openai": {
+      "storageConnectionName": "AzureWebJobsStorage",
+      "collectionName": "ChatBotRequests"
+    }
+  }
+}

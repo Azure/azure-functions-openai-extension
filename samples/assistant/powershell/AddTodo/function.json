@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "TaskDescription",
+      "type": "assistantSkillTrigger",
+      "dataType": "string",
+      "direction": "in",
+      "functionDescription": "Create a new todo task"
+    }
+  ]
+}

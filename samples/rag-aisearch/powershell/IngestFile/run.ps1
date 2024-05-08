@@ -4,23 +4,23 @@ param($Request, $TriggerMetadata)
 
 $ErrorActionPreference = 'Stop'
 
-$inputJson = $Request.Body | ConvertFrom-Json
+$inputJson = $Request.Body
 
 if (-not $inputJson -or -not $inputJson.Url) {
     throw 'Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.'
 }
 
 $uri = [URI]$inputJson.Url
+$filename = [System.IO.Path]::GetFileName($uri.AbsolutePath)
 
-$title = [System.IO.Path]::GetExtension($uri)
 
 Push-OutputBinding -Name EmbeddingsStoreOutput -Value @{
-    "title" = $uri
+    "title" = $filename
 }
 
 $response = @{
     "status" = "success"
-    "title" = $title
+    "title" = $filename
 }
 
 Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{

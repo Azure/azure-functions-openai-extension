@@ -12,6 +12,6 @@ Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
     StatusCode = [HttpStatusCode]::OK
     Body       = $recent_message_content
     Headers    = @{
-        "Content-Type" = "application/json"
+        "Content-Type" = "text/plain"
     }
 })

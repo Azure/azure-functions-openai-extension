@@ -21,7 +21,7 @@
       "direction": "in",
       "dataType": "string",
       "id": "{assistantId}",
-      "timestampUtc": "{Query.timestampUtc}"
+      "timestampUtc": "{Query.timestampUTC}"
     }
   ]
 }

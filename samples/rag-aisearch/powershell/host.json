@@ -1,0 +1,19 @@
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
+    }
+  },
+  "extensions": {
+    "openai": {
+      "searchProvider": {
+        "type": "azureAiSearch",
+        "isSemanticSearchEnabled": true,
+        "useSemanticCaptions": true,
+        "vectorSearchDimensions": 1536,
+        "searchAPIKeySetting": "SearchAPIKey"
+      }
+    }
+  }
+}

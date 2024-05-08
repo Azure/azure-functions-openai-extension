@@ -12,7 +12,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 /// <param name="Response">The embeddings response that was received from OpenAI.</param>
 public class EmbeddingsContext
 {
-    public EmbeddingsContext(OpenAISDK.EmbeddingsOptions Request, OpenAISDK.Embeddings Response)
+    public EmbeddingsContext(OpenAISDK.EmbeddingsOptions Request, OpenAISDK.Embeddings? Response)
     {
         this.Request = Request;
         this.Response = Response;
@@ -26,10 +26,10 @@ public class EmbeddingsContext
     /// <summary>
     /// Embeddings response from OpenAI.
     /// </summary>
-    public OpenAISDK.Embeddings Response { get; set; }
+    public OpenAISDK.Embeddings? Response { get; set; }
 
     /// <summary>
     /// Gets the number of embeddings that were returned in the response.
     /// </summary>
-    public int Count => this.Response.Data?.Count ?? 0;
+    public int Count => this.Response?.Data?.Count ?? 0;
 }

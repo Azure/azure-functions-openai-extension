@@ -21,6 +21,7 @@ sealed class AzureAISearchProvider : ISearchProvider
     readonly bool isSemanticSearchEnabled = false;
     readonly bool useSemanticCaptions = false;
     readonly int vectorSearchDimensions = 1536;
+    readonly string searchAPIKeySetting = "SearchAPIKey";
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
     const string vectorSearchProfile = "openai-vector-profile";
@@ -44,6 +45,7 @@ sealed class AzureAISearchProvider : ISearchProvider
 
         this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
         this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
+        this.searchAPIKeySetting = azureAiSearchConfigOptions.Value.SearchAPIKeySetting ?? this.searchAPIKeySetting;
         int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
         if (value < 2 || value > 3072)
         {
@@ -69,8 +71,8 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
         string endpoint = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
 
-        SearchIndexClient searchIndexClient = GetSearchIndexClient(endpoint);
-        SearchClient searchClient = GetSearchClient(endpoint, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchIndexClient searchIndexClient = this.GetSearchIndexClient(endpoint);
+        SearchClient searchClient = this.GetSearchClient(endpoint, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
         await this.CreateIndexIfDoesntExist(searchIndexClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName, cancellationToken);
 
@@ -97,7 +99,7 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
 
         string endpoint = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        SearchClient searchClient = GetSearchClient(endpoint, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchClient searchClient = this.GetSearchClient(endpoint, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
         SearchOptions searchOptions = this.isSemanticSearchEnabled
             ? new SearchOptions
@@ -227,7 +229,7 @@ sealed class AzureAISearchProvider : ISearchProvider
     {
         int iteration = 0;
         IndexDocumentsBatch<SearchDocument> batch = new();
-        for (int i = 0; i < document.Embeddings.Response.Data.Count; i++)
+        for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
         {
             batch.Actions.Add(new IndexDocumentsAction<SearchDocument>(
                 IndexActionType.MergeOrUpload,
@@ -243,13 +245,7 @@ sealed class AzureAISearchProvider : ISearchProvider
             if (iteration % 1_000 is 0)
             {
                 // Every one thousand documents, batch create.
-                IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
-                int succeeded = result.Results.Count(r => r.Succeeded);
-                this.logger.LogInformation("""
-                        Indexed {Count} sections, {Succeeded} succeeded
-                        """,
-                        batch.Actions.Count,
-                        succeeded);
+                await this.IndexDocumentsBatchAsync(searchClient, batch, cancellationToken);
 
                 batch = new();
             }
@@ -258,23 +254,47 @@ sealed class AzureAISearchProvider : ISearchProvider
         if (batch is { Actions.Count: > 0 })
         {
             // Any remaining documents, batch create.
-            IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
-            int succeeded = result.Results.Count(r => r.Succeeded);
-            this.logger.LogInformation("""
-                        Indexed {Count} sections, {Succeeded} succeeded
-                        """,
-                    batch.Actions.Count,
-                    succeeded);
+            await this.IndexDocumentsBatchAsync(searchClient, batch, cancellationToken);
         }
     }
 
-    static SearchIndexClient GetSearchIndexClient(string endpoint)
+    async Task IndexDocumentsBatchAsync(SearchClient searchClient, IndexDocumentsBatch<SearchDocument> batch, CancellationToken cancellationToken)
     {
-        return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
+        IndexDocumentsResult result = await searchClient.IndexDocumentsAsync(batch, cancellationToken: cancellationToken);
+        int succeeded = result.Results.Count(r => r.Succeeded);
+        this.logger.LogInformation("""
+                        Indexed {Count} sections, {Succeeded} succeeded
+                        """,
+                batch.Actions.Count,
+                succeeded);
     }
 
-    static SearchClient GetSearchClient(string endpoint, string searchIndexName)
+    SearchIndexClient GetSearchIndexClient(string endpoint)
     {
-        return new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
+        string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
+        if (string.IsNullOrEmpty(key))
+        {
+            return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
+        }
+        else
+        {
+            return new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key));
+        }
+    }
+
+    SearchClient GetSearchClient(string endpoint, string searchIndexName)
+    {
+        string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
+        SearchClient searchClient;
+        if (string.IsNullOrEmpty(key))
+        {
+            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
+        }
+        else
+        {
+            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new AzureKeyCredential(key));
+        }
+
+        return searchClient;
     }
 }

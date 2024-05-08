@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 /// <summary>
 /// Binding attribute for semantic search (input bindings).
 /// </summary>
-public class SemanticSearchInputAttribute : InputBindingAttribute
+public sealed class SemanticSearchInputAttribute : InputBindingAttribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SemanticSearchInputAttribute"/> class with the specified connection
@@ -54,7 +54,7 @@ public class SemanticSearchInputAttribute : InputBindingAttribute
 
     /// <summary>
     /// Gets or sets the ID of the model to use for embeddings.
-    /// The default value is "text-embedding-3-small".
+    /// The default value is "text-embedding-ada-002".
     /// </summary>
     /// <remarks>
     /// This property supports binding expressions.

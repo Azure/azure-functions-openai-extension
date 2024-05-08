@@ -25,8 +25,11 @@ class EmbeddingsContextConverter : JsonConverter<EmbeddingsContext>
         writer.WritePropertyName("request"u8);
         ((IJsonModel<OpenAISDK.EmbeddingsOptions>)value.Request).Write(writer, modelReaderWriterOptions);
 
-        writer.WritePropertyName("response"u8);
-        ((IJsonModel<OpenAISDK.Embeddings>)value.Response).Write(writer, modelReaderWriterOptions);
+        if (value.Response is IJsonModel<OpenAISDK.Embeddings> response)
+        {
+            writer.WritePropertyName("response"u8);
+            response.Write(writer, modelReaderWriterOptions);
+        }
 
         writer.WritePropertyName("count"u8);
         writer.WriteNumberValue(value.Count);

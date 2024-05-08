@@ -78,7 +78,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
         table.AppendColumn("Embeddings", typeof(object));
         table.AppendColumn("Timestamp", typeof(DateTime));
 
-        for (int i = 0; i < document.Embeddings.Response.Data.Count; i++)
+        for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
         {
             table.Rows.Add(
                 Guid.NewGuid().ToString("N"),

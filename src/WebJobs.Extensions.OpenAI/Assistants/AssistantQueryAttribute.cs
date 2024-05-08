@@ -7,7 +7,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class AssistantQueryAttribute : Attribute
+public sealed class AssistantQueryAttribute : Attribute
 {
     public AssistantQueryAttribute(string id)
     {

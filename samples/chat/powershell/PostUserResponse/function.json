@@ -17,10 +17,11 @@
     },
     {
       "type": "assistantPost",
-      "direction": "out",
-      "name": "newMessages",
+      "direction": "in",
+      "name": "ChatBotState",
       "id": "{chatId}",
-      "model": "%AZURE_DEPLOYMENT_NAME%"
+      "model": "%CHAT_MODEL_DEPLOYMENT_NAME%",
+      "userMessage": "{Query.message}"
     }
   ]
 }

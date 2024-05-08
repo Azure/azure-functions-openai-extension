@@ -1,27 +1,29 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
+using Microsoft.Azure.WebJobs.Description;
 
-namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
-/// <summary>
-/// Binding attribute for semantic document storage (output bindings).
-/// </summary>
-public class SemanticSearchOutputAttribute : OutputBindingAttribute
+[Binding]
+[AttributeUsage(AttributeTargets.Parameter)]
+public sealed class EmbeddingsStoreAttribute : EmbeddingsBaseAttribute
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="SemanticSearchInputAttribute"/> class with the specified connection
+    /// Initializes a new instance of the <see cref="EmbeddingsStoreAttribute"/> class with the specified connection
     /// and collection names.
     /// </summary>
+    /// <param name="input">The input source containing the data to generate embeddings for
+    /// and is interpreted based on the value for <paramref name="inputType"/>.</param>
+    /// <param name="inputType">The type of the input.</param>
     /// <param name="connectionName">
     /// The name of an app setting or environment variable which contains a connection string value.
     /// </param>
     /// <param name="collection">The name of the collection or table to search or store.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown if either <paramref name="collection"/> or <paramref name="connectionName"/> are null.
+    /// Thrown if <paramref name="input"/> or <paramref name="collection"/> or <paramref name="connectionName"/> are null.
     /// </exception>
-    public SemanticSearchOutputAttribute(string connectionName, string collection)
+    public EmbeddingsStoreAttribute(string input, InputType inputType, string connectionName, string collection) : base(input, inputType)
     {
         this.ConnectionName = connectionName ?? throw new ArgumentNullException(nameof(connectionName));
         this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));
@@ -42,13 +44,4 @@ public class SemanticSearchOutputAttribute : OutputBindingAttribute
     /// This property supports binding expressions.
     /// </remarks>
     public string Collection { get; set; }
-
-    /// <summary>
-    /// Gets or sets the ID of the model to use for embeddings.
-    /// The default value is "text-embedding-3-small".
-    /// </summary>
-    /// <remarks>
-    /// This property supports binding expressions.
-    /// </remarks>
-    public string EmbeddingsModel { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 }

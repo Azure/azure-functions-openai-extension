@@ -5,7 +5,7 @@ using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 
-public class AssistantSkillTriggerAttribute : TriggerBindingAttribute
+public sealed class AssistantSkillTriggerAttribute : TriggerBindingAttribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AssistantSkillTriggerAttribute"/> class with the specified function

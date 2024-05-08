@@ -29,23 +29,27 @@ app.http('CreateAssistant', {
 })
 
 
-const chatBotPostOutput = output.generic({
+const assistantPostInput = output.generic({
     type: 'assistantPost',
-    id: '{assistantId}',    
-    model: '%CHAT_MODEL_DEPLOYMENT_NAME%'
+    id: '{assistantId}',
+    model: '%CHAT_MODEL_DEPLOYMENT_NAME%',
+    userMessage: '{Query.message}'
 })
-app.http('PostUserQuery', {
+app.http('PostUserResponse', {
     methods: ['POST'],
     route: 'assistants/{assistantId}',
     authLevel: 'anonymous',
-    extraOutputs: [chatBotPostOutput],
-    handler: async (request, context) => {
-        const userMessage = await request.text()
-        if (!userMessage) {
-            return { status: 400, bodyJson: { message: 'Request body is empty' } }
-        }
-        context.extraOutputs.set(chatBotPostOutput, { userMessage: userMessage })
-        return { status: 202 }
+    extraInputs: [assistantPostInput],
+    handler: async (_, context) => {
+        const chatState: any = context.extraInputs.get(assistantPostInput)
+        const content = chatState.recentMessages[0].content
+        return {
+            status: 200,
+            body: content,
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+        };
     }
 })
 

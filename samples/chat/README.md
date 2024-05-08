@@ -21,7 +21,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 
     | Language Worker | Command |
     | --------------- | ------- |
-    | .NET oo-proc | `cd samples/chat/csharp-ooproc && dotnet build && cd bin/debug/net6.0 && func start` |
+    | .NET oo-proc | `cd samples/chat/csharp-ooproc && func start` |
     | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/chat/python && dotnet build --output bin && func start` |
@@ -44,13 +44,11 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     For example, if you were running the chat bot scenario using the Azure OpenAI, you would have created a deployment name here as specified in step #6 [here](https://learn.microsoft.com/en-us/azure/ai-services/openai/how-to/create-resource?pivots=web-portal#deploy-a-model). Here is an example of what this would look like:
 
     ```csharp
-    public class PostResponseOutput
-    {
-        [AssistantPostOutput("{chatId}", Model = "DeploymentName")]
-        public AssistantPostRequest? ChatBotPostRequest { get; set; }
-
-        public HttpResponseData? HttpResponse { get; set; }
-    }
+    [Function(nameof(PostUserResponse))]
+    public static async Task<HttpResponseData> PostUserResponse(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
+        string chatId,
+        [AssistantPostInput("{chatId}", "{message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
 
     ```
 
@@ -82,13 +80,16 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 4. Use an HTTP client to send a message to the `test123` chat bot.
 
     ```http
-    POST http://localhost:7071/api/chats/test123
-    Content-Type: text/plain
-
-    Who won the SuperBowl in 2014?
+    ### Send the first message to the chatbot - Who won SuperBowl XLVIII in 2014?
+    POST http://localhost:7071/api/chats/test123?message=Who%20won%20SuperBowl%20XLVIII%20in%202014?
     ```
 
-    The response should be an HTTP 202 Accepted response with an empty body. This means the chatbot is processing the request.
+    The response should look something like the following example with Status 200 OK, formatted for readability.
+
+    ```text
+    'Twas the team of Seattle, the Seahawks by name, who vanquished the Denver Broncos in the Super Bowl XLVIII, forsooth, in the year of our Lord two thousand and fourteen. This grand victory brought much rejoicing to the good people of Seattle. Mayhap thou didst revel in the joy of their triumph too, noble interlocutor?
+    ```
+
     You should also see additional log output in the terminal window where the app is running.
 
 5. Use an HTTP client to get the latest chat history for the `test123` chat bot.
@@ -102,26 +103,26 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 
     ```json
     {
-      "id": "test123",
-      "exists": true,
-      "createdAt": "2024-01-15T22:33:15.0664078Z",
-      "lastUpdatedAt": "2024-01-15T22:33:45.5591906Z",
-      "totalMessages": 3,
-      "totalTokens": 139,
-      "recentMessages": [
-          {
-              "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare.",
-              "role": "system"
-          },
-          {
-              "content": "Who won the SuperBowl in 2014?",
-              "role": "user"
-          },
-          {
-              "content": "Alas, in the year of our Lord 2014, the SuperBowl victor was the illustrious Seattle Seahawks. They demonstrated great prowess and prevailed over their worthy adversaries, the Denver Broncos.",
-              "role": "assistant"
-          }
-      ]
+        "id": "test123",
+        "exists": true,
+        "createdAt": "2024-01-15T22:33:15.0664078Z",
+        "lastUpdatedAt": "2024-01-15T22:33:45.5591906Z",
+        "totalMessages": 3,
+        "totalTokens": 139,
+        "recentMessages": [
+            {
+                "content": "You are a helpful chatbot. In all your English responses, speak as if you are Shakespeare.",
+                "role": "system"
+            },
+            {
+                "content": "Who won the SuperBowl in 2014?",
+                "role": "user"
+            },
+            {
+                "content": "Alas, in the year of our Lord 2014, the SuperBowl victor was the illustrious Seattle Seahawks. They demonstrated great prowess and prevailed over their worthy adversaries, the Denver Broncos.",
+                "role": "assistant"
+            }
+        ]
     }
     ```
 
@@ -133,33 +134,12 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 6. Repeat steps 4 and 5 as many times as you want. For example, a followup question can be asked by sending another `POST` request to the chatbot, as in the following example.
 
     ```http
-    POST http://localhost:7071/api/chats/test123
-    Content-Type: text/plain
-
-    Amazing! Do you know who performed the halftime show?
+    ### Send the second message to the chatbot - Amazing! Do you know who performed the halftime show?
+    POST http://localhost:7071/api/chats/test123?message=Amazing!%20Do%20you%20know%20who%20performed%20the%20halftime%20show?
     ```
 
-    You can then see the response by sending another `GET` request to the chatbot, as in the following example.
+   Response will look something like below with Status 200 OK:
 
-    ```http
-    GET http://localhost:7071/api/chats/test123?timestampUTC=2024-01-15T22:36:00
-    ```
-
-    Assuming that the `timestampUTC` property correctly filters out all but the last message, you can expect to see a response similar to the following:
-
-    ```json
-    {
-      "id": "test123",
-      "exists": true,
-      "createdAt": "2024-01-15T22:33:15.0664078Z",
-      "lastUpdatedAt": "2024-01-15T22:36:32.3760309Z",
-      "totalMessages": 5,
-      "totalTokens": 178,
-      "recentMessages": [
-          {
-              "content": "Ah, verily! The halftime show at the SuperBowl of 2014 was graced by the presence of the fair enchantress known as Bruno Mars. With his dulcet voice and captivating melodies, he entertained the masses gathered with his musical prowess.",
-              "role": "assistant"
-          }
-      ]
-    }
-    ```
+   ```text
+   Indeed, mine memory doth serve me well. The halftime show, a spectacle of music and merriment, was carried forth by the lauded Bruno Mars and the Red Hot Chili Peppers, who lent their musical talents to the grand event. Their harmonies echoed through the field, enriching the exultation of this sporting feast. Twas a performance recalled with pleasure, methinks.
+   ```

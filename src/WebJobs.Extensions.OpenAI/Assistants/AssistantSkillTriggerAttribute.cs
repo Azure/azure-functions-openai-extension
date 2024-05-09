@@ -7,7 +7,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public class AssistantSkillTriggerAttribute : Attribute
+public sealed class AssistantSkillTriggerAttribute : Attribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AssistantSkillTriggerAttribute"/> class with the specified function
@@ -23,7 +23,7 @@ public class AssistantSkillTriggerAttribute : Attribute
     /// <summary>
     /// Gets or sets the name of the function to be invoked by the assistant.
     /// </summary>
-    public string? FunctionName { get; set;  }
+    public string? FunctionName { get; set; }
 
     /// <summary>
     /// Gets the description of the assistant function, which is provided to the LLM.

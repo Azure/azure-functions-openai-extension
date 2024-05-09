@@ -1,0 +1,28 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "methods": [
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "name": "SemanticSearchInput",
+      "type": "semanticSearch",
+      "direction": "in",
+      "connectionName": "CosmosDBMongoVCoreConnectionString",
+      "collection": "openai-index",
+      "query": "{Prompt}",
+      "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",
+      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+    }
+  ]
+}

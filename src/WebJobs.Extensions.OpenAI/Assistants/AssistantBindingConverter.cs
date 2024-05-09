@@ -10,7 +10,8 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 class AssistantBindingConverter :
     IConverter<AssistantCreateAttribute, IAsyncCollector<AssistantCreateRequest>>,
-    IConverter<AssistantPostAttribute, IAsyncCollector<AssistantPostRequest>>,
+    IAsyncConverter<AssistantPostAttribute, AssistantState>,
+    IAsyncConverter<AssistantPostAttribute, string>,
     IAsyncConverter<AssistantQueryAttribute, AssistantState>,
     IAsyncConverter<AssistantQueryAttribute, string>
 {
@@ -26,11 +27,6 @@ class AssistantBindingConverter :
     public IAsyncCollector<AssistantCreateRequest> Convert(AssistantCreateAttribute attribute)
     {
         return new AssistantCreateCollector(this.assistantService, this.logger);
-    }
-
-    public IAsyncCollector<AssistantPostRequest> Convert(AssistantPostAttribute input)
-    {
-        return new AssistantPostCollector(this.assistantService, this.logger, input);
     }
 
     public Task<AssistantState> ConvertAsync(
@@ -67,17 +63,16 @@ class AssistantBindingConverter :
         return JsonConvert.DeserializeObject<AssistantCreateRequest>(json) ?? throw new ArgumentException("Invalid assistant create request");
     }
 
-    internal AssistantPostRequest ToAssistantPostRequest(JObject json)
+    async Task<string> IAsyncConverter<AssistantPostAttribute, string>.ConvertAsync(AssistantPostAttribute input, CancellationToken cancellationToken)
     {
-        this.logger.LogDebug("Creating assistant post request from JObject: {Text}", json);
-        return json.ToObject<AssistantPostRequest>() ?? throw new ArgumentException("Invalid assistant post request");
+        AssistantState state = await this.ConvertAsync(input, cancellationToken);
+        return JsonConvert.SerializeObject(state);
     }
 
-    // Called by the host when processing binding requests from out-of-process workers.
-    internal AssistantPostRequest ToAssistantPostRequest(string json)
+    public Task<AssistantState> ConvertAsync(AssistantPostAttribute input, CancellationToken cancellationToken)
     {
-        this.logger.LogDebug("Creating assistant post request from JSON string: {Text}", json);
-        return JsonConvert.DeserializeObject<AssistantPostRequest>(json) ?? throw new ArgumentException("Invalid assistant post request");
+        this.logger.LogInformation("Posting message to assistant '{Id}': {Text}", input.Id, input.UserMessage);
+        return this.assistantService.PostMessageAsync(input, cancellationToken);
     }
 
     class AssistantCreateCollector : IAsyncCollector<AssistantCreateRequest>
@@ -96,38 +91,6 @@ class AssistantBindingConverter :
             AssistantCreateRequest request = new(item.Id, item.Instructions);
             await this.chatService.CreateAssistantAsync(request, cancellationToken);
             this.logger.LogInformation("Created assistant '{Id}'", request.Id);
-        }
-
-        public Task FlushAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
-    }
-
-    class AssistantPostCollector : IAsyncCollector<AssistantPostRequest>
-    {
-        readonly IAssistantService chatService;
-        readonly ILogger logger;
-        readonly AssistantPostAttribute attribute;
-
-        public AssistantPostCollector(IAssistantService chatService, ILogger logger, AssistantPostAttribute attribute)
-        {
-            this.chatService = chatService;
-            this.logger = logger;
-            this.attribute = attribute;
-        }
-
-        public Task AddAsync(AssistantPostRequest request, CancellationToken cancellationToken = default)
-        {
-            if (string.IsNullOrEmpty(request.Id))
-            {
-                request.Id = this.attribute.Id;
-            }
-
-            request.Model = this.attribute.Model;
-
-            this.logger.LogInformation("Posting message to assistant '{Id}': {Text}", request.Id, request.UserMessage);
-            return this.chatService.PostMessageAsync(request, cancellationToken);
         }
 
         public Task FlushAsync(CancellationToken cancellationToken = default)

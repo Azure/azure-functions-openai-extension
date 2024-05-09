@@ -31,10 +31,9 @@ public interface ISearchProvider
     Task<SearchResponse> SearchAsync(SearchRequest request);
 }
 
-public record SearchableDocument(
-    string Title,
-    EmbeddingsContext Embeddings)
+public record SearchableDocument(string Title)
 {
+    public EmbeddingsContext? Embeddings { get; set; }
     public ConnectionInfo? ConnectionInfo { get; set; }
 }
 

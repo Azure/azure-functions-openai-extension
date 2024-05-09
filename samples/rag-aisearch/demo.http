@@ -3,14 +3,13 @@
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"FilePath":"D:\\test\\test_file.txt"}
-
+{"Url":"https://url/test/test_file.txt"}
 
 ### Ingest second file into database
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"FilePath":"D:\\test\\test_file.txt"}
+{"Url":"https://url/test/test_file.txt"} 
 
 
 ### Send a search query (Example #1)
@@ -24,4 +23,4 @@ Content-Type: application/json
 POST http://localhost:7071/api/PromptFile
 Content-Type: application/json
 
-{"Prompt":"INSERT PROMPT HERE"}
+{"Prompt":"INSERT PROMPT HERE."}

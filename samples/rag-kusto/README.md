@@ -5,6 +5,7 @@
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc/)
+* [PowerShell](powershell/)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
@@ -37,7 +38,13 @@ Once you have a Kusto cluster and database, you can run the sample by following 
 1. Use a terminal window to navigate to the sample directory
 
     ```sh
-    cd samples/rag/csharp-inproc
+    cd samples/rag-kusto/<language-stack>
+    ```
+
+1. If using the extensions.csproj with non-dotnet languages and refer the extension project
+
+    ```sh
+    dotnet build --output bin
     ```
 
 1. Build and start the app
@@ -53,7 +60,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     POST http://localhost:7071/api/IngestEmail
     Content-Type: application/json
 
-    {"FilePath":"/path/to/file.txt"}
+    {"Url":"https://url/test/test_file.txt"}
     ```
 
     The results of the request will be the embeddings of the text file, which will be saved to your Kusto database.

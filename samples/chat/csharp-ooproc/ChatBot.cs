@@ -2,8 +2,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
+using Microsoft.Azure.Functions.Worker.Http;
 
 namespace ChatBot;
 
@@ -55,33 +55,16 @@ public static class ChatBot
     }
 
     [Function(nameof(PostUserResponse))]
-    public static async Task<PostResponseOutput> PostUserResponse(
+    public static async Task<HttpResponseData> PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
-        string chatId)
+        string chatId,
+        [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
-        string? userMessage = await req.ReadAsStringAsync();
-        if (string.IsNullOrEmpty(userMessage))
-        {
-            HttpResponseData badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
-            await badResponse.WriteStringAsync("Request body is empty");
-            return new PostResponseOutput { HttpResponse = badResponse };
-        }
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
 
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
-
-        return new PostResponseOutput
-        {
-            HttpResponse = response,
-            ChatBotPostRequest = new AssistantPostRequest { UserMessage = userMessage, Id = chatId }
-        };
-    }
-
-    public class PostResponseOutput
-    {
-        [AssistantPostOutput("{chatId}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")]
-        public AssistantPostRequest? ChatBotPostRequest { get; set; }
-
-        public HttpResponseData? HttpResponse { get; set; }
+        response.Headers.Add("Content-Type", "text/plain");
+        await response.WriteStringAsync(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
+        return response;
     }
 
     [Function(nameof(GetChatState))]

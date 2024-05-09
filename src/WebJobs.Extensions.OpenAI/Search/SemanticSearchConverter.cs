@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure;
 using System.Text;
 using System.Text.Json;
+using Azure;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
@@ -14,7 +14,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
 class SemanticSearchConverter :
     IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>,
-    IAsyncConverter<SemanticSearchAttribute, IAsyncCollector<SearchableDocument>>,
     IAsyncConverter<SemanticSearchAttribute, string>
 {
     readonly OpenAISDK.OpenAIClient openAIClient;
@@ -44,19 +43,6 @@ class SemanticSearchConverter :
 
         this.searchProvider = searchProviders?
             .FirstOrDefault(x => string.Equals(x.Name, value?.ToString(), StringComparison.OrdinalIgnoreCase));
-    }
-
-    public Task<IAsyncCollector<SearchableDocument>> ConvertAsync(
-        SemanticSearchAttribute input,
-        CancellationToken cancellationToken)
-    {
-        if (this.searchProvider == null)
-        {
-            throw new InvalidOperationException(
-                "No search provider is configured. Search providers are configured in the host.json file. For .NET apps, the appropriate nuget package must also be added to the app's project file.");
-        }
-        IAsyncCollector<SearchableDocument> collector = new SemanticDocumentCollector(input, this.searchProvider);
-        return Task.FromResult(collector);
     }
 
     async Task<SemanticSearchContext> ConvertHelperAsync(
@@ -132,53 +118,9 @@ class SemanticSearchConverter :
         return await this.ConvertHelperAsync(attribute, cancellationToken);
     }
 
-    // Called by the host when processing binding requests from out-of-process workers.
-    internal SearchableDocument ToSearchableDocument(string json)
-    {
-        this.logger.LogDebug("Creating searchable document from JSON string: {Text}", json);
-        SearchableDocument document = JsonSerializer.Deserialize<SearchableDocument>(json, options);
-        return document ?? throw new ArgumentException("Invalid assistant post request");
-    }
-
     async Task<string> IAsyncConverter<SemanticSearchAttribute, string>.ConvertAsync(SemanticSearchAttribute input, CancellationToken cancellationToken)
     {
         SemanticSearchContext semanticSearchContext = await this.ConvertHelperAsync(input, cancellationToken);
         return JsonSerializer.Serialize(semanticSearchContext, options);
-    }
-
-    sealed class SemanticDocumentCollector : IAsyncCollector<SearchableDocument>
-    {
-        readonly SemanticSearchAttribute attribute;
-        readonly ISearchProvider searchProvider;
-
-        public SemanticDocumentCollector(SemanticSearchAttribute attribute, ISearchProvider searchProvider)
-        {
-            this.attribute = attribute;
-            this.searchProvider = searchProvider;
-        }
-
-        public Task AddAsync(SearchableDocument item, CancellationToken cancellationToken = default)
-        {
-            if (item.ConnectionInfo == null || item.ConnectionInfo.CollectionName == null)
-            {
-                item.ConnectionInfo = new ConnectionInfo(this.attribute.ConnectionName, this.attribute.Collection);
-            }
-
-            if (string.IsNullOrEmpty(item.ConnectionInfo.ConnectionName))
-            {
-                throw new InvalidOperationException("No connection string information was provided.");
-            }
-            else if (string.IsNullOrEmpty(item.ConnectionInfo.CollectionName))
-            {
-                throw new InvalidOperationException("No collection name information was provided.");
-            }
-
-            return this.searchProvider.AddDocumentAsync(item, cancellationToken);
-        }
-
-        public Task FlushAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
     }
 }

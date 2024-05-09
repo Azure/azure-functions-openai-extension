@@ -6,14 +6,12 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 
 @app.function_name("IngestFile")
-@app.route(methods=["POST"])  # no route?
-@app.embeddings_store_output(arg_name="requests", input="{url}", input_type="url", connection_name="AISearchEndpoint", collection="openai-index")
+@app.route(methods=["POST"])
+@app.embeddings_store_output(arg_name="requests", input="{url}", input_type="url", connection_name="AISearchEndpoint", collection="openai-index", model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
 def ingest_file(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResponse:
     user_message = req.get_json()
-
     if not user_message:
         return func.HttpResponse(json.dumps({"message": "No message provided"}), status_code=400, mimetype="application/json")
-
     file_name_with_extension = os.path.basename(user_message["Url"])
     title = os.path.splitext(file_name_with_extension)[0]
     create_request = {

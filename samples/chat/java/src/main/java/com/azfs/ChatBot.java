@@ -20,9 +20,10 @@ import com.microsoft.azure.functions.openai.annotation.assistant.AssistantCreate
 import com.microsoft.azure.functions.openai.annotation.assistant.AssistantQuery;
 import com.microsoft.azure.functions.openai.annotation.assistant.AssistantPost;
 import com.microsoft.azure.functions.openai.annotation.assistant.AssistantCreateRequest;
-import com.microsoft.azure.functions.openai.annotation.assistant.AssistantPostRequest;
 import com.microsoft.azure.functions.openai.annotation.assistant.AssistantState;
+import com.microsoft.azure.functions.openai.annotation.assistant.ChatMessage;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -94,26 +95,16 @@ public class ChatBot {
             route = "chats/{chatId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("chatId") String chatId,        
-        @AssistantPost(name="newMessages", id = "{chatId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%") OutputBinding<AssistantPostRequest> newMessages,
+        @AssistantPost(name="newMessages", id = "{chatId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}") AssistantState state,
         final ExecutionContext context) {
 
-            if (request.getBody().get().isEmpty())
-            {
-                return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
-                    .header("Content-Type", "application/json")
-                    .body("Request body is empty")
-                    .build();
-            }
-
-            AssistantPostRequest assistantPostRequest = new AssistantPostRequest(request.getBody().get(), chatId);
-            newMessages.setValue(assistantPostRequest);
-            JSONObject response = new JSONObject();
-            response.put("chatId", chatId);
-            return request.createResponseBuilder(HttpStatus.CREATED)
+            List<ChatMessage> recentMessages = state.getRecentMessages();
+            String response = recentMessages.isEmpty() ? "No response returned." : recentMessages.get(recentMessages.size() - 1).getContent();
+            
+            return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
-                .body(response.toString())
+                .body(response)
                 .build();
-
     }
 }
 

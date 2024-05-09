@@ -16,14 +16,14 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * Assistant post output attribute which is used to update the assistant.
+ * Assistant post input attribute which is used to update the assistant.
  * </p>
  * 
  * @since 1.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-@CustomBinding(direction = "out", name = "", type = "assistantPost")
+@CustomBinding(direction = "in", name = "", type = "assistantPost")
 public @interface AssistantPost {
 
     /**
@@ -47,5 +47,13 @@ public @interface AssistantPost {
      * @return The OpenAI chat model to use.
      */
     String model();
+
+    
+    /**
+     * The user message that user has entered for assistant to respond to.
+     * 
+     * @return The user message that user has entered for assistant to respond to.
+     */    
+    String userMessage();
 
 }

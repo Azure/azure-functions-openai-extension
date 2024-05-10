@@ -11,8 +11,9 @@ import org.json.JSONObject;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
-import com.microsoft.azure.functions.openai.annotation.embeddings.Embeddings;
+import com.microsoft.azure.functions.openai.annotation.embeddings.EmbeddingsInput;
 import com.microsoft.azure.functions.openai.annotation.embeddings.InputType;
+import com.microsoft.azure.functions.openai.annotation.embeddings.EmbeddingsContext;
 
 /**
  * Azure Functions embeddings sample to generate embeddings.
@@ -31,7 +32,7 @@ public class EmbeddingsGenerator {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "embeddings")
         HttpRequestMessage<EmbeddingsRequest> request,
-        @Embeddings(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
+        @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") EmbeddingsContext embeddingsContext,
         final ExecutionContext context) {
 
         if (request.getBody() == null)
@@ -67,7 +68,7 @@ public class EmbeddingsGenerator {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "embeddings-from-file")
         HttpRequestMessage<EmbeddingsRequest> request,
-        @Embeddings(name = "Embeddings", input = "{FilePath}", inputType = InputType.FilePath, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
+        @EmbeddingsInput(name = "Embeddings", input = "{FilePath}", inputType = InputType.FilePath, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
         final ExecutionContext context) {
 
         if (request.getBody() == null)
@@ -103,7 +104,7 @@ public class EmbeddingsGenerator {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "embeddings-from-url")
         HttpRequestMessage<EmbeddingsRequest> request,
-        @Embeddings(name = "Embeddings", input = "{Url}", inputType = InputType.Url, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
+        @EmbeddingsInput(name = "Embeddings", input = "{Url}", inputType = InputType.Url, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
         final ExecutionContext context) {
 
         if (request.getBody() == null)

@@ -10,10 +10,9 @@ import java.util.UUID;
 
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
-import com.microsoft.azure.functions.openai.annotation.assistant.*;
-
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.annotation.FunctionName;
+import com.microsoft.azure.functions.openai.annotation.assistant.*;
 
 /**
  * Defines assistant skills that can be triggered by the assistant chat bot.

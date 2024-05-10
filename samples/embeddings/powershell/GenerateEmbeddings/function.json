@@ -1,0 +1,27 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "route": "embeddings",
+      "methods": [
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "name": "Embeddings",
+      "type": "embeddings",
+      "direction": "in",
+      "inputType": "RawText",
+      "input": "{RawText}",
+      "model": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ public class EmbeddingsContext {
 
     private EmbeddingsOptions request;
     private Embeddings response;
+    private int count;
 
     public EmbeddingsOptions getRequest() {
         return request;
@@ -37,7 +38,7 @@ public class EmbeddingsContext {
      */
     public int getCount() {
         return this.response != null && this.response.getData() != null
-                ? this.response.getData().size() : 0;
+                ? this.count : 0;
     }
 
 }

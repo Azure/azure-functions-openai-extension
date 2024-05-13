@@ -13,7 +13,6 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 import com.microsoft.azure.functions.openai.annotation.embeddings.EmbeddingsInput;
 import com.microsoft.azure.functions.openai.annotation.embeddings.InputType;
-import com.microsoft.azure.functions.openai.annotation.embeddings.EmbeddingsContext;
 
 /**
  * Azure Functions embeddings sample to generate embeddings.

@@ -73,7 +73,7 @@ const embeddingsUrlInput = input.generic({
     model: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%'
 })
 
-app.http('getEmbeddingsFilePath', {
+app.http('getEmbeddingsUrl', {
     methods: ['POST'],
     route: 'embeddings-from-url',
     authLevel: 'function',

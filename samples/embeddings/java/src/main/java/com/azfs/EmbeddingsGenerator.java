@@ -32,7 +32,7 @@ public class EmbeddingsGenerator {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "embeddings")
         HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") EmbeddingsContext embeddingsContext,
+        @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
         final ExecutionContext context) {
 
         if (request.getBody() == null)
@@ -52,7 +52,6 @@ public class EmbeddingsGenerator {
         // TODO: Store the embeddings into a database or other storage.
         return request.createResponseBuilder(HttpStatus.ACCEPTED)
                 .header("Content-Type", "application/json")
-                .body(embeddingsContext)
                 .build();
     }
 
@@ -88,7 +87,6 @@ public class EmbeddingsGenerator {
         // TODO: Store the embeddings into a database or other storage.
         return request.createResponseBuilder(HttpStatus.ACCEPTED)
                 .header("Content-Type", "application/json")
-                .body(embeddingsContext)
                 .build();
     }
 
@@ -124,7 +122,6 @@ public class EmbeddingsGenerator {
         // TODO: Store the embeddings into a database or other storage.
         return request.createResponseBuilder(HttpStatus.ACCEPTED)
                 .header("Content-Type", "application/json")
-                .body(embeddingsContext)
                 .build();
     }    
 

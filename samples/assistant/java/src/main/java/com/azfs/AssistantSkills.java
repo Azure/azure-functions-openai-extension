@@ -58,13 +58,16 @@ public class AssistantSkills {
     }
 
     private TodoManager createTodoManager() {
-        String cosmosDbConnectionString = System.getenv("CosmosDbConnectionString");
+        String cosmosDbConnectionEndpoint = System.getenv("CosmosDbConnectionEndpoint");
+        String cosmosDbKey = System.getenv("CosmosDbKey");
 
-        if (cosmosDbConnectionString == null || cosmosDbConnectionString.isEmpty()) {
+        if (cosmosDbConnectionEndpoint == null || cosmosDbConnectionEndpoint.isEmpty()
+        || cosmosDbKey == null || cosmosDbKey.isEmpty()) {
             return new InMemoryTodoManager();
         } else {
             CosmosClient cosmosClient = new CosmosClientBuilder()
-                    .endpoint(cosmosDbConnectionString)
+                    .endpoint(cosmosDbConnectionEndpoint)
+                    .key(cosmosDbKey)
                     .buildClient();
             return new CosmosDbTodoManager(cosmosClient);
         }

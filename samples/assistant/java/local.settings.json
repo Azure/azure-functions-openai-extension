@@ -3,7 +3,8 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "java",
-    "CosmosDbConnectionString": "Local Cosmos DB emulator or Cosmos DB in Azure connection string",
+    "CosmosDbConnectionEndpoint": "Local Cosmos DB emulator or Cosmos DB in Azure Cosmos end point",
+    "CosmosDbKey": "Cosmos DB key",
     "CosmosDatabaseName": "todoDB",
     "CosmosContainerName": "myTasks",
     "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",

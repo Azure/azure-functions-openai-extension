@@ -68,7 +68,7 @@ public class AssistantApis {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
-        @BindingName("chatId") String chatId,        
+        @BindingName("assistantId") String assistantId,        
         @AssistantQuery(name = "AssistantState", id = "{assistantId}", timestampUtc = "{Query.timestampUTC}") AssistantState state,
         final ExecutionContext context) {
             return request.createResponseBuilder(HttpStatus.OK)

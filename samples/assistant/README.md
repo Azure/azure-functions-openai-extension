@@ -2,6 +2,12 @@
 
 This sample demonstrates how to build an AI assistant chatbot with custom skills using Azure Functions and a local build of the OpenAI extension.
 It builds upon the concepts [chatbot](../chatbot) sample, which demonstrates how to create a simple chatbot.
+The sample is available in the following language stacks:
+
+* [C# on the out of process worker](csharp-ooproc)
+* [TypeScript on the Node.js worker](nodejs)
+* [Powershell](powershell)
+* [Python](python)
 
 ## Introduction
 
@@ -80,6 +86,37 @@ def add_todo(taskDescription: str) -> None:
     return
 ```
 
+PowerShell example:
+
+```json
+{
+  "bindings": [
+    {
+      "name": "TaskDescription",
+      "type": "assistantSkillTrigger",
+      "dataType": "string",
+      "direction": "in",
+      "functionDescription": "Create a new todo task"
+    }
+  ]
+}
+```
+
+```pwsh
+using namespace System.Net
+
+param($TaskDescription, $TriggerMetadata)
+$ErrorActionPreference = "Stop"
+
+if (-not $TaskDescription) {
+    throw "Task description cannot be empty"
+}
+
+Write-Information "Adding todo: $TaskDescription"
+$todoID = [Guid]::NewGuid().ToString().Substring(0, 5)
+Add-Todo $todoId $TaskDescription
+```
+
 The `AssistantSkillTrigger` attribute requires a `FunctionDescription` string value, which is text describing what the function does.
 This is critical for the AI assistant to be able to invoke the skill at the right time.
 The name of the function parameter (e.g., `taskDescription`) is also an important hint to the AI assistant about what kind of information to provide to the skill.
@@ -90,12 +127,6 @@ Any function that uses the `AssistantSkillTrigger` binding will be automatically
 The assistant will invoke a skill function whenever it decides to do so to satisfy a user prompt, and will provide function parameters based on the context of the conversation. The skill function can then return a response to the assistant, which will be used to satisfy the user prompt.
 
 ## Prerequisites
-
-The sample is available in the following language stacks:
-
-* [C# on the out-of-process worker](csharp-ooproc)
-* [nodejs](nodejs)
-* [python](python) - supported on host runtime version >= 4.34.0.0
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

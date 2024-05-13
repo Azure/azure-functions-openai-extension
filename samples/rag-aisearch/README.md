@@ -5,6 +5,7 @@
 The sample is available in the following language stacks:
 
 * [C# on the in process worker](csharp-inproc/)
+* [PowerShell](powershell/)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
@@ -42,7 +43,13 @@ Once you have an Azure AI Search resource, you can run the sample by following t
 1. Use a terminal window to navigate to the sample directory
 
     ```sh
-    cd samples/rag-aisearch/csharp-inproc
+    cd samples/rag-aisearch/<language-stack>
+    ```
+
+1. If using the extensions.csproj with non-dotnet languages and refer the extension project
+
+    ```sh
+    dotnet build --output bin
     ```
 
 1. Build and start the app

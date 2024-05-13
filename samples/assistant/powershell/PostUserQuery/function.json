@@ -1,0 +1,28 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "route": "assistants/{assistantId}",
+      "methods": [
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "name": "State",
+      "type": "assistantPost",
+      "direction": "in",
+      "dataType": "string",
+      "id": "{assistantId}",
+      "userMessage": "{Query.message}",
+      "model": "%CHAT_MODEL_DEPLOYMENT_NAME%"
+    }
+  ]
+}

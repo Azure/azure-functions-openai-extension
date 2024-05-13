@@ -14,7 +14,6 @@ import com.microsoft.azure.functions.openai.annotation.embeddings.EmbeddingsStor
 import com.microsoft.azure.functions.openai.annotation.embeddings.InputType;
 import com.microsoft.azure.functions.openai.annotation.search.SearchableDocument;
 import com.microsoft.azure.functions.openai.annotation.search.SemanticSearch;
-import com.microsoft.azure.functions.openai.annotation.search.SemanticSearchContext;
 import com.sun.jndi.toolkit.url.Uri;
 
 import java.net.MalformedURLException;
@@ -31,7 +30,7 @@ public class FilePrompt {
             HttpRequestMessage<EmbeddingsRequest> request,
         @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{Url}", inputType = InputType.Url,
                 connectionName = "CosmosDBMongoVCoreConnectionString", collection = "openai-index",
-                model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> response,
+                model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws MalformedURLException {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
@@ -44,10 +43,15 @@ public class FilePrompt {
 
         EmbeddingsStoreOutputResponse embeddingsStoreOutputResponse = new EmbeddingsStoreOutputResponse(new SearchableDocument(filename));
 
-        response.setValue(embeddingsStoreOutputResponse);
+        output.setValue(embeddingsStoreOutputResponse);
+
+        JSONObject response = new JSONObject();
+        response.put("status", "success");
+        response.put("title", filename);
+
         return request.createResponseBuilder(HttpStatus.CREATED)
                 .header("Content-Type", "application/json")
-                .body(response.toString())
+                .body(response)
                 .build();
     }
 
@@ -70,12 +74,13 @@ public class FilePrompt {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<SemanticSearchRequest> request,
-        @SemanticSearch(name = "search", connectionName = "CosmosDBMongoVCoreConnectionString", collection = "openai-index", query = "{Prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) SemanticSearchContext semanticSearchContext,
+        @SemanticSearch(name = "search", connectionName = "CosmosDBMongoVCoreConnectionString", collection = "openai-index", query = "{Prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) String semanticSearchContext,
         final ExecutionContext context) {
+            String response = new JSONObject(semanticSearchContext).getString("response");
             return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
-            .body(semanticSearchContext.getResponse())
-            .build();        
+            .body(response)
+            .build();         
     }
 
     public class EmbeddingsRequest {

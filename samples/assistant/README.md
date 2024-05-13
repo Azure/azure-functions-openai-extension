@@ -8,6 +8,7 @@ The sample is available in the following language stacks:
 * [TypeScript on the Node.js worker](nodejs)
 * [Powershell](powershell)
 * [Python](python)
+* [Java](java)
 
 ## Introduction
 
@@ -115,6 +116,31 @@ if (-not $TaskDescription) {
 Write-Information "Adding todo: $TaskDescription"
 $todoID = [Guid]::NewGuid().ToString().Substring(0, 5)
 Add-Todo $todoId $TaskDescription
+```
+
+Java example:
+
+```java
+
+TodoManager todoManager = createTodoManager();
+
+@FunctionName("AddTodo")
+    public void addTodo(
+        @AssistantSkillTrigger(
+                name = "assistantSkillCreateTodo",
+                functionDescription = "Create a new todo task"
+        ) String taskDescription,
+        final ExecutionContext context) {
+
+        if (taskDescription == null || taskDescription.isEmpty()) {
+            throw new IllegalArgumentException("Task description cannot be empty");
+        }
+        context.getLogger().info("Adding todo: " + taskDescription);
+
+        String todoId = UUID.randomUUID().toString().substring(0, 6);
+        TodoItem todoItem = new TodoItem(todoId, taskDescription);
+        todoManager.addTodo(todoItem);
+    }
 ```
 
 The `AssistantSkillTrigger` attribute requires a `FunctionDescription` string value, which is text describing what the function does.

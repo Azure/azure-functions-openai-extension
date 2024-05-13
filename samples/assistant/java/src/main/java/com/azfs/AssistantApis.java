@@ -5,7 +5,12 @@
  */
 package com.azfs;
 
+import java.util.List;
+import java.util.Optional;
+
+import com.microsoft.azure.functions.openai.annotation.assistant.*;
 import org.json.JSONObject;
+
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
 import com.microsoft.azure.functions.HttpRequestMessage;
@@ -16,69 +21,55 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.BindingName;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
-import com.microsoft.azure.functions.openai.annotation.assistant.AssistantCreate;
-import com.microsoft.azure.functions.openai.annotation.assistant.AssistantQuery;
-import com.microsoft.azure.functions.openai.annotation.assistant.AssistantPost;
-import com.microsoft.azure.functions.openai.annotation.assistant.AssistantCreateRequest;
-import com.microsoft.azure.functions.openai.annotation.assistant.AssistantState;
-import com.microsoft.azure.functions.openai.annotation.assistant.ChatMessage;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
- * Azure Functions ChatBot sample allows you to create chat bots with a specified set of initial instructions.
+ * Defines HTTP APIs for interacting with assistants.
  */
-public class ChatBot {
-    
-    @FunctionName("CreateChatBot")
-    public HttpResponseMessage createChatBot(
+public class AssistantApis {
+
+    /*
+     * HTTP PUT function that creates a new assistant chat bot with the specified ID.
+     */
+    @FunctionName("CreateAssistant")
+    public HttpResponseMessage createAssistant(
         @HttpTrigger(
             name = "req", 
-            methods = {HttpMethod.PUT},
+            methods = {HttpMethod.PUT}, 
             authLevel = AuthorizationLevel.ANONYMOUS, 
-            route = "chats/{chatId}") 
-            HttpRequestMessage<Optional<CreateRequest>> request,
-        @BindingName("chatId") String chatId,
-        @AssistantCreate(name = "ChatBotCreate") OutputBinding<AssistantCreateRequest> message,
+            route = "assistants/{assistantId}") 
+            HttpRequestMessage<Optional<String>> request,
+        @BindingName("assistantId") String assistantId,
+        @AssistantCreate(name = "AssistantCreate") OutputBinding<AssistantCreateRequest> message,
         final ExecutionContext context) {
+            context.getLogger().info("Java HTTP trigger processed a request.");
             
-            if (request.getBody() == null)
-            {
-                throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
-            }
-               
-            AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(chatId, request.getBody().get().getInstructions());
+            String instructions = "Don't make assumptions about what values to plug into functions.\n" +
+                    "Ask for clarification if a user request is ambiguous.";
+
+            AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(assistantId, instructions);
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();
-            response.put("chatId", chatId);
-            return request.createResponseBuilder(HttpStatus.ACCEPTED)
+            response.put("assistantId", assistantId);
+            
+            return request.createResponseBuilder(HttpStatus.CREATED)
                 .header("Content-Type", "application/json")
                 .body(response.toString())
-                .build();
-
+                .build();    
     }
 
-    public class CreateRequest {
-        public String instructions;
-        public String getInstructions() {
-            return instructions;
-        }
-        public void setInstructions(String instructions) {
-            this.instructions = instructions;
-        }
-    }
-   
+    /*
+     * HTTP GET function that queries the conversation history of the assistant chat bot.
+     */   
     @FunctionName("GetChatState")
     public HttpResponseMessage getChatState(
         @HttpTrigger(
             name = "req",
             methods = {HttpMethod.GET}, 
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "chats/{chatId}") 
+            route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
-        @BindingName("chatId") String chatId,        
-        @AssistantQuery(name = "ChatBotState", id = "{chatId}", timestampUtc = "{Query.timestampUTC}") AssistantState state,
+        @BindingName("assistantId") String assistantId,        
+        @AssistantQuery(name = "AssistantState", id = "{assistantId}", timestampUtc = "{Query.timestampUTC}") AssistantState state,
         final ExecutionContext context) {
             return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
@@ -86,18 +77,21 @@ public class ChatBot {
                 .build();
     }
 
+    /*
+     * HTTP POST function that sends user prompts to the assistant chat bot.
+     */ 
     @FunctionName("PostUserResponse")
     public HttpResponseMessage postUserResponse(
         @HttpTrigger(
             name = "req",
             methods = {HttpMethod.POST}, 
             authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "chats/{chatId}") 
+            route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
-        @BindingName("chatId") String chatId,        
-        @AssistantPost(name="newMessages", id = "{chatId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}") AssistantState state,
+        @BindingName("assistantId") String assistantId,        
+        @AssistantPost(name="newMessages", id = "{assistantId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}") AssistantState state,
         final ExecutionContext context) {
-
+            
             List<ChatMessage> recentMessages = state.getRecentMessages();
             String response = recentMessages.isEmpty() ? "No response returned." : recentMessages.get(recentMessages.size() - 1).getContent();
             

@@ -12,10 +12,9 @@
   "extensions": {
     "openai": {
       "searchProvider": {
-        "type": "azureAiSearch",
-        "isSemanticSearchEnabled": true,
-        "useSemanticCaptions": true,
-        "vectorSearchDimensions": 1536
+        "type": "cosmosDBSearch",
+        "vectorSearchDimensions": 1536,
+        "numLists": 1
       }
     }
   }

@@ -1,21 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net60</TargetFramework>
-	  <WarningsAsErrors></WarningsAsErrors>
-	  <DefaultItemExcludes>**</DefaultItemExcludes>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DefaultItemExcludes>**</DefaultItemExcludes>
     <OutDir>bin</OutDir>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <None Include="host.json" />
     <None Include="local.settings.json" />
     <None Include="README.md" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator" Version="4.0.*" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <!-- Locally build and reference the extension -->
     <ProjectReference Include="../../../src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj" />

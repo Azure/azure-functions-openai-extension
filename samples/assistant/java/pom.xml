@@ -15,7 +15,7 @@
         <java.version>1.8</java.version>
         <azure.functions.maven.plugin.version>1.29.0</azure.functions.maven.plugin.version>
         <azure.functions.java.library.version>3.0.0</azure.functions.java.library.version>
-        <azure-functions-java-library-openai>0.1.0-preview</azure-functions-java-library-openai>
+        <azure-functions-java-library-openai>0.2.0-preview</azure-functions-java-library-openai>
         <functionAppName>azfs-java-openai-sample</functionAppName>
     </properties>
 

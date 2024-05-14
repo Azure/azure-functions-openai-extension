@@ -298,25 +298,6 @@ app.http('generateEmbeddingsHttpRequest', {
 });
 ```
 
-#### [Python example](./samples/embeddings/python/)
-
-```python
-@app.function_name("GenerateEmbeddingsHttpRequest")
-@app.route(route="embeddings", methods=["POST"])
-@app.generic_input_binding(arg_name="embeddings", type="embeddings", data_type=func.DataType.STRING, input="{rawText}", input_type="rawText", model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
-def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> func.HttpResponse:
-    user_message = req.get_json()
-    embeddings_json = json.loads(embeddings)
-    embeddings_request = {
-        "raw_text": user_message.get("RawText"),
-        "file_path": user_message.get("FilePath")
-    }
-    logging.info(f'Received {embeddings_json.get("count")} embedding(s) for input text '
-        f'containing {len(embeddings_request.get("raw_text"))} characters.')
-    # TODO: Store the embeddings into a database or other storage.
-    return func.HttpResponse(status_code=202)
-```
-
 ### Semantic Search
 
 The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).
@@ -369,6 +350,29 @@ public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
 }
 ```
 
+#### [Python example](./samples/rag-aisearch/python/function_app.py)
+
+```python
+@app.function_name("IngestFile")
+@app.route(methods=["POST"])
+@app.embeddings_store_output(arg_name="requests", input="{url}", input_type="url", connection_name="AISearchEndpoint", collection="openai-index", model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
+def ingest_file(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResponse:
+    user_message = req.get_json()
+    if not user_message:
+        return func.HttpResponse(json.dumps({"message": "No message provided"}), status_code=400, mimetype="application/json")
+    file_name_with_extension = os.path.basename(user_message["Url"])
+    title = os.path.splitext(file_name_with_extension)[0]
+    create_request = {
+        "title": title
+    }
+    requests.set(json.dumps(create_request))
+    response_json = {
+        "status": "success",
+        "title": title
+    }
+    return func.HttpResponse(json.dumps(response_json), status_code=200, mimetype="application/json")
+```
+
 **Tip** - To improve context preservation between chunks in case of large documents, specify the max overlap between chunks and also the chunk size. The default values for `MaxChunkSize` and `MaxOverlap` are 8 * 1024 and 128 characters respectively.
 
 #### [C# document query example](./samples/rag-aisearch/csharp-ooproc/FilePrompt.cs)
@@ -390,6 +394,21 @@ public static IActionResult PromptFile(
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
+```
+
+#### [Python example](./samples/rag-aisearch/python/function_app.py)
+
+```python
+@app.function_name("PromptFile")
+@app.route(methods=["POST"])
+@app.semantic_search_input(arg_name="result", connection_name="AISearchEndpoint", collection="openai-index", query="{Prompt}", embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%", chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+def prompt_file(req: func.HttpRequest, result: str) -> func.HttpResponse:
+    result_json = json.loads(result)
+    response_json = {
+        "content": result_json.get("response"),
+        "content_type": "text/plain"
+    }
+    return func.HttpResponse(json.dumps(response_json), status_code=200, mimetype="application/json")
 ```
 
 The responses from the above function will be based on relevant document snippets which were previously uploaded to the vector database. For example, assuming you uploaded internal emails discussing a new feature of Azure Functions that supports OpenAI, you could issue a query similar to the following:

@@ -266,6 +266,24 @@ public async Task GenerateEmbeddings_Http_RequestAsync(
 }
 ```
 
+#### [Python example](./samples/embeddings/python/)
+
+```python
+@app.function_name("GenerateEmbeddingsHttpRequest")
+@app.route(route="embeddings", methods=["POST"])
+@app.embeddings_input(arg_name="embeddings", input="{rawText}", input_type="rawText", model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
+def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> func.HttpResponse:
+    user_message = req.get_json()
+    embeddings_json = json.loads(embeddings)
+    embeddings_request = {
+        "raw_text": user_message.get("RawText"),
+        "file_path": user_message.get("FilePath")
+    }
+    logging.info(f'Received {embeddings_json.get("count")} embedding(s) for input text '
+        f'containing {len(embeddings_request.get("raw_text"))} characters.')
+    # TODO: Store the embeddings into a database or other storage.
+    return func.HttpResponse(status_code=200)
+```
 ```typescript
 interface EmbeddingsRequest {
     RawText?: string;

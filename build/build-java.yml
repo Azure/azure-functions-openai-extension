@@ -22,17 +22,24 @@ trigger:
     exclude:
       - '**.md'
 
+schedules:
+  - cron: "0 0 * * MON"
+    displayName: At 12:00 AM, only on Monday
+    branches:
+      include:
+        - master
+    always: main
+
+variables:
+  Codeql.BuildIdentifier: java_openai_extension
+  Codeql.Language: java
+
 stages:
   - stage: BuildJava
     displayName: 'Build Java'
-    dependsOn: []
-    variables:
-      Codeql.BuildIdentifier: java_library_samples
-      Codeql.Language: java
     jobs:
       - job: BuildJavaLibrary
         displayName: Build Java Library
-
         pool:
           vmImage: 'windows-latest'
 

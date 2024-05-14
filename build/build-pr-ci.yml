@@ -1,6 +1,8 @@
 variables:
   config: Release
   fakeWebJobsPackageVersion: 99.99.99-test
+  Codeql.BuildIdentifier: csharp_openai_extension
+  Codeql.Language: csharp
 
 pr:
   branches:
@@ -18,6 +20,14 @@ trigger:
     exclude:
       - '**.md'
 
+schedules:
+  - cron: "0 0 * * MON"
+    displayName: At 12:00 AM, only on Monday
+    branches:
+      include:
+        - master
+    always: main
+    
 continueOnError: false
 pool:
   vmImage: 'ubuntu-latest'

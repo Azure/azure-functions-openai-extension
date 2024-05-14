@@ -38,6 +38,12 @@
             <version>20240205</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-cosmos</artifactId>
+            <version>4.59.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

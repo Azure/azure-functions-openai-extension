@@ -5,6 +5,7 @@
 The sample is available in the following language stacks:
 
 * [C# on the isolated worker](csharp-ooproc/)
+* [NodeJS](nodejs/)
 * [PowerShell](powershell/)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.

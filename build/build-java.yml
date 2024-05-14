@@ -23,12 +23,12 @@ trigger:
       - '**.md'
 
 schedules:
-  - cron: "0 0 * * MON"
+  - cron: '0 0 * * MON'
     displayName: At 12:00 AM, only on Monday
     branches:
       include:
-        - master
-    always: main
+        - main
+    always: true
 
 variables:
   Codeql.BuildIdentifier: java_openai_extension

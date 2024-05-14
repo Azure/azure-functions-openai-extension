@@ -9,7 +9,13 @@ Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will ma
 
 Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
 
-## v0.15.0 - Unreleased
+## v0.16.0 - Unreleased
+
+### Changed
+
+- Json property names updated for SemanticSearchContext
+
+## v0.15.0 - 2024/05/06
 
 ### Changed
 

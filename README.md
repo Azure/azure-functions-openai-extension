@@ -350,6 +350,29 @@ public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
 }
 ```
 
+#### [Python example](./samples/rag-aisearch/python/function_app.py)
+
+```python
+@app.function_name("IngestFile")
+@app.route(methods=["POST"])
+@app.embeddings_store_output(arg_name="requests", input="{url}", input_type="url", connection_name="AISearchEndpoint", collection="openai-index", model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
+def ingest_file(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResponse:
+    user_message = req.get_json()
+    if not user_message:
+        return func.HttpResponse(json.dumps({"message": "No message provided"}), status_code=400, mimetype="application/json")
+    file_name_with_extension = os.path.basename(user_message["Url"])
+    title = os.path.splitext(file_name_with_extension)[0]
+    create_request = {
+        "title": title
+    }
+    requests.set(json.dumps(create_request))
+    response_json = {
+        "status": "success",
+        "title": title
+    }
+    return func.HttpResponse(json.dumps(response_json), status_code=200, mimetype="application/json")
+```
+
 **Tip** - To improve context preservation between chunks in case of large documents, specify the max overlap between chunks and also the chunk size. The default values for `MaxChunkSize` and `MaxOverlap` are 8 * 1024 and 128 characters respectively.
 
 #### [C# document query example](./samples/rag-aisearch/csharp-ooproc/FilePrompt.cs)
@@ -371,6 +394,21 @@ public static IActionResult PromptFile(
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
+```
+
+#### [Python example](./samples/rag-aisearch/python/function_app.py)
+
+```python
+@app.function_name("PromptFile")
+@app.route(methods=["POST"])
+@app.semantic_search_input(arg_name="result", connection_name="AISearchEndpoint", collection="openai-index", query="{Prompt}", embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%", chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+def prompt_file(req: func.HttpRequest, result: str) -> func.HttpResponse:
+    result_json = json.loads(result)
+    response_json = {
+        "content": result_json.get("response"),
+        "content_type": "text/plain"
+    }
+    return func.HttpResponse(json.dumps(response_json), status_code=200, mimetype="application/json")
 ```
 
 The responses from the above function will be based on relevant document snippets which were previously uploaded to the vector database. For example, assuming you uploaded internal emails discussing a new feature of Azure Functions that supports OpenAI, you could issue a query similar to the following:

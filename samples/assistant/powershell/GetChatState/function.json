@@ -1,0 +1,27 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "route": "assistants/{assistantId}",
+      "methods": [
+        "get"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "name": "State",
+      "type": "assistantQuery",
+      "direction": "in",
+      "dataType": "string",
+      "id": "{assistantId}",
+      "timestampUtc": "{Query.timestampUTC}"
+    }
+  ]
+}

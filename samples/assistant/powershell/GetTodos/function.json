@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "InputIgnored",
+      "type": "assistantSkillTrigger",
+      "dataType": "string",
+      "direction": "in",
+      "functionDescription": "Fetch the list of previously created todo tasks"
+    }
+  ]
+}

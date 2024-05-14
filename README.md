@@ -283,7 +283,7 @@ def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> 
         f'containing {len(embeddings_request.get("raw_text"))} characters.')
     # TODO: Store the embeddings into a database or other storage.
     return func.HttpResponse(status_code=202)
-=======
+```
 ```typescript
 interface EmbeddingsRequest {
     RawText?: string;

@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net60</TargetFramework>
-	  <WarningsAsErrors></WarningsAsErrors>
-	  <DefaultItemExcludes>**</DefaultItemExcludes>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DefaultItemExcludes>**</DefaultItemExcludes>
     <OutDir>bin</OutDir>
   </PropertyGroup>
 
@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Locally build and reference the extension -->
+    <ProjectReference Include="../../../src/WebJobs.Extensions.OpenAI.Kusto/WebJobs.Extensions.OpenAI.Kusto.csproj" />
     <ProjectReference Include="../../../src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj" />
   </ItemGroup>
 </Project>

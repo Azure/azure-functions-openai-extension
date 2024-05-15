@@ -24,7 +24,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | .NET oo-proc | `cd samples/chat/csharp-ooproc && func start` |
     | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
-    | Python | `cd samples/chat/python && dotnet build --output bin && func start` |
+    | Python | `cd samples/chat/python && func start` |
     | Java | `cd samples/chat/java && mvn clean package && dotnet build && mvn azure-functions:run` |
 
     If successful, you should see the following output from the `func` command:

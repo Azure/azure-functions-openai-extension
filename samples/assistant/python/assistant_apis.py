@@ -6,7 +6,7 @@ apis = func.Blueprint()
 
 @apis.function_name("CreateAssistant")
 @apis.route(route="assistants/{assistantId}", methods=["PUT"])
-@apis.generic_output_binding(arg_name="requests", type="assistantCreate", data_type=func.DataType.STRING)
+@apis.assistant_create_output(arg_name="requests")
 def create_assistant(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResponse:
     assistantId = req.route_params.get("assistantId")
     instructions = """
@@ -24,7 +24,7 @@ def create_assistant(req: func.HttpRequest, requests: func.Out[str]) -> func.Htt
 
 @apis.function_name("PostUserQuery")
 @apis.route(route="assistants/{assistantId}", methods=["POST"])
-@apis.generic_input_binding(arg_name="state", type="assistantPost", data_type=func.DataType.STRING, id="{assistantId}", userMessage="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+@apis.assistant_post_input(arg_name="state", id="{assistantId}", user_message="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
 def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
     # Parse the JSON string into a dictionary
     data = json.loads(state)
@@ -36,6 +36,6 @@ def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
 
 @apis.function_name("GetChatState")
 @apis.route(route="assistants/{assistantId}", methods=["GET"])
-@apis.generic_input_binding(arg_name="state", type="assistantQuery", data_type=func.DataType.STRING, id="{assistantId}", timestampUtc="{Query.timestampUTC}")
+@apis.assistant_query_input(arg_name="state", id="{assistantId}", timestamp_utc="{Query.timestampUTC}")
 def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
     return func.HttpResponse(state, status_code=200, mimetype="application/json")

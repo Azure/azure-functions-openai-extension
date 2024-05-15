@@ -80,7 +80,7 @@ Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-mod
 
 ```python
 @app.route(route="whois/{name}", methods=["GET"])
-@app.generic_input_binding(arg_name="response", type="textCompletion", data_type=func.DataType.STRING, prompt="Who is {name}?", maxTokens="100", model = "gpt-3.5-turbo")
+@app.text_completion_input(arg_name="response", prompt="Who is {name}?", max_tokens="100", model = "%CHAT_MODEL_DEPLOYMENT_NAME%")
 def whois(req: func.HttpRequest, response: str) -> func.HttpResponse:
     response_json = json.loads(response)
     return func.HttpResponse(response_json["content"], status_code=200)

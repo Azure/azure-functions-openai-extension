@@ -8,6 +8,7 @@ The sample is available in the following language stacks:
 * [NodeJS](nodejs/)
 * [PowerShell](powershell/)
 * [Java](java/)
+* [Python](python/)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

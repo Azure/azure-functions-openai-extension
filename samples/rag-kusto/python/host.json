@@ -5,8 +5,11 @@
       "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
     }
   },
-  "extensionBundle": {
-    "id": "Microsoft.Azure.Functions.ExtensionBundle.Preview",
-    "version": "[4.*, 5.0.0)"
+  "extensions": {
+    "openai": {
+      "searchProvider": {
+        "type": "kusto"
+      }
+    }
   }
 }

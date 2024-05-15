@@ -21,8 +21,9 @@ This OpenAI extension internally uses the [function calling](https://platform.op
 
 ## Supported model version and known issues
 
-Assistant Functions are supported on model version `0613` of both GPT 3.5 Turbo and GPT 4.
-Model versions 0301 and 1106 have some known issues, check the repo issues for progress as the team add support for these model versions too.
+* [Supported model versions](https://platform.openai.com/docs/guides/function-calling/supported-models)
+* 0301 is the default and oldest model version for gpt-3.5 but it doesn't support this feature.
+* Model version 1106 has known issue with duplicate function calls in the OpenAI extension, check the repo issues for progress as the extension team works on it.
 
 ## Defining skills
 

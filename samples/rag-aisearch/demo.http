@@ -3,7 +3,10 @@
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"Url":"https://url/test/test_file.txt"}
+{
+    "Url":"https://example-files.online-convert.com/document/txt/example.txt"
+}
+
 
 ### Ingest second file into database
 POST http://localhost:7071/api/IngestFile

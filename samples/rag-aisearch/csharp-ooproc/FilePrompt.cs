@@ -62,7 +62,7 @@ public class FilePrompt
     }
 
     [Function("PromptFile")]
-    public static IActionResult PromptFile(
+    public IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
         [SemanticSearchInput(
             "AISearchEndpoint",

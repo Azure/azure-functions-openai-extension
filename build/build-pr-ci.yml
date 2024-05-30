@@ -35,7 +35,6 @@ schedules:
         - main
     always: true
 
-continueOnError: false
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1es
   parameters:

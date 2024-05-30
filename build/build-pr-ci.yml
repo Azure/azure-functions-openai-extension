@@ -43,71 +43,76 @@ extends:
       image: 1es-ubuntu-22.04
       os: linux
 
-steps:
-  - task: UseDotNet@2
-    displayName: 'Install .NET Core SDK 6 LTS'
-    inputs:
-      version: '6.x'
+stages:
+  - stage: Build
+    displayName: 'Build extension and samples'
+    jobs:
+      - job: Build
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install .NET Core SDK 6 LTS'
+            inputs:
+              version: '6.x'
 
-  - task: UseDotNet@2
-    displayName: 'Install .NET Core SDK 8 LTS'
-    inputs:
-      version: '8.x'
+          - task: UseDotNet@2
+            displayName: 'Install .NET Core SDK 8 LTS'
+            inputs:
+              version: '8.x'
 
-  - script: mkdir ~/NuGetPackagesLocal
-    displayName: Create new directory
+          - script: mkdir ~/NuGetPackagesLocal
+            displayName: Create new directory
 
-  - script: |
-      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $(config) -p:WebJobsVersion=$(fakeWebJobsPackageVersion) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(fakeWebJobsPackageVersion)
-      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/WebJobs.Extensions.OpenAI.Kusto.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(fakeWebJobsPackageVersion)
-      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/WebJobs.Extensions.OpenAI.AzureAISearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion)
-      dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion)
+          - script: |
+              dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj --configuration $(config) -p:WebJobsVersion=$(fakeWebJobsPackageVersion) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(fakeWebJobsPackageVersion)
+              dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/WebJobs.Extensions.OpenAI.Kusto.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(fakeWebJobsPackageVersion)
+              dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/WebJobs.Extensions.OpenAI.AzureAISearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion)
+              dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion)
 
-      sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
-      sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
-      sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
-      sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
+              sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
+              sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
+              sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
+              sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
 
-      dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/NuGet.Config
-      dotnet nuget list source --configfile  ~/.nuget/NuGet/NuGet.Config
+              dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/NuGet.Config
+              dotnet nuget list source --configfile  ~/.nuget/NuGet/NuGet.Config
 
-      dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
-    displayName: Create/Copy NuGet Package to local directory and Build
+              dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
+            displayName: Create/Copy NuGet Package to local directory and Build
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Publish Project'
-    inputs:
-      command: publish
-      publishWebProjects: false
-      projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
-      arguments: '--configuration $(config) --output $(build.artifactstagingdirectory) --no-restore'
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Project'
+            inputs:
+              command: publish
+              publishWebProjects: false
+              projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
+              arguments: '--configuration $(config) --output $(build.artifactstagingdirectory) --no-restore'
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: $(serviceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'az functionapp start --name $(functionAppName) --resource-group $(resourceGroupName)'
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(serviceConnectionName)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: 'az functionapp start --name $(functionAppName) --resource-group $(resourceGroupName)'
 
-  - task: AzureFunctionApp@2
-    inputs:
-      connectedServiceNameARM: $(serviceConnectionName)
-      appType: 'functionApp'
-      appName: $(functionAppName)
-      package: '$(build.artifactstagingdirectory)/csharp-ooproc.zip'
-      deploymentMethod: 'auto'
+          - task: AzureFunctionApp@2
+            inputs:
+              connectedServiceNameARM: $(serviceConnectionName)
+              appType: 'functionApp'
+              appName: $(functionAppName)
+              package: '$(build.artifactstagingdirectory)/csharp-ooproc.zip'
+              deploymentMethod: 'auto'
 
-  - script: |
-      sleep 20s
-      dotnet test --configuration $(config) --no-build --verbosity normal
-    env:
-      FUNC_DEFAULT_KEY: $(FUNC_DEFAULT_KEY) # value defined in pipeline variable secrets
-    displayName: E2E Test - Chat Bot Sample Out of Proc
+          - script: |
+              sleep 20s
+              dotnet test --configuration $(config) --no-build --verbosity normal
+            env:
+              FUNC_DEFAULT_KEY: $(FUNC_DEFAULT_KEY) # value defined in pipeline variable secrets
+            displayName: E2E Test - Chat Bot Sample Out of Proc
 
-  - task: AzureCLI@2
-    inputs:
-      azureSubscription: $(serviceConnectionName)
-      scriptType: 'bash'
-      scriptLocation: 'inlineScript'
-      inlineScript: 'az functionapp stop --name $(functionAppName) --resource-group $(resourceGroupName)'
-    condition: always()
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: $(serviceConnectionName)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: 'az functionapp stop --name $(functionAppName) --resource-group $(resourceGroupName)'
+            condition: always()

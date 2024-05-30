@@ -7,7 +7,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 @app.function_name("CreateChatBot")
 @app.route(route="chats/{chatID}", methods=["PUT"])
-@app.generic_output_binding(arg_name="requests", type="assistantCreate", data_type=func.DataType.STRING)
+@app.assistant_create_output(arg_name="requests")
 def create_chat_bot(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResponse:
     chatID = req.route_params.get("chatID")
     input_json = req.get_json()
@@ -24,14 +24,14 @@ def create_chat_bot(req: func.HttpRequest, requests: func.Out[str]) -> func.Http
 
 @app.function_name("GetChatState")
 @app.route(route="chats/{chatID}", methods=["GET"])
-@app.generic_input_binding(arg_name="state", type="assistantQuery", data_type=func.DataType.STRING, id="{chatID}", timestampUtc="{Query.timestampUTC}")
+@app.assistant_query_input(arg_name="state", id="{chatID}", timestamp_utc="{Query.timestampUTC}")
 def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
     return func.HttpResponse(state, status_code=200, mimetype="application/json")
 
 
 @app.function_name("PostUserResponse")
 @app.route(route="chats/{chatID}", methods=["POST"])
-@app.generic_input_binding(arg_name="state", type="assistantPost", data_type=func.DataType.STRING, id="{chatID}", userMessage="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+@app.assistant_post_input(arg_name="state", id="{chatID}", user_message="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
 def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
     # Parse the JSON string into a dictionary
     data = json.loads(state)

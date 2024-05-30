@@ -1,6 +1,8 @@
 variables:
   config: Release
   fakeWebJobsPackageVersion: 99.99.99-test
+  Codeql.BuildIdentifier: csharp_openai_extension
+  Codeql.Language: csharp
 
 pr:
   branches:
@@ -24,6 +26,14 @@ resources:
       type: git
       name: 1ESPipelineTemplates/1ESPipelineTemplates
       ref: refs/tags/release
+
+schedules:
+  - cron: '0 0 * * MON'
+    displayName: At 12:00 AM, only on Monday
+    branches:
+      include:
+        - main
+    always: true
 
 continueOnError: false
 extends:

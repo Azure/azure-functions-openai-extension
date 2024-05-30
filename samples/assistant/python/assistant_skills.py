@@ -11,7 +11,7 @@ todo_manager = CreateTodoManager()
 
 
 @skills.function_name("AddTodo")
-@skills.generic_trigger(arg_name="taskDescription", type="assistantSkillTrigger", data_type=func.DataType.STRING, functionDescription="Create a new todo task")
+@skills.assistant_skill_trigger(arg_name="taskDescription", function_description="Create a new todo task")
 def add_todo(taskDescription: str) -> None:
     if not taskDescription:
         raise ValueError("Task description cannot be empty")
@@ -24,7 +24,7 @@ def add_todo(taskDescription: str) -> None:
 
 
 @skills.function_name("GetTodos")
-@skills.generic_trigger(arg_name="inputIgnored", type="assistantSkillTrigger", data_type=func.DataType.STRING, functionDescription="Fetch the list of previously created todo tasks")
+@skills.assistant_skill_trigger(arg_name="inputIgnored", function_description="Fetch the list of previously created todo tasks")
 def get_todos(inputIgnored: str) -> str:
     logging.info("Fetching list of todos")
     results = todo_manager.get_todos()

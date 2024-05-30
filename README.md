@@ -44,7 +44,7 @@ Add following section to `host.json` of the function app for non dotnet language
 
 ## Features
 
-The following features are currently available. More features will be slowly added over time.
+The following features are currently available. More features will be slowly added over time. The language stack specific samples are also available in this repo for dotnet-isolated, java, nodejs, powershell and python. Visit the feature specific folder for utilising those.
 
 * [Text completions](#text-completion-input-binding)
 * [Chat completion](#chat-completion)
@@ -52,7 +52,7 @@ The following features are currently available. More features will be slowly add
 * [Embeddings generators](#embeddings-generator)
 * [Semantic search](#semantic-search)
 
-### Text completion input binding
+### [Text completion input binding](./samples/textcompletion/)
 
 The `textCompletion` input binding can be used to invoke the [OpenAI Chat Completions API](https://platform.openai.com/docs/guides/text-generation/chat-completions-vs-completions) and return the results to the function.
 
@@ -74,98 +74,19 @@ public static HttpResponseData WhoIs(
 }
 ```
 
-#### [TypeScript example](./samples/textcompletion/nodejs/)
-
-```typescript
-import { app, input } from "@azure/functions";
-
-// This OpenAI completion input requires a {name} binding value.
-const openAICompletionInput = input.generic({
-    prompt: 'Who is {name}?',
-    maxTokens: '100',
-    type: 'textCompletion',
-    model: 'gpt-35-turbo'
-})
-
-app.http('whois', {
-    methods: ['GET'],
-    route: 'whois/{name}',
-    authLevel: 'function',
-    extraInputs: [openAICompletionInput],
-    handler: async (_request, context) => {
-        var response: any = context.extraInputs.get(openAICompletionInput)
-        return { body: response.content.trim() }
-    }
-});
-```
-
-#### [PowerShell example](./samples/textcompletion/powershell/)
-
-```PowerShell
-using namespace System.Net
-
-param($Request, $TriggerMetadata, $TextCompletionResponse)
-
-Push-OutputBinding -Name Response -Value ([HttpResponseContext]@{
-        StatusCode = [HttpStatusCode]::OK
-        Body       = $TextCompletionResponse.Content
-    })
-```
-
-In the same directory as the PowerShell function, define the bindings in a function.json file.  
-
-If using Azure OpenAI, update `CHAT_MODEL_DEPLOYMENT_NAME` key in `local.settings.json` with the deployment name or update model property directly in function.json for textCompletion input binding or use it to override the default model value for OpenAI.
-
-```json
-{
-    "type": "textCompletion",
-    "direction": "in",
-    "name": "TextCompletionResponse",
-    "prompt": "Who is {name}?",
-    "maxTokens": "100",
-    "model": "gpt-3.5-turbo"
-}
-```
-
 #### [Python example](./samples/textcompletion/python/)
 
 Setting a model is optional for non-Azure OpenAI, [see here](#default-openai-models) for default model values for OpenAI.
 
 ```python
 @app.route(route="whois/{name}", methods=["GET"])
-@app.generic_input_binding(arg_name="response", type="textCompletion", data_type=func.DataType.STRING, prompt="Who is {name}?", maxTokens="100", model = "gpt-3.5-turbo")
+@app.text_completion_input(arg_name="response", prompt="Who is {name}?", max_tokens="100", model = "%CHAT_MODEL_DEPLOYMENT_NAME%")
 def whois(req: func.HttpRequest, response: str) -> func.HttpResponse:
     response_json = json.loads(response)
     return func.HttpResponse(response_json["content"], status_code=200)
 ```
 
-#### Running locally
-
-You can run the above function locally using the Azure Functions Core Tools and sending an HTTP request, similar to the following:
-
-```http
-GET http://localhost:7127/api/whois/pikachu
-```
-
-The result that comes back will include the response from the GPT language model:
-
-```text
-HTTP/1.1 200 OK
-Content-Type: text/plain; charset=utf-8
-Date: Tue, 28 Mar 2023 18:25:40 GMT
-Server: Kestrel
-Transfer-Encoding: chunked
-
-Pikachu is a fictional creature from the Pokemon franchise. It is a yellow
-mouse-like creature with powerful electrical abilities and a mischievous
-personality. Pikachu is one of the most iconic and recognizable characters
-from the franchise, and is featured in numerous video games, anime series,
-movies, and other media.
-```
-
-You can find more instructions for running the samples in the corresponding project directories. The goal is to have samples for all languages supported by Azure Functions.
-
-### Chat completion
+### [Chat completion](./samples/chat/)
 
 [Chat completions](https://platform.openai.com/docs/guides/chat) are useful for building AI-powered assistants.
 
@@ -177,7 +98,7 @@ There are three bindings you can use to interact with the assistant:
 
 You can find samples in multiple languages with instructions [in the chat samples directory](./samples/chat/).
 
-### Assistants
+### [Assistants](./samples/assistant/)
 
 Assistants build on top of the chat functionality to provide assistants with custom skills defined as functions.
 This internally uses the [function calling](https://platform.openai.com/docs/guides/function-calling) feature of OpenAIs GPT models to select which functions to invoke and when.
@@ -229,9 +150,9 @@ public class AssistantSkills
 }
 ```
 
-You can find samples with instructions [in the assistant samples directory](./samples/assistant/).
+You can find samples in multiple languages with instructions [in the assistant samples directory](./samples/assistant/).
 
-### Embeddings Generator
+### [Embeddings Generator](./samples/embeddings/)
 
 OpenAI's [text embeddings](https://platform.openai.com/docs/guides/embeddings) measure the relatedness of text strings. Embeddings are commonly used for:
 
@@ -284,43 +205,10 @@ def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> 
     # TODO: Store the embeddings into a database or other storage.
     return func.HttpResponse(status_code=200)
 ```
-```typescript
-interface EmbeddingsRequest {
-    RawText?: string;
-}
-
-const openAIEmbeddingsInput = input.generic({
-    input: '{RawText}',
-    inputType: 'RawText',
-    type: 'embeddings',
-    model: '%EMBEDDINGS_MODEL_DEPLOYMENT_NAME%'
-})
-
-app.http('generateEmbeddingsHttpRequest', {
-    methods: ['POST'],
-    route: 'embeddings',
-    authLevel: 'function',
-    extraInputs: [openAIEmbeddingsInput],
-    handler: async (request, context) => {
-        let requestBody: EmbeddingsRequest = await request.json();
-        let response: any = context.extraInputs.get(openAIEmbeddingsInput);
-
-        context.log(
-            `Received ${response.count} embedding(s) for input text containing ${requestBody.RawText.length} characters.`
-        );
-
-        // TODO: Store the embeddings into a database or other storage.
-
-        return {status: 202}
-    }
-});
-```
 
 ### Semantic Search
 
 The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).
-
-Only raw text files are supported at present for data ingestion.
 
 The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
 
@@ -368,7 +256,7 @@ public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
 }
 ```
 
-#### [Python example](./samples/rag-aisearch/python/function_app.py)
+#### [Python example document store example](./samples/rag-aisearch/python/function_app.py)
 
 ```python
 @app.function_name("IngestFile")
@@ -414,7 +302,7 @@ public static IActionResult PromptFile(
 }
 ```
 
-#### [Python example](./samples/rag-aisearch/python/function_app.py)
+#### [Python document query example](./samples/rag-aisearch/python/function_app.py)
 
 ```python
 @app.function_name("PromptFile")
@@ -466,13 +354,17 @@ public static string WhoIs(
 ```
 
 ```csharp
-public record SemanticSearchRequest(string Prompt);
+public class SemanticSearchRequest
+{
+    [JsonPropertyName("Prompt")]
+    public string? Prompt { get; set; }
+}
 
 // "my-gpt-4" and "my-ada-2" are the names of Azure OpenAI deployments corresponding to gpt-4 and text-embedding-ada-002 models, respectively
 [Function("PromptEmail")]
-public static IActionResult PromptEmail(
+public IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearch("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "my-gpt-4", EmbeddingsModel = "my-ada-2")] SemanticSearchContext result)
+    [SemanticSearchInput("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "my-gpt-4", EmbeddingsModel = "my-ada-2")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }

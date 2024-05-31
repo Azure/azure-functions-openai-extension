@@ -29,7 +29,7 @@ app.http('CreateAssistant', {
 })
 
 
-const assistantPostInput = output.generic({
+const assistantPostInput = input.generic({
     type: 'assistantPost',
     id: '{assistantId}',
     model: '%CHAT_MODEL_DEPLOYMENT_NAME%',

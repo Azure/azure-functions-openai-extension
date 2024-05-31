@@ -43,7 +43,7 @@ app.http('GetChatState', {
 });
 
 
-const assistantPostInput = output.generic({
+const assistantPostInput = input.generic({
     type: 'assistantPost',
     id: '{chatID}',
     model: '%CHAT_MODEL_DEPLOYMENT_NAME%',

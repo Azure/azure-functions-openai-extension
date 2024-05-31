@@ -24,7 +24,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | .NET oo-proc | `cd samples/textcompletion/csharp-ooproc && dotnet build && cd bin/debug/net6.0 && func start` |
     | Node.js | `cd samples/textcompletion/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
     | PowerShell | `cd samples/textcompletion/powershell && dotnet build --output bin && func start` |
-    | Python | `cd samples/textcompletion/python && func start` |
+    | Python | `cd samples/textcompletion/python && pip install -r requirements.txt && func start` |
     | Java | `cd samples/textcompletion/java && mvn clean package && dotnet build && mvn azure-functions:run` |
 
     If successful, you should see the following output from the `func` command:

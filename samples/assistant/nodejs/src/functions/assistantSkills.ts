@@ -3,6 +3,7 @@
 
 import { InvocationContext, app, trigger } from "@azure/functions"
 import { TodoItem, ITodoManager, CreateTodoManager } from "../services/todoManager"
+import { randomUUID } from 'crypto';
 
 const todoManager: ITodoManager = CreateTodoManager()
 
@@ -18,7 +19,7 @@ app.generic('AddTodo', {
 
         context.log(`Adding todo: ${taskDescription}`)
 
-        const todoId = crypto.randomUUID().substring(0, 6)
+        const todoId = randomUUID().substring(0, 6)
         return todoManager.AddTodo(new TodoItem(todoId, taskDescription))
     }
 })

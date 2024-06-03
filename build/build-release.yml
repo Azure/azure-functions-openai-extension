@@ -33,6 +33,11 @@ extends:
         displayName: 'Build extension and samples'
         jobs:
           - job: Build
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  targetPath: $(System.DefaultWorkingDirectory)/packages
+                  artifactName: drop
             steps:
               - task: UseDotNet@2
                 displayName: 'Install .NET 8'
@@ -140,6 +145,3 @@ extends:
                 inputs:
                   BuildDropPath: '$(System.DefaultWorkingDirectory)/packages'
                   Verbosity: 'Information'
-
-              - publish: $(System.DefaultWorkingDirectory)/packages
-                artifact: drop

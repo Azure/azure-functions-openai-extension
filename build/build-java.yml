@@ -53,6 +53,12 @@ extends:
         displayName: 'Build Java'
         jobs:
           - job: BuildJavaLibrary
+            templateContext:
+              outputs:
+                - output: pipelineArtifact
+                  targetPath: $(build.artifactstagingdirectory)
+                  artifactName: drop-java-library
+                  condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
             displayName: Build Java Library
             steps:
               - task: Maven@3
@@ -82,11 +88,6 @@ extends:
                 inputs:
                   buildDropPath: $(Build.ArtifactStagingDirectory)/java-library
                   packageName: Azure Functions OpenAI Java Bindings
-                condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
-
-              - publish: $(Build.ArtifactStagingDirectory)
-                displayName: Publish library package
-                artifact: drop-java-library
                 condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
           - job: BuildJavaSamples

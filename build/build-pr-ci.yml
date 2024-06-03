@@ -63,7 +63,7 @@ extends:
                 inputs:
                   version: '8.x'
 
-              - script: mkdir "%USERPROFILE%\NuGetPackagesLocal"
+              - script: mkdir ~/NuGetPackagesLocal
                 displayName: Create new directory
 
               - script: |

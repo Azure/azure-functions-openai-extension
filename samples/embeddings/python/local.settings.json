@@ -5,6 +5,7 @@
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
     "FUNCTIONS_WORKER_RUNTIME": "python",
     "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",
-    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
+    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002",
+    "PYTHON_ISOLATE_WORKER_DEPENDENCIES": "1"
   }
 }

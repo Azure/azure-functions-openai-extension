@@ -29,7 +29,7 @@ resources:
     ref: refs/tags/release
 
 variables:
-- template: /eng/ci/templates/variables/build.yml@self
+- template: /eng/ci/templates/build-variables.yml@self
 - template: /ci/variables/cfs.yml@eng
 
 extends:

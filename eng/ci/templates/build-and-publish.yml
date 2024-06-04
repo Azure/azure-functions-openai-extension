@@ -1,3 +1,5 @@
+parameters:
+  poolName: $(PublicPoolName)
 jobs:
   - job: BuildAndPublish
     templateContext:
@@ -6,7 +8,7 @@ jobs:
           targetPath: $(build.artifactstagingdirectory)
           artifactName: drop
     pool:
-      name: 1es-pool-azfunc
+      name: ${{ parameters.poolName }}
       image: 1es-ubuntu-22.04
       os: linux
     steps:

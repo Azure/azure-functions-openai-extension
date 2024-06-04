@@ -3,7 +3,7 @@ variables:
     value: Release
   - name: fakeWebJobsPackageVersion
     value: 99.99.99-test
-  - name: Codeql.BuildIdentifier
-    value: csharp_openai_extension
-  - name: Codeql.Language
-    value: csharp
+  - name: PublicPool
+    value: 1es-pool-azfunc-public
+  - name: OfficialPool
+    value: 1es-pool-azfunc

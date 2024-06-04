@@ -3,32 +3,40 @@
 pr:
   branches:
     include:
-    - main
+      - main
   paths:
     exclude:
-    - '**.md'
+      - '**.md'
 
 trigger:
   batch: true
   branches:
     include:
-    - main
+      - main
   paths:
     exclude:
-    - '**.md'
+      - '**.md'
 
 resources:
   repositories:
-  - repository: 1es
-    type: git
-    name: 1ESPipelineTemplates/1ESPipelineTemplates
-    ref: refs/tags/release
+    - repository: 1es
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+
+schedules:
+  - cron: '0 0 * * MON'
+    displayName: At 12:00 AM, only on Monday
+    branches:
+      include:
+        - main
+    always: true
 
 variables:
-- template: /eng/ci/templates/build-variables.yml@self
+  - template: /eng/ci/templates/build-variables.yml@self
 
 extends:
-  template: v1/1ES.Official.PipelineTemplate.yml@1es
+  template: v1/1ES.Unofficial.PipelineTemplate.yml@1es
   parameters:
     pool:
       name: 1es-pool-azfunc-public
@@ -36,6 +44,11 @@ extends:
       os: windows
 
     stages:
-    - stage: Build
-      jobs:
-      - template: /eng/ci/templates/build-and-publish.yml@self
+      - stage: Build
+        variables:
+          Codeql.BuildIdentifier: csharp_openai_extension_public
+          Codeql.Language: csharp
+        jobs:
+          - template: /eng/ci/templates/build-and-publish.yml@self
+            parameters:
+              poolName: $(PublicPool)

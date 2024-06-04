@@ -54,7 +54,7 @@ Once you have an Azure AI Search resource, you can run the sample by following t
     ```sh
     dotnet build --output bin
     ```
-2. If using python, run `pip -r requirements.txt` to install the correct library version.
+1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Build and start the app
 
     ```sh

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Reflection;
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
@@ -33,10 +34,15 @@ public static class OpenAIWebJobsBuilderExtensions
 
         // Register the client for Azure Open AI
         Uri? azureOpenAIEndpoint = GetAzureOpenAIEndpoint();
+        string? openAIEndpoint = Environment.GetEnvironmentVariable("OPENAI_ENDPOINT");
         string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
         string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
 
-        if (azureOpenAIEndpoint != null && !string.IsNullOrEmpty(azureOpenAIKey))
+        if (openAIEndpoint != null && !string.IsNullOrEmpty(openAIKey))
+        {
+            RegisterOpenAIClient(builder.Services, openAIKey, openAIEndpoint);
+        }
+        else if (azureOpenAIEndpoint != null && !string.IsNullOrEmpty(azureOpenAIKey))
         {
             RegisterAzureOpenAIClient(builder.Services, azureOpenAIEndpoint, azureOpenAIKey);
         }
@@ -104,6 +110,29 @@ public static class OpenAIWebJobsBuilderExtensions
     static void RegisterOpenAIClient(IServiceCollection services, string openAIKey)
     {
         var openAIClient = new OpenAIClient(openAIKey);
+        services.AddSingleton<OpenAIClient>(openAIClient);
+    }
+
+    static void RegisterOpenAIClient(IServiceCollection services, string openAIKey, string openAIEndpoint)
+    {
+        // hack - the .NET client does not support setting the endpoint for OpenAI the way the python client does
+        // https://github.com/openai/openai-python?tab=readme-ov-file#configuring-the-http-client
+        // so instead we use the Azure OpenAI codepath for setting the endpoint and then use reflection to set it to non-azure mode
+
+        var openAIClient = new OpenAIClient(new Uri(openAIEndpoint), new AzureKeyCredential(openAIKey));
+
+        Type openAIClientType = openAIClient.GetType();
+        FieldInfo isConfiguredField = openAIClientType.GetField("_isConfiguredForAzureOpenAI", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (isConfiguredField != null)
+        {
+            isConfiguredField.SetValue(openAIClient, false);
+        }
+        else
+        {
+            throw new InvalidOperationException("Could not find the _isConfiguredForAzureOpenAI field.");
+        }
+
         services.AddSingleton<OpenAIClient>(openAIClient);
     }
 }

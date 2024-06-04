@@ -61,8 +61,8 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 
 1. Clone this repo and navigate to the sample folder.
 1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/embeddings/csharp-ooproc/Embeddings`)
-2. If using python, run `pip install -r requirements.txt` to install the correct library version.
-2. Run `func start` to build and run the sample function app
+1. If using python, run `pip install -r requirements.txt` to install the correct library version.
+1. Run `func start` to build and run the sample function app
 
     If successful, you should see the following output from the `func` command:
 

@@ -77,9 +77,10 @@ class CosmosDbTodoManager : ITodoManager {
         if (-not $this.cosmosDbDatabaseName -or -not $this.cosmosDbDatabaseName -or -not $this.cosmosDbCollectionName) {
             throw "CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json"
         }
-        
-        $connectionStringSecure = ConvertTo-SecureString -AsPlainText -Force -String $this.cosmosDbConnectionString
-        $this.cosmosDbContext = New-CosmosDbContext -ConnectionString $connectionStringSecure 
+
+        $connectionStringSecure = New-Object System.Security.SecureString
+        $this.cosmosDbConnectionString.ToCharArray() | ForEach-Object { $connectionStringSecure.AppendChar($_) }
+        $this.cosmosDbContext = New-CosmosDbContext -ConnectionString $connectionStringSecure
 
         try {
             $cosmosDatabase = Get-CosmosDbDatabase -Context $this.cosmosDbContext -Id $this.cosmosDbDatabaseName

@@ -6,8 +6,12 @@ pr:
     include:
       - java-library/*
       - samples/*/java/*
+<<<<<<< HEAD
       - eng/ci/templates/build-java-library.yml
       - eng/ci/templates/build-java-samples.yml
+=======
+      - build/build-java.yml
+>>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
     exclude:
       - '**.md'
 
@@ -19,8 +23,12 @@ trigger:
     include:
       - java-library/*
       - samples/*/java/*
+<<<<<<< HEAD
       - eng/ci/templates/build-java-library.yml
       - eng/ci/templates/build-java-samples.yml
+=======
+      - build/build-java.yml
+>>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
     exclude:
       - '**.md'
 
@@ -39,6 +47,13 @@ schedules:
         - main
     always: true
 
+<<<<<<< HEAD
+=======
+variables:
+  Codeql.BuildIdentifier: java_openai_extension_public
+  Codeql.Language: java
+
+>>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
 extends:
   template: v1/1ES.Unofficial.PipelineTemplate.yml@1es
   parameters:
@@ -46,6 +61,7 @@ extends:
       name: 1es-pool-azfunc-public
       image: 1es-windows-2022
       os: windows
+<<<<<<< HEAD
 
     sdl:
       codeql:
@@ -58,6 +74,8 @@ extends:
       # PR's from forks do not have sufficient permissions to set tags.
       skipBuildTagsForGitHubPullRequests: ${{ variables['System.PullRequest.IsFork'] }}
 
+=======
+>>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
     stages:
       - stage: BuildJava
         displayName: 'Build Java'

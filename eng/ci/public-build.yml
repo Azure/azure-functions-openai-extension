@@ -43,6 +43,7 @@ extends:
       image: 1es-windows-2022
       os: windows
 
+<<<<<<< HEAD
     sdl:
       codeql:
         compiled:
@@ -60,3 +61,14 @@ extends:
       - stage: Build
         jobs:
           - template: /eng/ci/templates/build-local.yml@self
+=======
+    stages:
+      - stage: Build
+        variables:
+          Codeql.BuildIdentifier: csharp_openai_extension_public
+          Codeql.Language: csharp
+        jobs:
+          - template: /eng/ci/templates/build-and-publish.yml@self
+            parameters:
+              poolName: $(PublicPool)
+>>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))

@@ -16,6 +16,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 {
     readonly IConfiguration configuration;
     readonly ILogger logger;
+    readonly IOptions cosmosDBSearchConfigOptions;
     readonly int vectorSearchDimensions = 1536;
     readonly int numLists = 1;
     const string defaultSearchIndexName = "openai-index";
@@ -60,9 +61,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             throw new ArgumentOutOfRangeException(nameof(CosmosDBSearchConfigOptions.VectorSearchDimensions), value, "Vector search dimensions must be between 2 and 2000");
         }
 
-        this.vectorSearchDimensions = value;
-        this.numLists = cosmosDBSearchConfigOptions.Value.NumLists;
-
+        this.cosmosDBSearchConfigOptions = cosmosDBSearchConfigOptions;
         this.logger = loggerFactory.CreateLogger<CosmosDBSearchProvider>();
 
     }
@@ -113,40 +112,17 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         try
         {
             IMongoCollection<BsonDocument> collection = mongoClient.GetDatabase(databaseName).GetCollection<BsonDocument>(request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
-
             // Search Azure Cosmos DB for MongoDB vCore collection for similar embeddings and project fields.
-            BsonDocument[] pipeline = new BsonDocument[]
+            BsonDocument[] pipeline = [];
+            switch (this.cosmosDBSearchConfigOptions.Value.Kind)
             {
-                new()
-                {
-                    {
-                        "$search", new BsonDocument
-                        {
-                            {
-                                "cosmosSearch", new BsonDocument
-                                {
-                                    { "vector", !(request.Embeddings.IsEmpty) ? new BsonArray(request.Embeddings.ToArray()) : new BsonArray()},
-                                    { "path", "embedding" },
-                                    { "k", request.MaxResults }
-                                }
-                            },
-                            { "returnStoredSource", true }
-                        }
-                    }
-                },
-                new()
-                {
-                    {
-                        "$project", new BsonDocument
-                        {
-                            { "embedding", 0 },
-                            { "_id", 0 },
-                            { "id", 0 },
-                            { "timestamp", 0 }
-                        }
-                    }
-                }
-            };
+                case CosmosDBVectorSearchType.VectorIVF:
+                    pipeline = this.GetVectorIVFSearchPipeline(request);
+                    break;
+                case CosmosDBVectorSearchType.VectorHNSW:
+                    pipeline = this.GetVectorHNSWSearchPipeline(request);
+                    break;
+            }
 
             IAsyncCursor<BsonDocument> cursor = await collection.AggregateAsync<BsonDocument>(pipeline);
             List<BsonDocument> documents = await cursor.ToListAsync();
@@ -175,27 +151,16 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     {
         try
         {
-            BsonDocument vectorIndexDefinition = new()
+            BsonDocument vectorIndexDefinition = new BsonDocument();
+            switch (this.cosmosDBSearchConfigOptions.Value.Kind)
             {
-                { "createIndexes", collectionName },
-                { "indexes", new BsonArray
-                    {
-                        new BsonDocument
-                        {
-                            { "name", "vectorSearchIndex" },
-                            { "key", new BsonDocument { { "embedding", "cosmosSearch" } } },
-                            { "cosmosSearchOptions", new BsonDocument
-                                {
-                                    { "kind", "vector-ivf" },
-                                    { "numLists", this.numLists },
-                                    { "similarity", "COS" },
-                                    { "dimensions", this.vectorSearchDimensions }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+                case AzureCosmosDBVectorSearchType.VectorIVF:
+                    vectorIndexDefinition = this.GetIndexDefinitionVectorIVF(collectionName);
+                    break;
+                case AzureCosmosDBVectorSearchType.VectorHNSW:
+                    vectorIndexDefinition = this.GetIndexDefinitionVectorHNSW(collectionName);
+                    break;
+            }
 
             //Find if vector index exists in vectors collection
             using IAsyncCursor<BsonDocument> indexCursor = client.GetDatabase(databaseName).GetCollection<BsonDocument>(collectionName).Indexes.List();
@@ -265,5 +230,132 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 """);
         }
         return new MongoClient(connectionString);
+    }
+
+    private BsonDocument[] GetVectorIVFSearchPipeline(SearchRequest request) {
+        return new BsonDocument[]
+            {
+                new()
+                {
+                    {
+                        "$search", new BsonDocument
+                        {
+                            {
+                                "cosmosSearch", new BsonDocument
+                                {
+                                    { "vector", !(request.Embeddings.IsEmpty) ? new BsonArray(request.Embeddings.ToArray()) : new BsonArray()},
+                                    { "path", "embedding" },
+                                    { "k", request.MaxResults }
+                                }
+                            },
+                            { "returnStoredSource", true }
+                        }
+                    }
+                },
+                new()
+                {
+                    {
+                        "$project", new BsonDocument
+                        {
+                            { "embedding", 0 },
+                            { "_id", 0 },
+                            { "id", 0 },
+                            { "timestamp", 0 },
+                            {"similarityScore": { "$meta": "searchScore" }},
+                        }
+                    }
+                }
+            };
+    }
+
+    private BsonDocument[] GetVectorHNSWSearchPipeline(SearchRequest request) {
+        return new BsonDocument[]
+            {
+                new()
+                {
+                    {
+                        "$search", new BsonDocument
+                        {
+                            {
+                                "cosmosSearch", new BsonDocument
+                                {
+                                    { "vector", !(request.Embeddings.IsEmpty) ? new BsonArray(request.Embeddings.ToArray()) : new BsonArray()},
+                                    { "path", "embedding" },
+                                    { "k", request.MaxResults },
+                                    { "efSearch", this.cosmosDBSearchConfigOptions.EfSearch }
+                                }
+                            },
+                            { "returnStoredSource", true }
+                        }
+                    }
+                },
+                new()
+                {
+                    {
+                        "$project", new BsonDocument
+                        {
+                            { "embedding", 0 },
+                            { "_id", 0 },
+                            { "id", 0 },
+                            { "timestamp", 0 },
+                            {"similarityScore": { "$meta": "searchScore" }},
+                        }
+                    }
+                }
+            };
+    }
+
+    private BsonDocument GetIndexDefinitionVectorIVF(string collectionName)
+    {
+        return new BsonDocument
+        {
+            { "createIndexes", collectionName },
+            {
+                "indexes", new BsonArray
+                {
+                    new BsonDocument
+                    {
+                        { "name", "vectorSearchIndex" },
+                        { "key", new BsonDocument { { "embedding", "cosmosSearch" } } },
+                        { "cosmosSearchOptions", new BsonDocument
+                            {
+                                { "kind", this.cosmosDBSearchConfigOptions.Value.Kind.GetCustomName() },
+                                { "numLists", this.cosmosDBSearchConfigOptions.Value.NumLists },
+                                { "similarity", this.cosmosDBSearchConfigOptions.Value.Similarity.GetCustomName() },
+                                { "dimensions", this.cosmosDBSearchConfigOptions.Value.Dimensions }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
+    private BsonDocument GetIndexDefinitionVectorHNSW(string collectionName)
+    {
+        return new BsonDocument
+        {
+            { "createIndexes", collectionName },
+            {
+                "indexes", new BsonArray
+                {
+                    new BsonDocument
+                    {
+                        { "name",  "vectorSearchIndex" },
+                        { "key", new BsonDocument { { "embedding", "cosmosSearch" } } },
+                        {
+                            "cosmosSearchOptions", new BsonDocument
+                            {
+                                { "kind", this.cosmosDBSearchConfigOptions.Value.Kind.GetCustomName() },
+                                { "m", this.cosmosDBSearchConfigOptions.Value.NumberOfConnections },
+                                { "efConstruction", this.cosmosDBSearchConfigOptions.Value.EfConstruction },
+                                { "similarity", this.cosmosDBSearchConfigOptions.Value.Similarity.GetCustomName() },
+                                { "dimensions", this.cosmosDBSearchConfigOptions.Value.Dimensions }
+                            }
+                        }
+                    }
+                }
+            }
+        };
     }
 }

@@ -34,12 +34,16 @@ jobs:
           projects: src/*/*.csproj
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1fdea10 (fix the builds (#93))
       - template: ci/sign-files.yml@eng
         parameters:
           displayName: Sign extension assemblies
           folderPath: 'src'
           pattern: '*.Extensions.OpenAI*.dll'
           signType: dll
+<<<<<<< HEAD
 =======
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
         displayName: 'ESRP CodeSigning - Authenticode'
@@ -72,6 +76,8 @@ jobs:
               }
             ]
 >>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
+=======
+>>>>>>> 1fdea10 (fix the builds (#93))
 
       - task: DeleteFiles@1
         displayName: 'Delete CodeSignSummary files'
@@ -87,12 +93,16 @@ jobs:
           projects: src/*/*Extensions.OpenAI*.csproj
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1fdea10 (fix the builds (#93))
       - template: ci/sign-files.yml@eng
         parameters:
           displayName: Sign NugetPackages
           folderPath: 'packages'
           pattern: '*.Extensions.OpenAI*.nupkg'
           signType: nuget
+<<<<<<< HEAD
 =======
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
         displayName: 'ESRP CodeSigning: Nupkg'
@@ -119,6 +129,8 @@ jobs:
                 }
             ]
 >>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
+=======
+>>>>>>> 1fdea10 (fix the builds (#93))
 
       - task: DeleteFiles@1
         displayName: 'Delete CodeSignSummary files'

@@ -1,5 +1,3 @@
-parameters:
-  poolName: $(PublicPoolName)
 jobs:
   - job: BuildAndPublish
     templateContext:
@@ -7,10 +5,6 @@ jobs:
         - output: pipelineArtifact
           targetPath: $(build.artifactstagingdirectory)
           artifactName: drop
-    pool:
-      name: ${{ parameters.poolName }}
-      image: 1es-ubuntu-22.04
-      os: linux
     steps:
       - task: UseDotNet@2
         displayName: 'Install .NET Core SDK 6 LTS'
@@ -22,7 +16,8 @@ jobs:
         inputs:
           version: '8.x'
 
-      - script: mkdir ~/NuGetPackagesLocal
+      - script: |
+          mkdir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
         displayName: Create new directory
 
       - script: |
@@ -30,16 +25,42 @@ jobs:
           dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/WebJobs.Extensions.OpenAI.Kusto.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) -p:KustoVersion=$(fakeWebJobsPackageVersion)
           dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/WebJobs.Extensions.OpenAI.AzureAISearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:AzureAISearchVersion=$(fakeWebJobsPackageVersion)
           dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion)
+        displayName: Dotnet Build WebJobs.Extensions.OpenAI
 
-          sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
-          sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
-          sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
-          sudo cp "$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/bin/Release/Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch.$(fakeWebJobsPackageVersion).nupkg" ~/NuGetPackagesLocal
+      - task: CopyFiles@2
+        displayName: 'Copy NuGet WebJobs.Extensions.OpenAI to local directory'
+        inputs:
+          SourceFolder: '$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI/bin/Release/'
+          Contents: 'Microsoft.Azure.WebJobs.Extensions.OpenAI.$(fakeWebJobsPackageVersion).nupkg'
+          TargetFolder: '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
 
-          dotnet nuget add source ~/NuGetPackagesLocal --configfile  ~/.nuget/NuGet/NuGet.Config
-          dotnet nuget list source --configfile  ~/.nuget/NuGet/NuGet.Config
-          dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile ~/.nuget/NuGet/NuGet.Config
-        displayName: Create/Copy NuGet Package to local directory and Build
+      - task: CopyFiles@2
+        displayName: 'Copy NuGet WebJobs.Extensions.OpenAI.AzureAISearch to local directory'
+        inputs:
+          SourceFolder: '$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.AzureAISearch/bin/Release/'
+          Contents: 'Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch.$(fakeWebJobsPackageVersion).nupkg'
+          TargetFolder: '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
+
+      - task: CopyFiles@2
+        displayName: 'Copy NuGet WebJobs.Extensions.OpenAI.Kusto to local directory'
+        inputs:
+          SourceFolder: '$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.Kusto/bin/Release/'
+          Contents: 'Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto.$(fakeWebJobsPackageVersion).nupkg'
+          TargetFolder: '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
+
+      - task: CopyFiles@2
+        displayName: 'Copy NuGet WebJobs.Extensions.OpenAI.CosmosDBSearch to local directory'
+        inputs:
+          SourceFolder: '$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/bin/Release/'
+          Contents: 'Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch.$(fakeWebJobsPackageVersion).nupkg'
+          TargetFolder: '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
+
+      - script: |
+          dir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
+          dotnet nuget add source $(System.DefaultWorkingDirectory)/NuGetPackagesLocal --configfile  %appdata%/NuGet/NuGet.Config
+          dotnet nuget list source --configfile  %appdata%/NuGet/NuGet.Config
+          dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile %appdata%/NuGet/NuGet.Config
+        displayName: Build from local NuGet packages
 
       - task: DotNetCoreCLI@2
         displayName: 'Publish Project'

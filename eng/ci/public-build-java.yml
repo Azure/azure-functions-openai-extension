@@ -7,11 +7,16 @@ pr:
       - java-library/*
       - samples/*/java/*
 <<<<<<< HEAD
+<<<<<<< HEAD
       - eng/ci/templates/build-java-library.yml
       - eng/ci/templates/build-java-samples.yml
 =======
       - build/build-java.yml
 >>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
+=======
+      - eng/ci/templates/build-java-library.yml
+      - eng/ci/templates/build-java-samples.yml
+>>>>>>> 1fdea10 (fix the builds (#93))
     exclude:
       - '**.md'
 
@@ -24,11 +29,16 @@ trigger:
       - java-library/*
       - samples/*/java/*
 <<<<<<< HEAD
+<<<<<<< HEAD
       - eng/ci/templates/build-java-library.yml
       - eng/ci/templates/build-java-samples.yml
 =======
       - build/build-java.yml
 >>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
+=======
+      - eng/ci/templates/build-java-library.yml
+      - eng/ci/templates/build-java-samples.yml
+>>>>>>> 1fdea10 (fix the builds (#93))
     exclude:
       - '**.md'
 

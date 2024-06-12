@@ -78,9 +78,10 @@ class CosmosDbTodoManager : ITodoManager {
             throw "CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json"
         }
         
-        $connectionStringSecure = ConvertTo-SecureString -AsPlainText -Force -String $this.cosmosDbConnectionString
+        # ToDo: Use managed identity to authenticate with Cosmos DB or key vault to store the connection string
+        $connectionStringSecure = $this.cosmosDbConnectionString
         $this.cosmosDbContext = New-CosmosDbContext -ConnectionString $connectionStringSecure 
-
+        
         try {
             $cosmosDatabase = Get-CosmosDbDatabase -Context $this.cosmosDbContext -Id $this.cosmosDbDatabaseName
         }

@@ -43,16 +43,16 @@ extends:
     stages:
       - stage: BuildDotNet
         displayName: 'Build DotNet'
+        dependsOn: []
         variables:
           Codeql.BuildIdentifier: csharp_openai_extension
           Codeql.Language: csharp
         jobs:
           - template: /eng/ci/templates/build-and-publish.yml@self
-            parameters:
-              poolName: $(OfficialPool)
 
       - stage: BuildJava
         displayName: 'Build Java'
+        dependsOn: []
         variables:
           Codeql.BuildIdentifier: java_openai_extension
           Codeql.Language: java
@@ -60,7 +60,8 @@ extends:
           - template: /eng/ci/templates/build-java-library.yml@self
           - template: /eng/ci/templates/build-java-samples.yml@self
 
-      - stage: Build Dotnet Nuget
+      - stage: BuildDotnetNuget
         displayName: 'Build DotNet Nuget'
+        dependsOn: []
         jobs:
           - template: /eng/ci/templates/build-nuget.yml@self

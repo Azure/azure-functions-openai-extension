@@ -3,7 +3,3 @@ variables:
     value: Release
   - name: fakeWebJobsPackageVersion
     value: 99.99.99-test
-  - name: PublicPool
-    value: 1es-pool-azfunc-public
-  - name: OfficialPool
-    value: 1es-pool-azfunc

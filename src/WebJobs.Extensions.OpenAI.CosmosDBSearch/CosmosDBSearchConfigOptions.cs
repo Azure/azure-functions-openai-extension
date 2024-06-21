@@ -8,6 +8,24 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 /// </summary>
 public class CosmosDBSearchConfigOptions
 {
+    // Connection String required to connect to the Mongo Client
+    public String ConnectionString { get; set; }
+
+    // Database name for your vector store
+    public String DatabaseName { get; set; } = "functionsDatabase";
+
+    // Collection name for your vector store database
+    public String CollectionName { get; set; } = "functionsCollection";
+
+    // Index name for your vector store collection
+    public String IndexName { get; set; } = "functionsIndex";
+
+    // Application name for the client for tracking and logging
+    public String ApplicationName { get; set; } = "functionsAppName";
+
+    // Name of the field property that would contain the embeddings
+    public String EmbeddingKey { get; set; } = "embedding";
+
     // Number of dimensions for vector similarity. The maximum number of supported dimensions is 2000.
     public int VectorSearchDimensions { get; set; } = 1536;
 

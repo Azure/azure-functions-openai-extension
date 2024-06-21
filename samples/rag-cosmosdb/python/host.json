@@ -10,7 +10,12 @@
       "searchProvider": {
         "type": "cosmosDBSearch",
         "vectorSearchDimensions": 1536,
-        "numLists": 1
+        "numLists": 1,
+        "kind": "vector-ivf",
+        "similarity": "COS",
+        "m": 16,
+        "EfConstruction": 64,
+        "EfSearch": 40
       }
     }
   }

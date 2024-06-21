@@ -1,0 +1,66 @@
+jobs:
+  - job: BuildAndPublish
+    templateContext:
+      outputs:
+        - output: pipelineArtifact
+          targetPath: $(System.DefaultWorkingDirectory)/packages
+          artifactName: drop
+    steps:
+      - task: UseDotNet@2
+        displayName: 'Install .NET 8'
+        inputs:
+          version: 8.0.x
+          packageType: sdk
+
+      - task: UseDotNet@2
+        displayName: 'Install .NET 2.1'
+        inputs:
+          packageType: 'sdk'
+          version: '2.1.x'
+          performMultiLevelLookup: true
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Dotnet Restore'
+        inputs:
+          command: 'restore'
+          feedsToUse: 'config'
+          nugetConfigPath: 'nuget.config'
+
+      - task: DotNetCoreCLI@2
+        displayName: Build project
+        inputs:
+          command: 'build'
+          arguments: '--configuration $(config) --no-restore -p:ContinuousIntegrationBuild=true'
+          projects: src/*/*.csproj
+
+      - template: ci/sign-files.yml@eng
+        parameters:
+          displayName: Sign extension assemblies
+          folderPath: 'src'
+          pattern: '*.Extensions.OpenAI*.dll'
+          signType: dll
+
+      - task: DeleteFiles@1
+        displayName: 'Delete CodeSignSummary files'
+        inputs:
+          contents: '**\CodeSignSummary-*.md'
+
+      - task: DotNetCoreCLI@2
+        displayName: 'Build packages'
+        inputs:
+          command: 'custom'
+          custom: 'pack'
+          arguments: '--no-build -c Release -o packages -p:ContinuousIntegrationBuild=true'
+          projects: src/*/*Extensions.OpenAI*.csproj
+
+      - template: ci/sign-files.yml@eng
+        parameters:
+          displayName: Sign NugetPackages
+          folderPath: 'packages'
+          pattern: '*.Extensions.OpenAI*.nupkg'
+          signType: nuget
+
+      - task: DeleteFiles@1
+        displayName: 'Delete CodeSignSummary files'
+        inputs:
+          contents: '**\CodeSignSummary-*.md'

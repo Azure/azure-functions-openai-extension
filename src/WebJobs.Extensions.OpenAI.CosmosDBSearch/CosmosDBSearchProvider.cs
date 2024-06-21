@@ -17,10 +17,10 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     readonly IConfiguration configuration;
     readonly ILogger logger;
     readonly IOptions cosmosDBSearchConfigOptions;
-    readonly int vectorSearchDimensions = 1536;
-    readonly int numLists = 1;
-    const string defaultSearchIndexName = "openai-index";
-    const string databaseName = "openai-database";
+    MongoClient mongoClient;
+    String databaseName;
+    String collectionName;
+    String indexName;
 
     public string Name { get; set; } = "CosmosDBSearch";
 
@@ -55,6 +55,10 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(loggerFactory));
         }
 
+        if (string.IsNullOrEmpty(cosmosDBSearchConfigOptions.Value.ConnectionString)) {
+            throw new ArgumentNullException("Connection String property in the cosmosDBSearchConfigOptions can not be empty or null.");
+        }
+
         int value = cosmosDBSearchConfigOptions.Value.VectorSearchDimensions;
         if (value < 2 || value > 2000)
         {
@@ -64,6 +68,13 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         this.cosmosDBSearchConfigOptions = cosmosDBSearchConfigOptions;
         this.logger = loggerFactory.CreateLogger<CosmosDBSearchProvider>();
 
+        MongoClientSettings settings = MongoClientSettings.FromConnectionString(this.cosmosDBSearchConfigOptions.Value.ConnectionString);
+        settings.ApplicationName = this.cosmosDBSearchConfigOptions.Value.ApplicationName;
+        this.mongoClient = new MongoClient(settings);
+        this.CreateVectorIndexIfNotExists();
+        this.databaseName = this.cosmosDBSearchConfigOptions.Value.DatabaseName;
+        this.collectionName = this.cosmosDBSearchConfigOptions.Value.CollectionName;
+        this.indexName = this.cosmosDBSearchConfigOptions.Value.IndexName;
     }
 
     /// <summary>
@@ -74,17 +85,36 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     /// <returns>Returns a task that completes when the document is successfully saved.</returns>
     public async Task AddDocumentAsync(SearchableDocument document, CancellationToken cancellationToken)
     {
-        if (document.ConnectionInfo is null)
+        List<BsonDocument> list = new();
+        for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
         {
-            throw new ArgumentNullException(nameof(document.ConnectionInfo));
+            BsonDocument vectorDocument = new()
+            {
+                { "id", Guid.NewGuid().ToString("N") },
+                { "text", document.Embeddings.Request.Input![i] },
+                { "title", Path.GetFileNameWithoutExtension(document.Title) },
+                { "embedding",  new BsonArray(document.Embeddings.Response.Data[i].Embedding.ToArray().Select(e => new BsonDouble(Convert.ToDouble(e))))},
+                { "timestamp", DateTime.UtcNow }
+            };
+            list.Add(vectorDocument);
         }
-        string connectionString = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
 
-        MongoClient mongoClient = this.GetMongoClient(connectionString, document.ConnectionInfo.ConnectionName);
+        try
+        {
+            // Insert the documents into the collection
+            await client.GetDatabase(this.databaseName).GetCollection<BsonDocument>(this.collectionName).InsertManyAsync(list);
 
-        this.CreateVectorIndexIfNotExists(mongoClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+            this.logger.LogInformation("""
+                        Indexed {Count} sections
+                        """,
+                        list.Count);
+        }
+        catch (MongoException ex)
+        {
+            this.logger.LogError(ex, "CosmosDBSearchProvider:UpsertVectorAsync error");
+            throw;
+        }
 
-        await this.UpsertVectorAsync(mongoClient, document);
     }
 
     /// <summary>
@@ -101,17 +131,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             throw new ArgumentException("Embeddings must be provided.");
         }
 
-        if (request.ConnectionInfo is null)
-        {
-            throw new ArgumentNullException(nameof(request.ConnectionInfo));
-        }
-
-        string connectionString = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        MongoClient mongoClient = this.GetMongoClient(connectionString, request.ConnectionInfo.ConnectionName);
-
         try
         {
-            IMongoCollection<BsonDocument> collection = mongoClient.GetDatabase(databaseName).GetCollection<BsonDocument>(request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+            IMongoCollection<BsonDocument> collection = mongoClient.GetDatabase(this.databaseName).GetCollection<BsonDocument>(this.collectionName);
             // Search Azure Cosmos DB for MongoDB vCore collection for similar embeddings and project fields.
             BsonDocument[] pipeline = [];
             switch (this.cosmosDBSearchConfigOptions.Value.Kind)
@@ -147,29 +169,29 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
     }
 
-    public void CreateVectorIndexIfNotExists(MongoClient client, string collectionName)
+    public void CreateVectorIndexIfNotExists()
     {
         try
         {
-            BsonDocument vectorIndexDefinition = new BsonDocument();
-            switch (this.cosmosDBSearchConfigOptions.Value.Kind)
-            {
-                case AzureCosmosDBVectorSearchType.VectorIVF:
-                    vectorIndexDefinition = this.GetIndexDefinitionVectorIVF(collectionName);
-                    break;
-                case AzureCosmosDBVectorSearchType.VectorHNSW:
-                    vectorIndexDefinition = this.GetIndexDefinitionVectorHNSW(collectionName);
-                    break;
-            }
-
             //Find if vector index exists in vectors collection
-            using IAsyncCursor<BsonDocument> indexCursor = client.GetDatabase(databaseName).GetCollection<BsonDocument>(collectionName).Indexes.List();
-            bool vectorIndexExists = indexCursor.ToList().Any(x => x["name"] == "vectorSearchIndex");
+            using IAsyncCursor<BsonDocument> indexCursor = client.GetDatabase(this.databaseName).GetCollection<BsonDocument>(this.collectionName).Indexes.List();
+            bool vectorIndexExists = indexCursor.ToList().Any(x => x["name"] == this.cosmosDBSearchConfigOptions.Value.IndexName);
             if (!vectorIndexExists)
             {
+                BsonDocument vectorIndexDefinition = new BsonDocument();
+                switch (this.cosmosDBSearchConfigOptions.Value.Kind)
+                {
+                    case AzureCosmosDBVectorSearchType.VectorIVF:
+                        vectorIndexDefinition = this.GetIndexDefinitionVectorIVF(this.collectionName);
+                        break;
+                    case AzureCosmosDBVectorSearchType.VectorHNSW:
+                        vectorIndexDefinition = this.GetIndexDefinitionVectorHNSW(this.collectionName);
+                        break;
+                }
+
                 BsonDocumentCommand<BsonDocument> command = new(vectorIndexDefinition);
 
-                BsonDocument result = client.GetDatabase(databaseName).RunCommand(command);
+                BsonDocument result = this.mongoClient.GetDatabase(this.databaseName).RunCommand(command);
                 if (result["ok"] != 1)
                 {
                     this.logger.LogError("CreateIndex failed with response: " + result.ToJson());
@@ -183,53 +205,6 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             throw;
         }
 
-    }
-
-    async Task UpsertVectorAsync(MongoClient client, SearchableDocument document)
-    {
-        List<BsonDocument> list = new();
-        for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
-        {
-            BsonDocument vectorDocument = new()
-            {
-                { "id", Guid.NewGuid().ToString("N") },
-                { "text", document.Embeddings.Request.Input![i] },
-                { "title", Path.GetFileNameWithoutExtension(document.Title) },
-                { "embedding",  new BsonArray(document.Embeddings.Response.Data[i].Embedding.ToArray().Select(e => new BsonDouble(Convert.ToDouble(e))))},
-                { "timestamp", DateTime.UtcNow }
-            };
-            list.Add(vectorDocument);
-        }
-
-        try
-        {
-            // Insert the documents into the collection
-            await client.GetDatabase(databaseName).GetCollection<BsonDocument>(document.ConnectionInfo?.CollectionName ?? defaultSearchIndexName).InsertManyAsync(list);
-
-            this.logger.LogInformation("""
-                        Indexed {Count} sections
-                        """,
-                        list.Count);
-        }
-        catch (MongoException ex)
-        {
-            this.logger.LogError(ex, "CosmosDBSearchProvider:UpsertVectorAsync error");
-            throw;
-        }
-
-    }
-
-    MongoClient GetMongoClient(string connectionString, string connectionStringName)
-    {
-        // TODO: Add suport for managed identity
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new InvalidOperationException($"""
-                No CosmosDB mongo connection string named '{connectionStringName}' was found.
-                It's required to be specified as an app setting or environment variable.
-                """);
-        }
-        return new MongoClient(connectionString);
     }
 
     private BsonDocument[] GetVectorIVFSearchPipeline(SearchRequest request) {
@@ -280,9 +255,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                                 "cosmosSearch", new BsonDocument
                                 {
                                     { "vector", !(request.Embeddings.IsEmpty) ? new BsonArray(request.Embeddings.ToArray()) : new BsonArray()},
-                                    { "path", "embedding" },
+                                    { "path", this.cosmosDBSearchConfigOptions.EmbeddingKey },
                                     { "k", request.MaxResults },
-                                    { "efSearch", this.cosmosDBSearchConfigOptions.EfSearch }
+                                    { "efSearch", this.cosmosDBSearchConfigOptions.EfSearch },
                                 }
                             },
                             { "returnStoredSource", true }
@@ -315,8 +290,8 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 {
                     new BsonDocument
                     {
-                        { "name", "vectorSearchIndex" },
-                        { "key", new BsonDocument { { "embedding", "cosmosSearch" } } },
+                        { "name", this.cosmosDBSearchConfigOptions.Value.IndexName },
+                        { "key", new BsonDocument { { this.cosmosDBSearchConfigOptions.Value.EmbeddingKey, "cosmosSearch" } } },
                         { "cosmosSearchOptions", new BsonDocument
                             {
                                 { "kind", this.cosmosDBSearchConfigOptions.Value.Kind.GetCustomName() },
@@ -341,8 +316,8 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 {
                     new BsonDocument
                     {
-                        { "name",  "vectorSearchIndex" },
-                        { "key", new BsonDocument { { "embedding", "cosmosSearch" } } },
+                        { "name",  this.cosmosDBSearchConfigOptions.Value.IndexName },
+                        { "key", new BsonDocument { { this.cosmosDBSearchConfigOptions.Value.EmbeddingKey, "cosmosSearch" } } },
                         {
                             "cosmosSearchOptions", new BsonDocument
                             {

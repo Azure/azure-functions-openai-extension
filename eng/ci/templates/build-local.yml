@@ -1,10 +1,5 @@
 jobs:
-  - job: BuildAndPublish
-    templateContext:
-      outputs:
-        - output: pipelineArtifact
-          targetPath: $(build.artifactstagingdirectory)
-          artifactName: drop
+  - job: Build
     steps:
       - task: UseDotNet@2
         displayName: 'Install .NET Core SDK 6 LTS'
@@ -61,11 +56,3 @@ jobs:
           dotnet nuget list source --configfile  %appdata%/NuGet/NuGet.Config
           dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile %appdata%/NuGet/NuGet.Config
         displayName: Build from local NuGet packages
-
-      - task: DotNetCoreCLI@2
-        displayName: 'Publish Project'
-        inputs:
-          command: publish
-          publishWebProjects: false
-          projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
-          arguments: '--configuration $(config) --output $(build.artifactstagingdirectory) --no-restore'

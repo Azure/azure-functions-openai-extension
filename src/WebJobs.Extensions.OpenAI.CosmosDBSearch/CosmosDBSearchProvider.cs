@@ -170,10 +170,10 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             BsonDocument[]? pipeline = null;
             switch (this.cosmosDBSearchConfigOptions.Value.Kind)
             {
-                case CosmosDBVectorSearchType.VectorIVF:
+                case "vector-ivf":
                     pipeline = this.GetVectorIVFSearchPipeline(request);
                     break;
-                case CosmosDBVectorSearchType.VectorHNSW:
+                case "vector-hnsw":
                     pipeline = this.GetVectorHNSWSearchPipeline(request);
                     break;
             }
@@ -223,12 +223,12 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 BsonDocument vectorIndexDefinition = new BsonDocument();
                 switch (this.cosmosDBSearchConfigOptions.Value.Kind)
                 {
-                    case CosmosDBVectorSearchType.VectorIVF:
+                    case "vector-ivf":
                         vectorIndexDefinition = this.GetIndexDefinitionVectorIVF(
                             this.collectionName
                         );
                         break;
-                    case CosmosDBVectorSearchType.VectorHNSW:
+                    case "vector-hnsw":
                         vectorIndexDefinition = this.GetIndexDefinitionVectorHNSW(
                             this.collectionName
                         );
@@ -370,15 +370,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                             "cosmosSearchOptions",
                             new BsonDocument
                             {
-                                {
-                                    "kind",
-                                    this.cosmosDBSearchConfigOptions.Value.Kind.GetCustomName()
-                                },
+                                { "kind", this.cosmosDBSearchConfigOptions.Value.Kind },
                                 { "numLists", this.cosmosDBSearchConfigOptions.Value.NumLists },
-                                {
-                                    "similarity",
-                                    this.cosmosDBSearchConfigOptions.Value.Similarity.GetCustomName()
-                                },
+                                { "similarity", this.cosmosDBSearchConfigOptions.Value.Similarity },
                                 {
                                     "dimensions",
                                     this.cosmosDBSearchConfigOptions.Value.VectorSearchDimensions
@@ -417,19 +411,13 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                             "cosmosSearchOptions",
                             new BsonDocument
                             {
-                                {
-                                    "kind",
-                                    this.cosmosDBSearchConfigOptions.Value.Kind.GetCustomName()
-                                },
+                                { "kind", this.cosmosDBSearchConfigOptions.Value.Kind },
                                 { "m", this.cosmosDBSearchConfigOptions.Value.NumberOfConnections },
                                 {
                                     "efConstruction",
                                     this.cosmosDBSearchConfigOptions.Value.EfConstruction
                                 },
-                                {
-                                    "similarity",
-                                    this.cosmosDBSearchConfigOptions.Value.Similarity.GetCustomName()
-                                },
+                                { "similarity", this.cosmosDBSearchConfigOptions.Value.Similarity },
                                 {
                                     "dimensions",
                                     this.cosmosDBSearchConfigOptions.Value.VectorSearchDimensions

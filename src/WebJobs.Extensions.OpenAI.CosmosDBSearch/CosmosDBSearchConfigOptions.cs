@@ -38,7 +38,7 @@ public class CosmosDBSearchConfigOptions
     ///         - vector-ivf
     ///         - vector-hnsw
     /// </summary>
-    public CosmosDBVectorSearchType Kind { get; set; } = CosmosDBVectorSearchType.VectorIVF;
+    public String Kind { get; set; } = "vector-ivf";
 
     /// <summary>
     /// Similarity metric to use with the IVF index.
@@ -47,7 +47,7 @@ public class CosmosDBSearchConfigOptions
     ///         - L2 (Euclidean distance), and
     ///         - IP (inner product).
     /// </summary>
-    public CosmosDBSimilarityType Similarity { get; set; } = CosmosDBSimilarityType.Cosine;
+    public String Similarity { get; set; } = "COS";
 
     /// <summary>
     /// The max number of connections per layer (16 by default, minimum value is 2, maximum value is

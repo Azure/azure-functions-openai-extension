@@ -64,7 +64,7 @@ extends:
           Codeql.BuildIdentifier: csharp_openai_extension
           Codeql.Language: csharp
         jobs:
-          - template: /eng/ci/templates/build-and-publish.yml@self
+          - template: /eng/ci/templates/build-local.yml@self
 
       - stage: BuildJava
         displayName: 'Build Java'

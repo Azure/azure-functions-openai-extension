@@ -1,5 +1,6 @@
 jobs:
   - job: RunIntegrationTests
+<<<<<<< HEAD
     displayName: Build and Run Integration Tests
     steps:
       - task: UseDotNet@2
@@ -66,6 +67,16 @@ jobs:
           projects: '$(System.DefaultWorkingDirectory)/samples/chat/csharp-ooproc/ChatBot.csproj'
           arguments: '--configuration $(config) --output $(build.artifactstagingdirectory) --no-restore'
 
+=======
+    displayName: Run Integration Tests
+
+    pool:
+      name: 1es-pool-azfunc
+      image: 1es-windows-2022
+      os: windows
+
+    steps:
+>>>>>>> e13deb1 (Add separate pipeline for Integration Tests (#94))
       - task: AzureCLI@2
         inputs:
           azureSubscription: $(serviceConnectionName)

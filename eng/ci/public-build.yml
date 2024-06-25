@@ -68,7 +68,11 @@ extends:
           Codeql.BuildIdentifier: csharp_openai_extension_public
           Codeql.Language: csharp
         jobs:
+<<<<<<< HEAD
           - template: /eng/ci/templates/build-and-publish.yml@self
             parameters:
               poolName: $(PublicPool)
 >>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
+=======
+          - template: /eng/ci/templates/build-local.yml@self
+>>>>>>> e13deb1 (Add separate pipeline for Integration Tests (#94))

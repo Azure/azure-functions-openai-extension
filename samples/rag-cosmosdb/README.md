@@ -4,11 +4,11 @@
 
 The sample is available in the following language stacks:
 
-* [C# on the isolated worker](csharp-ooproc/)
-* [NodeJS](nodejs/)
-* [PowerShell](powershell/)
-* [Java](java/)
-* [Python](python/)
+- [C# on the isolated worker](csharp-ooproc/)
+- [NodeJS](nodejs/)
+- [PowerShell](powershell/)
+- [Java](java/)
+- [Python](python/)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
@@ -22,39 +22,53 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
 1. Always configure the search provider type in the `host.json` as shown in below snippet.
 1. Use of Vector Search Dimensions and the number of clusers that the inverted file (IVF) index uses to group the vector data are configurable. You may configure the `host.json` file within the project and following example shows the default values:
 
-    ```json
-    "extensions": {
-        "openai": {
-            "searchProvider": {
-                "type": "cosmosDBSearch",
-                "vectorSearchDimensions": 1536,
-                "numLists":  1
-            }
-        }
-    }
-    ```
+   ```json
+   "extensions": {
+       "openai": {
+           "searchProvider": {
+               "type": "cosmosDBSearch",
+               "connectionString": "",
+               "databaseName": "functionsDatabase",
+               "collectionName": "functionsCollection",
+               "indexName": "functionsIndex",
+               "applicationName": "functionsAppName",
+               "embeddingKey": "embedding",
+               "vectorSearchDimensions": 1536,
+               "numLists":  1,
+               "kind": "vector-hnsw",
+               "similarity": "COS",
+               "numberOfConnections": 16,
+               "efConstruction": 64,
+               "efSearch": 40
+     }
+   }
+           }
+       }
+   }
+   ```
 
-    `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 2000 floating point values each](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the length of the embedding vector will be 1536 for text-embedding-ada-002.
+   `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 2000 floating point values each](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the length of the embedding vector will be 1536 for text-embedding-ada-002.
 
-    `NumLists` is the number of clusters that the inverted file (IVF) uses to group the vector data, as mentioned [here](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the number of clusters will be 1.
+   `NumLists` is the number of clusters that the inverted file (IVF) uses to group the vector data, as mentioned [here](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the number of clusters will be 1.
 
 1. Use a terminal window to navigate to the sample directory
 
-    ```sh
-    cd samples/rag-cosmosdb/<language-stack>
-    ```
+   ```sh
+   cd samples/rag-cosmosdb/<language-stack>
+   ```
 
 1. If using the extensions.csproj with non-dotnet languages and refer the extension project
 
-    ```sh
-    dotnet build --output bin
-    ```
+   ```sh
+   dotnet build --output bin
+   ```
+
 1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Build and start the app
 
-    ```sh
-    func start
-    ```
+   ```sh
+   func start
+   ```
 
 1. Refer the [demo.http](demo.http) file for the format of requests.
 
@@ -64,4 +78,4 @@ An index is created similar to the one specified in the [documentation](https://
 
 ### Vector Search Configuration
 
-Algorithm - IVF (inverted file)
+Please read more about Vector Search in CosmosDB Mongo vCore [here](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/vector-search).

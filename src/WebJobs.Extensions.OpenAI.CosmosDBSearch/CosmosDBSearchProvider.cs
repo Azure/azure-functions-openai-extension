@@ -255,74 +255,93 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     private BsonDocument[] GetVectorIVFSearchPipeline(SearchRequest request)
     {
-        string searchStage =
-            @"
+        BsonDocument[] pipeline = new BsonDocument[]
         {
-            ""$search"": {
-                ""cosmosSearch"": {
-                    ""vector"": ["
-            + string.Join(",", request.Embeddings.ToArray().Select(f => f.ToString()))
-            + @"],
-                    ""path"": "
-            + this.cosmosDBSearchConfigOptions.Value.EmbeddingKey
-            + @",
-                    ""k"": "
-            + request.MaxResults
-            + @"
-                },
-                ""returnStoredSource"": true
+            new()
+            {
+                {
+                    "$search",
+                    new BsonDocument
+                    {
+                        {
+                            "cosmosSearch",
+                            new BsonDocument
+                            {
+                                {
+                                    "vector",
+                                    !(request.Embeddings.IsEmpty)
+                                        ? new BsonArray(request.Embeddings.ToArray())
+                                        : new BsonArray()
+                                },
+                                { "path", this.cosmosDBSearchConfigOptions.Value.EmbeddingKey },
+                                { "k", request.MaxResults }
+                            }
+                        },
+                        { "returnStoredSource", true }
+                    }
+                }
+            },
+            new()
+            {
+                {
+                    "$project",
+                    new BsonDocument
+                    {
+                        { "embedding", 0 },
+                        { "_id", 0 },
+                        { "id", 0 },
+                        { "timestamp", 0 }
+                    }
+                }
             }
-        }";
-
-        string projectStage =
-            @"
-        {
-            ""$project"": {
-                ""similarityScore"": { ""$meta"": ""searchScore"" },
-                ""document"": ""$$ROOT""
-            }
-        }";
-
-        BsonDocument searchBson = BsonDocument.Parse(searchStage);
-        BsonDocument projectBson = BsonDocument.Parse(projectStage);
-        return new BsonDocument[] { searchBson, projectBson };
+        };
+        return pipeline;
     }
 
     private BsonDocument[] GetVectorHNSWSearchPipeline(SearchRequest request)
     {
-        string searchStage =
-            @"
+        BsonDocument[] pipeline = new BsonDocument[]
         {
-            ""$search"": {
-                ""cosmosSearch"": {
-                    ""vector"": ["
-            + string.Join(",", request.Embeddings.ToArray().Select(f => f.ToString()))
-            + @"],
-                    ""path"": "
-            + this.cosmosDBSearchConfigOptions.Value.EmbeddingKey
-            + @",
-                    ""k"": "
-            + request.MaxResults
-            + @",
-                    ""efSearch"": "
-            + this.cosmosDBSearchConfigOptions.Value.EfSearch
-            + @"
+            new()
+            {
+                {
+                    "$search",
+                    new BsonDocument
+                    {
+                        {
+                            "cosmosSearch",
+                            new BsonDocument
+                            {
+                                {
+                                    "vector",
+                                    !(request.Embeddings.IsEmpty)
+                                        ? new BsonArray(request.Embeddings.ToArray())
+                                        : new BsonArray()
+                                },
+                                { "path", this.cosmosDBSearchConfigOptions.Value.EmbeddingKey },
+                                { "k", request.MaxResults },
+                                { "efSearch", this.cosmosDBSearchConfigOptions.Value.EfSearch }
+                            }
+                        },
+                        { "returnStoredSource", true }
+                    }
+                }
+            },
+            new()
+            {
+                {
+                    "$project",
+                    new BsonDocument
+                    {
+                        { "embedding", 0 },
+                        { "_id", 0 },
+                        { "id", 0 },
+                        { "timestamp", 0 }
+                    }
                 }
             }
-        }";
-
-        string projectStage =
-            @"
-        {
-            ""$project"": {
-                ""similarityScore"": { ""$meta"": ""searchScore"" },
-                ""document"": ""$$ROOT""
-            }
-        }";
-
-        BsonDocument searchBson = BsonDocument.Parse(searchStage);
-        BsonDocument projectBson = BsonDocument.Parse(projectStage);
-        return new BsonDocument[] { searchBson, projectBson };
+        };
+        return pipeline;
     }
 
     private BsonDocument GetIndexDefinitionVectorIVF(string collectionName)

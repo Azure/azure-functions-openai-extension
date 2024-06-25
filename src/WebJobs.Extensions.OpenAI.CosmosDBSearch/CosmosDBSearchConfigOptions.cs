@@ -9,7 +9,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 public class CosmosDBSearchConfigOptions
 {
     // Connection String required to connect to the Mongo Client
-    public String ConnectionString { get; set; }
+    public String ConnectionString { get; set; } = string.Empty;
 
     // Database name for your vector store
     public String DatabaseName { get; set; } = "functionsDatabase";
@@ -38,8 +38,7 @@ public class CosmosDBSearchConfigOptions
     ///         - vector-ivf
     ///         - vector-hnsw
     /// </summary>
-    public AzureCosmosDBVectorSearchType Kind { get; set; } =
-        AzureCosmosDBVectorSearchType.VectorIVF;
+    public CosmosDBVectorSearchType Kind { get; set; } = CosmosDBVectorSearchType.VectorIVF;
 
     /// <summary>
     /// Similarity metric to use with the IVF index.
@@ -48,8 +47,7 @@ public class CosmosDBSearchConfigOptions
     ///         - L2 (Euclidean distance), and
     ///         - IP (inner product).
     /// </summary>
-    public AzureCosmosDBSimilarityType Similarity { get; set; } =
-        AzureCosmosDBSimilarityType.Cosine;
+    public CosmosDBSimilarityType Similarity { get; set; } = CosmosDBSimilarityType.Cosine;
 
     /// <summary>
     /// The max number of connections per layer (16 by default, minimum value is 2, maximum value is

@@ -206,6 +206,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     async Task UpsertVectorAsync(MongoClient cosmosClient, SearchableDocument document)
     {
+<<<<<<< HEAD
         List<BsonDocument> list = new();
         for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
         {
@@ -252,10 +253,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             this.logger.LogError(ex, "CosmosDBSearchProvider:UpsertVectorAsync error");
             throw;
         }
-    }
-
-    BsonDocument[] GetVectorIVFSearchPipeline(SearchRequest request)
-    {
+=======
         BsonDocument[] pipeline = new BsonDocument[]
         {
             new()
@@ -297,6 +295,58 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             }
         };
         return pipeline;
+>>>>>>> 539fb8c (Fixing test cases)
+    }
+
+    BsonDocument[] GetVectorIVFSearchPipeline(SearchRequest request)
+    {
+        BsonDocument[] pipeline = new BsonDocument[]
+        {
+            new()
+            {
+                {
+                    "$search",
+                    new BsonDocument
+                    {
+                        {
+                            "cosmosSearch",
+                            new BsonDocument
+                            {
+                                {
+                                    "vector",
+                                    !(request.Embeddings.IsEmpty)
+                                        ? new BsonArray(request.Embeddings.ToArray())
+                                        : new BsonArray()
+                                },
+                                { "path", this.cosmosDBSearchConfigOptions.Value.EmbeddingKey },
+<<<<<<< HEAD
+                                { "k", request.MaxResults }
+=======
+                                { "k", request.MaxResults },
+                                { "efSearch", this.cosmosDBSearchConfigOptions.Value.EfSearch }
+>>>>>>> 539fb8c (Fixing test cases)
+                            }
+                        },
+                        { "returnStoredSource", true }
+                    }
+                }
+            },
+            new()
+            {
+                {
+                    "$project",
+                    new BsonDocument
+                    {
+                        { "embedding", 0 },
+                        { "_id", 0 },
+                        { "id", 0 },
+                        { "timestamp", 0 }
+                    }
+                }
+            }
+        };
+        return pipeline;
+<<<<<<< HEAD
     }
 
     BsonDocument[] GetVectorHNSWSearchPipeline(SearchRequest request)
@@ -343,6 +393,8 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             }
         };
         return pipeline;
+=======
+>>>>>>> 539fb8c (Fixing test cases)
     }
 
     BsonDocument GetIndexDefinitionVectorIVF()

@@ -180,10 +180,21 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 switch (this.cosmosDBSearchConfigOptions.Value.Kind)
                 {
                     case "vector-ivf":
+<<<<<<< HEAD
                         vectorIndexDefinition = this.GetIndexDefinitionVectorIVF();
                         break;
                     case "vector-hnsw":
                         vectorIndexDefinition = this.GetIndexDefinitionVectorHNSW();
+=======
+                        vectorIndexDefinition = this.GetIndexDefinitionVectorIVF(
+                            this.collectionName
+                        );
+                        break;
+                    case "vector-hnsw":
+                        vectorIndexDefinition = this.GetIndexDefinitionVectorHNSW(
+                            this.collectionName
+                        );
+>>>>>>> ad8a4dd (Updating readme file)
                         break;
                 }
 

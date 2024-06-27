@@ -28,7 +28,7 @@ public class EmailPromptDemo {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{Url}", inputType = InputType.Url,
+        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
                 connectionName = "KustoConnectionString", collection = "Documents",
                 model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws MalformedURLException {

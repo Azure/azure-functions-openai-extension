@@ -28,7 +28,7 @@ public class FilePrompt {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{Url}", inputType = InputType.Url,
+        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
                 connectionName = "CosmosDBMongoVCoreConnectionString", collection = "openai-index",
                 model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws MalformedURLException {

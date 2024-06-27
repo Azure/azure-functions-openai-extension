@@ -6,7 +6,7 @@ pr:
       - main
   paths:
     exclude:
-      - '**.md'
+      - "**.md"
 
 trigger:
   batch: true
@@ -15,7 +15,7 @@ trigger:
       - main
   paths:
     exclude:
-      - '**.md'
+      - "**.md"
 
 resources:
   repositories:
@@ -25,7 +25,7 @@ resources:
       ref: refs/tags/release
 
 schedules:
-  - cron: '0 0 * * MON'
+  - cron: "0 0 * * MON"
     displayName: At 12:00 AM, only on Monday
     branches:
       include:
@@ -43,7 +43,6 @@ extends:
       image: 1es-windows-2022
       os: windows
 
-<<<<<<< HEAD
     sdl:
       codeql:
         compiled:
@@ -61,18 +60,3 @@ extends:
       - stage: Build
         jobs:
           - template: /eng/ci/templates/build-local.yml@self
-=======
-    stages:
-      - stage: Build
-        variables:
-          Codeql.BuildIdentifier: csharp_openai_extension_public
-          Codeql.Language: csharp
-        jobs:
-<<<<<<< HEAD
-          - template: /eng/ci/templates/build-and-publish.yml@self
-            parameters:
-              poolName: $(PublicPool)
->>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
-=======
-          - template: /eng/ci/templates/build-local.yml@self
->>>>>>> e13deb1 (Add separate pipeline for Integration Tests (#94))

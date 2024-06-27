@@ -6,19 +6,10 @@ pr:
     include:
       - java-library/*
       - samples/*/java/*
-<<<<<<< HEAD
-<<<<<<< HEAD
       - eng/ci/templates/build-java-library.yml
       - eng/ci/templates/build-java-samples.yml
-=======
-      - build/build-java.yml
->>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
-=======
-      - eng/ci/templates/build-java-library.yml
-      - eng/ci/templates/build-java-samples.yml
->>>>>>> 1fdea10 (fix the builds (#93))
     exclude:
-      - '**.md'
+      - "**.md"
 
 trigger:
   branches:
@@ -28,19 +19,10 @@ trigger:
     include:
       - java-library/*
       - samples/*/java/*
-<<<<<<< HEAD
-<<<<<<< HEAD
       - eng/ci/templates/build-java-library.yml
       - eng/ci/templates/build-java-samples.yml
-=======
-      - build/build-java.yml
->>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
-=======
-      - eng/ci/templates/build-java-library.yml
-      - eng/ci/templates/build-java-samples.yml
->>>>>>> 1fdea10 (fix the builds (#93))
     exclude:
-      - '**.md'
+      - "**.md"
 
 resources:
   repositories:
@@ -50,20 +32,13 @@ resources:
       ref: refs/tags/release
 
 schedules:
-  - cron: '0 0 * * MON'
+  - cron: "0 0 * * MON"
     displayName: At 12:00 AM, only on Monday
     branches:
       include:
         - main
     always: true
 
-<<<<<<< HEAD
-=======
-variables:
-  Codeql.BuildIdentifier: java_openai_extension_public
-  Codeql.Language: java
-
->>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
 extends:
   template: v1/1ES.Unofficial.PipelineTemplate.yml@1es
   parameters:
@@ -71,7 +46,6 @@ extends:
       name: 1es-pool-azfunc-public
       image: 1es-windows-2022
       os: windows
-<<<<<<< HEAD
 
     sdl:
       codeql:
@@ -84,11 +58,9 @@ extends:
       # PR's from forks do not have sufficient permissions to set tags.
       skipBuildTagsForGitHubPullRequests: ${{ variables['System.PullRequest.IsFork'] }}
 
-=======
->>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
     stages:
       - stage: BuildJava
-        displayName: 'Build Java'
+        displayName: "Build Java"
         jobs:
           - template: /eng/ci/templates/build-java-library.yml@self
           - template: /eng/ci/templates/build-java-samples.yml@self

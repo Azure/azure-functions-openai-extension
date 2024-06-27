@@ -54,11 +54,40 @@ public static class ChatBot
         public HttpResponseData? HttpResponse { get; set; }
     }
 
-    [Function(nameof(PostUserResponse))]
-    public static async Task<HttpResponseData> PostUserResponse(
-        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
+    // GPT 4o
+    [Function(nameof(PostUserResponseGpt4o))]
+    public static async Task<HttpResponseData> PostUserResponseGpt4o(
+    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}/gpt4o")] HttpRequestData req,
+    string chatId,
+    [AssistantPostInput("{chatId}", "{Query.message}", Model = "gpt-4o")] AssistantState state)
+    {
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+
+        response.Headers.Add("Content-Type", "text/plain");
+        await response.WriteStringAsync(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
+        return response;
+    }
+
+    // Phi
+    [Function(nameof(PostUserResponsePhi))]
+    public static async Task<HttpResponseData> PostUserResponsePhi(
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}/phi")] HttpRequestData req,
         string chatId,
-        [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
+        [AssistantPostInput("{chatId}", "{Query.message}", Model = "phi3-medium-4k")] AssistantState state)
+    {
+        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
+
+        response.Headers.Add("Content-Type", "text/plain");
+        await response.WriteStringAsync(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
+        return response;
+    }
+
+    // Mistral
+    [Function(nameof(PostUserResponseMistral))]
+    public static async Task<HttpResponseData> PostUserResponseMistral(
+    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}/mistral")] HttpRequestData req,
+    string chatId,
+    [AssistantPostInput("{chatId}", "{Query.message}", Model = "mixtral-8x7b")] AssistantState state)
     {
         HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
 

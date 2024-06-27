@@ -3,7 +3,6 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "CHAT_MODEL_DEPLOYMENT_NAME": "phi3-medium-4k",
     "OPENAI_API_KEY": "doesnt matter",
     "OPENAI_ENDPOINT": "http://localhost:4000"
   }

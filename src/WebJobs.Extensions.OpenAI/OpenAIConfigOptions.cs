@@ -22,4 +22,9 @@ public class OpenAIConfigOptions
     /// The section of configuration related to search providers for semantic search.
     /// </summary>
     public IDictionary<string, object> SearchProvider { get; set; } = new Dictionary<string, object>();
+
+    /// <summary>
+    /// Gets the name of the storage account.
+    /// </summary>
+    public string StorageAccountUri { get; set; }
 }

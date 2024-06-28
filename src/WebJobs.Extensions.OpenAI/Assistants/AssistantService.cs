@@ -3,11 +3,15 @@
 
 using Azure;
 using Azure.AI.OpenAI;
+using Azure.Identity;
 using Azure.Data.Tables;
+using Microsoft.Extensions.Azure;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+using Microsoft.Azure.WebJobs.Extensions.Tables.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+// using Microsoft.Extensions.Worker.Extensions.Tables.Config;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
@@ -33,9 +37,13 @@ class DefaultAssistantService : IAssistantService
     readonly OpenAIClient openAIClient;
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
+    private readonly AzureComponentFactory _componentFactory;
+    // readonly TablesBindingOptions tablesBindingOptions;
+    protected readonly IOptionsMonitor<TablesBindingOptions> _tableOptions;
 
     public DefaultAssistantService(
         OpenAIClient openAIClient,
+        // TableClient tableClient,
         IOptions<OpenAIConfigOptions> openAiConfigOptions,
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
@@ -56,20 +64,50 @@ class DefaultAssistantService : IAssistantService
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
 
+        // Retrieve connection settings for the given name
+
         string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
+        
+        // Create a token credential based on the connection settings
+        var credential = _componentFactory.CreateTokenCredential(connectionStringName);
+        
+        // Create client options based on the connection settings
+        // var options = CreateClientOptions(connectionStringName);
+        
+        // Create and return the TableClient
+        // this.tableServiceClient = TablesBindingOptions.CreateClient(connectionStringName, credential, options);
 
-        // Set connection string name to be AzureWebJobsStorage if it's null or empty
-        if (string.IsNullOrEmpty(connectionStringName))
-        {
-            connectionStringName = "AzureWebJobsStorage";
-        }
+        this.tableServiceClient = TablesBindingOptions.CreateClient(connectionStringName, credential);
 
-        this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
+        // this.tableServiceClient = TablesBindingOptions.CreateClient();
+        
+        // // Check if URI for table storage is present
+        // if (!string.IsNullOrEmpty(openAiConfigOptions.Value.StorageAccountUri))
+        // {
+        //     this.logger.LogInformation("Using DefaultAzureCredential");
+        //     // If exists, create new TableServiceClient with DefaultAzureCredential
+        //     this.tableServiceClient = new TableServiceClient(
+        //         new Uri(openAiConfigOptions.Value.StorageAccountUri),
+        //         new DefaultAzureCredential());
+        // } else {
+        //     // Else, will use the connection string
+            // string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
 
-        string connectionString = configuration.GetValue<string>(connectionStringName);
+        //     // Set connection string name to be AzureWebJobsStorage if it's null or empty
+        //     if (string.IsNullOrEmpty(connectionStringName))
+        //     {
+        //         connectionStringName = "AzureWebJobsStorage";
+        //     }
 
-        this.tableServiceClient = new TableServiceClient(connectionString);
-        this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
+        //     this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
+
+        //     string connectionString = configuration.GetValue<string>(connectionStringName);
+
+        //     this.tableServiceClient = new TableServiceClient(connectionString);
+        // }
+
+        // this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
+
     }
 
     public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)

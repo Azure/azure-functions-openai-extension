@@ -41,6 +41,8 @@ class DefaultAssistantService : IAssistantService
     // readonly TablesBindingOptions tablesBindingOptions;
     protected readonly IOptionsMonitor<TablesBindingOptions> _tableOptions;
 
+    private readonly IConfiguration _configuration;
+
     public DefaultAssistantService(
         OpenAIClient openAIClient,
         // TableClient tableClient,
@@ -64,22 +66,22 @@ class DefaultAssistantService : IAssistantService
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
 
-        // Retrieve connection settings for the given name
-
         string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
-        
-        // Create a token credential based on the connection settings
-        var credential = _componentFactory.CreateTokenCredential(connectionStringName);
-        
-        // Create client options based on the connection settings
-        // var options = CreateClientOptions(connectionStringName);
-        
-        // Create and return the TableClient
-        // this.tableServiceClient = TablesBindingOptions.CreateClient(connectionStringName, credential, options);
 
-        this.tableServiceClient = TablesBindingOptions.CreateClient(connectionStringName, credential);
 
-        // this.tableServiceClient = TablesBindingOptions.CreateClient();
+        // Assuming _configuration and _componentFactory are available in your class
+        IConfigurationSection storageConfig = _configuration.GetSection(openAiConfigOptions.Value.StorageConnectionName);
+
+        // Create an instance of TablesBindingOptions and set its properties
+        TablesBindingOptions tableOptions = new TablesBindingOptions
+        {
+            ServiceUri = new Uri(openAiConfigOptions.Value.StorageAccountUri),
+            Credential = _componentFactory.CreateTokenCredential(storageConfig)
+        };
+
+        // Now call CreateClient without any arguments
+        this.tableServiceClient = tableOptions.CreateClient();
+
         
         // // Check if URI for table storage is present
         // if (!string.IsNullOrEmpty(openAiConfigOptions.Value.StorageAccountUri))

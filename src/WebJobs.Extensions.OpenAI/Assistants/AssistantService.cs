@@ -37,15 +37,13 @@ class DefaultAssistantService : IAssistantService
     readonly OpenAIClient openAIClient;
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
-    private readonly AzureComponentFactory _componentFactory;
     // readonly TablesBindingOptions tablesBindingOptions;
-    protected readonly IOptionsMonitor<TablesBindingOptions> _tableOptions;
-
-    private readonly IConfiguration _configuration;
+    // protected readonly IOptionsMonitor<TablesBindingOptions> _tableOptions;
 
     public DefaultAssistantService(
         OpenAIClient openAIClient,
         // TableClient tableClient,
+        AzureComponentFactory componentFactory,
         IOptions<OpenAIConfigOptions> openAiConfigOptions,
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
@@ -70,13 +68,17 @@ class DefaultAssistantService : IAssistantService
 
 
         // Assuming _configuration and _componentFactory are available in your class
-        IConfigurationSection storageConfig = _configuration.GetSection(openAiConfigOptions.Value.StorageConnectionName);
+        IConfigurationSection storageConfig = configuration.GetSection(openAiConfigOptions.Value.StorageConnectionName);
 
+        if (openAiConfigOptions.Value.StorageAccountUri is null)
+        {
+            throw new ArgumentNullException(nameof(openAiConfigOptions.Value.StorageAccountUri));
+        }
         // Create an instance of TablesBindingOptions and set its properties
         TablesBindingOptions tableOptions = new TablesBindingOptions
         {
             ServiceUri = new Uri(openAiConfigOptions.Value.StorageAccountUri),
-            Credential = _componentFactory.CreateTokenCredential(storageConfig)
+            Credential = componentFactory.CreateTokenCredential(storageConfig)
         };
 
         // Now call CreateClient without any arguments
@@ -107,8 +109,8 @@ class DefaultAssistantService : IAssistantService
 
         //     this.tableServiceClient = new TableServiceClient(connectionString);
         // }
-
-        // this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
+        this.logger.LogInformation("Using {CollectionName} for table storage collection name", openAiConfigOptions.Value.CollectionName);
+        this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
 
     }
 

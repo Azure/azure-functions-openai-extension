@@ -26,5 +26,5 @@ public class OpenAIConfigOptions
     /// <summary>
     /// Gets the name of the storage account.
     /// </summary>
-    public string StorageAccountUri { get; set; }
+    public string? StorageAccountUri { get; set; }
 }

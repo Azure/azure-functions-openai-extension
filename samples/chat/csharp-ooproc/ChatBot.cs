@@ -49,6 +49,7 @@ public static class ChatBot
         [AssistantCreateOutput()]
         public AssistantCreateRequest? ChatBotCreateRequest { get; set; }
 
+        [HttpResult]
         public IActionResult? HttpResponse { get; set; }
     }
 

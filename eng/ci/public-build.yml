@@ -42,13 +42,18 @@ extends:
       name: 1es-pool-azfunc-public
       image: 1es-windows-2022
       os: windows
+
     sdl:
       codeql:
         compiled:
           enabled: true # still only runs for default branch
-        runSourceLanguagesInSourceAnalysis: true
         language: csharp,javascript,powershell,python
         buildIdentifier: openai_extension_public
+
+    settings:
+      # PR's from forks do not have sufficient permissions to set tags.
+      skipBuildTagsForGitHubPullRequests: ${{ variables['System.PullRequest.IsFork'] }}
+
     stages:
       - stage: Build
         jobs:

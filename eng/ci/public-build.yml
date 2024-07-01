@@ -47,7 +47,9 @@ extends:
       codeql:
         compiled:
           enabled: true # still only runs for default branch
-        language: csharp,javascript,powershell,python
+        runSourceLanguagesInSourceAnalysis: true
+        sourceLanguages: javascript, powershell, python
+        binaryLanguages: csharp
         buildIdentifier: openai_extension_public
 
     settings:

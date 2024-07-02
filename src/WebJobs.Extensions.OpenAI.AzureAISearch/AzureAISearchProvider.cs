@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
 using Azure;
 using Azure.Identity;
 using Azure.Search.Documents;
@@ -16,6 +17,9 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch;
 
 sealed class AzureAISearchProvider : ISearchProvider
 {
+    readonly ConcurrentDictionary<string, (SearchClient, string, string)> searchClients = new(); // value is client, endpoint, indexName
+    readonly ConcurrentDictionary<string, (SearchIndexClient, string)> searchIndexClients = new(); // value is client, endpoint
+
     readonly IConfiguration configuration;
     readonly ILogger logger;
     readonly bool isSemanticSearchEnabled = false;
@@ -69,10 +73,9 @@ sealed class AzureAISearchProvider : ISearchProvider
         {
             throw new ArgumentNullException(nameof(document.ConnectionInfo));
         }
-        string endpoint = this.configuration.GetValue<string>(document.ConnectionInfo.ConnectionName);
 
-        SearchIndexClient searchIndexClient = this.GetSearchIndexClient(endpoint);
-        SearchClient searchClient = this.GetSearchClient(endpoint, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchIndexClient searchIndexClient = this.GetSearchIndexClient(document.ConnectionInfo);
+        SearchClient searchClient = this.GetSearchClient(document.ConnectionInfo);
 
         await this.CreateIndexIfDoesntExist(searchIndexClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName, cancellationToken);
 
@@ -98,8 +101,7 @@ sealed class AzureAISearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(request.ConnectionInfo));
         }
 
-        string endpoint = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        SearchClient searchClient = this.GetSearchClient(endpoint, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
+        SearchClient searchClient = this.GetSearchClient(request.ConnectionInfo);
 
         SearchOptions searchOptions = this.isSemanticSearchEnabled
             ? new SearchOptions
@@ -269,31 +271,51 @@ sealed class AzureAISearchProvider : ISearchProvider
                 succeeded);
     }
 
-    SearchIndexClient GetSearchIndexClient(string endpoint)
+    SearchIndexClient GetSearchIndexClient(ConnectionInfo connectionInfo)
     {
-        string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
-        if (string.IsNullOrEmpty(key))
-        {
-            return new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential());
-        }
-        else
-        {
-            return new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key));
-        }
+        (SearchIndexClient searchIndexClient, string endpoint) =
+            this.searchIndexClients.GetOrAdd(
+                connectionInfo.ConnectionName,
+                name =>
+                {
+                    string endpoint = this.configuration.GetValue<string>(connectionInfo.ConnectionName);
+                    string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
+
+                    if (string.IsNullOrEmpty(key))
+                    {
+                        return (new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential()), endpoint);
+                    }
+                    else
+                    {
+                        return (new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key)), endpoint);
+                    }
+                });
+
+        return searchIndexClient;
+
     }
 
-    SearchClient GetSearchClient(string endpoint, string searchIndexName)
+    SearchClient GetSearchClient(ConnectionInfo connectionInfo)
     {
-        string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
-        SearchClient searchClient;
-        if (string.IsNullOrEmpty(key))
-        {
-            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
-        }
-        else
-        {
-            searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new AzureKeyCredential(key));
-        }
+        (SearchClient searchClient, string endpoint, string searchIndexName) =
+            this.searchClients.GetOrAdd(
+                connectionInfo.ConnectionName,
+                name =>
+                {
+                    string endpoint = this.configuration.GetValue<string>(connectionInfo.ConnectionName);
+                    string searchIndexName = connectionInfo.CollectionName ?? defaultSearchIndexName;
+                    string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
+                    if (string.IsNullOrEmpty(key))
+                    {
+                        searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
+                    }
+                    else
+                    {
+                        searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new AzureKeyCredential(key));
+                    }
+
+                    return (searchClient, endpoint, searchIndexName);
+                });
 
         return searchClient;
     }

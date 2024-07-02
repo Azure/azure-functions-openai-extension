@@ -45,8 +45,9 @@ extends:
         displayName: 'Build DotNet'
         dependsOn: []
         variables:
-          Codeql.BuildIdentifier: csharp_openai_extension
-          Codeql.Language: csharp
+          Codeql.BuildIdentifier: openai_extension
+          Codeql.Language: csharp,javascript,powershell,python
+          Codeql.RunSourceLanguagesInSourceAnalysis: true
         jobs:
           - template: /eng/ci/templates/build-local.yml@self
 

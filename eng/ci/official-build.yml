@@ -4,13 +4,13 @@ trigger:
       - main
   paths:
     exclude:
-      - '**.md'
+      - "**.md"
 
 # CI only, does not trigger on PRs.
 pr: none
 
 schedules:
-  - cron: '0 0 * * MON'
+  - cron: "0 0 * * MON"
     displayName: At 12:00 AM, only on Monday
     branches:
       include:
@@ -42,9 +42,7 @@ extends:
 
     stages:
       - stage: BuildDotNet
-        displayName: 'Build DotNet'
-<<<<<<< HEAD
-<<<<<<< HEAD
+        displayName: "Build DotNet"
         dependsOn: []
         variables:
           Codeql.BuildIdentifier: openai_extension
@@ -54,25 +52,8 @@ extends:
           - template: /eng/ci/templates/build-local.yml@self
 
       - stage: BuildJava
-        displayName: 'Build Java'
+        displayName: "Build Java"
         dependsOn: []
-=======
-=======
-        dependsOn: []
->>>>>>> 1fdea10 (fix the builds (#93))
-        variables:
-          Codeql.BuildIdentifier: csharp_openai_extension
-          Codeql.Language: csharp
-        jobs:
-          - template: /eng/ci/templates/build-local.yml@self
-
-      - stage: BuildJava
-        displayName: 'Build Java'
-<<<<<<< HEAD
->>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
-=======
-        dependsOn: []
->>>>>>> 1fdea10 (fix the builds (#93))
         variables:
           Codeql.BuildIdentifier: java_openai_extension
           Codeql.Language: java
@@ -80,19 +61,8 @@ extends:
           - template: /eng/ci/templates/build-java-library.yml@self
           - template: /eng/ci/templates/build-java-samples.yml@self
 
-<<<<<<< HEAD
-<<<<<<< HEAD
       - stage: BuildDotnetNuget
-        displayName: 'Build DotNet Nuget'
+        displayName: "Build DotNet Nuget"
         dependsOn: []
-=======
-      - stage: Build Dotnet Nuget
-        displayName: 'Build DotNet Nuget'
->>>>>>> 745aef5 (Move to 1ES PT, Official and Public Builds (#81))
-=======
-      - stage: BuildDotnetNuget
-        displayName: 'Build DotNet Nuget'
-        dependsOn: []
->>>>>>> 1fdea10 (fix the builds (#93))
         jobs:
-          - template: /eng/ci/templates/build-nuget.yml@self
+          - template: /eng/ci/templates/build-nuget.yml@selfd

@@ -42,11 +42,15 @@ public static class ChatBot
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(responseJson) { StatusCode = 201 },
+<<<<<<< HEAD
             ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody?.Instructions)
             {
                 ChatStorageConnectionSetting = "AzureWebJobsStorage",
                 CollectionName = "SampleChatState"
             },
+=======
+            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody.Instructions),
+>>>>>>> 9831253 (ASP .NET Integration for Samples (#97))
         };
     }
 

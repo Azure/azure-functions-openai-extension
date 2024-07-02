@@ -1,6 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+<<<<<<< HEAD
+=======
+using System.Net;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+>>>>>>> 9831253 (ASP .NET Integration for Samples (#97))
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
@@ -35,11 +41,15 @@ static class AssistantApis
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(new { assistantId }) { StatusCode = 202 },
+<<<<<<< HEAD
             ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions)
             {
                 ChatStorageConnectionSetting = "AzureWebJobsStorage",
                 CollectionName = "SampleChatState",
             },
+=======
+            ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions),
+>>>>>>> 9831253 (ASP .NET Integration for Samples (#97))
         };
     }
 

@@ -7,8 +7,8 @@
   },
   "extensions": {
     "openai": {
-      "storageConnectionName": "AzureWebJobsStorage",
-      "collectionName": "SampleChatState"
+      "StorageConnectionName": "AzureTableStorage",
+      "CollectionName": "MaggieChatData"
     }
   }
 }

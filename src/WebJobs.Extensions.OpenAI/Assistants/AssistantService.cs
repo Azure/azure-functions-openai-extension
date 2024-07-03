@@ -42,7 +42,6 @@ class DefaultAssistantService : IAssistantService
 
     public DefaultAssistantService(
         OpenAIClient openAIClient,
-        // TableClient tableClient,
         AzureComponentFactory componentFactory,
         IOptions<OpenAIConfigOptions> openAiConfigOptions,
         IConfiguration configuration,
@@ -64,20 +63,38 @@ class DefaultAssistantService : IAssistantService
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
 
-        string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
+        // string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
+        string connectionStringName = configuration.GetValue<string>(openAiConfigOptions.Value.StorageConnectionName);
 
+        this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
 
-        // Assuming _configuration and _componentFactory are available in your class
-        IConfigurationSection storageConfig = configuration.GetSection(openAiConfigOptions.Value.StorageConnectionName);
+        string StorageAccountUri = CreateStorageUri(connectionStringName);
 
-        if (openAiConfigOptions.Value.StorageAccountUri is null)
+        this.logger.LogInformation("This is the StorageAccountUri: {StorageAccountUri} ", StorageAccountUri);
+
+        IConfigurationSection? storageConfig = configuration?.GetWebJobsConnectionStringSection(connectionStringName);
+
+        // this.logger.LogInformation("This is the storageConfig: {storageConfig} ", storageConfig);
+
+        // if (storageConfig != null)
+        // {
+        //     var key = storageConfig.Key; // Gives the key of the section in the configuration hierarchy
+            // var path = storageConfig.Path; // Gives the full path of the section in the configuration hierarchy
+
+            // Log key, value, and path. Adjust based on what information is most useful for your scenario.
+            // this.logger.LogInformation($"This is the storageConfig: Key={key}, Path={path}");
+        // }
+
+        // IConfigurationSection storageConfig = configuration.GetSection(openAiConfigOptions.Value.StorageConnectionName);
+
+        if (StorageAccountUri is null)
         {
-            throw new ArgumentNullException(nameof(openAiConfigOptions.Value.StorageAccountUri));
+            throw new ArgumentNullException(nameof(StorageAccountUri));
         }
         // Create an instance of TablesBindingOptions and set its properties
         TablesBindingOptions tableOptions = new TablesBindingOptions
         {
-            ServiceUri = new Uri(openAiConfigOptions.Value.StorageAccountUri),
+            ServiceUri = new Uri(StorageAccountUri),
             Credential = componentFactory.CreateTokenCredential(storageConfig)
         };
 
@@ -112,6 +129,11 @@ class DefaultAssistantService : IAssistantService
         this.logger.LogInformation("Using {CollectionName} for table storage collection name", openAiConfigOptions.Value.CollectionName);
         this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
 
+    }
+
+    private string CreateStorageUri(string storageAccountName)
+    {
+        return $"https://{storageAccountName}.table.core.windows.net";
     }
 
     public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)

@@ -309,7 +309,7 @@ sealed class AzureAISearchProvider : ISearchProvider
                     string searchIndexName = connectionInfo.CollectionName ?? defaultSearchIndexName;
                     string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
                     if (string.IsNullOrEmpty(key))
-                    {                        
+                    {
                         searchClient = new SearchClient(new Uri(endpoint), searchIndexName, this.GetSearchTokenCredential());
                     }
                     else

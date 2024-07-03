@@ -53,6 +53,9 @@ public static class OpenAIWebJobsBuilderExtensions
             throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables.");
         }
 
+        // ToDo: check if this will suffice for creating clients?
+        builder.Services.AddSingleton<AzureComponentFactory>();
+
         // Register the WebJobs extension, which enables the bindings.
         builder.AddExtension<OpenAIExtension>();
 

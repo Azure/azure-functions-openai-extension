@@ -3,12 +3,13 @@
 
 using System.Collections.Concurrent;
 using Azure;
-using Azure.Identity;
+using Azure.Core;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
 using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,10 +23,12 @@ sealed class AzureAISearchProvider : ISearchProvider
 
     readonly IConfiguration configuration;
     readonly ILogger logger;
+    readonly AzureComponentFactory azureComponentFactory;
     readonly bool isSemanticSearchEnabled = false;
     readonly bool useSemanticCaptions = false;
     readonly int vectorSearchDimensions = 1536;
     readonly string searchAPIKeySetting = "SearchAPIKey";
+    readonly string searchConnectionNamePrefix = "searchConnectionNamePrefix";
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
     const string vectorSearchProfile = "openai-vector-profile";
@@ -38,9 +41,10 @@ sealed class AzureAISearchProvider : ISearchProvider
     /// <param name="configuration">The configuration.</param>
     /// <param name="loggerFactory">The logger factory.</param>
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
-    public AzureAISearchProvider(IConfiguration configuration, ILoggerFactory loggerFactory, IOptions<AzureAISearchConfigOptions> azureAiSearchConfigOptions)
+    public AzureAISearchProvider(IConfiguration configuration, ILoggerFactory loggerFactory, IOptions<AzureAISearchConfigOptions> azureAiSearchConfigOptions, AzureComponentFactory azureComponentFactory)
     {
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
 
         if (loggerFactory == null)
         {
@@ -280,10 +284,9 @@ sealed class AzureAISearchProvider : ISearchProvider
                 {
                     string endpoint = this.configuration.GetValue<string>(connectionInfo.ConnectionName);
                     string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
-
                     if (string.IsNullOrEmpty(key))
                     {
-                        return (new SearchIndexClient(new Uri(endpoint), new DefaultAzureCredential()), endpoint);
+                        return (new SearchIndexClient(new Uri(endpoint), this.GetSearchTokenCredential()), endpoint);
                     }
                     else
                     {
@@ -306,8 +309,8 @@ sealed class AzureAISearchProvider : ISearchProvider
                     string searchIndexName = connectionInfo.CollectionName ?? defaultSearchIndexName;
                     string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
                     if (string.IsNullOrEmpty(key))
-                    {
-                        searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new DefaultAzureCredential());
+                    {                        
+                        searchClient = new SearchClient(new Uri(endpoint), searchIndexName, this.GetSearchTokenCredential());
                     }
                     else
                     {
@@ -318,5 +321,13 @@ sealed class AzureAISearchProvider : ISearchProvider
                 });
 
         return searchClient;
+    }
+
+    TokenCredential GetSearchTokenCredential()
+    {
+        // ToDo: see if we need any null checks here.
+        IConfigurationSection searchConnectionConfigSection = this.configuration.GetSection(this.searchConnectionNamePrefix);
+        TokenCredential tokenCredential = this.azureComponentFactory.CreateTokenCredential(searchConnectionConfigSection);
+        return tokenCredential;
     }
 }

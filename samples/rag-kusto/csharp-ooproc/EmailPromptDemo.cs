@@ -43,11 +43,11 @@ public class EmailPromptDemo
         Uri uri = new(requestBody.Url);
         string filename = Path.GetFileName(uri.AbsolutePath);
 
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
+        IActionResult result = new OkObjectResult(new { status =  HttpStatusCode.OK });
 
         return new EmbeddingsStoreOutputResponse
         {
-            HttpResponse = response,
+            HttpResponse = result,
             SearchableDocument = new SearchableDocument(filename)
         };
     }
@@ -56,7 +56,8 @@ public class EmailPromptDemo
         [EmbeddingsStoreOutput("{Url}", InputType.Url, "KustoConnectionString", "Documents", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public required SearchableDocument SearchableDocument { get; init; }
 
-        public HttpResponseData? HttpResponse { get; set; }
+        [HttpResult]
+        public IActionResult? HttpResponse { get; set; }
     }
 
     [Function("PromptEmail")]

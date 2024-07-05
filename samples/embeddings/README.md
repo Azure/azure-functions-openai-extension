@@ -1,9 +1,10 @@
-## Introduction
+# Introduction
 
 ## Embeddings Generator
+
 Processing of the source text files typically involves chunking the text into smaller pieces, such as sentences or paragraphs, and then making an OpenAI call to produce embeddings for each chunk independently. Finally, the embeddings need to be stored in a database or other data store for later use.
 
-#### [C# embeddings generator example](./samples/embeddings/csharp-ooproc/EmbeddingsGenerator.cs)
+### [C# embeddings generator example](./samples/embeddings/csharp-ooproc/EmbeddingsGenerator.cs)
 
 ```csharp
 [Function(nameof(GenerateEmbeddings_Http_RequestAsync))]
@@ -56,7 +57,6 @@ The sample is available in the following language stacks:
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
-
 ## Running the sample
 
 1. Clone this repo and navigate to the sample folder.
@@ -83,7 +83,6 @@ Please refer to the [root README](../../README.md#requirements) for common prere
     > **NOTE:** All the HTTP requests in this sample can also be found in the [demo.http](demo.http) file, which can be opened and run in most IDEs.
 
     You should see some relevant log output in the terminal window where the app is running.
-
 
 1. Use an HTTP client tool to send a `POST` request to the `GetEmbeddings_Http_FilePath` function. The following is an example request:
 

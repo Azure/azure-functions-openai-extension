@@ -28,14 +28,14 @@ public class FilePrompt {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
+        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{Url}", inputType = InputType.Url,
                 connectionName = "CosmosDBMongoVCoreConnectionString", collection = "openai-index",
                 model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws MalformedURLException {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
         {
-            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
+            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
         }
 
         Uri uri = new Uri(request.getBody().getUrl());

@@ -43,10 +43,20 @@ extends:
       image: 1es-windows-2022
       os: windows
 
+    sdl:
+      codeql:
+        compiled:
+          enabled: true # still only runs for default branch
+        runSourceLanguagesInSourceAnalysis: true
+        sourceLanguages: javascript, powershell, python
+        binaryLanguages: csharp
+        buildIdentifier: openai_extension_public
+
+    settings:
+      # PR's from forks do not have sufficient permissions to set tags.
+      skipBuildTagsForGitHubPullRequests: ${{ variables['System.PullRequest.IsFork'] }}
+
     stages:
       - stage: Build
-        variables:
-          Codeql.BuildIdentifier: csharp_openai_extension_public
-          Codeql.Language: csharp
         jobs:
           - template: /eng/ci/templates/build-local.yml@self

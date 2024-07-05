@@ -5,7 +5,11 @@
 
 	<groupId>com.microsoft.azure.functions</groupId>
 	<artifactId>azure-functions-java-library-openai</artifactId>
+<<<<<<< HEAD
 	<version>0.4.0-preview</version>
+=======
+	<version>0.3.0-preview</version>
+>>>>>>> c5b04aa (Update azure-ai-openai version in java library, remove duplicate pkg ref from SemanticAISearch csproj, format READMEs (#96))
 	<packaging>jar</packaging>
 
 	<parent>
@@ -90,7 +94,11 @@
 		<dependency>
 			<groupId>com.azure</groupId>
 			<artifactId>azure-ai-openai</artifactId>
+<<<<<<< HEAD
 			<version>1.0.0-beta.10</version>
+=======
+			<version>1.0.0-beta.9</version>
+>>>>>>> c5b04aa (Update azure-ai-openai version in java library, remove duplicate pkg ref from SemanticAISearch csproj, format READMEs (#96))
 			<scope>compile</scope>
 		</dependency>
 

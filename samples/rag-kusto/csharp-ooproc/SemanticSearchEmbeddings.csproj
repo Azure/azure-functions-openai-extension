@@ -10,9 +10,12 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.22.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.1" />
 >>>>>>> 9831253 (ASP .NET Integration for Samples (#97))
+=======
+>>>>>>> c5b04aa (Update azure-ai-openai version in java library, remove duplicate pkg ref from SemanticAISearch csproj, format READMEs (#96))
     <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.3-preview2" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.2.0" />

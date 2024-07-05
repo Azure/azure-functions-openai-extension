@@ -56,9 +56,13 @@ Once you have an Azure AI Search resource, you can run the sample by following t
     dotnet build --output bin
     ```
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> bc18212 (Updated Python Samples Documentation (#87))
+=======
+
+>>>>>>> c5b04aa (Update azure-ai-openai version in java library, remove duplicate pkg ref from SemanticAISearch csproj, format READMEs (#96))
 1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Build and start the app
 

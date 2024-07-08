@@ -29,7 +29,7 @@ sealed class AzureAISearchProvider : ISearchProvider
     readonly bool useSemanticCaptions = false;
     readonly int vectorSearchDimensions = 1536;
     readonly string searchAPIKeySetting = "SearchAPIKey";
-    readonly string searchConnectionNamePrefix = "searchConnectionNamePrefix";
+    readonly string searchConnectionNamePrefix = "AISearch";
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
     const string vectorSearchProfile = "openai-vector-profile";
@@ -55,6 +55,7 @@ sealed class AzureAISearchProvider : ISearchProvider
         this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
         this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
         this.searchAPIKeySetting = azureAiSearchConfigOptions.Value.SearchAPIKeySetting ?? this.searchAPIKeySetting;
+        this.searchConnectionNamePrefix = azureAiSearchConfigOptions.Value.SearchConnectionNamePrefix ?? this.searchConnectionNamePrefix;
         int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
         if (value < 2 || value > 3072)
         {
@@ -326,8 +327,6 @@ sealed class AzureAISearchProvider : ISearchProvider
 
     TokenCredential GetSearchTokenCredential()
     {
-        this.logger.LogInformation("Using prefix: " + this.searchConnectionNamePrefix);
-
         IConfigurationSection searchConnectionConfigSection = this.configuration.GetSection(this.searchConnectionNamePrefix);
         TokenCredential tokenCredential = this.tokenCredentials.GetOrAdd(
             this.searchConnectionNamePrefix,

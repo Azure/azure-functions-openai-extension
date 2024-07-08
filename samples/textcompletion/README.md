@@ -23,8 +23,13 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | Language Worker | Command |
     | --------------- | ------- |
     | .NET oo-proc | `cd samples/textcompletion/csharp-ooproc && dotnet build && cd bin/debug/net6.0 && func start` |
+<<<<<<< HEAD
     | Javacript | `cd samples/textcompletion/javascript && npm install && npm run start` |
     | TypeScript | `cd samples/textcompletion/typescript && npm install && npm run build && npm run start` |
+=======
+    | Javacript | `cd samples/textcompletion/javascript && npm install && dotnet build --output bin && npm run start` |
+    | TypeScript | `cd samples/textcompletion/typescript && npm install && dotnet build --output bin && npm run build && npm run start` |
+>>>>>>> 26dfa2c (Add JS samples for text completion (#100))
     | PowerShell | `cd samples/textcompletion/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/textcompletion/python && pip install -r requirements.txt && func start` |
     | Java | `cd samples/textcompletion/java && mvn clean package && dotnet build && mvn azure-functions:run` |

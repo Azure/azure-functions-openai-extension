@@ -4,9 +4,12 @@
     "logLevel": {
       "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
     }
+<<<<<<< HEAD
   },
   "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle.Preview",
     "version": "[4.*, 5.0.0)"
+=======
+>>>>>>> 26dfa2c (Add JS samples for text completion (#100))
   }
 }

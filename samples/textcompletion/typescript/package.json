@@ -1,5 +1,13 @@
 {
+<<<<<<< HEAD
   "name": "typescript",
+=======
+<<<<<<< HEAD:samples/chat/typescript/package.json
+  "name": "chat",
+=======
+  "name": "typescript",
+>>>>>>> 26dfa2c (Add JS samples for text completion (#100)):samples/textcompletion/typescript/package.json
+>>>>>>> 26dfa2c (Add JS samples for text completion (#100))
   "version": "1.0.0",
   "description": "",
   "scripts": {

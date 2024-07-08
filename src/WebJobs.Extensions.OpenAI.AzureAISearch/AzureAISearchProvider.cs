@@ -20,6 +20,7 @@ sealed class AzureAISearchProvider : ISearchProvider
 {
     readonly ConcurrentDictionary<string, (SearchClient, string, string)> searchClients = new(); // value is client, endpoint, indexName
     readonly ConcurrentDictionary<string, (SearchIndexClient, string)> searchIndexClients = new(); // value is client, endpoint
+    readonly ConcurrentDictionary<string, TokenCredential> tokenCredentials = new(); // sectionNamePrefix as key and token credential as value
 
     readonly IConfiguration configuration;
     readonly ILogger logger;
@@ -325,9 +326,15 @@ sealed class AzureAISearchProvider : ISearchProvider
 
     TokenCredential GetSearchTokenCredential()
     {
-        // ToDo: see if we need any null checks here.
+        this.logger.LogInformation("Using prefix: " + this.searchConnectionNamePrefix);
+
         IConfigurationSection searchConnectionConfigSection = this.configuration.GetSection(this.searchConnectionNamePrefix);
-        TokenCredential tokenCredential = this.azureComponentFactory.CreateTokenCredential(searchConnectionConfigSection);
+        TokenCredential tokenCredential = this.tokenCredentials.GetOrAdd(
+            this.searchConnectionNamePrefix,
+            name =>
+            {
+                return this.azureComponentFactory.CreateTokenCredential(searchConnectionConfigSection);
+            });
         return tokenCredential;
     }
 }

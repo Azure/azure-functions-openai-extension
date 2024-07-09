@@ -5,7 +5,7 @@ using System;
 using Azure.Core;
 using Azure.Data.Tables;
 
-namespace Microsoft.Azure.WebJobs.Extensions.Tables.Config;
+namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
 
 public class TablesBindingOptions

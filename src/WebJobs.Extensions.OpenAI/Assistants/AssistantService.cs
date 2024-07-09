@@ -6,8 +6,8 @@ using Azure.AI.OpenAI;
 using Azure.Identity;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Azure;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
-using Microsoft.Azure.WebJobs.Extensions.Tables.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -30,13 +30,12 @@ class DefaultAssistantService : IAssistantService
     /// This number must be small enough to ensure we never exceed a batch size of 100.
     /// </summary>
     const int FunctionCallBatchLimit = 50;
-
+    const string chatStorage = "ChatStorage";
     readonly TableClient tableClient;
     readonly TableServiceClient tableServiceClient;
     readonly OpenAIClient openAIClient;
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
-    readonly string chatStorage = "ChatStorage";
 
     public DefaultAssistantService(
         OpenAIClient openAIClient,
@@ -61,7 +60,7 @@ class DefaultAssistantService : IAssistantService
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
 
-        IConfigurationSection storageConfig = configuration.GetSection(this.chatStorage);
+        IConfigurationSection storageConfig = configuration.GetSection(DefaultAssistantService.chatStorage);
         this.logger.LogInformation("This is the storageConfig: {storageConfig} ", storageConfig);
 
         if (!string.IsNullOrEmpty(storageConfig.Value))
@@ -73,7 +72,6 @@ class DefaultAssistantService : IAssistantService
 
         this.logger.LogInformation("This is the storageAccountUri: {storageAccountUri} ", storageAccountUri);
 
-        
         // Check if URI for table storage is present
         if (!string.IsNullOrEmpty(storageAccountUri))
         {

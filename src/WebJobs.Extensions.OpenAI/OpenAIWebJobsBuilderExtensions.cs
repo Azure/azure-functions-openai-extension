@@ -76,8 +76,6 @@ public static class OpenAIWebJobsBuilderExtensions
         builder.Services.AddSingleton<AssistantSkillTriggerBindingProvider>();
 
         builder.Services.AddAzureClientsCore(); // Adds AzureComponentFactory
-        // builder.Services.AddOptions<TablesBindingOptions>();
-        // builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<IConfigureOptions<TablesBindingOptions>, TablesBindingOptionsSetup>());
 
         return builder;
     }

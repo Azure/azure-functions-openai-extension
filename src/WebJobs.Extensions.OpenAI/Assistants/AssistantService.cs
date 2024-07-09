@@ -11,7 +11,6 @@ using Microsoft.Azure.WebJobs.Extensions.Tables.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-// using Microsoft.Extensions.Worker.Extensions.Tables.Config;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
@@ -37,8 +36,7 @@ class DefaultAssistantService : IAssistantService
     readonly OpenAIClient openAIClient;
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
-    // readonly TablesBindingOptions tablesBindingOptions;
-    // protected readonly IOptionsMonitor<TablesBindingOptions> _tableOptions;
+    readonly string chatStorage = "ChatStorage";
 
     public DefaultAssistantService(
         OpenAIClient openAIClient,
@@ -63,77 +61,52 @@ class DefaultAssistantService : IAssistantService
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
 
-        // string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
-        string connectionStringName = configuration.GetValue<string>(openAiConfigOptions.Value.StorageConnectionName);
+        IConfigurationSection storageConfig = configuration.GetSection(this.chatStorage);
+        this.logger.LogInformation("This is the storageConfig: {storageConfig} ", storageConfig);
 
-        this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
-
-        string StorageAccountUri = CreateStorageUri(connectionStringName);
-
-        this.logger.LogInformation("This is the StorageAccountUri: {StorageAccountUri} ", StorageAccountUri);
-
-        IConfigurationSection? storageConfig = configuration?.GetWebJobsConnectionStringSection(connectionStringName);
-
-        // this.logger.LogInformation("This is the storageConfig: {storageConfig} ", storageConfig);
-
-        // if (storageConfig != null)
-        // {
-        //     var key = storageConfig.Key; // Gives the key of the section in the configuration hierarchy
-            // var path = storageConfig.Path; // Gives the full path of the section in the configuration hierarchy
-
-            // Log key, value, and path. Adjust based on what information is most useful for your scenario.
-            // this.logger.LogInformation($"This is the storageConfig: Key={key}, Path={path}");
-        // }
-
-        // IConfigurationSection storageConfig = configuration.GetSection(openAiConfigOptions.Value.StorageConnectionName);
-
-        if (StorageAccountUri is null)
+        if (!string.IsNullOrEmpty(storageConfig.Value))
         {
-            throw new ArgumentNullException(nameof(StorageAccountUri));
+            this.logger.LogInformation("This is the storageConfig.value: {storageConfig} ", storageConfig.Value);
         }
-        // Create an instance of TablesBindingOptions and set its properties
-        TablesBindingOptions tableOptions = new TablesBindingOptions
-        {
-            ServiceUri = new Uri(StorageAccountUri),
-            Credential = componentFactory.CreateTokenCredential(storageConfig)
-        };
 
-        // Now call CreateClient without any arguments
-        this.tableServiceClient = tableOptions.CreateClient();
+        string storageAccountUri = storageConfig["tableServiceUri"];
+
+        this.logger.LogInformation("This is the storageAccountUri: {storageAccountUri} ", storageAccountUri);
 
         
-        // // Check if URI for table storage is present
-        // if (!string.IsNullOrEmpty(openAiConfigOptions.Value.StorageAccountUri))
-        // {
-        //     this.logger.LogInformation("Using DefaultAzureCredential");
-        //     // If exists, create new TableServiceClient with DefaultAzureCredential
-        //     this.tableServiceClient = new TableServiceClient(
-        //         new Uri(openAiConfigOptions.Value.StorageAccountUri),
-        //         new DefaultAzureCredential());
-        // } else {
-        //     // Else, will use the connection string
-            // string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
+        // Check if URI for table storage is present
+        if (!string.IsNullOrEmpty(storageAccountUri))
+        {
+            this.logger.LogInformation("Using Managed Identity");
+            // Create an instance of TablesBindingOptions and set its properties
+            TablesBindingOptions tableOptions = new TablesBindingOptions
+            {
+                ServiceUri = new Uri(storageAccountUri),
+                Credential = componentFactory.CreateTokenCredential(storageConfig)
+            };
 
-        //     // Set connection string name to be AzureWebJobsStorage if it's null or empty
-        //     if (string.IsNullOrEmpty(connectionStringName))
-        //     {
-        //         connectionStringName = "AzureWebJobsStorage";
-        //     }
+            // Now call CreateClient without any arguments
+            this.tableServiceClient = tableOptions.CreateClient();
 
-        //     this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
+        } else {
+            // Else, will use the connection string
+            string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
 
-        //     string connectionString = configuration.GetValue<string>(connectionStringName);
+            // Set connection string name to be AzureWebJobsStorage if it's null or empty
+            if (string.IsNullOrEmpty(connectionStringName))
+            {
+                connectionStringName = "AzureWebJobsStorage";
+            }
 
-        //     this.tableServiceClient = new TableServiceClient(connectionString);
-        // }
+            this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
+
+            string connectionString = configuration.GetValue<string>(connectionStringName);
+
+            this.tableServiceClient = new TableServiceClient(connectionString);
+        }
         this.logger.LogInformation("Using {CollectionName} for table storage collection name", openAiConfigOptions.Value.CollectionName);
         this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
 
-    }
-
-    private string CreateStorageUri(string storageAccountName)
-    {
-        return $"https://{storageAccountName}.table.core.windows.net";
     }
 
     public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)

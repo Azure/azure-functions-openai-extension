@@ -65,7 +65,7 @@ class DefaultAssistantService : IAssistantService
 
         if (!string.IsNullOrEmpty(storageConfig.Value))
         {
-            this.logger.LogInformation("This is the storageConfig.value: {storageConfig} ", storageConfig.Value);
+            throw new ArgumentException("The chatStorage configurations are missing", nameof(storageConfig));
         }
 
         string storageAccountUri = storageConfig["tableServiceUri"];

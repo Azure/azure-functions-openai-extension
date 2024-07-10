@@ -24,7 +24,7 @@ public class OpenAIConfigOptions
     public IDictionary<string, object> SearchProvider { get; set; } = new Dictionary<string, object>();
 
     /// <summary>
-    /// Gets the name of the storage account.
+    /// Gets the uri of the storage account.
     /// </summary>
     public string? StorageAccountUri { get; set; }
 }

@@ -30,7 +30,6 @@ class DefaultAssistantService : IAssistantService
     /// This number must be small enough to ensure we never exceed a batch size of 100.
     /// </summary>
     const int FunctionCallBatchLimit = 50;
-    const string chatStorage = "ChatStorage";
     readonly TableClient tableClient;
     readonly TableServiceClient tableServiceClient;
     readonly OpenAIClient openAIClient;
@@ -39,7 +38,7 @@ class DefaultAssistantService : IAssistantService
 
     public DefaultAssistantService(
         OpenAIClient openAIClient,
-        AzureComponentFactory componentFactory,
+        AzureComponentFactory azureComponentFactory,
         IOptions<OpenAIConfigOptions> openAiConfigOptions,
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
@@ -60,7 +59,8 @@ class DefaultAssistantService : IAssistantService
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
 
-        IConfigurationSection storageConfig = configuration.GetSection(DefaultAssistantService.chatStorage);
+        string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
+        IConfigurationSection storageConfig = configuration.GetSection(connectionStringName);
         this.logger.LogInformation("This is the storageConfig: {storageConfig} ", storageConfig);
 
         string storageAccountUri = storageConfig["tableServiceUri"];
@@ -75,15 +75,17 @@ class DefaultAssistantService : IAssistantService
             TablesBindingOptions tableOptions = new TablesBindingOptions
             {
                 ServiceUri = new Uri(storageAccountUri),
-                Credential = componentFactory.CreateTokenCredential(storageConfig)
+                Credential = azureComponentFactory.CreateTokenCredential(storageConfig)
             };
 
             // Now call CreateClient without any arguments
             this.tableServiceClient = tableOptions.CreateClient();
 
-        } else {
+        }
+        else
+        {
             // Else, will use the connection string
-            string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
+            connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
 
             // Set connection string name to be AzureWebJobsStorage if it's null or empty
             if (string.IsNullOrEmpty(connectionStringName))

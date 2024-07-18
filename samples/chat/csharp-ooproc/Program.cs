@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
         services.Configure<JsonSerializerOptions>(options =>

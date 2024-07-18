@@ -14,7 +14,19 @@
       "searchProvider": {
         "type": "cosmosDBSearch",
         "vectorSearchDimensions": 1536,
+<<<<<<< HEAD:samples/rag-cosmosdb/typescript/host.json
         "numLists": 1
+=======
+        "numLists": 1,
+        "kind": "vector-hnsw",
+        "similarity": "COS",
+        "numberOfConnections": 16,
+        "efConstruction": 64,
+        "efSearch": 40,
+        "applicationName": "functionsAppName",
+        "embeddingKey": "embedding",
+        "textKey": "text"
+>>>>>>> 94c2ade (resolving comments):samples/rag-cosmosdb/nodejs/host.json
       }
     }
   }

@@ -33,6 +33,11 @@ public class ConnectionInfo
     public string ConnectionName { get; set; }
 
     /// <summary>
+    /// The name of the databsse which has the collection.
+    /// </summary>
+    public string DatabaseName { get; set; }
+
+    /// <summary>
     /// The name of the collection or table to search.
     /// </summary>
     public string CollectionName { get; set; }

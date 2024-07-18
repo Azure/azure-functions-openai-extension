@@ -69,10 +69,9 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
    ```
 
 1. If using the extensions.csproj with non-dotnet languages and refer the extension project
-
-   ```sh
-   dotnet build --output bin
-   ```
+    ```sh
+    dotnet build --output bin
+    ```
 
 1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Build and start the app

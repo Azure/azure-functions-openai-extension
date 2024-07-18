@@ -39,10 +39,6 @@ schedules:
         - main
     always: true
 
-variables:
-  Codeql.BuildIdentifier: java_openai_extension_public
-  Codeql.Language: java
-
 extends:
   template: v1/1ES.Unofficial.PipelineTemplate.yml@1es
   parameters:
@@ -50,6 +46,18 @@ extends:
       name: 1es-pool-azfunc-public
       image: 1es-windows-2022
       os: windows
+
+    sdl:
+      codeql:
+        compiled:
+          enabled: true # still only runs for default branch
+        language: java
+        buildIdentifier: java_openai_extension_public
+
+    settings:
+      # PR's from forks do not have sufficient permissions to set tags.
+      skipBuildTagsForGitHubPullRequests: ${{ variables['System.PullRequest.IsFork'] }}
+
     stages:
       - stage: BuildJava
         displayName: 'Build Java'

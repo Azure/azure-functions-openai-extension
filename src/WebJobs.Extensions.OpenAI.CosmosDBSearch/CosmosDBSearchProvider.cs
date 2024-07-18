@@ -19,10 +19,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     readonly ILogger logger;
     readonly IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions;
     readonly ConcurrentDictionary<string, MongoClient> cosmosDBClients = new();
-    readonly string databaseName = "openai-functions-database";
-    readonly string collectionName = "openai-functions-collection";
-    readonly string indexName = "openai-functions-index";
-    readonly MongoClient cosmosClient;
+    string databaseName = "openai-functions-database";
+    string collectionName = "openai-functions-collection";
+    string indexName = "openai-functions-index";
 
     public string Name { get; set; } = "CosmosDBSearch";
 
@@ -87,7 +86,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         CancellationToken cancellationToken
     )
     {
-        this.cosmosClient = cosmosDBClients.GetOrAdd(
+        MongoClient cosmosClient = cosmosDBClients.GetOrAdd(
             document.ConnectionInfo!.ConnectionName,
             _ => CreateMongoClient(document.ConnectionInfo.ConnectionName)
         );
@@ -95,9 +94,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         this.databaseName = document.ConnectionInfo.DatabaseName;
         this.collectionName = document.ConnectionInfo.CollectionName;
         this.indexName = cosmosDBSearchConfigOptions.Value.IndexName;
-        this.CreateVectorIndexIfNotExists();
+        this.CreateVectorIndexIfNotExists(cosmosClient);
 
-        await this.UpsertVectorAsync(document);
+        await this.UpsertVectorAsync(cosmosClient, document);
     }
 
     MongoClient CreateMongoClient(String connectionName)
@@ -123,8 +122,13 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
         try
         {
-            IMongoCollection<BsonDocument> collection = this
-                .mongoClient.GetDatabase(this.databaseName)
+            MongoClient cosmosClient = cosmosDBClients.GetOrAdd(
+                request.ConnectionInfo.ConnectionName,
+                _ => CreateMongoClient(request.ConnectionInfo.ConnectionName)
+            );
+
+            IMongoCollection<BsonDocument> collection = cosmosClient
+                .GetDatabase(this.databaseName)
                 .GetCollection<BsonDocument>(this.collectionName);
             // Search Azure Cosmos DB for MongoDB vCore collection for similar embeddings and project fields.
             BsonDocument[]? pipeline = null;
@@ -166,13 +170,13 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
     }
 
-    void CreateVectorIndexIfNotExists()
+    void CreateVectorIndexIfNotExists(MongoClient cosmosClient)
     {
         try
         {
             //Find if vector index exists in vectors collection
-            using IAsyncCursor<BsonDocument> indexCursor = this
-                .mongoClient.GetDatabase(this.databaseName)
+            using IAsyncCursor<BsonDocument> indexCursor = cosmosClient
+                .GetDatabase(this.databaseName)
                 .GetCollection<BsonDocument>(this.collectionName)
                 .Indexes.List();
             bool vectorIndexExists = indexCursor
@@ -192,8 +196,8 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 }
 
                 BsonDocumentCommand<BsonDocument> command = new(vectorIndexDefinition);
-                BsonDocument result = this
-                    .mongoClient.GetDatabase(this.databaseName)
+                BsonDocument result = cosmosClient
+                    .GetDatabase(this.databaseName)
                     .RunCommand(command);
                 if (result["ok"] != 1)
                 {
@@ -208,7 +212,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
     }
 
-    async Task UpsertVectorAsync(SearchableDocument document)
+    async Task UpsertVectorAsync(MongoClient cosmosClient, SearchableDocument document)
     {
         List<BsonDocument> list = new();
         for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
@@ -239,8 +243,8 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         try
         {
             // Insert the documents into the collection
-            await this
-                .mongoClient.GetDatabase(this.databaseName)
+            await cosmosClient
+                .GetDatabase(this.databaseName)
                 .GetCollection<BsonDocument>(this.collectionName)
                 .InsertManyAsync(list);
 

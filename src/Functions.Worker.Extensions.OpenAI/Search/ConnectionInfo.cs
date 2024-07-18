@@ -14,15 +14,24 @@ public class ConnectionInfo
     /// <param name="connectionName">
     /// The name of an app setting or environment variable which contains a connection string value.
     /// </param>
+    /// <param name="databaseName">
+    /// The name of the database which has the collection.</param>
+    /// </param>
     /// <param name="collectionName">
     /// The name of the collection or table to search or store.</param>
     /// </param>
     /// <param name="credentials">
     /// Credentials for authenticating with the search provider.</param>
     /// </param>
-    public ConnectionInfo(string connectionName, string collectionName, string? credentials)
+    public ConnectionInfo(
+        string connectionName,
+        string databaseName,
+        string collectionName,
+        string? credentials
+    )
     {
         this.ConnectionName = connectionName;
+        this.DatabaseName = databaseName;
         this.CollectionName = collectionName;
         this.Credentials = credentials;
     }
@@ -33,7 +42,7 @@ public class ConnectionInfo
     public string ConnectionName { get; set; }
 
     /// <summary>
-    /// The name of the databsse which has the collection.
+    /// The name of the database which has the collection.
     /// </summary>
     public string DatabaseName { get; set; }
 

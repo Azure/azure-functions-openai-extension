@@ -33,12 +33,17 @@ public class ConnectionInfo
     public string ConnectionName { get; set; }
 
     /// <summary>
+    /// The name of the databsse which has the collection.
+    /// </summary>
+    public string DatabaseName { get; set; }
+
+    /// <summary>
     /// The name of the collection or table to search.
     /// </summary>
     public string CollectionName { get; set; }
 
     /// <summary>
-    /// The name of the app setting or environment variable containing the required credentials 
+    /// The name of the app setting or environment variable containing the required credentials
     /// for authenticating with the search provider. See the documentation for the search provider
     /// extension to know what format the underlying credential value requires.
     /// </summary>

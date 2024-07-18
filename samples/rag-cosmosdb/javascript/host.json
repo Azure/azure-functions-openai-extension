@@ -15,11 +15,14 @@
         "type": "cosmosDBSearch",
         "vectorSearchDimensions": 1536,
         "numLists": 1,
-        "kind": "vector-ivf",
+        "kind": "vector-hnsw",
         "similarity": "COS",
-        "m": 16,
-        "EfConstruction": 64,
-        "EfSearch": 40
+        "numberOfConnections": 16,
+        "efConstruction": 64,
+        "efSearch": 40,
+        "applicationName": "functionsAppName",
+        "embeddingKey": "embedding",
+        "textKey": "text"
       }
     }
   }

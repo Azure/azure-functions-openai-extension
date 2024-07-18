@@ -36,11 +36,8 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
        "openai": {
            "searchProvider": {
                "type": "cosmosDBSearch",
-               "connectionString": "",
-               "databaseName": "functionsDatabase",
-               "collectionName": "functionsCollection",
-               "indexName": "functionsIndex",
                "applicationName": "functionsAppName",
+               "textKey": "text",
                "embeddingKey": "embedding",
                "vectorSearchDimensions": 1536,
                "numLists":  1,
@@ -49,12 +46,26 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
                "numberOfConnections": 16,
                "efConstruction": 64,
                "efSearch": 40
-     }
-   }
-           }
-       }
+         }
+      }
    }
    ```
+
+   `ApplicationName` is the name of the user agent to track in diagnostics and telemetry.
+
+   `TextKey` is the name of the field property which will contain the text which is embedded.
+
+   `EmbeddingKey` is the name of the field property which will contain the embeddings
+
+   `Kind` is the Type of vector index to create. The options are vector-ivf and vector-hnsw. Note vector-ivf is available on all cluster tiers and vector-hnsw is available on M40 cluster tiers and higher.
+
+   `Similarity` is the Similarity metric to use with the index. Possible options are COS (cosine distance), L2 (Euclidean distance), and IP (inner product).
+
+   `NumberOfConnections` is the max number of connections per layer (16 by default, minimum value is 2, maximum value is 100). Higher m is suitable for datasets with high dimensionality and/or high accuracy requirements.
+
+   `EfConstruction` is the size of the dynamic candidate list for constructing the graph (64 by default, minimum value is 4, maximum value is 1000). Higher efConstruction will result in better index quality and higher accuracy, but it will also increase the time required to build the index. efConstruction has to be at least 2 \* m
+
+   `EfSearch` The size of the dynamic candidate list for search (40 by default). A higher value provides better recall at the cost of speed.
 
    `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 2000 floating point values each](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the length of the embedding vector will be 1536 for text-embedding-ada-002.
 

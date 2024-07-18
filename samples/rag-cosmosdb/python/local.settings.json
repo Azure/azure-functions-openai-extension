@@ -4,11 +4,11 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
     "FUNCTIONS_WORKER_RUNTIME": "python",
-    "CosmosDBMongoVCoreConnectionString": "",
-    "AZURE_OPENAI_ENDPOINT": "",
+    "CosmosDBMongoVCoreConnectionString": "mongodb+srv://akataria:Basket24ball@akataria-vector-search-testing.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000",
+    "AZURE_OPENAI_ENDPOINT": "https://garagundi-2.openai.azure.com/",
     "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-35-turbo",
     "EMBEDDING_MODEL_DEPLOYMENT_NAME": "vector_search_task",
     "PYTHON_ISOLATE_WORKER_DEPENDENCIES": "1",
-    "AZURE_OPENAI_KEY": ""
+    "AZURE_OPENAI_KEY": "d260581201f64d4eb55bdeb66ca3a67d"
   }
 }

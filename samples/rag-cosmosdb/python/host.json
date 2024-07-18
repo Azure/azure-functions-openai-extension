@@ -9,19 +9,16 @@
     "openai": {
       "searchProvider": {
         "type": "cosmosDBSearch",
-        "connectionString": "",
         "vectorSearchDimensions": 1536,
         "numLists": 1,
-        "kind": "VectorIVF",
-        "similarity": "Cosine",
+        "kind": "vector-hnsw",
+        "similarity": "COS",
         "numberOfConnections": 16,
         "efConstruction": 64,
         "efSearch": 40,
-        "databaseName": "functionsDatabase",
-        "collectionName": "functionsCollection",
-        "indexName": "functionsIndex",
         "applicationName": "functionsAppName",
-        "embeddingKey": "embedding"
+        "embeddingKey": "embedding",
+        "textKey": "text"
       }
     }
   }

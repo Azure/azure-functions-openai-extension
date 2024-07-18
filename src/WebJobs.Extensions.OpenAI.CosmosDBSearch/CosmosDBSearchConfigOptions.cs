@@ -8,23 +8,17 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 /// </summary>
 public class CosmosDBSearchConfigOptions
 {
-    // Connection String required to connect to the Mongo Client
-    public String ConnectionString { get; set; } = string.Empty;
-
-    // Database name for your vector store
-    public String DatabaseName { get; set; } = "functionsDatabase";
-
-    // Collection name for your vector store database
-    public String CollectionName { get; set; } = "functionsCollection";
-
     // Index name for your vector store collection
-    public String IndexName { get; set; } = "functionsIndex";
+    public string IndexName { get; set; } = "functionsIndex";
 
     // Application name for the client for tracking and logging
-    public String ApplicationName { get; set; } = "functionsAppName";
+    public string ApplicationName { get; set; } = "functionsAppName";
 
-    // Name of the field property that would contain the embeddings
-    public String EmbeddingKey { get; set; } = "embedding";
+    // Name of the field property which will contain the embeddings
+    public string EmbeddingKey { get; set; } = "embedding";
+
+    // Name of the field property which will contain the text which is embedded.
+    public string TextKey { get; set; } = "text";
 
     // Number of dimensions for vector similarity. The maximum number of supported dimensions is 2000.
     public int VectorSearchDimensions { get; set; } = 1536;
@@ -38,7 +32,7 @@ public class CosmosDBSearchConfigOptions
     ///         - vector-ivf
     ///         - vector-hnsw
     /// </summary>
-    public String Kind { get; set; } = "vector-ivf";
+    public string Kind { get; set; } = "vector-ivf";
 
     /// <summary>
     /// Similarity metric to use with the IVF index.
@@ -47,7 +41,7 @@ public class CosmosDBSearchConfigOptions
     ///         - L2 (Euclidean distance), and
     ///         - IP (inner product).
     /// </summary>
-    public String Similarity { get; set; } = "COS";
+    public string Similarity { get; set; } = "COS";
 
     /// <summary>
     /// The max number of connections per layer (16 by default, minimum value is 2, maximum value is

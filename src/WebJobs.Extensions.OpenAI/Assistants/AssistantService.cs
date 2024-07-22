@@ -59,8 +59,6 @@ class DefaultAssistantService : IAssistantService
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    
-
     public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)
     {
         this.logger.LogInformation(

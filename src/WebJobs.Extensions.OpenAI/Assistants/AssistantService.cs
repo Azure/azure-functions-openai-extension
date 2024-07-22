@@ -30,16 +30,18 @@ class DefaultAssistantService : IAssistantService
     /// This number must be small enough to ensure we never exceed a batch size of 100.
     /// </summary>
     const int FunctionCallBatchLimit = 50;
-    readonly TableClient tableClient;
-    readonly TableServiceClient tableServiceClient;
+    const string DefaultChatStorage = "AzureWebJobsStorage";
     readonly OpenAIClient openAIClient;
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
+    readonly AzureComponentFactory azureComponentFactory;
+    readonly IConfiguration configuration;
+    TableServiceClient? tableServiceClient;
+    TableClient? tableClient;
 
     public DefaultAssistantService(
         OpenAIClient openAIClient,
         AzureComponentFactory azureComponentFactory,
-        IOptions<OpenAIConfigOptions> openAiConfigOptions,
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
         ILoggerFactory loggerFactory)
@@ -49,60 +51,15 @@ class DefaultAssistantService : IAssistantService
             throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        if (openAiConfigOptions is null)
-        {
-            throw new ArgumentNullException(nameof(openAiConfigOptions));
-        }
-
         this.skillInvoker = skillInvoker ?? throw new ArgumentNullException(nameof(skillInvoker));
         this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
-
-        string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
-        IConfigurationSection storageConfig = configuration.GetSection(connectionStringName);
-        this.logger.LogInformation("This is the storageConfig: {storageConfig} ", storageConfig);
-
-        string storageAccountUri = storageConfig["tableServiceUri"];
-
-        this.logger.LogInformation("This is the storageAccountUri: {storageAccountUri} ", storageAccountUri);
-
-        // Check if URI for table storage is present
-        if (!string.IsNullOrEmpty(storageAccountUri))
-        {
-            this.logger.LogInformation("Using Managed Identity");
-            // Create an instance of TablesBindingOptions and set its properties
-            TablesBindingOptions tableOptions = new TablesBindingOptions
-            {
-                ServiceUri = new Uri(storageAccountUri),
-                Credential = azureComponentFactory.CreateTokenCredential(storageConfig)
-            };
-
-            // Now call CreateClient without any arguments
-            this.tableServiceClient = tableOptions.CreateClient();
-
-        }
-        else
-        {
-            // Else, will use the connection string
-            connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
-
-            // Set connection string name to be AzureWebJobsStorage if it's null or empty
-            if (string.IsNullOrEmpty(connectionStringName))
-            {
-                connectionStringName = "AzureWebJobsStorage";
-            }
-
-            this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
-
-            string connectionString = configuration.GetValue<string>(connectionStringName);
-
-            this.tableServiceClient = new TableServiceClient(connectionString);
-        }
-        this.logger.LogInformation("Using {CollectionName} for table storage collection name", openAiConfigOptions.Value.CollectionName);
-        this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
-
+        this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
+        this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
+
+    
 
     public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)
     {
@@ -110,6 +67,13 @@ class DefaultAssistantService : IAssistantService
             "[{Id}] Creating new chat session with instructions = \"{Text}\"",
             request.Id,
             request.Instructions ?? "(none)");
+
+        this.CreateTableClient(request);
+
+        if (this.tableClient is null)
+        {
+            throw new ArgumentNullException(nameof(this.tableClient));
+        }
 
         // Create the table if it doesn't exist
         await this.tableClient.CreateIfNotExistsAsync();
@@ -223,6 +187,11 @@ class DefaultAssistantService : IAssistantService
         if (string.IsNullOrEmpty(attribute.UserMessage))
         {
             throw new ArgumentException("The assistant must have a user message", nameof(attribute));
+        }
+
+        if (this.tableClient is null)
+        {
+            throw new ArgumentException("The assistant must be initialized first using CreateAssistantAsync", nameof(this.tableClient));
         }
 
         this.logger.LogInformation("Posting message to assistant entity '{Id}'", attribute.Id);
@@ -423,6 +392,11 @@ class DefaultAssistantService : IAssistantService
 
     async Task<InternalChatState?> LoadChatStateAsync(string id, CancellationToken cancellationToken)
     {
+        if (this.tableClient is null)
+        {
+            throw new ArgumentException("The assistant must be initialized first using CreateAssistantAsync", nameof(this.tableClient));
+        }
+
         // Check to see if any entity exists with partition id
         AsyncPageable<TableEntity> itemsWithPartitionKey = this.tableClient.QueryAsync<TableEntity>(
             filter: $"PartitionKey eq '{id}'",
@@ -480,5 +454,46 @@ class DefaultAssistantService : IAssistantService
                     throw new InvalidOperationException($"Unknown chat role '{entity.Role}'");
             }
         }
+    }
+
+    void CreateTableClient(AssistantCreateRequest request)
+    {
+        string connectionStringName = request.ChatStorageConnectionSection ?? string.Empty;
+        IConfigurationSection tableConfigSection = this.configuration.GetSection(connectionStringName);
+        string storageAccountUri = string.Empty;
+        if (tableConfigSection.Exists())
+        {
+            storageAccountUri = tableConfigSection["tableServiceUri"];
+        }
+
+        // Check if URI for table storage is present
+        if (!string.IsNullOrEmpty(storageAccountUri))
+        {
+            this.logger.LogInformation("Using Managed Identity");
+
+            // Create an instance of TablesBindingOptions and set its properties
+            TableBindingOptions tableOptions = new()
+            {
+                ServiceUri = new Uri(storageAccountUri),
+                Credential = this.azureComponentFactory.CreateTokenCredential(tableConfigSection)
+            };
+
+            // Now call CreateClient without any arguments
+            this.tableServiceClient = tableOptions.CreateClient();
+
+        }
+        else
+        {
+            // Else, will use the connection string
+            connectionStringName = request.ChatStorageConnectionSection ?? DefaultChatStorage;
+
+            this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
+
+            string connectionString = this.configuration.GetValue<string>(connectionStringName);
+
+            this.tableServiceClient = new TableServiceClient(connectionString);
+        }
+        this.logger.LogInformation("Using {CollectionName} for table storage collection name", request.CollectionName);
+        this.tableClient = this.tableServiceClient.GetTableClient(request.CollectionName);
     }
 }

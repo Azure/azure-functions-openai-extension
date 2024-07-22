@@ -38,4 +38,14 @@ public class AssistantCreateRequest
     /// Instructions that are provided to assistant to follow.
     /// </summary>
     public string Instructions { get; set; } = "You are a helpful assistant.";
+
+    /// <summary>
+    /// Configuration section name for the table settings for chat storage.
+    /// </summary>
+    public string? ChatStorageConnectionSection { get; set; }
+
+    /// <summary>
+    /// Table collection name for chat storage.
+    /// </summary>
+    public string CollectionName { get; set; } = "SampleChatState";
 }

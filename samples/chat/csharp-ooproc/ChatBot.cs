@@ -40,7 +40,11 @@ public static class ChatBot
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(responseJson) { StatusCode = 201 },
-            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody.Instructions),
+            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody.Instructions)
+            {
+                ChatStorageConnectionSection = "AzureWebJobsStorage",
+                CollectionName = "SampleChatState"
+            },
         };
     }
 

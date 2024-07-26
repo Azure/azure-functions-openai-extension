@@ -5,7 +5,7 @@
 The sample is available in the following language stacks:
 
 * [C# on the in process worker](csharp-inproc/)
-* [NodeJS](nodejs/)
+* [TypeScript](typescript/)
 * [PowerShell](powershell/)
 * [Python](python/)
 * [Java](java/)

@@ -5,7 +5,7 @@ This sample demonstrates how to build a text completion sample using Azure Funct
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)

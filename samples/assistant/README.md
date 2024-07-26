@@ -5,7 +5,7 @@ It builds upon the concepts [chatbot](../chatbot) sample, which demonstrates how
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
@@ -47,7 +47,7 @@ public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string tas
 }
 ```
 
-Nodejs example:
+TypeScript example:
 
 ```ts
 app.generic('AddTodo', {

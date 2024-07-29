@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { InvocationContext, app, trigger } from "@azure/functions"
-import { TodoItem, ITodoManager, CreateTodoManager } from "../services/todoManager"
-import { randomUUID } from 'crypto';
+const { app, trigger } = require("@azure/functions");
+const { TodoItem, CreateTodoManager } = require("../services/todoManager");
+const { randomUUID } = require('crypto');
 
-const todoManager: ITodoManager = CreateTodoManager()
+const todoManager = CreateTodoManager()
 
 app.generic('AddTodo', {
     trigger: trigger.generic({
         type: 'assistantSkillTrigger',
         functionDescription: 'Create a new todo task'
     }),
-    handler: async (taskDescription: string, context: InvocationContext) => {
+    handler: async (taskDescription, context) => {
         if (!taskDescription) {
             throw new Error('Task description cannot be empty')
         }
@@ -29,7 +29,7 @@ app.generic('GetTodos', {
         type: 'assistantSkillTrigger',
         functionDescription: 'Fetch the list of previously created todo tasks'
     }),
-    handler: async (_, context: InvocationContext) => {
+    handler: async (_, context) => {
         context.log('Fetching list of todos')
 
         return todoManager.GetTodos()

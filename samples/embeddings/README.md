@@ -54,6 +54,7 @@ The sample is available in the following language stacks:
 * [Powershell](powershell)
 * [Java](java)
 * [TypeScript](typescript)
+* [JavaScript](javascript)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

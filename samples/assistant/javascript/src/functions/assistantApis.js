@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HttpRequest, InvocationContext, app, input, output } from "@azure/functions"
-
+const { app, input, output } = require("@azure/functions");
 
 const chatBotCreateOutput = output.generic({
     type: 'assistantCreate'
@@ -12,7 +11,7 @@ app.http('CreateAssistant', {
     route: 'assistants/{assistantId}',
     authLevel: 'anonymous',
     extraOutputs: [chatBotCreateOutput],
-    handler: async (request: HttpRequest, context: InvocationContext) => {
+    handler: async (request, context) => {
         const assistantId = request.params.assistantId
         const instructions =
             `
@@ -41,7 +40,7 @@ app.http('PostUserResponse', {
     authLevel: 'anonymous',
     extraInputs: [assistantPostInput],
     handler: async (_, context) => {
-        const chatState: any = context.extraInputs.get(assistantPostInput)
+        const chatState = context.extraInputs.get(assistantPostInput)
         const content = chatState.recentMessages[0].content
         return {
             status: 200,
@@ -65,7 +64,7 @@ app.http('GetChatState', {
     authLevel: 'anonymous',
     extraInputs: [chatBotQueryInput],
     handler: async (_, context) => {
-        const state: any = context.extraInputs.get(chatBotQueryInput)
+        const state = context.extraInputs.get(chatBotQueryInput)
         return { status: 200, jsonBody: state }
     }
 })

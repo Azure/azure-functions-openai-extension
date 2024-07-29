@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { HttpRequest, InvocationContext, app, input, output } from "@azure/functions";
-
+const { app, input, output } = require("@azure/functions");
 
 const chatBotCreateOutput = output.generic({
     type: 'assistantCreate'
@@ -12,9 +11,9 @@ app.http('CreateChatBot', {
     route: 'chats/{chatID}',
     authLevel: 'function',
     extraOutputs: [chatBotCreateOutput],
-    handler: async (request: HttpRequest, context: InvocationContext) => {
+    handler: async (request, context) => {
         const chatID = request.params.chatID
-        const inputJson: any = await request.json()
+        const inputJson = await request.json()
         context.log(`Creating chat ${chatID} from input parameters ${JSON.stringify(inputJson)}`)
         const createRequest = {
             id: chatID,
@@ -37,7 +36,7 @@ app.http('GetChatState', {
     authLevel: 'function',
     extraInputs: [assistantQueryInput],
     handler: async (_, context) => {
-        const chatState: any = context.extraInputs.get(assistantQueryInput)
+        const chatState = context.extraInputs.get(assistantQueryInput)
         return { status: 200, jsonBody: chatState }
     }
 });
@@ -55,7 +54,7 @@ app.http('PostUserResponse', {
     authLevel: 'function',
     extraInputs: [assistantPostInput],
     handler: async (_, context) => {
-        const chatState: any = context.extraInputs.get(assistantPostInput)
+        const chatState = context.extraInputs.get(assistantPostInput)
         const content = chatState.recentMessages[0].content
         return {
             status: 200,

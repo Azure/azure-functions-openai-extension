@@ -1,8 +1,4 @@
-import { app, input, output } from "@azure/functions";
-
-interface EmbeddingsRequest {
-    Url?: string;
-}
+const { app, input, output } = require("@azure/functions");
 
 const embeddingsStoreOutput = output.generic({
     type: "embeddingsStore",
@@ -18,7 +14,7 @@ app.http('IngestFile', {
     authLevel: 'function',
     extraOutputs: [embeddingsStoreOutput],
     handler: async (request, context) => {
-        let requestBody: EmbeddingsRequest | null = await request.json();
+        let requestBody = await request.json();
         if (!requestBody || !requestBody.Url) {
             throw new Error("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
         }
@@ -51,7 +47,7 @@ app.http('PromptFile', {
     authLevel: 'function',
     extraInputs: [semanticSearchInput],
     handler: async (_request, context) => {
-        var responseBody: any = context.extraInputs.get(semanticSearchInput)
+        var responseBody = context.extraInputs.get(semanticSearchInput)
 
         return { status: 200, body: responseBody.Response.trim() }
     }

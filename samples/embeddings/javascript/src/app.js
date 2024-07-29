@@ -1,8 +1,4 @@
-import { app, input } from "@azure/functions";
-
-interface EmbeddingsHttpRequest {
-    RawText?: string;
-}
+const { app, input } = require("@azure/functions");
 
 const embeddingsHttpInput = input.generic({
     input: '{RawText}',
@@ -17,8 +13,8 @@ app.http('generateEmbeddings', {
     authLevel: 'function',
     extraInputs: [embeddingsHttpInput],
     handler: async (request, context) => {
-        let requestBody: EmbeddingsHttpRequest = await request.json();
-        let response: any = context.extraInputs.get(embeddingsHttpInput);
+        let requestBody = await request.json();
+        let response = context.extraInputs.get(embeddingsHttpInput);
 
         context.log(
             `Received ${response.count} embedding(s) for input text containing ${requestBody.RawText.length} characters.`
@@ -29,10 +25,6 @@ app.http('generateEmbeddings', {
         return {status: 202}
     }
 });
-
-interface EmbeddingsFilePath {
-    FilePath?: string;
-}
 
 const embeddingsFilePathInput = input.generic({
     input: '{FilePath}',
@@ -48,8 +40,8 @@ app.http('getEmbeddingsFilePath', {
     authLevel: 'function',
     extraInputs: [embeddingsFilePathInput],
     handler: async (request, context) => {
-        let requestBody: EmbeddingsFilePath = await request.json();
-        let response: any = context.extraInputs.get(embeddingsFilePathInput);
+        let requestBody = await request.json();
+        let response = context.extraInputs.get(embeddingsFilePathInput);
 
         context.log(
             `Received ${response.count} embedding(s) for input file ${requestBody.FilePath}.`
@@ -60,10 +52,6 @@ app.http('getEmbeddingsFilePath', {
         return {status: 202}
     }
 });
-
-interface EmbeddingsUrlPath {
-    Url?: string;
-}
 
 const embeddingsUrlInput = input.generic({
     input: '{Url}',
@@ -79,8 +67,8 @@ app.http('getEmbeddingsUrl', {
     authLevel: 'function',
     extraInputs: [embeddingsUrlInput],
     handler: async (request, context) => {
-        let requestBody: EmbeddingsUrlPath = await request.json();
-        let response: any = context.extraInputs.get(embeddingsUrlInput);
+        let requestBody = await request.json();
+        let response = context.extraInputs.get(embeddingsUrlInput);
 
         context.log(
             `Received ${response.count} embedding(s) for input url ${requestBody.Url}.`

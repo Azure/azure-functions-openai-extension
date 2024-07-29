@@ -6,6 +6,7 @@ The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc/)
 * [TypeScript](typescript/)
+* [JavaScript](javascript/)
 * [PowerShell](powershell/)
 * [Java](java/)
 * [Python](python/)

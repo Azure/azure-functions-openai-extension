@@ -1,46 +1,46 @@
-import { Container, CosmosClient } from "@azure/cosmos"
+const { CosmosClient } = require("@azure/cosmos");
 
-export class TodoItem {
-    constructor(public id: string, public task: string) { }
+class TodoItem {
+    id;
+    task;
+    constructor(id, task) {
+        this.id = id;
+        this.task = task;
+    }
 }
 
-export interface ITodoManager {
-    AddTodo: (todo: TodoItem) => Promise<void>
-    GetTodos: () => Promise<TodoItem[]>
-}
+class InMemoryTodoManager {
+    todos = []
 
-class InMemoryTodoManager implements ITodoManager {
-    private todos: TodoItem[] = []
-
-    public async AddTodo(todo: TodoItem) {
+    async AddTodo(todo) {
         this.todos.push(todo)
     }
 
-    public async GetTodos() {
+    async GetTodos() {
         return this.todos
     }
 }
 
-class CosmosDbTodoManager implements ITodoManager {
-    private container: Container
+class CosmosDbTodoManager {
+    container;
 
-    constructor(cosmosClient: CosmosClient) {
+    constructor(cosmosClient) {
         this.createContainerIfNotExists(cosmosClient);
     }
 
-    public async AddTodo(todo: TodoItem) {
+    async AddTodo(todo) {
         console.log(`Adding todo ID = ${todo.id} to container '${this.container.id}'.`)
         await this.container.items.create(todo)
     }
 
-    public async GetTodos() {
+    async GetTodos() {
         console.log(`Getting all todos from container '${this.container.id}'.`)
-        const { resources } = await this.container.items.readAll<TodoItem>().fetchAll()
+        const { resources } = await this.container.items.readAll().fetchAll()
         console.log(`Found ${resources.length} todos in container '${this.container.id}'.`)
         return resources
     }
 
-    private async createContainerIfNotExists(cosmosClient: CosmosClient) {
+    async createContainerIfNotExists(cosmosClient) {
         const cosmosDatabaseName = process.env.CosmosDatabaseName;
         const cosmosContainerName = process.env.CosmosContainerName;
 
@@ -58,7 +58,7 @@ class CosmosDbTodoManager implements ITodoManager {
 
 }
 
-export function CreateTodoManager(): ITodoManager {
+function CreateTodoManager() {
     const cosmosDbConnectionString = process.env.CosmosDbConnectionString
     if (!cosmosDbConnectionString) {
         return new InMemoryTodoManager()
@@ -67,3 +67,6 @@ export function CreateTodoManager(): ITodoManager {
         return new CosmosDbTodoManager(cosmosClient)
     }
 }
+
+exports.TodoItem = TodoItem;
+exports.CreateTodoManager = CreateTodoManager;

@@ -6,6 +6,7 @@ The sample is available in the following language stacks:
 
 * [C# on the isolated worker](csharp-ooproc/)
 * [TypeScript](typescript/)
+* [JavaScript](javascript/)
 * [PowerShell](powershell/)
 * [Java](java/)
 * [Python](python/)
@@ -18,7 +19,7 @@ This sample requires creating an Azure Cosmos DB for MongoDB vCore. You can do t
 
 Once you have an Cosmos DB resource, you can run the sample by following these steps:
 
-1. Update the `CosmosDBMongoConnectionString` value in `local.settings.json` to match your connection string from the Cosmos DB resource. You may obtain the connection string by following [these instructions](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/quickstart-portal#get-cluster-credentials).
+1. Update the `CosmosDBMongoVCoreConnectionString` value in `local.settings.json` to match your connection string from the Cosmos DB resource. You may obtain the connection string by following [these instructions](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/quickstart-portal#get-cluster-credentials).
 1. Always configure the search provider type in the `host.json` as shown in below snippet.
 1. Use of Vector Search Dimensions and the number of clusers that the inverted file (IVF) index uses to group the vector data are configurable. You may configure the `host.json` file within the project and following example shows the default values:
 

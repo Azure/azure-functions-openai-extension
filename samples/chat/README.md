@@ -6,6 +6,7 @@ The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
 * [TypeScript](typescript)
+* [JavaScript](javascript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
@@ -23,6 +24,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | --------------- | ------- |
     | .NET oo-proc | `cd samples/chat/csharp-ooproc && func start` |
     | TypeScript | `cd samples/chat/typescript && npm install && npm run build && npm run start` |
+    | JavaScript | `cd samples/chat/javascript && npm install && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/chat/python && pip install -r requirements.txt && func start` |
     | Java | `cd samples/chat/java && mvn clean package && dotnet build && mvn azure-functions:run` |

@@ -8,7 +8,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenAISDK = Azure.AI.OpenAI;
+using OpenAISDK = OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
@@ -30,12 +30,10 @@ class SemanticSearchConverter :
         };
 
     public SemanticSearchConverter(
-        OpenAISDK.OpenAIClient openAIClient,
         ILoggerFactory loggerFactory,
         IEnumerable<ISearchProvider> searchProviders,
         IOptions<OpenAIConfigOptions> openAiConfigOptions)
     {
-        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
         this.logger = loggerFactory?.CreateLogger<SemanticSearchConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
 
         openAiConfigOptions.Value.SearchProvider.TryGetValue("type", out object value);
@@ -95,13 +93,13 @@ class SemanticSearchConverter :
         }
 
         // Call the chat API with the new combined prompt to get a response back
-        OpenAISDK.ChatCompletionsOptions chatCompletionsOptions = new()
+        OpenAISDK.Chat.ChatCompletionOptions chatCompletionsOptions = new()
         {
             DeploymentName = attribute.ChatModel,
             Messages =
                 {
-                    new OpenAISDK.ChatRequestSystemMessage(promptBuilder.ToString()),
-                    new OpenAISDK.ChatRequestUserMessage(attribute.Query),
+                    new OpenAISDK.Chat.SystemChatMessage(promptBuilder.ToString()),
+                    new OpenAISDK.Chat.UserChatMessage(attribute.Query),
                 }
         };
 

@@ -4,6 +4,7 @@
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -35,12 +36,10 @@ static class AssistantApis
 
         string request = await reader.ReadToEndAsync();
 
-        HttpResponseData response = req.CreateResponse();
-        await response.WriteAsJsonAsync(responseJson, HttpStatusCode.Created);
 
         return new CreateChatBotOutput
         {
-            HttpResponse = response,
+            HttpResponse = new ObjectResult(new { assistantId }) { StatusCode = 202 },
             ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions),
         };
     }
@@ -50,35 +49,31 @@ static class AssistantApis
         [AssistantCreateOutput()]
         public AssistantCreateRequest? ChatBotCreateRequest { get; set; }
 
-        public HttpResponseData? HttpResponse { get; set; }
+        [HttpResult]
+        public IActionResult? HttpResponse { get; set; }
     }
 
     /// <summary>
     /// HTTP POST function that sends user prompts to the assistant chat bot.
     /// </summary>
     [Function(nameof(PostUserQuery))]
-    public static async Task<HttpResponseData> PostUserQuery(
+    public static async Task<IActionResult> PostUserQuery(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId,
         [AssistantPostInput("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain");
-        await response.WriteStringAsync(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
-        return response;
+        return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
     }
 
     /// <summary>
     /// HTTP GET function that queries the conversation history of the assistant chat bot.
     /// </summary>
     [Function(nameof(GetChatState))]
-    public static async Task<HttpResponseData> GetChatState(
+    public static async Task<IActionResult> GetChatState(
        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "assistants/{assistantId}")] HttpRequestData req,
        string assistantId,
        [AssistantQueryInput("{assistantId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state)
     {
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(state);
-        return response;
+        return new OkObjectResult(state);
     }
 }

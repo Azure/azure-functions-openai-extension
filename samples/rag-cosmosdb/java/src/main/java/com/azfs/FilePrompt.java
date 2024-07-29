@@ -35,7 +35,7 @@ public class FilePrompt {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
         {
-            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
+            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
         }
 
         Uri uri = new Uri(request.getBody().getUrl());
@@ -76,7 +76,7 @@ public class FilePrompt {
             HttpRequestMessage<SemanticSearchRequest> request,
         @SemanticSearch(name = "search", connectionName = "CosmosDBMongoVCoreConnectionString", collection = "openai-index", query = "{Prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) String semanticSearchContext,
         final ExecutionContext context) {
-            String response = new JSONObject(semanticSearchContext).getString("response");
+            String response = new JSONObject(semanticSearchContext).getString("Response");
             return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
             .body(response)

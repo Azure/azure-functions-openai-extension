@@ -21,13 +21,11 @@ public static class TextCompletions
     /// and embeds it into a text prompt, which is then sent to the OpenAI completions API.
     /// </summary>
     [Function(nameof(WhoIs))]
-    public static HttpResponseData WhoIs(
+    public static IActionResult WhoIs(
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
         [TextCompletionInput("Who is {name}?", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response)
     {
-        HttpResponseData responseData = req.CreateResponse(HttpStatusCode.OK);
-        responseData.WriteString(response.Content);
-        return responseData;
+        return new OkObjectResult(response.Content);
     }
 
     /// <summary>
@@ -35,13 +33,12 @@ public static class TextCompletions
     /// response as the output.
     /// </summary>
     [Function(nameof(GenericCompletion))]
-    public static HttpResponseData GenericCompletion(
+    public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
         [TextCompletionInput("{Prompt}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response,
         ILogger log)
     {
-        HttpResponseData responseData = req.CreateResponse(HttpStatusCode.OK);
-        responseData.WriteString(response.Content);
-        return responseData;
+        string text = response.Content;
+        return new OkObjectResult(text);
     }
 }

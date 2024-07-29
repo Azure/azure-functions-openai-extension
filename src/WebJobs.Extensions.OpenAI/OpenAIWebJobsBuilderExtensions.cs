@@ -31,18 +31,23 @@ public static class OpenAIWebJobsBuilderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        // Register the client for Azure Open AI
-        Uri? azureOpenAIEndpoint = GetAzureOpenAIEndpoint();
-        string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-        string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
+        // Add AzureComponentFactory to the services
+        builder.Services.AddAzureClientsCore();
 
-        if (azureOpenAIEndpoint != null && !string.IsNullOrEmpty(azureOpenAIKey))
+        // Register the client for Azure Open AI
+        string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+           .AddEnvironmentVariables()
+           .Build();
+
+        IConfigurationSection azureOpenAIConfigSection = configuration.GetSection("AZURE_OPENAI");
+        if (azureOpenAIConfigSection.Exists())
         {
-            RegisterAzureOpenAIClient(builder.Services, azureOpenAIEndpoint, azureOpenAIKey);
-        }
-        else if (azureOpenAIEndpoint != null)
-        {
-            RegisterAzureOpenAIADAuthClient(builder.Services, azureOpenAIEndpoint);
+            builder.Services.AddAzureClients(clientBuilder =>
+            {
+                clientBuilder.AddOpenAIClient(azureOpenAIConfigSection);
+            });
         }
         else if (!string.IsNullOrEmpty(openAIKey))
         {
@@ -50,10 +55,8 @@ public static class OpenAIWebJobsBuilderExtensions
         }
         else
         {
-            throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables.");
+            throw new InvalidOperationException("Must set AZUREOPENAI configuration section (with Endpoint, Key or Credentials) or OPENAI_API_KEY environment variables.");
         }
-
-        builder.Services.AddAzureClientsCore();
 
         // Register the WebJobs extension, which enables the bindings.
         builder.AddExtension<OpenAIExtension>();
@@ -77,30 +80,6 @@ public static class OpenAIWebJobsBuilderExtensions
             .AddSingleton<IAssistantSkillInvoker>(p => p.GetRequiredService<AssistantSkillManager>());
         builder.Services.AddSingleton<AssistantSkillTriggerBindingProvider>();
         return builder;
-    }
-
-    static Uri? GetAzureOpenAIEndpoint()
-    {
-        if (Uri.TryCreate(Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT"), UriKind.Absolute, out var uri))
-        {
-            return uri;
-        }
-
-        return null;
-    }
-
-    static void RegisterAzureOpenAIClient(IServiceCollection services, Uri azureOpenAIEndpoint, string azureOpenAIKey)
-    {
-        services.AddAzureClients(clientBuilder =>
-        {
-            clientBuilder.AddOpenAIClient(azureOpenAIEndpoint, new AzureKeyCredential(azureOpenAIKey));
-        });
-    }
-
-    static void RegisterAzureOpenAIADAuthClient(IServiceCollection services, Uri azureOpenAIEndpoint)
-    {
-        var managedIdentityClient = new OpenAIClient(azureOpenAIEndpoint, new DefaultAzureCredential());
-        services.AddSingleton<OpenAIClient>(managedIdentityClient);
     }
 
     static void RegisterOpenAIClient(IServiceCollection services, string openAIKey)

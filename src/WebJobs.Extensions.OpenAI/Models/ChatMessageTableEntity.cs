@@ -4,6 +4,7 @@
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Data.Tables;
+using OpenAI.Chat;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
@@ -19,7 +20,7 @@ class ChatMessageTableEntity : ITableEntity
         string partitionKey,
         int messageIndex,
         string content,
-        ChatRole role,
+        ChatMessageRole role,
         string? name = null)
     {
         this.PartitionKey = partitionKey;

@@ -28,7 +28,6 @@ sealed class AzureAISearchProvider : ISearchProvider
     readonly bool isSemanticSearchEnabled = false;
     readonly bool useSemanticCaptions = false;
     readonly int vectorSearchDimensions = 1536;
-    readonly string searchAPIKeySetting = "SearchAPIKey";
     readonly string searchConnectionNamePrefix = "AISearch";
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
@@ -54,7 +53,6 @@ sealed class AzureAISearchProvider : ISearchProvider
 
         this.isSemanticSearchEnabled = azureAiSearchConfigOptions.Value.IsSemanticSearchEnabled;
         this.useSemanticCaptions = azureAiSearchConfigOptions.Value.UseSemanticCaptions;
-        this.searchAPIKeySetting = azureAiSearchConfigOptions.Value.SearchAPIKeySetting ?? this.searchAPIKeySetting;
         this.searchConnectionNamePrefix = azureAiSearchConfigOptions.Value.SearchConnectionNamePrefix ?? this.searchConnectionNamePrefix;
         int value = azureAiSearchConfigOptions.Value.VectorSearchDimensions;
         if (value < 2 || value > 3072)
@@ -285,15 +283,7 @@ sealed class AzureAISearchProvider : ISearchProvider
                 name =>
                 {
                     string endpoint = this.configuration.GetValue<string>(connectionInfo.ConnectionName);
-                    string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
-                    if (string.IsNullOrEmpty(key))
-                    {
-                        return (new SearchIndexClient(new Uri(endpoint), this.GetSearchTokenCredential()), endpoint);
-                    }
-                    else
-                    {
-                        return (new SearchIndexClient(new Uri(endpoint), new AzureKeyCredential(key)), endpoint);
-                    }
+                    return (new SearchIndexClient(new Uri(endpoint), this.GetSearchTokenCredential()), endpoint);
                 });
 
         return searchIndexClient;
@@ -309,16 +299,7 @@ sealed class AzureAISearchProvider : ISearchProvider
                 {
                     string endpoint = this.configuration.GetValue<string>(connectionInfo.ConnectionName);
                     string searchIndexName = connectionInfo.CollectionName ?? defaultSearchIndexName;
-                    string? key = this.configuration.GetValue<string>(this.searchAPIKeySetting);
-                    if (string.IsNullOrEmpty(key))
-                    {
-                        searchClient = new SearchClient(new Uri(endpoint), searchIndexName, this.GetSearchTokenCredential());
-                    }
-                    else
-                    {
-                        searchClient = new SearchClient(new Uri(endpoint), searchIndexName, new AzureKeyCredential(key));
-                    }
-
+                    searchClient = new SearchClient(new Uri(endpoint), searchIndexName, this.GetSearchTokenCredential());
                     return (searchClient, endpoint, searchIndexName);
                 });
 

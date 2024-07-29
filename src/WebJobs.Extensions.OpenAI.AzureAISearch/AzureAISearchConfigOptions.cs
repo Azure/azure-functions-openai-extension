@@ -14,7 +14,5 @@ public class AzureAISearchConfigOptions
 
     public int VectorSearchDimensions { get; set; } = 1536;
 
-    public string? SearchAPIKeySetting { get; set; }
-
     public string? SearchConnectionNamePrefix { get; set; }
 }

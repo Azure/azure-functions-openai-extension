@@ -19,9 +19,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     readonly ILogger logger;
     readonly IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions;
     readonly ConcurrentDictionary<string, MongoClient> cosmosDBClients = new();
-    string databaseName;
-    string collectionName;
-    string indexName;
+    string databaseName = "";
+    string collectionName = "";
+    string indexName = "";
 
     public string Name { get; set; } = "CosmosDBSearch";
 

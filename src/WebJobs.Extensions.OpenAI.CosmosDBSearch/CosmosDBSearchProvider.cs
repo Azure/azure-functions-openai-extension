@@ -118,7 +118,6 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             _ => CreateMongoClient(document.ConnectionInfo.ConnectionName)
         );
 
-        this.databaseName = document.ConnectionInfo.DatabaseName;
         this.collectionName = document.ConnectionInfo.CollectionName;
         this.indexName = cosmosDBSearchConfigOptions.Value.IndexName;
         this.CreateVectorIndexIfNotExists(cosmosClient);
@@ -309,19 +308,27 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                     { "id", Guid.NewGuid().ToString("N") },
                     {
 <<<<<<< HEAD
+<<<<<<< HEAD
                         this.cosmosDBSearchConfigOptions.Value.TextKey,
 =======
                         this.cosmosDBSearchConfigOptions.TextKey,
 >>>>>>> 94c2ade (resolving comments)
+=======
+                        this.cosmosDBSearchConfigOptions.Value.TextKey,
+>>>>>>> 94f8e26 (Fixing build issues)
                         document.Embeddings.Request.Input![i]
                     },
                     { "title", Path.GetFileNameWithoutExtension(document.Title) },
                     {
 <<<<<<< HEAD
+<<<<<<< HEAD
                         this.cosmosDBSearchConfigOptions.Value.EmbeddingKey,
 =======
                         this.cosmosDBSearchConfigOptions.EmbeddingKey,
 >>>>>>> 94c2ade (resolving comments)
+=======
+                        this.cosmosDBSearchConfigOptions.Value.EmbeddingKey,
+>>>>>>> 94f8e26 (Fixing build issues)
                         new BsonArray(
                             document
                                 .Embeddings.Response.Data[i]

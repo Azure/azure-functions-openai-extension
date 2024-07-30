@@ -21,6 +21,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     string databaseName = "";
     string collectionName = "";
     string indexName = "";
@@ -40,6 +41,11 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     string collectionName;
     string indexName;
 >>>>>>> a3290f8 (Fixing build issues)
+=======
+    string databaseName = "";
+    string collectionName = "";
+    string indexName = "";
+>>>>>>> b7bd308 (Fixing build issues)
 
     public string Name { get; set; } = "CosmosDBSearch";
 

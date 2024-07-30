@@ -19,9 +19,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     readonly ILogger logger;
     readonly IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions;
     readonly ConcurrentDictionary<string, MongoClient> cosmosDBClients = new();
-    string databaseName = "openai-functions-database";
-    string collectionName = "openai-functions-collection";
-    string indexName = "openai-functions-index";
+    string databaseName;
+    string collectionName;
+    string indexName;
 
     public string Name { get; set; } = "CosmosDBSearch";
 
@@ -91,6 +91,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             _ => CreateMongoClient(document.ConnectionInfo.ConnectionName)
         );
 
+        this.databaseName = cosmosDBSearchConfigOptions.Value.DatabaseName;
         this.collectionName = document.ConnectionInfo.CollectionName;
         this.indexName = cosmosDBSearchConfigOptions.Value.IndexName;
         this.CreateVectorIndexIfNotExists(cosmosClient);

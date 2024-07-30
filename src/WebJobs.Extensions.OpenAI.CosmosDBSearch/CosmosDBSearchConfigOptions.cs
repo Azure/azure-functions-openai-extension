@@ -8,11 +8,14 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 /// </summary>
 public class CosmosDBSearchConfigOptions
 {
+    // Database name for the vector store
+    public string DatabaseName { get; set; } = "openai-functions-database";
+
     // Index name for your vector store collection
-    public string IndexName { get; set; } = "functionsIndex";
+    public string IndexName { get; set; } = "openai-functions-index";
 
     // Application name for the client for tracking and logging
-    public string ApplicationName { get; set; } = "functionsAppName";
+    public string ApplicationName { get; set; } = "openai-function-appName";
 
     // Name of the field property which will contain the embeddings
     public string EmbeddingKey { get; set; } = "embedding";

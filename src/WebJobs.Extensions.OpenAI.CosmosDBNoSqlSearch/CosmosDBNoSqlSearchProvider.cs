@@ -10,14 +10,12 @@ using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch;
 
-sealed class CosmosDBSearchProvider : ISearchProvider
+sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 {
     readonly IConfiguration configuration;
     readonly ILogger logger;
     readonly IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions;
     readonly ConcurrentDictionary<string, CosmosClient> cosmosDBClients = new();
-    string databaseName = "openai-functions-database";
-    string collectionName = "openai-functions-collection";
 
     public string Name { get; set; } = "CosmosDBNoSqlSearch";
 
@@ -28,7 +26,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     /// <param name="loggerFactory">The logger factory.</param>
     /// <param name="cosmosDBNoSqlSearchConfigOptions">Cosmos DB No Sql search config options.</param>
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
-    public CosmosDBSearchProvider(
+    public CosmosDBNoSqlSearchProvider(
         IConfiguration configuration,
         ILoggerFactory loggerFactory,
         IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions
@@ -41,6 +39,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(loggerFactory));
         }
         this.cosmosDBNoSqlSearchConfigOptions = cosmosDBNoSqlSearchConfigOptions;
+        this.logger = loggerFactory.CreateLogger<CosmosDBNoSqlSearchProvider>();
     }
 
     /// <summary>
@@ -54,31 +53,37 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         CancellationToken cancellationToken
     )
     {
+        // Create cosmos client if not exists in the cache.
         CosmosClient cosmosClient = cosmosDBClients.GetOrAdd(
             document.ConnectionInfo!.ConnectionName,
             _ => CreateCosmosClient(document.ConnectionInfo!)
         );
 
-        var databaseProperties = this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseProperties;
-        databaseProperties.DatabaseName = document.ConnectionInfo!.DatabaseName;
-        var databaseResponse = await this
-            .cosmosClient.CreateDatabaseIfNotExistsAsync(
-                databaseProperties,
+        // Create a database if not exists.
+        DatabaseResponse databaseResponse = await cosmosClient
+            .CreateDatabaseIfNotExistsAsync(
+                this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseName,
+                this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseThroughput,
+                this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseRequestOptions,
                 cancellationToken: cancellationToken
             )
             .ConfigureAwait(false);
 
-        var containerProperties = this.cosmosDBNoSqlSearchConfigOptions.Value.ContainerProperties;
-        containerProperties.CollectionName = document.ConnectionInfo!.CollectionName;
+        // Create a container if not exists.
+        ContainerProperties containerProperties = this.cosmosDBNoSqlSearchConfigOptions
+            .Value
+            .ContainerProperties;
         containerProperties.VectorEmbeddingPolicy = this.cosmosDBNoSqlSearchConfigOptions
             .Value
             .VectorEmbeddingPolicy;
         containerProperties.IndexingPolicy = this.cosmosDBNoSqlSearchConfigOptions
             .Value
             .IndexingPolicy;
-        var containerResponse = await databaseResponse
+        ContainerResponse containerResponse = await databaseResponse
             .Database.CreateContainerIfNotExistsAsync(
                 containerProperties,
+                this.cosmosDBNoSqlSearchConfigOptions.Value.ContainerThroughput,
+                this.cosmosDBNoSqlSearchConfigOptions.Value.ContainerRequestOptions,
                 cancellationToken: cancellationToken
             )
             .ConfigureAwait(false);
@@ -88,12 +93,11 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     CosmosClient CreateCosmosClient(ConnectionInfo connectionInfo)
     {
-        return CosmosClient(
+        return new CosmosClient(
             connectionInfo.ConnectionName,
             new CosmosClientOptions
             {
-                ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.ApplicationName,
-                Serializer = new CosmosSystemTextJsonSerializer(JsonSerializerOptions.Default),
+                ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
             }
         );
     }
@@ -109,12 +113,12 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
             {
                 MemoryRecordWithId record = new MemoryRecordWithId(document, i);
-                var result = await this
-                    .cosmosClient.GetDatabase(document.ConnectionInfo!.DatabaseName)
+                var result = await cosmosClient
+                    .GetDatabase(this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseName)
                     .GetContainer(document.ConnectionInfo!.CollectionName)
                     .UpsertItemAsync(
                         record,
-                        new PartitionKey(record.Id),
+                        new PartitionKey(record.id),
                         cancellationToken: cancellationToken
                     )
                     .ConfigureAwait(false);
@@ -183,8 +187,8 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 "@embeddingKey",
                 cosmosDBNoSqlSearchConfigOptions.Value.EmbeddingKey
             );
-            queryDefinition.WithParameter("@embedding", embedding);
-            queryDefinition.WithParameter("@limit", limit);
+            queryDefinition.WithParameter("@embedding", request.Embeddings);
+            queryDefinition.WithParameter("@limit", request.MaxResults);
             queryDefinition.WithParameter(
                 "@whereClause",
                 cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["where_clause"]
@@ -194,26 +198,23 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["limit_offset_clause"]
             );
 
-            var feedIterator = this
-                ._cosmosClient.GetDatabase(this._databaseName)
-                .GetContainer(collectionName)
+            var feedIterator = cosmosClient
+                .GetDatabase(this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseName)
+                .GetContainer(request.ConnectionInfo!.CollectionName)
                 .GetItemQueryIterator<MemoryRecordWithSimilarityScore>(queryDefinition);
 
             List<SearchResult> searchResults = new();
             while (feedIterator.HasMoreResults)
             {
-                foreach (
-                    var memoryRecord in await feedIterator
-                        .ReadNextAsync(cancellationToken)
-                        .ConfigureAwait(false)
-                )
+                foreach (var memoryRecord in await feedIterator.ReadNextAsync())
                 {
-                    searchResults.Add(new SearchResult(memoryRecord.Title, memoryRecord.Text));
+                    searchResults.Add(new SearchResult(memoryRecord.title, memoryRecord.text));
                 }
             }
             SearchResponse response = new(searchResults);
+            return response;
         }
-        catch
+        catch (CosmosException ex)
         {
             this.logger.LogError(ex, "CosmosDBnoSqlSearchProvider:SearchAsync error");
             throw;
@@ -223,23 +224,35 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     /// <summary>
     /// Creates a new record with a similarity score.
     /// </summary>
-    /// <param name="id"></param>
-    /// <param name="text"></param>
-    /// <param name="embedding"></param>
-    /// <param name="title"></param>
-    /// <param name="timestamp"></param>
-    internal class MemoryRecordWithSimilarityScore(
-        string id,
-        string text,
-        ReadOnlyMemory<float> embedding,
-        string title,
-        DateTimeOffset? timestamp = null
-    )
+    internal class MemoryRecordWithSimilarityScore
     {
+        public string id { get; set; }
+        public string text { get; set; }
+        public ReadOnlyMemory<float> embedding { get; set; }
+        public string title { get; set; }
+        public DateTimeOffset? timestamp { get; set; }
+
         /// <summary>
         /// The similarity score returned.
         /// </summary>
         public double SimilarityScore { get; set; }
+
+        public MemoryRecordWithSimilarityScore(
+            string id,
+            string text,
+            string title,
+            ReadOnlyMemory<float> embedding,
+            DateTimeOffset timestamp,
+            double SimilarityScore
+        )
+        {
+            this.id = id;
+            this.text = text;
+            this.title = title;
+            this.embedding = embedding;
+            this.timestamp = timestamp;
+            this.SimilarityScore = SimilarityScore;
+        }
     }
 
     /// <summary>
@@ -247,11 +260,11 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     /// </summary>
     internal class MemoryRecordWithId
     {
-        string id;
-        string text;
-        ReadOnlyMemory<float> embedding;
-        string title;
-        DateTimeOffset? timestamp;
+        public string id { get; set; }
+        public string text { get; set; }
+        public ReadOnlyMemory<float> embedding { get; set; }
+        public string title { get; set; }
+        public DateTimeOffset? timestamp { get; set; }
 
         /// <summary>
         /// Creates a new record that also serializes an "id" property.

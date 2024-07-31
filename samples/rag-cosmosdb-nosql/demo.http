@@ -1,0 +1,27 @@
+### Ingest first file into database
+
+POST http://localhost:7071/api/IngestFile
+Content-Type: application/json
+
+{"Url":"https://functionsvectorsearch.blob.core.windows.net/vectorsearch-container/NBA_dataset.txt"}
+
+
+### Ingest second file into database
+# POST http://localhost:7071/api/IngestFile
+# Content-Type: application/json
+
+# {"Url":"https://url/test/test_file.txt"}
+
+
+### Send a search query (Example #1)
+POST http://localhost:7071/api/PromptFile
+Content-Type: application/json
+
+{"Prompt":"List the greatest Nba teams"}
+
+
+### Send a search query (Example #2)
+POST http://localhost:7071/api/PromptFile
+Content-Type: application/json
+
+{"Prompt":"Give me some player names from Lakers, part of the top 75 nba players."}

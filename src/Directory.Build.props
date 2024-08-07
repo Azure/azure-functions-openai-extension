@@ -37,6 +37,7 @@
     <AzureAISearchVersion>0.3.0-alpha</AzureAISearchVersion>
     <!-- Version for CosmosDB search webjobs and worker project -->
     <CosmosDBSearchVersion>0.2.0-alpha</CosmosDBSearchVersion>
+    <CosmosDBNoSqlSearchVersion>0.16.0-alpha</CosmosDBNoSqlSearchVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

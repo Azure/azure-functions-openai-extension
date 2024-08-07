@@ -3,14 +3,11 @@
 
 using Azure;
 using Azure.AI.OpenAI;
-using Azure.Identity;
 using Azure.Data.Tables;
-using Microsoft.Extensions.Azure;
-using Microsoft.Azure.WebJobs.Extensions.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
@@ -456,7 +453,7 @@ class DefaultAssistantService : IAssistantService
 
     void CreateTableClient(AssistantCreateRequest request)
     {
-        string connectionStringName = request.ChatStorageConnectionSection ?? string.Empty;
+        string connectionStringName = request.ChatStorageConnectionSetting ?? string.Empty;
         IConfigurationSection tableConfigSection = this.configuration.GetSection(connectionStringName);
         string storageAccountUri = string.Empty;
         if (tableConfigSection.Exists())
@@ -483,14 +480,15 @@ class DefaultAssistantService : IAssistantService
         else
         {
             // Else, will use the connection string
-            connectionStringName = request.ChatStorageConnectionSection ?? DefaultChatStorage;
-
-            this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
+            connectionStringName = request.ChatStorageConnectionSetting ?? DefaultChatStorage;
 
             string connectionString = this.configuration.GetValue<string>(connectionStringName);
 
+            this.logger.LogInformation("using connection string for table service client");
+
             this.tableServiceClient = new TableServiceClient(connectionString);
         }
+
         this.logger.LogInformation("Using {CollectionName} for table storage collection name", request.CollectionName);
         this.tableClient = this.tableServiceClient.GetTableClient(request.CollectionName);
     }

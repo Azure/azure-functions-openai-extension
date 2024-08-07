@@ -42,7 +42,7 @@ public class AssistantCreateRequest
     /// <summary>
     /// Configuration section name for the table settings for chat storage.
     /// </summary>
-    public string? ChatStorageConnectionSection { get; set; }
+    public string? ChatStorageConnectionSetting { get; set; }
 
     /// <summary>
     /// Table collection name for chat storage.

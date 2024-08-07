@@ -30,6 +30,7 @@ extends:
 
     stages:
       - stage: Build
+        displayName: 'Build And Test'
+        dependsOn: []
         jobs:
-          - template: /eng/ci/templates/build-local.yml@self
           - template: /eng/ci/templates/run-integration-tests.yml@self

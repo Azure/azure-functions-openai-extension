@@ -86,6 +86,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb", "rag-comosdb"
 		samples\rag-cosmosdb\demo.http = samples\rag-cosmosdb\demo.http
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch", "src\Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch\Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj", "{6990598F-66A7-4476-943A-781849DEDD3B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb-nosql", "rag-comosdb-nosql", "{9285C43E-9DE3-4FED-9C58-09073C35B357}"
+	ProjectSection(SolutionItems) = preProject
+		samples\rag-cosmosdb-nosql\demo.http = samples\rag-cosmosdb-nosql\demo.http
+	EndProjectSection
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticCosmosDBSearchEmbeddings", "samples\rag-cosmosdb\csharp-ooproc\SemanticCosmosDBSearchEmbeddings.csproj", "{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-ooproc\AssistantSample.csproj", "{4057D224-2A7C-4186-86D6-66F79542561B}"
@@ -152,6 +159,10 @@ Global
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6990598F-66A7-4476-943A-781849DEDD3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6990598F-66A7-4476-943A-781849DEDD3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6990598F-66A7-4476-943A-781849DEDD3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6990598F-66A7-4476-943A-781849DEDD3B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -185,7 +196,9 @@ Global
 		{CAB7034D-FBA9-4A7D-B50B-E9029DFD0DEF} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{3B232EA0-9CAE-4488-8579-E86F1FCFEE9A} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7} = {7A80B95C-AD57-4057-AED0-48629B75874F}
+		{6990598F-66A7-4476-943A-781849DEDD3B} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{24193510-C974-42E2-AE1F-1097E16A2445} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{9285C43E-9DE3-4FED-9C58-09073C35B357} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC} = {24193510-C974-42E2-AE1F-1097E16A2445}
 		{4057D224-2A7C-4186-86D6-66F79542561B} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
 	EndGlobalSection

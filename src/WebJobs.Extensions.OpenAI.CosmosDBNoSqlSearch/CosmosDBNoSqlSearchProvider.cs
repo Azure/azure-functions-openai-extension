@@ -54,7 +54,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     )
     {
         // Create cosmos client if not exists in the cache.
-        CosmosClient cosmosClient = cosmosDBClients.GetOrAdd(
+        CosmosClient cosmosClient = this.cosmosDBClients.GetOrAdd(
             document.ConnectionInfo!.ConnectionName,
             _ => CreateCosmosClient(document.ConnectionInfo!)
         );
@@ -143,7 +143,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(request.ConnectionInfo));
         }
 
-        CosmosClient cosmosClient = cosmosDBClients.GetOrAdd(
+        CosmosClient cosmosClient = this.cosmosDBClients.GetOrAdd(
             request.ConnectionInfo!.ConnectionName,
             _ => CreateCosmosClient(request.ConnectionInfo!)
         );
@@ -166,7 +166,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             //# Add where_clause if specified
             if (
                 cosmosDBNoSqlSearchConfigOptions.Value.PreFilters != null
-                || cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["where_clause"] != null
+                && cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["where_clause"] != null
             )
             {
                 query += " @whereClause";
@@ -176,7 +176,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             // Add limit_offset_clause if specified
             if (
                 cosmosDBNoSqlSearchConfigOptions.Value.PreFilters != null
-                || cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["limit_offset_clause"] != null
+                && cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["limit_offset_clause"] != null
             )
             {
                 query += " @limitOffsetClause";
@@ -191,11 +191,11 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             queryDefinition.WithParameter("@limit", request.MaxResults);
             queryDefinition.WithParameter(
                 "@whereClause",
-                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["where_clause"]
+                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters?["where_clause"]
             );
             queryDefinition.WithParameter(
                 "@limitOffsetClause",
-                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["limit_offset_clause"]
+                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters?["limit_offset_clause"]
             );
 
             var feedIterator = cosmosClient
@@ -272,9 +272,9 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         public MemoryRecordWithId(SearchableDocument document, int dataId)
         {
             this.id = Guid.NewGuid().ToString("N");
-            this.text = document.Embeddings.Request.Input![dataId];
+            this.text = document.Embeddings?.Request.Input![dataId] ?? string.Empty;
             this.title = Path.GetFileNameWithoutExtension(document.Title);
-            this.embedding = document.Embeddings.Response.Data[dataId].Embedding.ToArray();
+            this.embedding = document.Embeddings?.Response?.Data[dataId].Embedding.ToArray();
             this.timestamp = DateTime.UtcNow;
         }
     }

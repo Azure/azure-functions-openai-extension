@@ -88,9 +88,8 @@ class AssistantBindingConverter :
 
         public async Task AddAsync(AssistantCreateRequest item, CancellationToken cancellationToken = default)
         {
-            AssistantCreateRequest request = new(item.Id, item.Instructions);
-            await this.chatService.CreateAssistantAsync(request, cancellationToken);
-            this.logger.LogInformation("Created assistant '{Id}'", request.Id);
+            await this.chatService.CreateAssistantAsync(item, cancellationToken);
+            this.logger.LogInformation("Created assistant '{Id}'", item.Id);
         }
 
         public Task FlushAsync(CancellationToken cancellationToken = default)

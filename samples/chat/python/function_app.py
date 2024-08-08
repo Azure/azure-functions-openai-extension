@@ -6,32 +6,34 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
 
 @app.function_name("CreateChatBot")
-@app.route(route="chats/{chatID}", methods=["PUT"])
+@app.route(route="chats/{chatId}", methods=["PUT"])
 @app.assistant_create_output(arg_name="requests")
 def create_chat_bot(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResponse:
-    chatID = req.route_params.get("chatID")
+    chatId = req.route_params.get("chatId")
     input_json = req.get_json()
     logging.info(
-        f"Creating chat ${chatID} from input parameters ${json.dumps(input_json)}")
+        f"Creating chat ${chatId} from input parameters ${json.dumps(input_json)}")
     create_request = {
-        "id": chatID,
-        "instructions": input_json.get("instructions")
+        "id": chatId,
+        "instructions": input_json.get("instructions"),
+        "chatStorageConnectionSection": "AzureWebJobsStorage",
+        "collectionName": "SampleChatState"
     }
     requests.set(json.dumps(create_request))
-    response_json = {"chatId": chatID}
+    response_json = {"chatId": chatId}
     return func.HttpResponse(json.dumps(response_json), status_code=202, mimetype="application/json")
 
 
 @app.function_name("GetChatState")
-@app.route(route="chats/{chatID}", methods=["GET"])
-@app.assistant_query_input(arg_name="state", id="{chatID}", timestamp_utc="{Query.timestampUTC}")
+@app.route(route="chats/{chatId}", methods=["GET"])
+@app.assistant_query_input(arg_name="state", id="{chatId}", timestamp_utc="{Query.timestampUTC}")
 def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
     return func.HttpResponse(state, status_code=200, mimetype="application/json")
 
 
 @app.function_name("PostUserResponse")
-@app.route(route="chats/{chatID}", methods=["POST"])
-@app.assistant_post_input(arg_name="state", id="{chatID}", user_message="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+@app.route(route="chats/{chatId}", methods=["POST"])
+@app.assistant_post_input(arg_name="state", id="{chatId}", user_message="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
 def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
     # Parse the JSON string into a dictionary
     data = json.loads(state)

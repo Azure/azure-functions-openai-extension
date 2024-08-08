@@ -8,7 +8,9 @@ Write-Host "Creating chat $chatID from input parameters $($inputJson)"
 
 $createRequest = @{
     id           = $chatID
-    instructions = $inputJson.Instructions
+    instructions = $inputJson.Instructions,
+    chatStorageConnectionSetting = "AzureWebJobsStorage",
+    collectionName = "SampleChatState"
 }
 
 Push-OutputBinding -Name ChatBotCreate -Value $createRequest

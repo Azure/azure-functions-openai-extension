@@ -142,8 +142,12 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document);
     }
 
+<<<<<<< HEAD
     MongoClient CreateMongoClient(String connectionName)
 >>>>>>> 94c2ade (resolving comments)
+=======
+    MongoClient CreateMongoClient(string connectionName)
+>>>>>>> 13585e6 (Resolving comments)
     {
         MongoClientSettings settings = MongoClientSettings.FromConnectionString(connectionName);
         settings.ApplicationName = this.cosmosDBSearchConfigOptions.Value.ApplicationName;

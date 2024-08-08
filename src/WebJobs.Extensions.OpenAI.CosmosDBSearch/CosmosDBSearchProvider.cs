@@ -86,14 +86,14 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         CancellationToken cancellationToken
     )
     {
-        MongoClient cosmosClient = cosmosDBClients.GetOrAdd(
+        MongoClient cosmosClient = this.cosmosDBClients.GetOrAdd(
             document.ConnectionInfo!.ConnectionName,
-            _ => CreateMongoClient(document.ConnectionInfo.ConnectionName)
+            _ => this.CreateMongoClient(document.ConnectionInfo.ConnectionName)
         );
 
-        this.databaseName = cosmosDBSearchConfigOptions.Value.DatabaseName;
+        this.databaseName = this.cosmosDBSearchConfigOptions.Value.DatabaseName;
         this.collectionName = document.ConnectionInfo.CollectionName;
-        this.indexName = cosmosDBSearchConfigOptions.Value.IndexName;
+        this.indexName = this.cosmosDBSearchConfigOptions.Value.IndexName;
         this.CreateVectorIndexIfNotExists(cosmosClient);
 
         await this.UpsertVectorAsync(cosmosClient, document);
@@ -122,9 +122,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
         try
         {
-            MongoClient cosmosClient = cosmosDBClients.GetOrAdd(
+            MongoClient cosmosClient = this.cosmosDBClients.GetOrAdd(
                 request.ConnectionInfo.ConnectionName,
-                _ => CreateMongoClient(request.ConnectionInfo.ConnectionName)
+                _ => this.CreateMongoClient(request.ConnectionInfo.ConnectionName)
             );
 
             IMongoCollection<BsonDocument> collection = cosmosClient

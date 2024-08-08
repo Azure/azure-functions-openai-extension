@@ -99,7 +99,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document);
     }
 
-    MongoClient CreateMongoClient(String connectionName)
+    MongoClient CreateMongoClient(string connectionName)
     {
         MongoClientSettings settings = MongoClientSettings.FromConnectionString(connectionName);
         settings.ApplicationName = this.cosmosDBSearchConfigOptions.Value.ApplicationName;
@@ -179,9 +179,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 .GetDatabase(this.databaseName)
                 .GetCollection<BsonDocument>(this.collectionName)
                 .Indexes.List();
-            bool vectorIndexExists = indexCursor
-                .ToList()
-                .Any(x => x["name"] == this.cosmosDBSearchConfigOptions.Value.IndexName);
+            bool vectorIndexExists = indexCursor.ToList().Any(x => x["name"] == this.indexName);
             if (!vectorIndexExists)
             {
                 BsonDocument vectorIndexDefinition = new BsonDocument();
@@ -364,7 +362,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 {
                     new BsonDocument
                     {
-                        { "name", this.cosmosDBSearchConfigOptions.Value.IndexName },
+                        { "name", this.indexName },
                         {
                             "key",
                             new BsonDocument
@@ -405,7 +403,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 {
                     new BsonDocument
                     {
-                        { "name", this.cosmosDBSearchConfigOptions.Value.IndexName },
+                        { "name", this.indexName },
                         {
                             "key",
                             new BsonDocument

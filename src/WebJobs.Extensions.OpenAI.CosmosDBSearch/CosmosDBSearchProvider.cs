@@ -107,6 +107,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         MongoClient cosmosClient = this.cosmosDBClients.GetOrAdd(
             document.ConnectionInfo!.ConnectionName,
             _ => this.CreateMongoClient(document.ConnectionInfo.ConnectionName)
@@ -126,13 +127,16 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 =======
         MongoClient cosmosClient = cosmosDBClients.GetOrAdd(
 >>>>>>> 3eafd96 (Formatting)
+=======
+        MongoClient cosmosClient = this.cosmosDBClients.GetOrAdd(
+>>>>>>> 90eeed6 (Resolving comments)
             document.ConnectionInfo!.ConnectionName,
-            _ => CreateMongoClient(document.ConnectionInfo.ConnectionName)
+            _ => this.CreateMongoClient(document.ConnectionInfo.ConnectionName)
         );
 
-        this.databaseName = cosmosDBSearchConfigOptions.Value.DatabaseName;
+        this.databaseName = this.cosmosDBSearchConfigOptions.Value.DatabaseName;
         this.collectionName = document.ConnectionInfo.CollectionName;
-        this.indexName = cosmosDBSearchConfigOptions.Value.IndexName;
+        this.indexName = this.cosmosDBSearchConfigOptions.Value.IndexName;
         this.CreateVectorIndexIfNotExists(cosmosClient);
 
         await this.UpsertVectorAsync(cosmosClient, document);
@@ -164,6 +168,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             MongoClient cosmosClient = this.cosmosDBClients.GetOrAdd(
                 request.ConnectionInfo.ConnectionName,
                 _ => this.CreateMongoClient(request.ConnectionInfo.ConnectionName)
@@ -172,6 +177,11 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 request.ConnectionInfo.ConnectionName,
                 _ => CreateMongoClient(request.ConnectionInfo.ConnectionName)
 >>>>>>> 3eafd96 (Formatting)
+=======
+            MongoClient cosmosClient = this.cosmosDBClients.GetOrAdd(
+                request.ConnectionInfo.ConnectionName,
+                _ => this.CreateMongoClient(request.ConnectionInfo.ConnectionName)
+>>>>>>> 90eeed6 (Resolving comments)
             );
 
             IMongoCollection<BsonDocument> collection = cosmosClient

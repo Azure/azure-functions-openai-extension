@@ -38,7 +38,7 @@ public class ConnectionInfo
     public string CollectionName { get; set; }
 
     /// <summary>
-    /// The name of the app setting or environment variable containing the required credentials 
+    /// The name of the app setting or environment variable containing the required credentials
     /// for authenticating with the search provider. See the documentation for the search provider
     /// extension to know what format the underlying credential value requires.
     /// </summary>

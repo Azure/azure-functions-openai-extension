@@ -16,8 +16,8 @@ def create_chat_bot(req: func.HttpRequest, requests: func.Out[str]) -> func.Http
     create_request = {
         "id": chatId,
         "instructions": input_json.get("instructions"),
-        "ChatStorageConnectionSection": "AzureWebJobsStorage",
-        "CollectionName": "SampleChatState"
+        "chatStorageConnectionSection": "AzureWebJobsStorage",
+        "collectionName": "SampleChatState"
     }
     requests.set(json.dumps(create_request))
     response_json = {"chatId": chatId}

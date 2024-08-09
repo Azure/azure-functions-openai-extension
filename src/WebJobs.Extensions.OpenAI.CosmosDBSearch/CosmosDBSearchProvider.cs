@@ -15,7 +15,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 
 sealed class CosmosDBSearchProvider : ISearchProvider
 {
-    readonly IConfiguration configuration;
     readonly ILogger logger;
     readonly IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions;
     readonly ConcurrentDictionary<string, MongoClient> cosmosDBClients = new();
@@ -43,19 +42,14 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     /// <summary>
     /// Initializes CosmosDB search provider.
     /// </summary>
-    /// <param name="configuration">The configuration.</param>
     /// <param name="loggerFactory">The logger factory.</param>
     /// <param name="cosmosDBSearchConfigOptions">Cosmos DB search config options.</param>
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
     public CosmosDBSearchProvider(
-        IConfiguration configuration,
         ILoggerFactory loggerFactory,
         IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions
     )
     {
-        this.configuration =
-            configuration ?? throw new ArgumentNullException(nameof(configuration));
-
         if (loggerFactory == null)
         {
             throw new ArgumentNullException(nameof(loggerFactory));

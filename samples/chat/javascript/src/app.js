@@ -18,6 +18,8 @@ app.http('CreateChatBot', {
         const createRequest = {
             id: chatID,
             instructions: inputJson.instructions,
+            chatStorageConnectionSetting: "AzureWebJobsStorage",
+            collectionName: "SampleChatState"
         }
         context.extraOutputs.set(chatBotCreateOutput, createRequest)
         return { status: 202, jsonBody: { chatId: chatID } }

@@ -5,7 +5,8 @@ It builds upon the concepts [chatbot](../chatbot) sample, which demonstrates how
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
+* [JavaScript](javascript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
@@ -68,7 +69,7 @@ public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string tas
 }
 ```
 
-Nodejs example:
+TypeScript example:
 
 ```ts
 app.generic('AddTodo', {
@@ -77,6 +78,27 @@ app.generic('AddTodo', {
         functionDescription: 'Create a new todo task'
     }),
     handler: async (taskDescription: string, context: InvocationContext) => {
+        if (!taskDescription) {
+            throw new Error('Task description cannot be empty')
+        }
+
+        context.log(`Adding todo: ${taskDescription}`)
+
+        const todoId = crypto.randomUUID().substring(0, 6)
+        return todoManager.AddTodo(new TodoItem(todoId, taskDescription))
+    }
+})
+```
+
+JavaScript example:
+
+```js
+app.generic('AddTodo', {
+    trigger: trigger.generic({
+        type: 'assistantSkillTrigger',
+        functionDescription: 'Create a new todo task'
+    }),
+    handler: async (taskDescription, context) => {
         if (!taskDescription) {
             throw new Error('Task description cannot be empty')
         }

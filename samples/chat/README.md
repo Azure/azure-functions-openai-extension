@@ -5,7 +5,8 @@ This sample demonstrates how to build a chatbot using Azure Functions and a loca
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
+* [JavaScript](javascript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
@@ -43,7 +44,8 @@ For additional details on using identity-based connections, refer to the [Azure 
     | Language Worker | Command |
     | --------------- | ------- |
     | .NET oo-proc | `cd samples/chat/csharp-ooproc && func start` |
-    | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
+    | TypeScript | `cd samples/chat/typescript && npm install && npm run build && npm run start` |
+    | JavaScript | `cd samples/chat/javascript && npm install && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/chat/python && pip install -r requirements.txt && func start` |
     | Java | `cd samples/chat/java && mvn clean package && dotnet build && mvn azure-functions:run` |

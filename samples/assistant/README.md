@@ -26,6 +26,27 @@ This OpenAI extension internally uses the [function calling](https://platform.op
 * 0301 is the default and oldest model version for gpt-3.5 but it doesn't support this feature.
 * Model version 1106 has known issue with duplicate function calls in the OpenAI extension, check the repo issues for progress as the extension team works on it.
 
+### Chat Storage Configuration
+
+If you are using a different table storage than `AzureWebJobsStorage` for chat storage, follow these steps:
+
+1. **Managed Identity - Assign Permissions**:
+   * Assign the user or function app's managed identity the role of `Storage Table Data Contributor`.
+
+1. **Configure Table Service URI**:
+   * Set the `tableServiceUri` in the configuration as follows:
+
+     ```json
+     "<CONNECTION_NAME_PREFIX>__tableServiceUri": "tableServiceUri"
+     ```
+
+   * Replace `CONNECTION_NAME_PREFIX` with the appropriate prefix.
+
+1. **Update Function Code**:
+   * Supply the `ConnectionNamePrefix` to `ChatStorageConnectionSetting` in the function code. This will replace the default value of `AzureWebJobsStorage`.
+
+For additional details on using identity-based connections, refer to the [Azure Functions reference documentation](https://learn.microsoft.com/azure/azure-functions/functions-reference?#common-properties-for-identity-based-connections).
+
 ## Defining skills
 
 You can define a skill by creating a function that uses the `AssistantSkillTrigger` binding. The following example shows a skill that adds a todo item to a database:

@@ -13,7 +13,28 @@ The sample is available in the following language stacks:
 
 ## Prerequisites
 
-Please refer to the root level [README](../../README.md#requirements) for prerequisites.
+* Please refer to the root level [README](../../README.md#requirements) for prerequisites.
+
+### Chat Storage Configuration
+
+If you are using a different table storage than `AzureWebJobsStorage` for chat storage, follow these steps:
+
+1. **Managed Identity - Assign Permissions**:
+   * Assign the user or function app's managed identity the role of `Storage Table Data Contributor`.
+
+1. **Configure Table Service URI**:
+   * Set the `tableServiceUri` in the configuration as follows:
+
+     ```json
+     "<CONNECTION_NAME_PREFIX>__tableServiceUri": "tableServiceUri"
+     ```
+
+   * Replace `CONNECTION_NAME_PREFIX` with the appropriate prefix.
+
+1. **Update Function Code**:
+   * Supply the `ConnectionNamePrefix` to `ChatStorageConnectionSetting` in the function code. This will replace the default value of `AzureWebJobsStorage`.
+
+For additional details on using identity-based connections, refer to the [Azure Functions reference documentation](https://learn.microsoft.com/azure/azure-functions/functions-reference?#common-properties-for-identity-based-connections).
 
 ## Running the sample
 

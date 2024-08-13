@@ -4,11 +4,5 @@
     "logLevel": {
       "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
     }
-  },
-  "extensions": {
-    "openai": {
-      "storageConnectionName": "AzureWebJobsStorage",
-      "collectionName": "SampleChatState"
-    }
   }
 }

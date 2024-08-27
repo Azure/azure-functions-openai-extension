@@ -5,7 +5,10 @@
 The sample is available in the following language stacks:
 
 - [C# on the isolated worker](csharp-ooproc/)
-- [NodeJS](nodejs/)
+
+* [TypeScript](typescript/)
+* [JavaScript](javascript/)
+
 - [PowerShell](powershell/)
 - [Java](java/)
 - [Python](python/)

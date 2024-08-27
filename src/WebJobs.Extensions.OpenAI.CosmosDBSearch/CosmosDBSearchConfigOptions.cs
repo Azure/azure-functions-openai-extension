@@ -8,8 +8,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 /// </summary>
 public class CosmosDBSearchConfigOptions
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
     // Database name for the vector store
     public string DatabaseName { get; set; } = "openai-functions-database";
 
@@ -18,22 +16,6 @@ public class CosmosDBSearchConfigOptions
 
     // Application name for the client for tracking and logging
     public string ApplicationName { get; set; } = "openai-function-appName";
-=======
-=======
-    // Database name for the vector store
-    public string DatabaseName { get; set; } = "openai-functions-database";
-
->>>>>>> a3290f8 (Fixing build issues)
-    // Index name for your vector store collection
-    public string IndexName { get; set; } = "openai-functions-index";
-
-    // Application name for the client for tracking and logging
-<<<<<<< HEAD
-    public string ApplicationName { get; set; } = "functionsAppName";
->>>>>>> 94c2ade (resolving comments)
-=======
-    public string ApplicationName { get; set; } = "openai-function-appName";
->>>>>>> a3290f8 (Fixing build issues)
 
     // Name of the field property which will contain the embeddings
     public string EmbeddingKey { get; set; } = "embedding";
@@ -53,15 +35,7 @@ public class CosmosDBSearchConfigOptions
     ///         - vector-ivf
     ///         - vector-hnsw
     /// </summary>
-<<<<<<< HEAD
-<<<<<<< HEAD
     public string Kind { get; set; } = "vector-ivf";
-=======
-    public String Kind { get; set; } = "vector-ivf";
->>>>>>> ad8a4dd (Updating readme file)
-=======
-    public string Kind { get; set; } = "vector-ivf";
->>>>>>> 94c2ade (resolving comments)
 
     /// <summary>
     /// Similarity metric to use with the IVF index.
@@ -70,15 +44,7 @@ public class CosmosDBSearchConfigOptions
     ///         - L2 (Euclidean distance), and
     ///         - IP (inner product).
     /// </summary>
-<<<<<<< HEAD
-<<<<<<< HEAD
     public string Similarity { get; set; } = "COS";
-=======
-    public String Similarity { get; set; } = "COS";
->>>>>>> ad8a4dd (Updating readme file)
-=======
-    public string Similarity { get; set; } = "COS";
->>>>>>> 94c2ade (resolving comments)
 
     /// <summary>
     /// The max number of connections per layer (16 by default, minimum value is 2, maximum value is

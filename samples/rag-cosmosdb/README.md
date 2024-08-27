@@ -4,29 +4,14 @@
 
 The sample is available in the following language stacks:
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-* [C# on the isolated worker](csharp-ooproc/)
-* [TypeScript](typescript/)
-* [JavaScript](javascript/)
-* [PowerShell](powershell/)
-* [Java](java/)
-* [Python](python/)
-=======
-=======
->>>>>>> ad8a4dd (Updating readme file)
 - [C# on the isolated worker](csharp-ooproc/)
 
-* [TypeScript](typescript/)
-* [JavaScript](javascript/)
+- [TypeScript](typescript/)
+- [JavaScript](javascript/)
 
 - [PowerShell](powershell/)
 - [Java](java/)
 - [Python](python/)
-<<<<<<< HEAD
->>>>>>> e532e8c (Updating readme file)
-=======
->>>>>>> ad8a4dd (Updating readme file)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
@@ -45,21 +30,8 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
        "openai": {
            "searchProvider": {
                "type": "cosmosDBSearch",
-<<<<<<< HEAD
-<<<<<<< HEAD
                "applicationName": "functionsAppName",
                "textKey": "text",
-=======
-               "connectionString": "",
-               "databaseName": "functionsDatabase",
-               "collectionName": "functionsCollection",
-               "indexName": "functionsIndex",
-               "applicationName": "functionsAppName",
->>>>>>> ad8a4dd (Updating readme file)
-=======
-               "applicationName": "functionsAppName",
-               "textKey": "text",
->>>>>>> 94c2ade (resolving comments)
                "embeddingKey": "embedding",
                "vectorSearchDimensions": 1536,
                "numLists":  1,
@@ -68,8 +40,6 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
                "numberOfConnections": 16,
                "efConstruction": 64,
                "efSearch": 40
-<<<<<<< HEAD
-<<<<<<< HEAD
          }
       }
    }
@@ -91,38 +61,6 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
 
    `EfSearch` The size of the dynamic candidate list for search (40 by default). A higher value provides better recall at the cost of speed.
 
-=======
-     }
-   }
-           }
-       }
-   }
-   ```
-
->>>>>>> ad8a4dd (Updating readme file)
-=======
-         }
-      }
-   }
-   ```
-
-   `ApplicationName` is the name of the user agent to track in diagnostics and telemetry.
-
-   `TextKey` is the name of the field property which will contain the text which is embedded.
-
-   `EmbeddingKey` is the name of the field property which will contain the embeddings
-
-   `Kind` is the Type of vector index to create. The options are vector-ivf and vector-hnsw. Note vector-ivf is available on all cluster tiers and vector-hnsw is available on M40 cluster tiers and higher.
-
-   `Similarity` is the Similarity metric to use with the index. Possible options are COS (cosine distance), L2 (Euclidean distance), and IP (inner product).
-
-   `NumberOfConnections` is the max number of connections per layer (16 by default, minimum value is 2, maximum value is 100). Higher m is suitable for datasets with high dimensionality and/or high accuracy requirements.
-
-   `EfConstruction` is the size of the dynamic candidate list for constructing the graph (64 by default, minimum value is 4, maximum value is 1000). Higher efConstruction will result in better index quality and higher accuracy, but it will also increase the time required to build the index. efConstruction has to be at least 2 \* m
-
-   `EfSearch` The size of the dynamic candidate list for search (40 by default). A higher value provides better recall at the cost of speed.
-
->>>>>>> 94c2ade (resolving comments)
    `VectorSearchDimensions` is length of the embedding vector. [The dimensions attribute has a minimum of 2 and a maximum of 2000 floating point values each](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the length of the embedding vector will be 1536 for text-embedding-ada-002.
 
    `NumLists` is the number of clusters that the inverted file (IVF) uses to group the vector data, as mentioned [here](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the number of clusters will be 1.
@@ -135,26 +73,10 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
 
 1. If using the extensions.csproj with non-dotnet languages and refer the extension project
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    ```sh
-    dotnet build --output bin
-    ```
-<<<<<<< HEAD
-
-=======
->>>>>>> bc18212 (Updated Python Samples Documentation (#87))
-=======
-=======
->>>>>>> ad8a4dd (Updating readme file)
    ```sh
    dotnet build --output bin
    ```
 
-<<<<<<< HEAD
->>>>>>> e532e8c (Updating readme file)
-=======
->>>>>>> ad8a4dd (Updating readme file)
 1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Build and start the app
 

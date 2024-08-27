@@ -12,7 +12,21 @@
   "extensions": {
     "openai": {
       "searchProvider": {
+<<<<<<< HEAD:samples/rag-kusto/typescript/host.json
         "type": "kusto"
+=======
+        "type": "cosmosDBSearch",
+        "vectorSearchDimensions": 1536,
+        "numLists": 1,
+        "kind": "vector-hnsw",
+        "similarity": "COS",
+        "numberOfConnections": 16,
+        "efConstruction": 64,
+        "efSearch": 40,
+        "applicationName": "functionsAppName",
+        "embeddingKey": "embedding",
+        "textKey": "text"
+>>>>>>> 0d31521fe1e3bcfb94e1a5b2b28aa0959681d6e7:samples/rag-cosmosdb/nodejs/host.json
       }
     }
   }

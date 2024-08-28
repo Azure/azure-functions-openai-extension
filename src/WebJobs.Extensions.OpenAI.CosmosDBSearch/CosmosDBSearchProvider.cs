@@ -185,7 +185,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 }
 
                 BsonDocumentCommand<BsonDocument> command = new(vectorIndexDefinition);
-                BsonDocument result = client.GetDatabase(this.databaseName).RunCommand(command);
+                BsonDocument result = cosmosClient.GetDatabase(this.databaseName).RunCommand(command);
                 if (result["ok"] != 1)
                 {
                     this.logger.LogError("CreateIndex failed with response: " + result.ToJson());

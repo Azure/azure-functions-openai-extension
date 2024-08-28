@@ -110,14 +110,6 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             throw new ArgumentException("Embeddings must be provided.");
         }
 
-        if (request.ConnectionInfo is null)
-        {
-            throw new ArgumentNullException(nameof(request.ConnectionInfo));
-        }
-
-        string connectionString = this.configuration.GetValue<string>(request.ConnectionInfo.ConnectionName);
-        MongoClient mongoClient = this.GetMongoClient(connectionString, request.ConnectionInfo.ConnectionName);
-
         try
         {
             MongoClient cosmosClient = this.cosmosDBClients.GetOrAdd(
@@ -170,7 +162,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
     }
 
-    public void CreateVectorIndexIfNotExists(MongoClient cosmosClient, string collectionName)
+    public void CreateVectorIndexIfNotExists(MongoClient cosmosClient)
     {
         try
         {
@@ -193,9 +185,6 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 }
 
                 BsonDocumentCommand<BsonDocument> command = new(vectorIndexDefinition);
-                BsonDocument result = cosmosClient
-                    .GetDatabase(this.databaseName)
-                    .RunCommand(command);
                 BsonDocument result = client.GetDatabase(this.databaseName).RunCommand(command);
                 if (result["ok"] != 1)
                 {
@@ -212,7 +201,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     }
 
-    async Task UpsertVectorAsync(MongoClient client, SearchableDocument document)
+    async Task UpsertVectorAsync(MongoClient cosmosClient, SearchableDocument document)
     {
         List<BsonDocument> list = new();
         for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)

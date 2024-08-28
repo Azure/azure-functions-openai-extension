@@ -196,7 +196,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 BsonDocument result = cosmosClient
                     .GetDatabase(this.databaseName)
                     .RunCommand(command);
-                BsonDocument result = client.GetDatabase(databaseName).RunCommand(command);
+                BsonDocument result = client.GetDatabase(this.databaseName).RunCommand(command);
                 if (result["ok"] != 1)
                 {
                     this.logger.LogError("CreateIndex failed with response: " + result.ToJson());
@@ -265,7 +265,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     BsonDocument[] GetVectorIVFSearchPipeline(SearchRequest request)
     {
-        new()
+        BsonDocument[] pipeline = new BsonDocument[]
+        {
+            new()
             {
                 {
                     "$search",
@@ -310,44 +312,44 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     {
         BsonDocument[] pipeline = new BsonDocument[]
         {
-            new()
-            {
+                new()
                 {
-                    "$search",
-                    new BsonDocument
                     {
+                        "$search",
+                        new BsonDocument
                         {
-                            "cosmosSearch",
-                            new BsonDocument
                             {
+                                "cosmosSearch",
+                                new BsonDocument
                                 {
-                                    "vector",
-                                    !(request.Embeddings.IsEmpty)
-                                        ? new BsonArray(request.Embeddings.ToArray())
-                                        : new BsonArray()
-                                },
-                                { "path", this.cosmosDBSearchConfigOptions.Value.EmbeddingKey },
-                                { "k", request.MaxResults },
-                                { "efSearch", this.cosmosDBSearchConfigOptions.Value.EfSearch }
-                            }
-                        },
-                        { "returnStoredSource", true }
+                                    {
+                                        "vector",
+                                        !(request.Embeddings.IsEmpty)
+                                            ? new BsonArray(request.Embeddings.ToArray())
+                                            : new BsonArray()
+                                    },
+                                    { "path", this.cosmosDBSearchConfigOptions.Value.EmbeddingKey },
+                                    { "k", request.MaxResults },
+                                    { "efSearch", this.cosmosDBSearchConfigOptions.Value.EfSearch }
+                                }
+                            },
+                            { "returnStoredSource", true }
+                        }
                     }
-                }
-            },
-            new()
-            {
+                },
+                new()
                 {
-                    "$project",
-                    new BsonDocument
                     {
-                        { "embedding", 0 },
-                        { "_id", 0 },
-                        { "id", 0 },
-                        { "timestamp", 0 }
+                        "$project",
+                        new BsonDocument
+                        {
+                            { "embedding", 0 },
+                            { "_id", 0 },
+                            { "id", 0 },
+                            { "timestamp", 0 }
+                        }
                     }
                 }
-            }
         };
         return pipeline;
     }

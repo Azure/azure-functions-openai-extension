@@ -86,4 +86,9 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
 
 ### Vector Search Configuration
 
+Mongo vCore has two vector index options:
+
+- vector-ivf(default value) : available on cluster tiers.
+- vector-hnsw : available on M40 cluster tier and higher.
+
 Please read more about Vector Search in CosmosDB Mongo vCore [here](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/vector-search).

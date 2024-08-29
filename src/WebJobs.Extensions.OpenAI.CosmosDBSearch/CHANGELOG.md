@@ -9,11 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- #ToDo - Aayush to add these details
-
-### Changed
-
-- #ToDo - Aayush to add these details
+- Added HNSW support for CosmosDB (MongoDB) Search Provider. Refer [README](../../samples/rag-cosmos-db/README.md) for more information on usage.
 
 ## v0.2.0 - 2024/05/06
 

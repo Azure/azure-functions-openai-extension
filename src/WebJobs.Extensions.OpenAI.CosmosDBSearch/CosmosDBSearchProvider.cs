@@ -55,7 +55,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         }
 
         int value = cosmosDBSearchConfigOptions.Value.VectorSearchDimensions;
-        if (value < 2 || value > 2000)
+        if (value < 2 || value > 3072)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(CosmosDBSearchConfigOptions.VectorSearchDimensions),

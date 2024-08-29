@@ -15,7 +15,7 @@
         "type": "cosmosDBSearch",
         "vectorSearchDimensions": 1536,
         "numLists": 1,
-        "kind": "vector-hnsw",
+        "kind": "vector-ivf",
         "similarity": "COS",
         "numberOfConnections": 16,
         "efConstruction": 64,

@@ -49,6 +49,9 @@ public class ChatBot {
             }
                
             AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(chatId, request.getBody().get().getInstructions());
+            assistantCreateRequest.setChatStorageConnectionSetting("AzureWebJobsStorage");
+            assistantCreateRequest.setCollectionName("SampleChatState");
+
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();
             response.put("chatId", chatId);

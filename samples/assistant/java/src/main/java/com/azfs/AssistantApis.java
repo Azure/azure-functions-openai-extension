@@ -47,6 +47,9 @@ public class AssistantApis {
                     "Ask for clarification if a user request is ambiguous.";
 
             AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(assistantId, instructions);
+            assistantCreateRequest.setChatStorageConnectionSetting("AzureWebJobsStorage");
+            assistantCreateRequest.setCollectionName("SampleChatState");
+
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();
             response.put("assistantId", assistantId);

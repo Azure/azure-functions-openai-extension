@@ -15,6 +15,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch;
 
 sealed class CosmosDBSearchProvider : ISearchProvider
 {
+    readonly IConfiguration configuration;
     readonly ILogger logger;
     readonly IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions;
     readonly ConcurrentDictionary<string, MongoClient> cosmosDBClients = new();
@@ -45,7 +46,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     /// <param name="loggerFactory">The logger factory.</param>
     /// <param name="cosmosDBSearchConfigOptions">Cosmos DB search config options.</param>
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
-    public CosmosDBSearchProvider(ILoggerFactory loggerFactory, IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions)
+    public CosmosDBSearchProvider(ILoggerFactory loggerFactory, IOptions<CosmosDBSearchConfigOptions> cosmosDBSearchConfigOptions, IConfiguration configuration)
     {
 
         if (loggerFactory == null)
@@ -65,7 +66,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
         this.cosmosDBSearchConfigOptions = cosmosDBSearchConfigOptions;
         this.logger = loggerFactory.CreateLogger<CosmosDBSearchProvider>();
-
+        this.configuration = configuration;
     }
 
     /// <summary>
@@ -91,7 +92,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     MongoClient CreateMongoClient(string connectionName)
     {
-        MongoClientSettings settings = MongoClientSettings.FromConnectionString(connectionName);
+        MongoClientSettings settings = MongoClientSettings.FromConnectionString(this.configuration.GetValue<string>(connectionName));
         settings.ApplicationName = this.cosmosDBSearchConfigOptions.Value.ApplicationName;
         return new MongoClient(settings);
     }

@@ -27,6 +27,9 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
  */
 public class AssistantApis {
 
+    final String DEFAULT_CHATSTORAGE = "AzureWebJobsStorage";
+    final String DEFAULT_COLLECTION = "SampleChatState";
+
     /*
      * HTTP PUT function that creates a new assistant chat bot with the specified ID.
      */
@@ -47,8 +50,8 @@ public class AssistantApis {
                     "Ask for clarification if a user request is ambiguous.";
 
             AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(assistantId, instructions);
-            assistantCreateRequest.setChatStorageConnectionSetting("AzureWebJobsStorage");
-            assistantCreateRequest.setCollectionName("SampleChatState");
+            assistantCreateRequest.setChatStorageConnectionSetting(DEFAULT_CHATSTORAGE);
+            assistantCreateRequest.setCollectionName(DEFAULT_COLLECTION);
 
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();

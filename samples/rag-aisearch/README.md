@@ -5,7 +5,8 @@
 The sample is available in the following language stacks:
 
 * [C# on the in process worker](csharp-inproc/)
-* [NodeJS](nodejs/)
+* [TypeScript](typescript/)
+* [JavaScript](javascript/)
 * [PowerShell](powershell/)
 * [Python](python/)
 * [Java](java/)
@@ -55,6 +56,7 @@ Once you have an Azure AI Search resource, you can run the sample by following t
     dotnet build --output bin
     ```
 
+1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Build and start the app
 
     ```sh

@@ -1,0 +1,5 @@
+variables:
+  - name: config
+    value: Release
+  - name: fakeWebJobsPackageVersion
+    value: 99.99.99-test

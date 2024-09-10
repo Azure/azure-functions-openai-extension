@@ -5,8 +5,16 @@
  */
 package com.azfs;
 
+import java.net.MalformedURLException;
+import java.nio.file.Paths;
+
 import org.json.JSONObject;
-import com.microsoft.azure.functions.*;
+import com.microsoft.azure.functions.ExecutionContext;
+import com.microsoft.azure.functions.HttpMethod;
+import com.microsoft.azure.functions.HttpRequestMessage;
+import com.microsoft.azure.functions.HttpResponseMessage;
+import com.microsoft.azure.functions.HttpStatus;
+import com.microsoft.azure.functions.OutputBinding;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
@@ -15,9 +23,6 @@ import com.microsoft.azure.functions.openai.annotation.embeddings.InputType;
 import com.microsoft.azure.functions.openai.annotation.search.SearchableDocument;
 import com.microsoft.azure.functions.openai.annotation.search.SemanticSearch;
 import com.sun.jndi.toolkit.url.Uri;
-
-import java.net.MalformedURLException;
-import java.nio.file.Paths;
 
 public class FilePrompt {
 
@@ -35,7 +40,7 @@ public class FilePrompt {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
         {
-            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
+            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
         }
 
         Uri uri = new Uri(request.getBody().getUrl());
@@ -76,7 +81,7 @@ public class FilePrompt {
             HttpRequestMessage<SemanticSearchRequest> request,
         @SemanticSearch(name = "search", connectionName = "AISearchEndpoint", collection = "openai-index", query = "{Prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) String semanticSearchContext,
         final ExecutionContext context) {
-            String response = new JSONObject(semanticSearchContext).getString("response");
+            String response = new JSONObject(semanticSearchContext).getString("Response");
             return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
             .body(response)

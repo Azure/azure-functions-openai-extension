@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.3.0 - Unreleased
 
+### Added
+
+- Added HNSW support for CosmosDB (MongoDB) Search Provider. Refer [README](../../samples/rag-cosmos-db/README.md) for more information on usage.
+
 ### Changed
 
-- Updated Microsoft.Azure.WebJobs.Extensions.OpenAI to 0.16.0
+- Updated Microsoft.Azure.WebJobs.Extensions.OpenAI to 0.17.0
 
 ## v0.2.0 - 2024/05/06
 

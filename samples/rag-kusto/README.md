@@ -5,7 +5,8 @@
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc/)
-* [NodeJS](nodejs/)
+* [TypeScript](typescript/)
+* [JavaScript](javascript/)
 * [PowerShell](powershell/)
 * [Java](java/)
 * [Python](python/)
@@ -50,6 +51,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     dotnet build --output bin
     ```
 
+1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Build and start the app
 
     ```sh

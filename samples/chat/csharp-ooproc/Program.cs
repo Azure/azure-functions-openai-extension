@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
-using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
         services.Configure<JsonSerializerOptions>(options =>

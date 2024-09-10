@@ -5,7 +5,8 @@ It builds upon the concepts [chatbot](../chatbot) sample, which demonstrates how
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
+* [JavaScript](javascript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
@@ -24,6 +25,27 @@ This OpenAI extension internally uses the [function calling](https://platform.op
 * [Supported model versions](https://platform.openai.com/docs/guides/function-calling/supported-models)
 * 0301 is the default and oldest model version for gpt-3.5 but it doesn't support this feature.
 * Model version 1106 has known issue with duplicate function calls in the OpenAI extension, check the repo issues for progress as the extension team works on it.
+
+### Chat Storage Configuration
+
+If you are using a different table storage than `AzureWebJobsStorage` for chat storage, follow these steps:
+
+1. **Managed Identity - Assign Permissions**:
+   * Assign the user or function app's managed identity the role of `Storage Table Data Contributor`.
+
+1. **Configure Table Service URI**:
+   * Set the `tableServiceUri` in the configuration as follows:
+
+     ```json
+     "<CONNECTION_NAME_PREFIX>__tableServiceUri": "tableServiceUri"
+     ```
+
+   * Replace `CONNECTION_NAME_PREFIX` with the appropriate prefix.
+
+1. **Update Function Code**:
+   * Supply the `ConnectionNamePrefix` to `ChatStorageConnectionSetting` in the function code. This will replace the default value of `AzureWebJobsStorage`.
+
+For additional details on using identity-based connections, refer to the [Azure Functions reference documentation](https://learn.microsoft.com/azure/azure-functions/functions-reference?#common-properties-for-identity-based-connections).
 
 ## Defining skills
 
@@ -47,7 +69,7 @@ public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string tas
 }
 ```
 
-Nodejs example:
+TypeScript example:
 
 ```ts
 app.generic('AddTodo', {
@@ -56,6 +78,27 @@ app.generic('AddTodo', {
         functionDescription: 'Create a new todo task'
     }),
     handler: async (taskDescription: string, context: InvocationContext) => {
+        if (!taskDescription) {
+            throw new Error('Task description cannot be empty')
+        }
+
+        context.log(`Adding todo: ${taskDescription}`)
+
+        const todoId = crypto.randomUUID().substring(0, 6)
+        return todoManager.AddTodo(new TodoItem(todoId, taskDescription))
+    }
+})
+```
+
+JavaScript example:
+
+```js
+app.generic('AddTodo', {
+    trigger: trigger.generic({
+        type: 'assistantSkillTrigger',
+        functionDescription: 'Create a new todo task'
+    }),
+    handler: async (taskDescription, context) => {
         if (!taskDescription) {
             throw new Error('Task description cannot be empty')
         }
@@ -179,6 +222,7 @@ Also note that the storage of chat history is done via table storage. You may co
 
 1. Clone this repo and navigate to the sample folder.
 1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/assistant/csharp-ooproc`)
+1. If using python, run `pip install -r requirements.txt` to install the correct library version.
 1. Run `func start` to build and run the sample function app
 
     If successful, you should see the following output from the `func` command:

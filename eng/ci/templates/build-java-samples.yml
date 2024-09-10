@@ -1,0 +1,19 @@
+jobs:
+  - job: BuildJavaSamples
+    steps:
+      - script: npm install -g azure-functions-core-tools
+        displayName: 'Install Azure Functions Core Tools'
+
+      - task: Maven@3
+        displayName: Build Chat Sample
+        inputs:
+          mavenPomFile: samples/chat/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true
+
+      - task: Maven@3
+        displayName: Build Text Completion Sample
+        inputs:
+          mavenPomFile: samples/textcompletion/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true

@@ -1,6 +1,6 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -24,25 +24,29 @@ public static class ChatBot
         string chatId)
     {
         var responseJson = new { chatId };
-
-        using StreamReader reader = new(req.Body);
-
-        string request = await reader.ReadToEndAsync();
-
-        CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
-
-        if (createRequestBody == null)
+        CreateRequest? createRequestBody;
+        try
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
-        }
+            using StreamReader reader = new(req.Body);
 
-        HttpResponseData response = req.CreateResponse();
-        await response.WriteAsJsonAsync(responseJson, HttpStatusCode.Created);
+            string request = await reader.ReadToEndAsync();
+
+            createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
+
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.", ex.Message);
+        }
 
         return new CreateChatBotOutput
         {
-            HttpResponse = response,
-            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody.Instructions),
+            HttpResponse = new ObjectResult(responseJson) { StatusCode = 201 },
+            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody?.Instructions)
+            {
+                ChatStorageConnectionSetting = "AzureWebJobsStorage",
+                CollectionName = "SampleChatState"
+            },
         };
     }
 
@@ -51,31 +55,26 @@ public static class ChatBot
         [AssistantCreateOutput()]
         public AssistantCreateRequest? ChatBotCreateRequest { get; set; }
 
-        public HttpResponseData? HttpResponse { get; set; }
+        [HttpResult]
+        public IActionResult? HttpResponse { get; set; }
     }
 
     [Function(nameof(PostUserResponse))]
-    public static async Task<HttpResponseData> PostUserResponse(
+    public static async Task<IActionResult> PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
         [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
     {
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-
-        response.Headers.Add("Content-Type", "text/plain");
-        await response.WriteStringAsync(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
-        return response;
+        return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
     }
 
     [Function(nameof(GetChatState))]
-    public static async Task<HttpResponseData> GetChatState(
+    public static async Task<IActionResult> GetChatState(
        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "chats/{chatId}")] HttpRequestData req,
        string chatId,
        [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state,
        FunctionContext context)
     {
-        HttpResponseData response = req.CreateResponse(HttpStatusCode.OK);
-        await response.WriteAsJsonAsync(state);
-        return response;
+        return new OkObjectResult(state);
     }
 }

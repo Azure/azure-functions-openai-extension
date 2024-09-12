@@ -12,6 +12,9 @@ namespace ChatBot;
 /// </summary>
 public static class ChatBot
 {
+    const string CHAT_STORAGE_CONNECTION_SETTING = "AzureWebJobsStorage";
+    const string COLLECTION_NAME = "SampleChatState";
+
     public class CreateRequest
     {
         [JsonPropertyName("instructions")]
@@ -44,8 +47,8 @@ public static class ChatBot
             HttpResponse = new ObjectResult(responseJson) { StatusCode = 201 },
             ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody?.Instructions)
             {
-                ChatStorageConnectionSetting = "AzureWebJobsStorage",
-                CollectionName = "SampleChatState"
+                ChatStorageConnectionSetting = CHAT_STORAGE_CONNECTION_SETTING,
+                CollectionName = COLLECTION_NAME
             },
         };
     }
@@ -63,7 +66,7 @@ public static class ChatBot
     public static async Task<IActionResult> PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
-        [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
+        [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = CHAT_STORAGE_CONNECTION_SETTING, CollectionName = COLLECTION_NAME)] AssistantState state)
     {
         return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
     }
@@ -72,7 +75,7 @@ public static class ChatBot
     public static async Task<IActionResult> GetChatState(
        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "chats/{chatId}")] HttpRequestData req,
        string chatId,
-       [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state,
+       [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = CHAT_STORAGE_CONNECTION_SETTING, CollectionName = COLLECTION_NAME)] AssistantState state,
        FunctionContext context)
     {
         return new OkObjectResult(state);

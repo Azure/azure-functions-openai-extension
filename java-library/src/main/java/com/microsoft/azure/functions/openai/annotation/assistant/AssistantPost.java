@@ -13,7 +13,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 /**
  * <p>
  * Assistant post input attribute which is used to update the assistant.
@@ -30,14 +29,14 @@ public @interface AssistantPost {
      * The variable name used in function.json.
      * 
      * @return The variable name used in function.json.
-     */ 
+     */
     String name();
-      
+
     /**
      * The ID of the Assistant to query.
      * 
      * @return The ID of the Assistant to query.
-     */   
+     */
     String id();
 
     /**
@@ -48,12 +47,26 @@ public @interface AssistantPost {
      */
     String model();
 
-    
     /**
      * The user message that user has entered for assistant to respond to.
      * 
      * @return The user message that user has entered for assistant to respond to.
-     */    
+     */
     String userMessage();
 
+    /**
+     * The configuration section name for the table settings for assistant chat
+     * storage.
+     * 
+     * @return The configuration section name for the table settings for assistant
+     *         chat storage.
+     */
+    String chatStorageConnectionSetting();
+
+    /**
+     * The table collection name for assistant chat storage.
+     * 
+     * @return the table collection name for assistant chat storage..
+     */
+    String collectionName();
 }

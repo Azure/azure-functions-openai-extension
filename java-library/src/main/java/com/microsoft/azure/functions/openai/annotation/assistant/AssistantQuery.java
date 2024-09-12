@@ -12,10 +12,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
- 
+
 /**
  * <p>
- * Assistant query input attribute which is used query the Assistant to get current state.
+ * Assistant query input attribute which is used query the Assistant to get
+ * current state.
  * </p>
  * 
  * @since 1.0.0
@@ -31,7 +32,7 @@ public @interface AssistantQuery {
      * @return The variable name used in function.json.
      */
     String name();
-    
+
     /**
      * The ID of the Assistant to query.
      * 
@@ -41,10 +42,26 @@ public @interface AssistantQuery {
 
     /**
      * The timestamp of the earliest message in the chat history to fetch.
-     * The timestamp should be in ISO 8601 format - for example, 2023-08-01T00:00:00Z.
+     * The timestamp should be in ISO 8601 format - for example,
+     * 2023-08-01T00:00:00Z.
      * 
      * @return The timestamp of the earliest message in the chat history to fetch.
      */
     String timestampUtc();
- 
- }
+
+    /**
+     * The configuration section name for the table settings for assistant chat
+     * storage.
+     * 
+     * @return The configuration section name for the table settings for assistant
+     *         chat storage.
+     */
+    String chatStorageConnectionSetting();
+
+    /**
+     * The table collection name for assistant chat storage.
+     * 
+     * @return the table collection name for assistant chat storage..
+     */
+    String collectionName();
+}

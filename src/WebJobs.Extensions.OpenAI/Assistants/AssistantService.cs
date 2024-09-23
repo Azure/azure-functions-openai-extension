@@ -63,11 +63,14 @@ class DefaultAssistantService : IAssistantService
             request.Id,
             request.Instructions ?? "(none)");
 
-        this.CreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
+        if (this.tableClient is null)
+        {
+            this.CreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
+        }
 
         if (this.tableClient is null)
         {
-            throw new ArgumentNullException(nameof(this.tableClient));
+            throw new InvalidOperationException($"{nameof(this.tableClient)} is null.");
         }
 
         // Create the table if it doesn't exist
@@ -142,7 +145,7 @@ class DefaultAssistantService : IAssistantService
         string timestampString = Uri.UnescapeDataString(assistantQuery.TimestampUtc);
         if (!DateTime.TryParse(timestampString, out DateTime timestamp))
         {
-            throw new ArgumentException($"Invalid timestamp '{timestampString}'");
+            throw new ArgumentException($"Invalid timestamp '{assistantQuery.TimestampUtc}'");
         }
 
         DateTime afterUtc = timestamp.ToUniversalTime();
@@ -203,7 +206,7 @@ class DefaultAssistantService : IAssistantService
 
         if (this.tableClient is null)
         {
-            throw new ArgumentNullException(nameof(this.tableClient));
+            throw new InvalidOperationException($"{nameof(this.tableClient)} is null.");
         }
 
         this.logger.LogInformation("Posting message to assistant entity '{Id}'", attribute.Id);
@@ -406,7 +409,7 @@ class DefaultAssistantService : IAssistantService
     {
         if (this.tableClient is null)
         {
-            throw new ArgumentNullException(nameof(this.tableClient));
+            throw new InvalidOperationException($"{nameof(this.tableClient)} is null.");
         }
 
         // Check to see if any entity exists with partition id

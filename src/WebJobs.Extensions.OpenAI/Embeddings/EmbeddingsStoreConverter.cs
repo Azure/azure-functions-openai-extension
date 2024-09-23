@@ -49,8 +49,9 @@ class EmbeddingsStoreConverter :
     internal SearchableDocument ToSearchableDocument(string? json)
     {
         this.logger.LogDebug("Creating searchable document from JSON string: {Text}", json);
-        SearchableDocument document = JsonSerializer.Deserialize<SearchableDocument>(json, options);
-        return document ?? throw new ArgumentException("Invalid search request.");
+        SearchableDocument document = JsonSerializer.Deserialize<SearchableDocument>(json ?? throw new ArgumentNullException(nameof(json)), options)
+            ?? throw new ArgumentException("Invalid search request.");
+        return document;
     }
 
     sealed class SemanticDocumentCollector : IAsyncCollector<SearchableDocument>

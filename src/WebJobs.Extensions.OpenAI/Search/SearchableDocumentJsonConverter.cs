@@ -49,18 +49,18 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
                 {
                     if (connectionInfoItem.NameEquals("connectionName"u8))
                     {
-                        connectionName = connectionInfoItem.Value.GetString();
+                        connectionName = connectionInfoItem.Value.GetString() ?? string.Empty;
                     }
                     if (connectionInfoItem.NameEquals("collectionName"u8))
                     {
-                        collectionName = connectionInfoItem.Value.GetString();
+                        collectionName = connectionInfoItem.Value.GetString() ?? string.Empty;
                     }
                 }
             }
 
             if (item.NameEquals("title"u8))
             {
-                title = item.Value.GetString();
+                title = item.Value.GetString() ?? string.Empty;
             }
         }
         SearchableDocument searchableDocument = new SearchableDocument(title)

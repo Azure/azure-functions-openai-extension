@@ -9,8 +9,8 @@ $instructions += "\nAsk for clarification if a user request is ambiguous."
 
 $create_request = @{
     "id" = $assistantId
-    "instructions" = $instructions,
-    "chatStorageConnectionSetting" = "AzureWebJobsStorage",
+    "instructions" = $instructions
+    "chatStorageConnectionSetting" = "AzureWebJobsStorage"
     "collectionName" = "SampleChatState"
 }
 

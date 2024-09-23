@@ -8,8 +8,8 @@ Write-Host "Creating chat $chatID from input parameters $($inputJson)"
 
 $createRequest = @{
     id           = $chatID
-    instructions = $inputJson.Instructions,
-    chatStorageConnectionSetting = "AzureWebJobsStorage",
+    instructions = $inputJson.Instructions
+    chatStorageConnectionSetting = "AzureWebJobsStorage"
     collectionName = "SampleChatState"
 }
 

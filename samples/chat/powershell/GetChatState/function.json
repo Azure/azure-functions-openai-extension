@@ -22,7 +22,7 @@
       "id": "{chatId}",
       "timeStampUtc": "{Query.timestampUTC}",
       "chatStorageConnectionSetting": "AzureWebJobsStorage",
-      "collectionName": "SampleChatState"
+      "collectionName": "ChatState"
     }
   ]
 }

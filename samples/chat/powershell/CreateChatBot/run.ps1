@@ -10,7 +10,7 @@ $createRequest = @{
     id           = $chatID
     instructions = $inputJson.Instructions
     chatStorageConnectionSetting = "AzureWebJobsStorage"
-    collectionName = "SampleChatState"
+    collectionName = "ChatState"
 }
 
 Push-OutputBinding -Name ChatBotCreate -Value $createRequest

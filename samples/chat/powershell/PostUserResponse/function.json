@@ -23,7 +23,7 @@
       "model": "%CHAT_MODEL_DEPLOYMENT_NAME%",
       "userMessage": "{Query.message}",
       "chatStorageConnectionSetting": "AzureWebJobsStorage",
-      "collectionName": "SampleChatState"
+      "collectionName": "ChatState"
     }
   ]
 }

@@ -47,5 +47,5 @@ public class AssistantCreateRequest
     /// <summary>
     /// Table collection name for chat storage.
     /// </summary>
-    public string CollectionName { get; set; } = "SampleChatState";
+    public string CollectionName { get; set; } = "ChatState";
 }

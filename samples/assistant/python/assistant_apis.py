@@ -17,7 +17,7 @@ def create_assistant(req: func.HttpRequest, requests: func.Out[str]) -> func.Htt
         "id": assistantId,
         "instructions": instructions,
         "chatStorageConnectionSection": "AzureWebJobsStorage",
-        "collectionName": "SampleChatState"
+        "collectionName": "ChatState"
     }
     requests.set(json.dumps(create_request))
     response_json = {"assistantId": assistantId}

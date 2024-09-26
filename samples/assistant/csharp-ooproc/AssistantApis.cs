@@ -13,8 +13,8 @@ namespace AssistantSample;
 /// </summary>
 static class AssistantApis
 {
-    const string CHAT_STORAGE_CONNECTION_SETTING = "AzureWebJobsStorage";
-    const string COLLECTION_NAME = "SampleChatState";
+    const string DefaultChatStorageConnectionSetting = "AzureWebJobsStorage";
+    const string DefaultCollectionName = "ChatState";
 
     /// <summary>
     /// HTTP PUT function that creates a new assistant chat bot with the specified ID.
@@ -40,8 +40,8 @@ static class AssistantApis
             HttpResponse = new ObjectResult(new { assistantId }) { StatusCode = 202 },
             ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions)
             {
-                ChatStorageConnectionSetting = CHAT_STORAGE_CONNECTION_SETTING,
-                CollectionName = COLLECTION_NAME,
+                ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting,
+                CollectionName = DefaultCollectionName,
             },
         };
     }
@@ -62,7 +62,7 @@ static class AssistantApis
     public static async Task<IActionResult> PostUserQuery(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId,
-        [AssistantPostInput("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = CHAT_STORAGE_CONNECTION_SETTING, CollectionName = COLLECTION_NAME)] AssistantState state)
+        [AssistantPostInput("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = CollectionName)] AssistantState state)
     {
         return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
     }
@@ -74,7 +74,7 @@ static class AssistantApis
     public static async Task<IActionResult> GetChatState(
        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "assistants/{assistantId}")] HttpRequestData req,
        string assistantId,
-       [AssistantQueryInput("{assistantId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = CHAT_STORAGE_CONNECTION_SETTING, CollectionName = COLLECTION_NAME)] AssistantState state)
+       [AssistantQueryInput("{assistantId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
         return new OkObjectResult(state);
     }

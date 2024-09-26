@@ -42,5 +42,5 @@ public sealed class AssistantPostInputAttribute : InputBindingAttribute
     /// <summary>
     /// Table collection name for chat storage.
     /// </summary>
-    public string CollectionName { get; set; } = "SampleChatState";
+    public string CollectionName { get; set; } = "ChatState";
 }

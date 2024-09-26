@@ -11,7 +11,7 @@ $create_request = @{
     "id" = $assistantId
     "instructions" = $instructions
     "chatStorageConnectionSetting" = "AzureWebJobsStorage"
-    "collectionName" = "SampleChatState"
+    "collectionName" = "ChatState"
 }
 
 Push-OutputBinding -Name Requests -Value (ConvertTo-Json $create_request)

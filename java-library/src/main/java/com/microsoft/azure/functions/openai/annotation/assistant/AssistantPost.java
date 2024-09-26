@@ -39,7 +39,7 @@ public @interface AssistantPost {
      * account
      * where chat data will be stored.
      */
-    String DEFAULT_COLLECTION = "SampleChatState";
+    String DEFAULT_COLLECTION = "ChatState";
 
     /**
      * The variable name used in function.json.

@@ -63,15 +63,7 @@ class DefaultAssistantService : IAssistantService
             request.Id,
             request.Instructions ?? "(none)");
 
-        if (this.tableClient is null)
-        {
-            this.CreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
-        }
-
-        if (this.tableClient is null)
-        {
-            throw new InvalidOperationException($"{nameof(this.tableClient)} is null.");
-        }
+        this.tableClient = this.GetOrCreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
 
         // Create the table if it doesn't exist
         await this.tableClient.CreateIfNotExistsAsync();
@@ -154,12 +146,9 @@ class DefaultAssistantService : IAssistantService
             id,
             afterUtc.ToString("o"));
 
-        if (this.tableClient is null)
-        {
-            this.CreateTableClient(assistantQuery.ChatStorageConnectionSetting, assistantQuery.CollectionName);
-        }
+        this.tableClient = this.GetOrCreateTableClient(assistantQuery.ChatStorageConnectionSetting, assistantQuery.CollectionName);
 
-        InternalChatState? chatState = await this.LoadChatStateAsync(id, cancellationToken);
+        InternalChatState? chatState = await this.LoadChatStateAsync(id, this.tableClient, cancellationToken);
         if (chatState is null)
         {
             this.logger.LogWarning("No assistant exists with ID = '{Id}'", id);
@@ -191,7 +180,7 @@ class DefaultAssistantService : IAssistantService
         DateTime timeFilter = DateTime.UtcNow;
         if (string.IsNullOrEmpty(attribute.Id))
         {
-            throw new ArgumentException("The assistant Id must be specified.", nameof(attribute));
+            throw new ArgumentException("The assistant ID must be specified.", nameof(attribute));
         }
 
         if (string.IsNullOrEmpty(attribute.UserMessage))
@@ -199,19 +188,11 @@ class DefaultAssistantService : IAssistantService
             throw new ArgumentException("The assistant must have a user message", nameof(attribute));
         }
 
-        if (this.tableClient is null)
-        {
-            this.CreateTableClient(attribute.ChatStorageConnectionSetting, attribute.CollectionName);
-        }
-
-        if (this.tableClient is null)
-        {
-            throw new InvalidOperationException($"{nameof(this.tableClient)} is null.");
-        }
-
         this.logger.LogInformation("Posting message to assistant entity '{Id}'", attribute.Id);
 
-        InternalChatState? chatState = await this.LoadChatStateAsync(attribute.Id, cancellationToken);
+        this.tableClient = this.GetOrCreateTableClient(attribute.ChatStorageConnectionSetting, attribute.CollectionName);
+
+        InternalChatState? chatState = await this.LoadChatStateAsync(attribute.Id, this.tableClient, cancellationToken);
 
         // Check if assistant has been deactivated
         if (chatState is null || !chatState.Metadata.Exists)
@@ -405,15 +386,10 @@ class DefaultAssistantService : IAssistantService
         return state;
     }
 
-    async Task<InternalChatState?> LoadChatStateAsync(string id, CancellationToken cancellationToken)
+    async Task<InternalChatState?> LoadChatStateAsync(string id, TableClient tableClient, CancellationToken cancellationToken)
     {
-        if (this.tableClient is null)
-        {
-            throw new InvalidOperationException($"{nameof(this.tableClient)} is null.");
-        }
-
         // Check to see if any entity exists with partition id
-        AsyncPageable<TableEntity> itemsWithPartitionKey = this.tableClient.QueryAsync<TableEntity>(
+        AsyncPageable<TableEntity> itemsWithPartitionKey = tableClient.QueryAsync<TableEntity>(
             filter: $"PartitionKey eq '{id}'",
             cancellationToken: cancellationToken);
 
@@ -471,8 +447,13 @@ class DefaultAssistantService : IAssistantService
         }
     }
 
-    void CreateTableClient(string? chatStorageConnectionSetting, string? collectionName)
+    TableClient GetOrCreateTableClient(string? chatStorageConnectionSetting, string? collectionName)
     {
+        if (this.tableClient is not null)
+        {
+            return this.tableClient;
+        }
+
         string connectionStringName = chatStorageConnectionSetting ?? string.Empty;
         IConfigurationSection tableConfigSection = this.configuration.GetSection(connectionStringName);
         string storageAccountUri = string.Empty;
@@ -501,7 +482,6 @@ class DefaultAssistantService : IAssistantService
         {
             // Else, will use the connection string
             connectionStringName = chatStorageConnectionSetting ?? DefaultChatStorage;
-
             string connectionString = this.configuration.GetValue<string>(connectionStringName);
 
             this.logger.LogInformation("using connection string for table service client");
@@ -510,6 +490,6 @@ class DefaultAssistantService : IAssistantService
         }
 
         this.logger.LogInformation("Using {CollectionName} for table storage collection name", collectionName);
-        this.tableClient = this.tableServiceClient.GetTableClient(collectionName);
+        return this.tableServiceClient.GetTableClient(collectionName);
     }
 }

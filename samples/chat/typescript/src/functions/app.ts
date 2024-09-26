@@ -4,7 +4,7 @@
 import { HttpRequest, InvocationContext, app, input, output } from "@azure/functions";
 
 const CHAT_STORAGE_CONNECTION_SETTING = "AzureWebJobsStorage";
-const COLLECTION_NAME = "SampleChatState";
+const COLLECTION_NAME = "ChatState";
 
 const chatBotCreateOutput = output.generic({
     type: 'assistantCreate'

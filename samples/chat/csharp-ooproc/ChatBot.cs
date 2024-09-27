@@ -48,7 +48,7 @@ public static class ChatBot
             ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody?.Instructions)
             {
                 ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting,
-                CollectionName = DefaultChatStorageConnectionSetting
+                CollectionName = DefaultCollectionName
             },
         };
     }

@@ -35,5 +35,6 @@ public sealed class AssistantQueryAttribute : Attribute
     /// <summary>
     /// Table collection name for chat storage.
     /// </summary>
+    [AutoResolve]
     public string CollectionName { get; set; } = "ChatState";
 }

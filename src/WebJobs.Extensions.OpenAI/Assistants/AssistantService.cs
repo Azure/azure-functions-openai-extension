@@ -63,13 +63,13 @@ class DefaultAssistantService : IAssistantService
             request.Id,
             request.Instructions ?? "(none)");
 
-        this.tableClient = this.GetOrCreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
+        TableClient tableClient = this.GetOrCreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
 
         // Create the table if it doesn't exist
-        await this.tableClient.CreateIfNotExistsAsync();
+        await tableClient.CreateIfNotExistsAsync();
 
         // Check to see if the assistant has already been initialized
-        AsyncPageable<TableEntity> queryResultsFilter = this.tableClient.QueryAsync<TableEntity>(
+        AsyncPageable<TableEntity> queryResultsFilter = tableClient.QueryAsync<TableEntity>(
             filter: $"PartitionKey eq '{request.Id}'",
             cancellationToken: cancellationToken);
 
@@ -85,7 +85,7 @@ class DefaultAssistantService : IAssistantService
                     "Deleting {Count} record(s) for assistant '{Id}'.",
                     deleteBatch.Count,
                     request.Id);
-                await this.tableClient.SubmitTransactionAsync(deleteBatch);
+                await tableClient.SubmitTransactionAsync(deleteBatch);
                 deleteBatch.Clear();
             }
         }
@@ -128,7 +128,7 @@ class DefaultAssistantService : IAssistantService
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, assistantStateEntity));
 
         // Add the batch of table transaction actions to the table
-        await this.tableClient.SubmitTransactionAsync(batch);
+        await tableClient.SubmitTransactionAsync(batch);
     }
 
     public async Task<AssistantState> GetStateAsync(AssistantQueryAttribute assistantQuery, CancellationToken cancellationToken)
@@ -146,9 +146,9 @@ class DefaultAssistantService : IAssistantService
             id,
             afterUtc.ToString("o"));
 
-        this.tableClient = this.GetOrCreateTableClient(assistantQuery.ChatStorageConnectionSetting, assistantQuery.CollectionName);
+        TableClient tableClient = this.GetOrCreateTableClient(assistantQuery.ChatStorageConnectionSetting, assistantQuery.CollectionName);
 
-        InternalChatState? chatState = await this.LoadChatStateAsync(id, this.tableClient, cancellationToken);
+        InternalChatState? chatState = await this.LoadChatStateAsync(id, tableClient, cancellationToken);
         if (chatState is null)
         {
             this.logger.LogWarning("No assistant exists with ID = '{Id}'", id);
@@ -190,9 +190,9 @@ class DefaultAssistantService : IAssistantService
 
         this.logger.LogInformation("Posting message to assistant entity '{Id}'", attribute.Id);
 
-        this.tableClient = this.GetOrCreateTableClient(attribute.ChatStorageConnectionSetting, attribute.CollectionName);
+        TableClient tableClient = this.GetOrCreateTableClient(attribute.ChatStorageConnectionSetting, attribute.CollectionName);
 
-        InternalChatState? chatState = await this.LoadChatStateAsync(attribute.Id, this.tableClient, cancellationToken);
+        InternalChatState? chatState = await this.LoadChatStateAsync(attribute.Id, tableClient, cancellationToken);
 
         // Check if assistant has been deactivated
         if (chatState is null || !chatState.Metadata.Exists)
@@ -361,7 +361,7 @@ class DefaultAssistantService : IAssistantService
         batch.Add(new TableTransactionAction(TableTransactionActionType.UpdateMerge, chatState.Metadata));
 
         // Add the batch of table transaction actions to the table
-        await this.tableClient.SubmitTransactionAsync(batch, cancellationToken);
+        await tableClient.SubmitTransactionAsync(batch, cancellationToken);
 
         // return the latest assistant message in the chat state
         List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
@@ -490,6 +490,8 @@ class DefaultAssistantService : IAssistantService
         }
 
         this.logger.LogInformation("Using {CollectionName} for table storage collection name", collectionName);
-        return this.tableServiceClient.GetTableClient(collectionName);
+        this.tableClient = this.tableServiceClient.GetTableClient(collectionName);
+
+        return this.tableClient;
     }
 }

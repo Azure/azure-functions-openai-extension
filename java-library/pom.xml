@@ -8,12 +8,6 @@
 	<version>0.4.0-preview</version>
 	<packaging>jar</packaging>
 
-	<parent>
-		<groupId>com.microsoft.maven</groupId>
-		<artifactId>java-8-parent</artifactId>
-		<version>8.0.1</version>
-	</parent>
-
 	<name>Microsoft Azure Functions Java Libary for OpenAI</name>
 	<description>This package contains all Java interfaces and annotations to interact with Microsoft Azure functions java runtime.</description>
 	<url>https://azure.microsoft.com/en-us/services/functions</url>

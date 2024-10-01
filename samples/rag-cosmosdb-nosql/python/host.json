@@ -9,36 +9,18 @@
         "openai": {
             "searchProvider": {
                 "type": "cosmosDBNoSqlSearch",
-                "vectorEmbeddingPolicy": [
-                    {
-                        "dataType": "float32",
-                        "dimensions": 1536,
-                        "distanceFunction": "cosine",
-                        "path": "/embedding"
-                    }
-                ],
-                "indexingPolicy": {
-                    "vectorIndexes": [
-                        {
-                            "path": "/embedding",
-                            "type": "flat"
-                        }
-                    ]
-                },
+                "applicationName": "openai-functions-nosql",
+                "vectorDataType": "float32",
+                "vectorDimensions": 1536,
+                "vectorDistanceFunction": "cosine",
+                "vectorIndexType": "quantizedFlat",
                 "databaseName": "function-db",
-                "databaseThroughput": "5000",
-                "databaseRequestOptions": {},
-                "containerProperties": {
-                    "name": "function-container"
-                },
-                "containerThroughput": "5000",
-                "containerRequestOptions": {},
+                "databaseThroughput": 5000,
+                "containerThroughput": 5000,
                 "embeddingKey": "/embedding",
-                "textKey": "text",
-                "preFilters": {
-                    "where_clause": "",
-                    "limit_offset_clause": ""
-                }
+                "textKey": "/text",
+                "whereFilterClause": "",
+                "limitOffsetFilterClause": ""
             }
         }
     }

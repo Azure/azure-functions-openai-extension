@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data.Common;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Configuration;
@@ -54,36 +57,53 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     )
     {
         // Create cosmos client if not exists in the cache.
-        CosmosClient cosmosClient = this.cosmosDBClients.GetOrAdd(
-            document.ConnectionInfo!.ConnectionName,
-            _ => CreateCosmosClient(document.ConnectionInfo!)
-        );
+        CosmosClient cosmosClient = GetCosmosClient(document);
 
-        // Create a database if not exists.
         DatabaseResponse databaseResponse = await cosmosClient
             .CreateDatabaseIfNotExistsAsync(
                 this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseName,
-                this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseThroughput,
-                this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseRequestOptions,
                 cancellationToken: cancellationToken
             )
             .ConfigureAwait(false);
 
+        VectorEmbeddingPolicy vectorEmbeddingPolicy = new VectorEmbeddingPolicy(
+            [
+                new Embedding
+                {
+                    DataType = this.cosmosDBNoSqlSearchConfigOptions.Value.VectorDataType,
+                    Dimensions = this.cosmosDBNoSqlSearchConfigOptions.Value.VectorDimensions,
+                    DistanceFunction = this.cosmosDBNoSqlSearchConfigOptions
+                        .Value
+                        .VectorDistanceFunction,
+                    Path = this.cosmosDBNoSqlSearchConfigOptions.Value.EmbeddingKey,
+                }
+            ]
+        );
+
+        IndexingPolicy indexingPolicy = new IndexingPolicy
+        {
+            VectorIndexes = new Collection<VectorIndexPath>
+            {
+                new()
+                {
+                    Path = this.cosmosDBNoSqlSearchConfigOptions.Value.EmbeddingKey,
+                    Type = this.cosmosDBNoSqlSearchConfigOptions.Value.VectorIndexType,
+                },
+            },
+        };
         // Create a container if not exists.
-        ContainerProperties containerProperties = this.cosmosDBNoSqlSearchConfigOptions
-            .Value
-            .ContainerProperties;
-        containerProperties.VectorEmbeddingPolicy = this.cosmosDBNoSqlSearchConfigOptions
-            .Value
-            .VectorEmbeddingPolicy;
-        containerProperties.IndexingPolicy = this.cosmosDBNoSqlSearchConfigOptions
-            .Value
-            .IndexingPolicy;
+        ContainerProperties containerProperties = new ContainerProperties(
+            document.ConnectionInfo!.CollectionName,
+            "/id"
+        )
+        {
+            VectorEmbeddingPolicy = vectorEmbeddingPolicy,
+            IndexingPolicy = indexingPolicy,
+        };
+
         ContainerResponse containerResponse = await databaseResponse
             .Database.CreateContainerIfNotExistsAsync(
                 containerProperties,
-                this.cosmosDBNoSqlSearchConfigOptions.Value.ContainerThroughput,
-                this.cosmosDBNoSqlSearchConfigOptions.Value.ContainerRequestOptions,
                 cancellationToken: cancellationToken
             )
             .ConfigureAwait(false);
@@ -91,15 +111,69 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document, cancellationToken);
     }
 
-    CosmosClient CreateCosmosClient(ConnectionInfo connectionInfo)
+    CosmosClient GetCosmosClient(SearchableDocument document)
     {
-        return new CosmosClient(
-            connectionInfo.ConnectionName,
-            new CosmosClientOptions
+        CosmosClient cosmosClient;
+        if (!string.IsNullOrEmpty(document.ConnectionInfo!.CollectionName) && 
+        this.cosmosDBClients.TryGetValue(document.ConnectionInfo!.CollectionName, out cosmosClient))
+        {
+            cosmosClient = this.cosmosDBClients[document.CollectionInfo.ConnectionName];
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(document.ConnectionInfo!.CollectionName))
             {
-                ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
+                cosmosClient = CreateCosmosClient(document.ConnectionInfo!.ConnectionName, false)
             }
-        );
+            else 
+            {
+                cosmosClient = CreateCosmosClient(document.ConnectionInfo!.ConnectionName, true)
+            }
+        }
+        this.cosmosDBClients[document.ConnectionInfo.ConnectionName] = cosmosClient;
+        return cosmosClient;
+    }
+
+    CosmosClient CreateCosmosClient(String connectionStringName, bool isManagedIdentity)
+    {
+        IConfigurationSection cosmosConfigSection = this.configuration.GetSection(connectionStringName);
+        string cosmosAccountUri = string.Empty;
+
+        if (cosmosConfigSection.Exists())
+        {
+            cosmosAccountUri = cosmosConfigSection["cosmosUri"];
+        }
+
+        if (isManagedIdentity && !string.IsNullOrEmpty(cosmosAccountUri))
+        {
+            return new CosmosClient(
+                cosmosAccountUri,
+                cosmosConfigSection["tokenCredential"],
+                new CosmosClientOptions
+                {
+                    ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
+                }
+            );
+        }
+        else
+        {
+            var builder = new DbConnectionStringBuilder
+            {
+                ConnectionString = this.configuration.GetValue<string>(connectionString)
+            };
+
+            string? endpoint = builder["AccountEndpoint"]?.ToString();
+            string? key = builder["AccountKey"]?.ToString();
+
+            return new CosmosClient(
+                endpoint,
+                key,
+                new CosmosClientOptions
+                {
+                    ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
+                }
+            );
+        }
     }
 
     async Task UpsertVectorAsync(
@@ -145,7 +219,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 
         CosmosClient cosmosClient = this.cosmosDBClients.GetOrAdd(
             request.ConnectionInfo!.ConnectionName,
-            _ => CreateCosmosClient(request.ConnectionInfo!)
+            _ => CreateCosmosClient(request.ConnectionInfo.ConnectionName)
         );
 
         try
@@ -153,31 +227,22 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             string query = "SELECT ";
 
             // If limit_offset_clause is not specified, add TOP clause
-            if (
-                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters == null
-                || cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["limit_offset_clause"] == null
-            )
+            if (this.cosmosDBNoSqlSearchConfigOptions.Value.LimitOffsetFilterClause == null)
             {
                 query += "TOP @limit";
             }
             query +=
-                "x.id,x.text,x.title,x.timestamp,VectorDistance(@embeddingKey, @embedding) AS SimilarityScore FROM x";
+                "x.id,x.text,x.title,x.timestamp,VectorDistance(c[@embeddingKey], @embedding) AS SimilarityScore FROM x";
 
             //# Add where_clause if specified
-            if (
-                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters != null
-                && cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["where_clause"] != null
-            )
+            if (this.cosmosDBNoSqlSearchConfigOptions.Value.WhereFilterClause != null)
             {
                 query += " @whereClause";
             }
-            query += "ORDER BY VectorDistance(@embeddingKey, @embedding)";
+            query += "ORDER BY VectorDistance(c[@embeddingKey], @embedding)";
 
             // Add limit_offset_clause if specified
-            if (
-                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters != null
-                && cosmosDBNoSqlSearchConfigOptions.Value.PreFilters["limit_offset_clause"] != null
-            )
+            if (this.cosmosDBNoSqlSearchConfigOptions.Value.LimitOffsetFilterClause != null)
             {
                 query += " @limitOffsetClause";
             }
@@ -185,17 +250,17 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             var queryDefinition = new QueryDefinition(query);
             queryDefinition.WithParameter(
                 "@embeddingKey",
-                cosmosDBNoSqlSearchConfigOptions.Value.EmbeddingKey
+                this.cosmosDBNoSqlSearchConfigOptions.Value.EmbeddingKey
             );
             queryDefinition.WithParameter("@embedding", request.Embeddings);
             queryDefinition.WithParameter("@limit", request.MaxResults);
             queryDefinition.WithParameter(
                 "@whereClause",
-                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters?["where_clause"]
+                this.cosmosDBNoSqlSearchConfigOptions.Value.WhereFilterClause
             );
             queryDefinition.WithParameter(
                 "@limitOffsetClause",
-                cosmosDBNoSqlSearchConfigOptions.Value.PreFilters?["limit_offset_clause"]
+                this.cosmosDBNoSqlSearchConfigOptions.Value.LimitOffsetFilterClause
             );
 
             var feedIterator = cosmosClient

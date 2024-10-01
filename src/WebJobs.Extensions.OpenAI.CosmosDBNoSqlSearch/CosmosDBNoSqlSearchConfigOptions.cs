@@ -17,14 +17,19 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch;
 public class CosmosDBNoSqlSearchConfigOptions
 {
     // The application name to be used in the requests
-    public string ApplicationName { get; set; } = "openai-functions-nosql";
+    public string ApplicationName { get; set; } = "OpenAI-Functions-CDBNoSql-VectorStore";
 
-    // Vector Embedding Policy for the Database.
-    public VectorEmbeddingPolicy VectorEmbeddingPolicy { get; set; } =
-        new(new Collection<Embedding>());
+    // The vector data type for the embeddings, value can be int8, int16, float32
+    public VectorDataType VectorDataType { get; set; } = VectorDataType.Float32;
 
-    // Indexing Policy for the Database.
-    public IndexingPolicy IndexingPolicy { get; set; } = new();
+    // The distance function to be used to calculate the similarity between vectors, value can be cosine, euclidean, dotproduct
+    public DistanceFunction VectorDistanceFunction { get; set; } = DistanceFunction.Cosine;
+
+    // The dimensions for the vectors.
+    public ulong VectorDimensions { get; set; } = 1536;
+
+    // The vector index type, value can be flat, quantizedFlat, diskAnn
+    public VectorIndexType VectorIndexType { get; set; } = VectorIndexType.QuantizedFlat;
 
     // Database Name for the vector store.
     public string DatabaseName { get; set; } = "openai-functions-database";
@@ -32,17 +37,8 @@ public class CosmosDBNoSqlSearchConfigOptions
     // Provisioned throughput for the database.
     public int DatabaseThroughput { get; set; } = 400;
 
-    // Request Options for database creation.
-    public RequestOptions DatabaseRequestOptions { get; set; } = new();
-
-    // Container properties for the container to be created.
-    public ContainerProperties ContainerProperties { get; set; } = new();
-
     // Provisioned throughput for the container.
     public int ContainerThroughput { get; set; } = 400;
-
-    // Request Options for container creation.
-    public RequestOptions ContainerRequestOptions { get; set; } = new();
 
     // Name of the field property which will contain the embeddings
     public string EmbeddingKey { get; set; } = "embedding";
@@ -50,6 +46,9 @@ public class CosmosDBNoSqlSearchConfigOptions
     // Name of the field property which will contain the text which is embedded.
     public string TextKey { get; set; } = "text";
 
-    // Filters for query
-    public ConcurrentDictionary<string, string> PreFilters { get; set; } = new();
+    // Where filter for query.
+    public string WhereFilterClause { get; set; } = "";
+
+    // Limit Offset filter for query.
+    public string LimitOffsetFilterClause { get; set; } = "";
 }

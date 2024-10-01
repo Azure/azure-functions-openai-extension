@@ -5,14 +5,36 @@ This sample demonstrates how to build a chatbot using Azure Functions and a loca
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
+* [JavaScript](javascript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
 
 ## Prerequisites
 
-Please refer to the root level [README](../../README.md#requirements) for prerequisites.
+* Please refer to the root level [README](../../README.md#requirements) for prerequisites.
+
+### Chat Storage Configuration
+
+If you are using a different table storage than `AzureWebJobsStorage` for chat storage, follow these steps:
+
+1. **Managed Identity - Assign Permissions**:
+   * Assign the user or function app's managed identity the role of `Storage Table Data Contributor`.
+
+1. **Configure Table Service URI**:
+   * Set the `tableServiceUri` in the configuration as follows:
+
+     ```json
+     "<CONNECTION_NAME_PREFIX>__tableServiceUri": "tableServiceUri"
+     ```
+
+   * Replace `CONNECTION_NAME_PREFIX` with the appropriate prefix.
+
+1. **Update Function Code**:
+   * Supply the `ConnectionNamePrefix` to `ChatStorageConnectionSetting` in the function code. This will replace the default value of `AzureWebJobsStorage`.
+
+For additional details on using identity-based connections, refer to the [Azure Functions reference documentation](https://learn.microsoft.com/azure/azure-functions/functions-reference?#common-properties-for-identity-based-connections).
 
 ## Running the sample
 
@@ -22,7 +44,8 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | Language Worker | Command |
     | --------------- | ------- |
     | .NET oo-proc | `cd samples/chat/csharp-ooproc && func start` |
-    | Node.js | `cd samples/chat/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
+    | TypeScript | `cd samples/chat/typescript && npm install && npm run build && npm run start` |
+    | JavaScript | `cd samples/chat/javascript && npm install && npm run start` |
     | PowerShell | `cd samples/chat/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/chat/python && pip install -r requirements.txt && func start` |
     | Java | `cd samples/chat/java && mvn clean package && dotnet build && mvn azure-functions:run` |

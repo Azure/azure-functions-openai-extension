@@ -1,9 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
@@ -24,8 +21,6 @@ static class AssistantApis
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId)
     {
-        var responseJson = new { assistantId };
-
         string instructions =
            """
             Don't make assumptions about what values to plug into functions.
@@ -40,7 +35,11 @@ static class AssistantApis
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(new { assistantId }) { StatusCode = 202 },
-            ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions),
+            ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions)
+            {
+                ChatStorageConnectionSetting = "AzureWebJobsStorage",
+                CollectionName = "SampleChatState",
+            },
         };
     }
 

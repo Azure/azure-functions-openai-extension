@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -25,22 +24,29 @@ public static class ChatBot
         string chatId)
     {
         var responseJson = new { chatId };
-
-        using StreamReader reader = new(req.Body);
-
-        string request = await reader.ReadToEndAsync();
-
-        CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
-
-        if (createRequestBody == null)
+        CreateRequest? createRequestBody;
+        try
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
+            using StreamReader reader = new(req.Body);
+
+            string request = await reader.ReadToEndAsync();
+
+            createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
+
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.", ex.Message);
         }
 
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(responseJson) { StatusCode = 201 },
-            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody.Instructions),
+            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody?.Instructions)
+            {
+                ChatStorageConnectionSetting = "AzureWebJobsStorage",
+                CollectionName = "SampleChatState"
+            },
         };
     }
 

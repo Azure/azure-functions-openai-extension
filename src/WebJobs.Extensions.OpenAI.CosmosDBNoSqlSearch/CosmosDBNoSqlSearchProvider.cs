@@ -57,7 +57,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     )
     {
         // Create cosmos client if not exists in the cache.
-        CosmosClient cosmosClient = GetCosmosClient(document);
+        CosmosClient cosmosClient = this.GetCosmosClient(document.ConnectionInfo!.ConnectionName);
 
         DatabaseResponse databaseResponse = await cosmosClient
             .CreateDatabaseIfNotExistsAsync(
@@ -111,32 +111,36 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document, cancellationToken);
     }
 
-    CosmosClient GetCosmosClient(SearchableDocument document)
+    CosmosClient GetCosmosClient(String connectionStringName)
     {
         CosmosClient cosmosClient;
-        if (!string.IsNullOrEmpty(document.ConnectionInfo!.CollectionName) && 
-        this.cosmosDBClients.TryGetValue(document.ConnectionInfo!.CollectionName, out cosmosClient))
+        if (
+            !string.IsNullOrEmpty(connectionStringName)
+            && this.cosmosDBClients.TryGetValue(connectionStringName, out cosmosClient)
+        )
         {
-            cosmosClient = this.cosmosDBClients[document.CollectionInfo.ConnectionName];
+            cosmosClient = this.cosmosDBClients[connectionStringName];
         }
         else
         {
-            if (!string.IsNullOrEmpty(document.ConnectionInfo!.CollectionName))
+            if (!string.IsNullOrEmpty(connectionStringName))
             {
-                cosmosClient = CreateCosmosClient(document.ConnectionInfo!.ConnectionName, false)
+                cosmosClient = this.CreateCosmosClient(connectionStringName, false);
             }
-            else 
+            else
             {
-                cosmosClient = CreateCosmosClient(document.ConnectionInfo!.ConnectionName, true)
+                cosmosClient = this.CreateCosmosClient(connectionStringName, true);
             }
         }
-        this.cosmosDBClients[document.ConnectionInfo.ConnectionName] = cosmosClient;
+        this.cosmosDBClients[connectionStringName] = cosmosClient;
         return cosmosClient;
     }
 
-    CosmosClient CreateCosmosClient(String connectionStringName, bool isManagedIdentity)
+    CosmosClient CreateCosmosClient(string connectionStringName, bool isManagedIdentity)
     {
-        IConfigurationSection cosmosConfigSection = this.configuration.GetSection(connectionStringName);
+        IConfigurationSection cosmosConfigSection = this.configuration.GetSection(
+            connectionStringName
+        );
         string cosmosAccountUri = string.Empty;
 
         if (cosmosConfigSection.Exists())
@@ -159,7 +163,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         {
             var builder = new DbConnectionStringBuilder
             {
-                ConnectionString = this.configuration.GetValue<string>(connectionString)
+                ConnectionString = this.configuration.GetValue<string>(connectionStringName)
             };
 
             string? endpoint = builder["AccountEndpoint"]?.ToString();
@@ -217,10 +221,8 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(request.ConnectionInfo));
         }
 
-        CosmosClient cosmosClient = this.cosmosDBClients.GetOrAdd(
-            request.ConnectionInfo!.ConnectionName,
-            _ => CreateCosmosClient(request.ConnectionInfo.ConnectionName)
-        );
+        // Create cosmos client if not exists in the cache.
+        CosmosClient cosmosClient = this.GetCosmosClient(request.ConnectionInfo!.ConnectionName);
 
         try
         {

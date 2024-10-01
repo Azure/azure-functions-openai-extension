@@ -53,7 +53,8 @@ The sample is available in the following language stacks:
 * [Python](python)
 * [Powershell](powershell)
 * [Java](java)
-* [NodeJS](nodejs)
+* [TypeScript](typescript)
+* [JavaScript](javascript)
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 

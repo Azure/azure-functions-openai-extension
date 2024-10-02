@@ -30,24 +30,33 @@ public static class FilePrompt
     public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
     {
+        ArgumentNullException.ThrowIfNull(req);
+
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
 
+        if (string.IsNullOrWhiteSpace(request))
+        {
+            throw new ArgumentException("Request body is empty.");
+        }
+
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
 
-        if (requestBody == null || requestBody.Url == null)
+        if (string.IsNullOrWhiteSpace(requestBody?.Url))
         {
             throw new ArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
         }
 
-        Uri uri = new(requestBody.Url);
-        string filename = Path.GetFileName(uri.AbsolutePath);
+        if (!Uri.TryCreate(requestBody.Url, UriKind.Absolute, out Uri? uri))
+        {
+            throw new ArgumentException("Invalid Url format.");
+        }
 
-        IActionResult result = new OkObjectResult(new { status = HttpStatusCode.OK });
+        string filename = Path.GetFileName(uri.AbsolutePath);
 
         return new EmbeddingsStoreOutputResponse
         {
-            HttpResponse = result,
+            HttpResponse = new OkObjectResult(new { status = HttpStatusCode.OK }),
             SearchableDocument = new SearchableDocument(filename)
         };
     }

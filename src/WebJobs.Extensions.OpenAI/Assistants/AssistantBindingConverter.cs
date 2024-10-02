@@ -33,13 +33,7 @@ class AssistantBindingConverter :
         AssistantQueryAttribute input,
         CancellationToken cancellationToken)
     {
-        string timestampString = Uri.UnescapeDataString(input.TimestampUtc);
-        if (!DateTime.TryParse(timestampString, out DateTime timestamp))
-        {
-            throw new ArgumentException($"Invalid timestamp '{timestampString}'");
-        }
-
-        return this.assistantService.GetStateAsync(input.Id, timestamp, cancellationToken);
+        return this.assistantService.GetStateAsync(input, cancellationToken);
     }
 
     async Task<string> IAsyncConverter<AssistantQueryAttribute, string>.ConvertAsync(

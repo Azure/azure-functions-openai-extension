@@ -25,4 +25,14 @@ public sealed class AssistantQueryInputAttribute : InputBindingAttribute
     /// The timestamp should be in ISO 8601 format - for example, 2023-08-01T00:00:00Z.
     /// </summary>
     public string TimestampUtc { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Configuration section name for the table settings for chat storage.
+    /// </summary>
+    public string? ChatStorageConnectionSetting { get; set; }
+
+    /// <summary>
+    /// Table collection name for chat storage.
+    /// </summary>
+    public string CollectionName { get; set; } = "ChatState";
 }

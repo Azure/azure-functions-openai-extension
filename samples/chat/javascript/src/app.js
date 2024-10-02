@@ -3,6 +3,9 @@
 
 const { app, input, output } = require("@azure/functions");
 
+const CHAT_STORAGE_CONNECTION_SETTING = "AzureWebJobsStorage";
+const COLLECTION_NAME = "ChatState";
+
 const chatBotCreateOutput = output.generic({
     type: 'assistantCreate'
 })
@@ -18,8 +21,8 @@ app.http('CreateChatBot', {
         const createRequest = {
             id: chatID,
             instructions: inputJson.instructions,
-            chatStorageConnectionSetting: "AzureWebJobsStorage",
-            collectionName: "SampleChatState"
+            chatStorageConnectionSetting: CHAT_STORAGE_CONNECTION_SETTING,
+            collectionName: COLLECTION_NAME
         }
         context.extraOutputs.set(chatBotCreateOutput, createRequest)
         return { status: 202, jsonBody: { chatId: chatID } }
@@ -30,7 +33,9 @@ app.http('CreateChatBot', {
 const assistantQueryInput = input.generic({
     type: 'assistantQuery',
     id: '{chatId}',
-    timestampUtc: '{Query.timestampUTC}'
+    timestampUtc: '{Query.timestampUTC}',
+    chatStorageConnectionSetting: CHAT_STORAGE_CONNECTION_SETTING,
+    collectionName: COLLECTION_NAME
 })
 app.http('GetChatState', {
     methods: ['GET'],
@@ -48,7 +53,9 @@ const assistantPostInput = input.generic({
     type: 'assistantPost',
     id: '{chatID}',
     model: '%CHAT_MODEL_DEPLOYMENT_NAME%',
-    userMessage: '{Query.message}'
+    userMessage: '{Query.message}',
+    chatStorageConnectionSetting: CHAT_STORAGE_CONNECTION_SETTING,
+    collectionName: COLLECTION_NAME
 })
 app.http('PostUserResponse', {
     methods: ['POST'],

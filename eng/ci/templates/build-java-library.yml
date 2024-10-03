@@ -27,7 +27,7 @@ jobs:
           Copy-Item "$source/target/$prefix-javadoc.jar" "$destination/"
           Copy-Item "$source/target/$prefix-sources.jar" "$destination/"
         displayName: Copy output files
-        condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+        # condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
 
       - task: ManifestGeneratorTask@0
         displayName: Generate SBOM manifest

@@ -13,7 +13,7 @@ public class EmbeddingsContext {
 
     private EmbeddingsOptions request;
     private Embeddings response;
-    private int count;
+    private int count = 0;
 
     public EmbeddingsOptions getRequest() {
         return request;

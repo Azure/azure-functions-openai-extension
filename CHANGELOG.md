@@ -9,13 +9,20 @@ Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will ma
 
 Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
 
-## v0.17.0 - Unreleased
+## v0.18.0 - Unreleased
+
+### Changed
+
+- Bug fix in managed identity support for table storage.
+- Nuget dependencies updated.
+
+## v0.17.0 - 2024/08/30
 
 ### Breaking
 
 - Added support for managed identity with table storage, now consistent with other Azure Functions extensions.
 
-## v0.16.0 - Unreleased
+## v0.16.0
 
 ### Changed
 

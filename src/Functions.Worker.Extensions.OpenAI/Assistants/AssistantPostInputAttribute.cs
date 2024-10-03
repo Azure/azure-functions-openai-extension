@@ -33,4 +33,14 @@ public sealed class AssistantPostInputAttribute : InputBindingAttribute
     /// Gets user message that user has entered for assistant to respond to.
     /// </summary>
     public string UserMessage { get; }
+
+    /// <summary>
+    /// Configuration section name for the table settings for chat storage.
+    /// </summary>
+    public string? ChatStorageConnectionSetting { get; set; }
+
+    /// <summary>
+    /// Table collection name for chat storage.
+    /// </summary>
+    public string CollectionName { get; set; } = "ChatState";
 }

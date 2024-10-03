@@ -14,7 +14,7 @@ public class AssistantCreateRequest {
     private String id;
     private String instructions = "You are a helpful assistant.";
     private String chatStorageConnectionSetting;
-    private String collectionName = "SampleChatState";
+    private String collectionName = "ChatState";
 
     public AssistantCreateRequest(String id) {
         this.id = id;

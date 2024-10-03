@@ -5,7 +5,7 @@ jobs:
         - output: pipelineArtifact
           targetPath: $(build.artifactstagingdirectory)
           artifactName: drop-java-library
-          condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+          # condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     steps:
       - task: Maven@3
         displayName: Build library
@@ -34,4 +34,4 @@ jobs:
         inputs:
           buildDropPath: $(Build.ArtifactStagingDirectory)/java-library
           packageName: Azure Functions OpenAI Java Bindings
-        condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+        # condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')

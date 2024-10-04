@@ -64,7 +64,7 @@ static class AssistantApis
         string assistantId,
         [AssistantPostInput("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
-        return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
+        return new OkObjectResult(state.RecentMessages.Any() ? state.RecentMessages[state.RecentMessages.Count - 1].Content : "No response returned.");
     }
 
     /// <summary>

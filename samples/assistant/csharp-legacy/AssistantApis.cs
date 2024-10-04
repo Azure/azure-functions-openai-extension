@@ -17,6 +17,9 @@ namespace AssistantSample;
 /// </summary>
 static class AssistantApis
 {
+    const string DefaultChatStorageConnectionSetting = "AzureWebJobsStorage";
+    const string DefaultCollectionName = "ChatState";
+
     /// <summary>
     /// HTTP PUT function that creates a new assistant chat bot with the specified ID.
     /// </summary>
@@ -31,8 +34,12 @@ static class AssistantApis
             Don't make assumptions about what values to plug into functions.
             Ask for clarification if a user request is ambiguous.
             """;
-
-        await createRequests.AddAsync(new AssistantCreateRequest(assistantId, instructions));
+        AssistantCreateRequest assistantCreateRequest = new(assistantId, instructions)
+        {
+            ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting,
+            CollectionName = DefaultCollectionName,
+        };
+        await createRequests.AddAsync(assistantCreateRequest);
         var responseJson = new { assistantId };
         return new ObjectResult(responseJson) { StatusCode = 202 };
     }
@@ -44,9 +51,9 @@ static class AssistantApis
     public static IActionResult PostUserQuery(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequest req,
         string assistantId,
-        [AssistantPost("{assistantId}", "{Query.message}")] AssistantState updatedState)
+        [AssistantPost("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState updatedState)
     {
-        return new OkObjectResult(updatedState.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
+        return new OkObjectResult(updatedState.RecentMessages.Any() ? updatedState.RecentMessages[updatedState.RecentMessages.Count - 1].Content : "No response returned.");
     }
 
     /// <summary>
@@ -56,7 +63,7 @@ static class AssistantApis
     public static AssistantState GetChatState(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "assistants/{assistantId}")] HttpRequest req,
         string assistantId,
-        [AssistantQuery("{assistantId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state)
+        [AssistantQuery("{assistantId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
         return state;
     }

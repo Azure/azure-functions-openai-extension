@@ -88,21 +88,18 @@ class AssistantSkillTriggerBindingProvider : ITriggerBindingProvider
             this.skillManager = skillManager ?? throw new ArgumentNullException(nameof(skillManager));
         }
 
-        public Type TriggerValueType => typeof(string);
+        public Type TriggerValueType => typeof(SkillInvocationContext);
 
         public IReadOnlyDictionary<string, Type> BindingDataContract { get; } =
-            new Dictionary<string, Type>
+            new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
             {
+                // This binding supports return values of any type
                 { "$return", typeof(object).MakeByRefType() },
             };
 
         public ParameterDescriptor ToParameterDescriptor()
         {
-            return new ParameterDescriptor
-            {
-                Name = this.parameterInfo.Name,
-                Type = this.parameterInfo.ParameterType.Name,
-            };
+            return new ParameterDescriptor { Name = this.parameterInfo.Name };
         }
 
         /// <summary>
@@ -113,13 +110,13 @@ class AssistantSkillTriggerBindingProvider : ITriggerBindingProvider
         {
             Type destinationType = this.parameterInfo.ParameterType;
 
-            // We expect that input to always be a string value in the form {"paramName":paramValue}
-            string argumentsText = (string)value;
+            SkillInvocationContext skillInvocationContext = (SkillInvocationContext)value;
 
             object? convertedValue;
-            if (!string.IsNullOrEmpty(argumentsText))
+            if (!string.IsNullOrEmpty(skillInvocationContext.Arguments))
             {
-                JObject argsJson = JObject.Parse(argumentsText);
+                // We expect that input to always be a string value in the form {"paramName":paramValue}
+                JObject argsJson = JObject.Parse(skillInvocationContext.Arguments);
                 JToken? paramValue = argsJson[this.parameterInfo.Name];
                 convertedValue = paramValue?.ToObject(destinationType);
             }

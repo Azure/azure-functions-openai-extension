@@ -90,6 +90,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticCosmosDBSearchEmbed
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-ooproc\AssistantSample.csproj", "{4057D224-2A7C-4186-86D6-66F79542561B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assistant-legacy", "assistant-legacy", "{20E3EDFF-0628-4AAC-BAD2-30E2C6862C30}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-legacy\AssistantSample.csproj", "{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -160,6 +164,10 @@ Global
 		{4057D224-2A7C-4186-86D6-66F79542561B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4057D224-2A7C-4186-86D6-66F79542561B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4057D224-2A7C-4186-86D6-66F79542561B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -188,6 +196,8 @@ Global
 		{24193510-C974-42E2-AE1F-1097E16A2445} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC} = {24193510-C974-42E2-AE1F-1097E16A2445}
 		{4057D224-2A7C-4186-86D6-66F79542561B} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
+		{20E3EDFF-0628-4AAC-BAD2-30E2C6862C30} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB} = {20E3EDFF-0628-4AAC-BAD2-30E2C6862C30}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

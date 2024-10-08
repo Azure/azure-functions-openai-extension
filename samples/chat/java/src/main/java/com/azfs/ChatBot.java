@@ -30,7 +30,9 @@ import java.util.Optional;
  * Azure Functions ChatBot sample allows you to create chat bots with a specified set of initial instructions.
  */
 public class ChatBot {
-    
+    final String DEFAULT_CHATSTORAGE = "AzureWebJobsStorage";
+    final String DEFAULT_COLLECTION = "ChatState";
+
     @FunctionName("CreateChatBot")
     public HttpResponseMessage createChatBot(
         @HttpTrigger(
@@ -49,6 +51,9 @@ public class ChatBot {
             }
                
             AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(chatId, request.getBody().get().getInstructions());
+            assistantCreateRequest.setChatStorageConnectionSetting(DEFAULT_CHATSTORAGE);
+            assistantCreateRequest.setCollectionName(DEFAULT_COLLECTION);
+
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();
             response.put("chatId", chatId);

@@ -27,6 +27,22 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
  */
 public class AssistantApis {
 
+    /**
+     * The default storage account setting for the table storage account.
+     * This constant is used to specify the connection string for the table storage
+     * account
+     * where chat data will be stored.
+     */
+    String DEFAULT_CHATSTORAGE = "AzureWebJobsStorage";
+
+    /**
+     * The default collection name for the table storage account.
+     * This constant is used to specify the collection name for the table storage
+     * account
+     * where chat data will be stored.
+     */
+    String DEFAULT_COLLECTION = "ChatState";
+
     /*
      * HTTP PUT function that creates a new assistant chat bot with the specified ID.
      */
@@ -47,6 +63,9 @@ public class AssistantApis {
                     "Ask for clarification if a user request is ambiguous.";
 
             AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(assistantId, instructions);
+            assistantCreateRequest.setChatStorageConnectionSetting(DEFAULT_CHATSTORAGE);
+            assistantCreateRequest.setCollectionName(DEFAULT_COLLECTION);
+
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();
             response.put("assistantId", assistantId);
@@ -69,7 +88,7 @@ public class AssistantApis {
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("assistantId") String assistantId,        
-        @AssistantQuery(name = "AssistantState", id = "{assistantId}", timestampUtc = "{Query.timestampUTC}") AssistantState state,
+        @AssistantQuery(name = "AssistantState", id = "{assistantId}", timestampUtc = "{Query.timestampUTC}", chatStorageConnectionSetting = DEFAULT_CHATSTORAGE, collectionName = DEFAULT_COLLECTION) AssistantState state,
         final ExecutionContext context) {
             return request.createResponseBuilder(HttpStatus.OK)
                 .header("Content-Type", "application/json")
@@ -89,7 +108,7 @@ public class AssistantApis {
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("assistantId") String assistantId,        
-        @AssistantPost(name="newMessages", id = "{assistantId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}") AssistantState state,
+        @AssistantPost(name="newMessages", id = "{assistantId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}", chatStorageConnectionSetting = DEFAULT_CHATSTORAGE, collectionName = DEFAULT_COLLECTION) AssistantState state,
         final ExecutionContext context) {
             
             List<ChatMessage> recentMessages = state.getRecentMessages();

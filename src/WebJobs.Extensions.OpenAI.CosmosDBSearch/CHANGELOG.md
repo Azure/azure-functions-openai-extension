@@ -22,4 +22,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added support for CosmosDB (MongoDB) Search Provider. Refer [README](../../samples/rag-cosmos-db/README.md) for more information on usage.
+- Added support for CosmosDB (MongoDB) Search Provider. Refer [README](../../samples/rag-cosmosdb/README.md) for more information on usage.

@@ -21,7 +21,9 @@
       "name": "ChatBotState",
       "id": "{chatId}",
       "model": "%CHAT_MODEL_DEPLOYMENT_NAME%",
-      "userMessage": "{Query.message}"
+      "userMessage": "{Query.message}",
+      "chatStorageConnectionSetting": "AzureWebJobsStorage",
+      "collectionName": "ChatState"
     }
   ]
 }

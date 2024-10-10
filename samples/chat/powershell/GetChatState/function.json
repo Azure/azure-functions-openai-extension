@@ -20,7 +20,9 @@
       "direction": "in",
       "name": "ChatBotState",
       "id": "{chatId}",
-      "timeStampUtc": "{Query.timestampUTC}"
+      "timeStampUtc": "{Query.timestampUTC}",
+      "chatStorageConnectionSetting": "AzureWebJobsStorage",
+      "collectionName": "ChatState"
     }
   ]
 }

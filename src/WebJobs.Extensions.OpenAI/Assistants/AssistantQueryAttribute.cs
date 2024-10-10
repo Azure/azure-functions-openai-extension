@@ -26,4 +26,15 @@ public sealed class AssistantQueryAttribute : Attribute
     /// </summary>
     [AutoResolve]
     public string TimestampUtc { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Configuration section name for the table settings for chat storage.
+    /// </summary>
+    public string? ChatStorageConnectionSetting { get; set; }
+
+    /// <summary>
+    /// Table collection name for chat storage.
+    /// </summary>
+    [AutoResolve]
+    public string CollectionName { get; set; } = "ChatState";
 }

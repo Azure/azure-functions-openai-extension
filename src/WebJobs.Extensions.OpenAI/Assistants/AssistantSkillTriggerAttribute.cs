@@ -5,7 +5,9 @@ using Microsoft.Azure.WebJobs.Description;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
-[Binding]
+#pragma warning disable CS0618 // Approved for use by this extension
+[Binding(TriggerHandlesReturnValue = true)]
+#pragma warning restore CS0618 // Type or member is obsolete
 [AttributeUsage(AttributeTargets.Parameter)]
 public sealed class AssistantSkillTriggerAttribute : Attribute
 {

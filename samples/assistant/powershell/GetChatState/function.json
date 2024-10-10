@@ -21,7 +21,9 @@
       "direction": "in",
       "dataType": "string",
       "id": "{assistantId}",
-      "timestampUtc": "{Query.timestampUTC}"
+      "timestampUtc": "{Query.timestampUTC}",
+      "chatStorageConnectionSetting": "AzureWebJobsStorage",
+      "collectionName": "ChatState"
     }
   ]
 }

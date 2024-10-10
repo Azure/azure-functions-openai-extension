@@ -4,7 +4,7 @@
     <Version>$(AzureAISearchVersion)</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Search.Documents" Version="11.5.1" />
+    <PackageReference Include="Azure.Search.Documents" Version="11.6.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
   </ItemGroup>
 

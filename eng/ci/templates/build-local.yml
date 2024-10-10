@@ -12,7 +12,7 @@ jobs:
           version: '8.x'
 
       - script: |
-          mkdir '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
+          mkdir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
         displayName: Create new directory
 
       - script: |

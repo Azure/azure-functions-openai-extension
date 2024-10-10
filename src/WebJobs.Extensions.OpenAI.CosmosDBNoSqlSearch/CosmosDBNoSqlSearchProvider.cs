@@ -111,7 +111,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document, cancellationToken);
     }
 
-    CosmosClient GetCosmosClient(String connectionStringName)
+    CosmosClient GetCosmosClient(string connectionStringName)
     {
         CosmosClient cosmosClient;
         if (
@@ -119,24 +119,17 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             && this.cosmosDBClients.TryGetValue(connectionStringName, out cosmosClient)
         )
         {
-            cosmosClient = this.cosmosDBClients[connectionStringName];
+            // cosmosClient is already assigned by TryGetValue
         }
         else
         {
-            if (!string.IsNullOrEmpty(connectionStringName))
-            {
-                cosmosClient = this.CreateCosmosClient(connectionStringName, false);
-            }
-            else
-            {
-                cosmosClient = this.CreateCosmosClient(connectionStringName, true);
-            }
+            cosmosClient = this.CreateCosmosClient(connectionStringName);
         }
         this.cosmosDBClients[connectionStringName] = cosmosClient;
         return cosmosClient;
     }
 
-    CosmosClient CreateCosmosClient(string connectionStringName, bool isManagedIdentity)
+    CosmosClient CreateCosmosClient(string connectionStringName)
     {
         IConfigurationSection cosmosConfigSection = this.configuration.GetSection(
             connectionStringName
@@ -148,7 +141,8 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             cosmosAccountUri = cosmosConfigSection["cosmosUri"];
         }
 
-        if (isManagedIdentity && !string.IsNullOrEmpty(cosmosAccountUri))
+        // check if the URI for the cosmos account is present
+        if (!string.IsNullOrEmpty(cosmosAccountUri))
         {
             return new CosmosClient(
                 cosmosAccountUri,
@@ -161,6 +155,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         }
         else
         {
+            // Else, will use the connection string
             var builder = new DbConnectionStringBuilder
             {
                 ConnectionString = this.configuration.GetValue<string>(connectionStringName)
@@ -191,7 +186,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
             {
                 MemoryRecordWithId record = new MemoryRecordWithId(document, i);
-                var result = await cosmosClient
+                await cosmosClient
                     .GetDatabase(this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseName)
                     .GetContainer(document.ConnectionInfo!.CollectionName)
                     .UpsertItemAsync(
@@ -293,11 +288,11 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     /// </summary>
     internal class MemoryRecordWithSimilarityScore
     {
-        public string id { get; set; }
-        public string text { get; set; }
-        public ReadOnlyMemory<float> embedding { get; set; }
-        public string title { get; set; }
-        public DateTimeOffset? timestamp { get; set; }
+        public string Id { get; set; }
+        public string Text { get; set; }
+        public ReadOnlyMemory<float> Embedding { get; set; }
+        public string Title { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
 
         /// <summary>
         /// The similarity score returned.
@@ -313,11 +308,11 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             double SimilarityScore
         )
         {
-            this.id = id;
-            this.text = text;
-            this.title = title;
-            this.embedding = embedding;
-            this.timestamp = timestamp;
+            this.Id = id;
+            this.Text = text;
+            this.Title = title;
+            this.Embedding = embedding;
+            this.Timestamp = timestamp;
             this.SimilarityScore = SimilarityScore;
         }
     }
@@ -327,11 +322,11 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     /// </summary>
     internal class MemoryRecordWithId
     {
-        public string id { get; set; }
-        public string text { get; set; }
-        public ReadOnlyMemory<float> embedding { get; set; }
-        public string title { get; set; }
-        public DateTimeOffset? timestamp { get; set; }
+        public string Id { get; set; }
+        public string Text { get; set; }
+        public ReadOnlyMemory<float> Embedding { get; set; }
+        public string Title { get; set; }
+        public DateTimeOffset? Timestamp { get; set; }
 
         /// <summary>
         /// Creates a new record that also serializes an "id" property.

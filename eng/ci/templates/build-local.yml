@@ -12,7 +12,7 @@ jobs:
           version: "8.x"
 
       - script: |
-          mkdir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
+          mkdir '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
         displayName: Create new directory
 
       - script: |
@@ -52,7 +52,7 @@ jobs:
           TargetFolder: "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
 
       - script: |
-          dir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
+          dir '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
           dotnet nuget add source $(System.DefaultWorkingDirectory)/NuGetPackagesLocal --configfile  %appdata%/NuGet/NuGet.Config
           dotnet nuget list source --configfile  %appdata%/NuGet/NuGet.Config
           dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile %appdata%/NuGet/NuGet.Config

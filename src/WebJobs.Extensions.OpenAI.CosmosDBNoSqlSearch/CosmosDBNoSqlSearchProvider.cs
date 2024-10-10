@@ -185,14 +185,13 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         {
             for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
             {
-                MemoryRecordWithId record = new MemoryRecordWithId
-                {
-                    Id = Guid.NewGuid().ToString("N"),
-                    Text = document.Embeddings?.Request.Input![i] ?? string.Empty,
-                    Title = Path.GetFileNameWithoutExtension(document.Title),
-                    Embedding = document.Embeddings?.Response?.Data[i].Embedding.ToArray(),
-                    Timestamp = DateTime.UtcNow
-                };
+                MemoryRecordWithId record = new MemoryRecordWithId(
+                    Guid.NewGuid().ToString("N"),
+                    document.Embeddings?.Request.Input![i] ?? string.Empty,
+                    Path.GetFileNameWithoutExtension(document.Title),
+                    document.Embeddings?.Response?.Data[i].Embedding.ToArray(),
+                    DateTime.UtcNow
+                );
 
                 // MemoryRecordWithId record = new MemoryRecordWithId(document, i);
                 await cosmosClient
@@ -200,7 +199,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
                     .GetContainer(document.ConnectionInfo!.CollectionName)
                     .UpsertItemAsync(
                         record,
-                        new PartitionKey(record.Id),
+                        new PartitionKey(record.id),
                         cancellationToken: cancellationToken
                     )
                     .ConfigureAwait(false);
@@ -331,7 +330,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     /// </summary>
     internal class MemoryRecordWithId
     {
-        public string Id { get; set; }
+        public string id { get; set; }
         public string Text { get; set; }
         public ReadOnlyMemory<float> Embedding { get; set; }
         public string Title { get; set; }
@@ -348,7 +347,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             DateTimeOffset timestamp
         )
         {
-            this.Id = id;
+            this.id = id;
             this.Text = text;
             this.Title = title;
             this.Embedding = embedding;

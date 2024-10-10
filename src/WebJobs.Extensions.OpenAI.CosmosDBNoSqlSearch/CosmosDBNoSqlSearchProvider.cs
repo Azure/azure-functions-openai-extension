@@ -185,13 +185,22 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         {
             for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
             {
-                MemoryRecordWithId record = new MemoryRecordWithId(document, i);
+                MemoryRecordWithId record = new MemoryRecordWithId
+                {
+                    Id = Guid.NewGuid().ToString("N"),
+                    Text = document.Embeddings?.Request.Input![i] ?? string.Empty,
+                    Title = Path.GetFileNameWithoutExtension(document.Title),
+                    Embedding = document.Embeddings?.Response?.Data[i].Embedding.ToArray(),
+                    Timestamp = DateTime.UtcNow
+                };
+
+                // MemoryRecordWithId record = new MemoryRecordWithId(document, i);
                 await cosmosClient
                     .GetDatabase(this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseName)
                     .GetContainer(document.ConnectionInfo!.CollectionName)
                     .UpsertItemAsync(
                         record,
-                        new PartitionKey(record.id),
+                        new PartitionKey(record.Id),
                         cancellationToken: cancellationToken
                     )
                     .ConfigureAwait(false);
@@ -270,7 +279,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             {
                 foreach (var memoryRecord in await feedIterator.ReadNextAsync())
                 {
-                    searchResults.Add(new SearchResult(memoryRecord.title, memoryRecord.text));
+                    searchResults.Add(new SearchResult(memoryRecord.Title, memoryRecord.Text));
                 }
             }
             SearchResponse response = new(searchResults);
@@ -331,13 +340,19 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         /// <summary>
         /// Creates a new record that also serializes an "id" property.
         /// </summary>
-        public MemoryRecordWithId(SearchableDocument document, int dataId)
+        public MemoryRecordWithId(
+            string id,
+            string text,
+            string title,
+            ReadOnlyMemory<float> embedding,
+            DateTimeOffset timestamp
+        )
         {
-            this.id = Guid.NewGuid().ToString("N");
-            this.text = document.Embeddings?.Request.Input![dataId] ?? string.Empty;
-            this.title = Path.GetFileNameWithoutExtension(document.Title);
-            this.embedding = document.Embeddings?.Response?.Data[dataId].Embedding.ToArray();
-            this.timestamp = DateTime.UtcNow;
+            this.Id = id;
+            this.Text = text;
+            this.Title = title;
+            this.Embedding = embedding;
+            this.Timestamp = timestamp;
         }
     }
 }

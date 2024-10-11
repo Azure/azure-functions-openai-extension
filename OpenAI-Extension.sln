@@ -86,7 +86,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb", "rag-comosdb"
 		samples\rag-cosmosdb\demo.http = samples\rag-cosmosdb\demo.http
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch", "src\Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj", "{9ab90dc0-2b1f-43b8-8ec1-7a20b53859ea}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch", "src\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj", "{9ab90dc0-2b1f-43b8-8ec1-7a20b53859ea}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch", "src\Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch\Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj", "{6990598F-66A7-4476-943A-781849DEDD3B}"
 EndProject

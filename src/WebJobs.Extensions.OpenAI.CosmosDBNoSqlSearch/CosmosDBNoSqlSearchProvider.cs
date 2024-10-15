@@ -101,7 +101,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             IndexingPolicy = indexingPolicy,
         };
 
-        ContainerResponse containerResponse = await databaseResponse
+        await databaseResponse
             .Database.CreateContainerIfNotExistsAsync(
                 containerProperties,
                 cancellationToken: cancellationToken
@@ -199,7 +199,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
                     .GetContainer(document.ConnectionInfo!.CollectionName)
                     .UpsertItemAsync(
                         record,
-                        new PartitionKey(record.id),
+                        new PartitionKey(record.Id),
                         cancellationToken: cancellationToken
                     )
                     .ConfigureAwait(false);
@@ -330,7 +330,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     /// </summary>
     internal class MemoryRecordWithId
     {
-        public string id { get; set; }
+        public string Id { get; set; }
         public string Text { get; set; }
         public ReadOnlyMemory<float> Embedding { get; set; }
         public string Title { get; set; }
@@ -347,7 +347,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             DateTimeOffset timestamp
         )
         {
-            this.id = id;
+            this.Id = id;
             this.Text = text;
             this.Title = title;
             this.Embedding = embedding;

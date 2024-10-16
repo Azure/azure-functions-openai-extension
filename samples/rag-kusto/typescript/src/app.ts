@@ -24,13 +24,14 @@ app.http('IngestEmail', {
         }
 
         let uri = requestBody.Url;
-        let filename = uri.split('/').pop();
+        let url = new URL(uri);
 
-        context.extraOutputs.set(embeddingsStoreOutput, { title: filename });
+        let fileName = url.pathname.split('/').pop();
+        context.extraOutputs.set(embeddingsStoreOutput, { title: fileName });
 
         let response = {
             status: "success",
-            title: filename
+            title: fileName
         };
 
         return { status: 202, jsonBody: response }

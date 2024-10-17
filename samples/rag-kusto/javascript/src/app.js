@@ -1,5 +1,7 @@
 const { app, input, output } = require("@azure/functions");
 
+const path = require('path');
+
 const embeddingsStoreOutput = output.generic({
     type: "embeddingsStore",
     input: "{url}",
@@ -22,7 +24,7 @@ app.http('IngestEmail', {
         let uri = requestBody.Url;
         let url = new URL(uri);
 
-        let fileName = url.pathname.split('/').pop();
+        let fileName = path.basename(url.pathname);
         context.extraOutputs.set(embeddingsStoreOutput, { title: fileName });
 
         let response = {

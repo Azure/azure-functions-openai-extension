@@ -1,4 +1,5 @@
 import { app, input, output } from "@azure/functions";
+import * as path from 'path';
 
 interface EmbeddingsRequest {
     Url?: string;
@@ -24,13 +25,14 @@ app.http('IngestFile', {
         }
 
         let uri = requestBody.Url;
-        let filename = uri.split('/').pop();
+        let url = new URL(uri);
 
-        context.extraOutputs.set(embeddingsStoreOutput, { title: filename });
+        let fileName = path.basename(url.pathname);
+        context.extraOutputs.set(embeddingsStoreOutput, { title: fileName });
 
         let response = {
             status: "success",
-            title: filename
+            title: fileName
         };
 
         return { status: 202, jsonBody: response } 

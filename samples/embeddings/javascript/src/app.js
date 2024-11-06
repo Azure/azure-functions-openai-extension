@@ -1,7 +1,7 @@
 const { app, input } = require("@azure/functions");
 
 const embeddingsHttpInput = input.generic({
-    input: '{RawText}',
+    input: '{rawText}',
     inputType: 'RawText',
     type: 'embeddings',
     model: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%'
@@ -27,7 +27,7 @@ app.http('generateEmbeddings', {
 });
 
 const embeddingsFilePathInput = input.generic({
-    input: '{FilePath}',
+    input: '{filePath}',
     inputType: 'FilePath',
     type: 'embeddings',
     maxChunkLength: 512,
@@ -54,7 +54,7 @@ app.http('getEmbeddingsFilePath', {
 });
 
 const embeddingsUrlInput = input.generic({
-    input: '{Url}',
+    input: '{url}',
     inputType: 'Url',
     type: 'embeddings',
     maxChunkLength: 512,

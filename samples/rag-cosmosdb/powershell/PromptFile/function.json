@@ -20,7 +20,7 @@
       "direction": "in",
       "connectionName": "CosmosDBMongoVCoreConnectionString",
       "collection": "openai-index",
-      "query": "{Prompt}",
+      "query": "{prompt}",
       "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",
       "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
     }

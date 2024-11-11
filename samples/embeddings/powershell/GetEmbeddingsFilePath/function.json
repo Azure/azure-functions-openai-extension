@@ -20,7 +20,7 @@
       "type": "embeddings",
       "direction": "in",
       "inputType": "FilePath",
-      "input": "{FilePath}",
+      "input": "{filePath}",
       "maxChunkLength": 512,
       "model": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
     }

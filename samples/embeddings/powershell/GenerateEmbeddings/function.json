@@ -20,7 +20,7 @@
       "type": "embeddings",
       "direction": "in",
       "inputType": "RawText",
-      "input": "{RawText}",
+      "input": "{rawText}",
       "model": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
     }
   ]

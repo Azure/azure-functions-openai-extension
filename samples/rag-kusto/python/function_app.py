@@ -12,7 +12,7 @@ def ingest_email(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpRes
     user_message = req.get_json()
     if not user_message:
         return func.HttpResponse(json.dumps({"message": "No message provided"}), status_code=400, mimetype="application/json")
-    file_name_with_extension = os.path.basename(user_message["Url"])
+    file_name_with_extension = os.path.basename(user_message["url"])
     title = os.path.splitext(file_name_with_extension)[0]
     create_request = {
         "title": title
@@ -27,7 +27,7 @@ def ingest_email(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpRes
 
 @app.function_name("PromptEmail")
 @app.route(methods=["POST"])
-@app.semantic_search_input(arg_name="result", connection_name="KustoConnectionString", collection="Documents", query="{Prompt}", embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%", chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+@app.semantic_search_input(arg_name="result", connection_name="KustoConnectionString", collection="Documents", query="{prompt}", embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%", chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%")
 def prompt_email(req: func.HttpRequest, result: str) -> func.HttpResponse:
     result_json = json.loads(result)
     response_json = {

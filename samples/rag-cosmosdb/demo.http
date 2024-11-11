@@ -3,25 +3,25 @@
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"Url":"https://url/test/test_file.txt"}
+{"url":"https://url/test/test_file.txt"}
 
 
 ### Ingest second file into database
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"Url":"https://url/test/test_file.txt"}
+{"url":"https://url/test/test_file.txt"}
 
 
 ### Send a search query (Example #1)
 POST http://localhost:7071/api/PromptFile
 Content-Type: application/json
 
-{"Prompt":"INSERT PROMPT HERE"}
+{"prompt":"INSERT PROMPT HERE"}
 
 
 ### Send a search query (Example #2)
 POST http://localhost:7071/api/PromptFile
 Content-Type: application/json
 
-{"Prompt":"INSERT PROMPT HERE"}
+{"prompt":"INSERT PROMPT HERE"}

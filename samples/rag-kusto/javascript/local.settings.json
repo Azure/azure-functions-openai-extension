@@ -5,7 +5,7 @@
     "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
     "FUNCTIONS_WORKER_RUNTIME": "node",
     "KustoConnectionString": "Data Source=https://YOUR-CLUSTER-HOSTNAME;Initial Catalog=YOUR-DATABASE-NAME;Fed=True",
-    "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",
+    "AZURE_OPENAI_ENDPOINT": "Placeholder for the Azure OpenAI endpoint value",
     "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo",
     "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-3-small"
   }

@@ -3,7 +3,7 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",
+    "AZURE_OPENAI_ENDPOINT": "Placeholder for the Azure OpenAI endpoint value",
     "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo"
   }
 }

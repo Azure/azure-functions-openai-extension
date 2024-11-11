@@ -5,7 +5,7 @@ interface EmbeddingsHttpRequest {
 }
 
 const embeddingsHttpInput = input.generic({
-    input: '{RawText}',
+    input: '{rawText}',
     inputType: 'RawText',
     type: 'embeddings',
     model: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%'
@@ -35,7 +35,7 @@ interface EmbeddingsFilePath {
 }
 
 const embeddingsFilePathInput = input.generic({
-    input: '{FilePath}',
+    input: '{filePath}',
     inputType: 'FilePath',
     type: 'embeddings',
     maxChunkLength: 512,
@@ -66,7 +66,7 @@ interface EmbeddingsUrlPath {
 }
 
 const embeddingsUrlInput = input.generic({
-    input: '{Url}',
+    input: '{url}',
     inputType: 'Url',
     type: 'embeddings',
     maxChunkLength: 512,

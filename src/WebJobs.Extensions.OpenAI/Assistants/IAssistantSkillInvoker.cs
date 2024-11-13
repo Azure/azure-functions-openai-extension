@@ -17,6 +17,20 @@ public interface IAssistantSkillInvoker
     Task<string?> InvokeAsync(FunctionToolDefinition call, CancellationToken cancellationToken);
 }
 
+class SkillInvocationContext
+{
+    public SkillInvocationContext(string arguments)
+    {
+        this.Arguments = arguments;
+    }
+
+    // The arguments are passed as a JSON object in the form of {"paramName":paramValue}
+    public string Arguments { get; }
+
+    // The result of the function invocation, if any
+    public object? Result { get; set; }
+}
+
 public class AssistantSkillManager : IAssistantSkillInvoker
 {
     record Skill(
@@ -144,30 +158,33 @@ public class AssistantSkillManager : IAssistantSkillInvoker
             throw new InvalidOperationException($"No skill registered with name '{call.FunctionName}'");
         }
 
+        SkillInvocationContext skillInvocationContext = new(call.Arguments);
+
         // This call may throw if the Functions host is shutting down or if there is an internal error
         // in the Functions runtime. We don't currently try to handle these exceptions.
-        object? skillOutput = null;
         FunctionResult result = await skill.Executor.TryExecuteAsync(
             new TriggeredFunctionData
             {
-                TriggerValue = call.Parameters,
+                TriggerValue = skillInvocationContext,
 #pragma warning disable CS0618 // Approved for use by this extension
                 InvokeHandler = async userCodeInvoker =>
                 {
-                    // We yield control to ensure this code is executed asynchronously relative to WebJobs.
-                    // This ensures WebJobs is able to correctly cancel the invocation in the case of a timeout.
-                    await Task.Yield();
-
                     // Invoke the function and attempt to get the result.
                     this.logger.LogInformation("Invoking user-code function '{Name}'", call.FunctionName);
                     Task invokeTask = userCodeInvoker.Invoke();
-                    if (invokeTask is not Task<object> resultTask)
+                    if (invokeTask is Task<object> invokeTaskWithResult)
                     {
-                        throw new InvalidOperationException(
-                            "The WebJobs runtime returned a invocation task that does not support return values!");
+                        skillInvocationContext.Result = await invokeTaskWithResult;
                     }
-
-                    skillOutput = await resultTask;
+                    else
+                    {
+                        // This is generally not expected to happen, but we handle it just in case.
+                        this.logger.LogWarning(
+                            "Unable to discover the return value (if any) for user-code function '{Name}'. " +
+                            "This is an internal error in the extension that may result in model hallucination.",
+                            call.Name);
+                        await invokeTask;
+                    }
                 }
 #pragma warning restore CS0618
             },
@@ -180,13 +197,13 @@ public class AssistantSkillManager : IAssistantSkillInvoker
             ExceptionDispatchInfo.Throw(result.Exception);
         }
 
-        if (skillOutput is null)
+        if (skillInvocationContext.Result is null)
         {
             return null;
         }
 
         // Convert the output to JSON
-        string jsonResult = JsonConvert.SerializeObject(skillOutput);
+        string jsonResult = JsonConvert.SerializeObject(skillInvocationContext.Result);
         this.logger.LogInformation(
             "Returning output of user-code function '{Name}' as JSON: {Json}", call.Name, jsonResult);
         return jsonResult;

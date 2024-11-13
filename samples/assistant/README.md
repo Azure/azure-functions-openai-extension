@@ -5,7 +5,8 @@ It builds upon the concepts [chatbot](../chatbot) sample, which demonstrates how
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
+* [JavaScript](javascript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
@@ -47,7 +48,7 @@ public Task AddTodo([AssistantSkillTrigger("Create a new todo task")] string tas
 }
 ```
 
-Nodejs example:
+TypeScript example:
 
 ```ts
 app.generic('AddTodo', {
@@ -56,6 +57,27 @@ app.generic('AddTodo', {
         functionDescription: 'Create a new todo task'
     }),
     handler: async (taskDescription: string, context: InvocationContext) => {
+        if (!taskDescription) {
+            throw new Error('Task description cannot be empty')
+        }
+
+        context.log(`Adding todo: ${taskDescription}`)
+
+        const todoId = crypto.randomUUID().substring(0, 6)
+        return todoManager.AddTodo(new TodoItem(todoId, taskDescription))
+    }
+})
+```
+
+JavaScript example:
+
+```js
+app.generic('AddTodo', {
+    trigger: trigger.generic({
+        type: 'assistantSkillTrigger',
+        functionDescription: 'Create a new todo task'
+    }),
+    handler: async (taskDescription, context) => {
         if (!taskDescription) {
             throw new Error('Task description cannot be empty')
         }
@@ -162,18 +184,26 @@ Additionally, if you want to run the sample with Cosmos DB, then you must also d
 * Install the [Azure Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator), or get a connection string to a real Azure Cosmos DB resource.
 * Update the `CosmosDbConnectionString` setting in the `local.settings.json` file and configure it with the connection string to your Cosmos DB resource (local or Azure).
 
-Also note that the storage of chat history is done via table storage. You may configure the `host.json` file within the project to be as follows:
+### Chat Storage Configuration
 
-```json
-"extensions": {
-    "openai": {
-      "storageConnectionName": "AzureWebJobsStorage",
-      "collectionName": "SampleChatState"
-    }
-}
-```
+If you are using a different table storage than `AzureWebJobsStorage` for chat storage, follow these steps:
 
-`StorageConnectionName` is the name of connection string of a storage account and `CollectionName` is the name of the table that would hold the chat state and messages.
+1. **Managed Identity - Assign Permissions**:
+   * Assign the user or function app's managed identity the role of `Storage Table Data Contributor`.
+
+1. **Configure Table Service URI**:
+   * Set the `tableServiceUri` in the configuration as follows:
+
+     ```json
+     "<CONNECTION_NAME_PREFIX>__tableServiceUri": "tableServiceUri"
+     ```
+
+   * Replace `CONNECTION_NAME_PREFIX` with the appropriate prefix.
+
+1. **Update Function Code**:
+   * Supply the `ConnectionNamePrefix` to `ChatStorageConnectionSetting` in the function code. This will replace the default value of `AzureWebJobsStorage`.
+
+For additional details on using identity-based connections, refer to the [Azure Functions reference documentation](https://learn.microsoft.com/azure/azure-functions/functions-reference?#common-properties-for-identity-based-connections).
 
 ## Running the sample
 

@@ -10,6 +10,8 @@ $instructions += "\nAsk for clarification if a user request is ambiguous."
 $create_request = @{
     "id" = $assistantId
     "instructions" = $instructions
+    "chatStorageConnectionSetting" = "AzureWebJobsStorage"
+    "collectionName" = "ChatState"
 }
 
 Push-OutputBinding -Name Requests -Value (ConvertTo-Json $create_request)

@@ -33,13 +33,7 @@ class AssistantBindingConverter :
         AssistantQueryAttribute input,
         CancellationToken cancellationToken)
     {
-        string timestampString = Uri.UnescapeDataString(input.TimestampUtc);
-        if (!DateTime.TryParse(timestampString, out DateTime timestamp))
-        {
-            throw new ArgumentException($"Invalid timestamp '{timestampString}'");
-        }
-
-        return this.assistantService.GetStateAsync(input.Id, timestamp, cancellationToken);
+        return this.assistantService.GetStateAsync(input, cancellationToken);
     }
 
     async Task<string> IAsyncConverter<AssistantQueryAttribute, string>.ConvertAsync(
@@ -88,9 +82,8 @@ class AssistantBindingConverter :
 
         public async Task AddAsync(AssistantCreateRequest item, CancellationToken cancellationToken = default)
         {
-            AssistantCreateRequest request = new(item.Id, item.Instructions);
-            await this.chatService.CreateAssistantAsync(request, cancellationToken);
-            this.logger.LogInformation("Created assistant '{Id}'", request.Id);
+            await this.chatService.CreateAssistantAsync(item, cancellationToken);
+            this.logger.LogInformation("Created assistant '{Id}'", item.Id);
         }
 
         public Task FlushAsync(CancellationToken cancellationToken = default)

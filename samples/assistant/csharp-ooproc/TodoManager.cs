@@ -1,10 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 
@@ -70,22 +67,15 @@ class CosmosDbTodoManager : ITodoManager
 
     public CosmosDbTodoManager(ILoggerFactory loggerFactory, CosmosClient cosmosClient)
     {
-        if (loggerFactory is null)
-        {
-            throw new ArgumentNullException(nameof(loggerFactory));
-        }
-
-        if (cosmosClient is null)
-        {
-            throw new ArgumentNullException(nameof(cosmosClient));
-        }
+        ArgumentNullException.ThrowIfNull(loggerFactory, nameof(loggerFactory));
+        ArgumentNullException.ThrowIfNull(cosmosClient, nameof(cosmosClient));
 
         string? CosmosDatabaseName = Environment.GetEnvironmentVariable("CosmosDatabaseName");
         string? CosmosContainerName = Environment.GetEnvironmentVariable("CosmosContainerName");
 
         if (string.IsNullOrEmpty(CosmosDatabaseName) || string.IsNullOrEmpty(CosmosContainerName))
         {
-            throw new ArgumentNullException("CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json");
+            throw new InvalidOperationException("CosmosDatabaseName and CosmosContainerName must be set as environment variables or in local.settings.json");
         }
 
         this.logger = loggerFactory.CreateLogger<CosmosDbTodoManager>();

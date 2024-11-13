@@ -13,6 +13,8 @@ public class AssistantCreateRequest {
 
     private String id;
     private String instructions = "You are a helpful assistant.";
+    private String chatStorageConnectionSetting;
+    private String collectionName = "ChatState";
 
     public AssistantCreateRequest(String id) {
         this.id = id;
@@ -20,7 +22,7 @@ public class AssistantCreateRequest {
 
     public AssistantCreateRequest(String id, String instructions) {
         this.id = id;
-        
+
         if (!(instructions == null || instructions.isEmpty())) {
             this.instructions = instructions;
         }
@@ -61,5 +63,47 @@ public class AssistantCreateRequest {
      */
     public void setInstructions(String instructions) {
         this.instructions = instructions;
+    }
+
+    /**
+     * Gets the configuration section name for the table settings for assistant chat
+     * storage.
+     * 
+     * @return The configuration section name for the table settings for assistant
+     *         chat storage.
+     */
+    public String getChatStorageConnectionSetting() {
+        return chatStorageConnectionSetting;
+    }
+
+    /**
+     * Sets the configuration section name for the table settings for assistant chat
+     * storage.
+     * 
+     * @param chatStorageConnectionSetting The configuration section name for the
+     *                                     table settings for assistant chat
+     *                                     storage.
+     */
+    public void setChatStorageConnectionSetting(String chatStorageConnectionSetting) {
+        this.chatStorageConnectionSetting = chatStorageConnectionSetting;
+    }
+
+    /**
+     * Gets the table collection name for assistant chat storage.
+     * 
+     * @return The table collection name for assistant chat storage.
+     */
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    /**
+     * Sets the table collection name for assistant chat storage.
+     * 
+     * @param collectionName The table collection name for assistant
+     *                                     chat storage.
+     */
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
     }
 }

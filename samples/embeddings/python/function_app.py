@@ -12,8 +12,7 @@ def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> 
     user_message = req.get_json()
     embeddings_json = json.loads(embeddings)
     embeddings_request = {
-        "raw_text": user_message.get("RawText"),
-        "file_path": user_message.get("FilePath")
+        "raw_text": user_message.get("rawText")
     }
     logging.info(f'Received {embeddings_json.get("count")} embedding(s) for input text '
         f'containing {len(embeddings_request.get("raw_text"))} characters.')
@@ -28,9 +27,21 @@ def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> 
     user_message = req.get_json()
     embeddings_json = json.loads(embeddings)
     embeddings_request = {
-        "raw_text": user_message.get("RawText"),
-        "file_path": user_message.get("FilePath")
+        "file_path": user_message.get("filePath")
     }
     logging.info(f'Received {embeddings_json.get("count")} embedding(s) for input file {embeddings_request.get("file_path")}.')
+    # TODO: Store the embeddings into a database or other storage.
+    return func.HttpResponse(status_code=200)
+
+@app.function_name("GetEmbeddingsHttpUrl")
+@app.route(route="embeddings-from-url", methods=["POST"])
+@app.embeddings_input(arg_name="embeddings", input="{url}", input_type="url", max_chunk_length=512, model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
+def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> func.HttpResponse:
+    user_message = req.get_json()
+    embeddings_json = json.loads(embeddings)
+    embeddings_request = {
+        "url": user_message.get("url")
+    }
+    logging.info(f'Received {embeddings_json.get("count")} embedding(s) for input url {embeddings_request.get("url")}.')
     # TODO: Store the embeddings into a database or other storage.
     return func.HttpResponse(status_code=200)

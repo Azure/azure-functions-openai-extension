@@ -5,7 +5,8 @@ This sample demonstrates how to build a text completion sample using Azure Funct
 The sample is available in the following language stacks:
 
 * [C# on the out of process worker](csharp-ooproc)
-* [TypeScript on the Node.js worker](nodejs)
+* [TypeScript](typescript)
+* [JavaScript](javascript)
 * [Powershell](powershell)
 * [Python](python)
 * [Java](java)
@@ -22,7 +23,8 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
     | Language Worker | Command |
     | --------------- | ------- |
     | .NET oo-proc | `cd samples/textcompletion/csharp-ooproc && dotnet build && cd bin/debug/net6.0 && func start` |
-    | Node.js | `cd samples/textcompletion/nodejs && npm install && dotnet build --output bin && npm run build && npm run start` |
+    | Javacript | `cd samples/textcompletion/javascript && npm install && npm run start` |
+    | TypeScript | `cd samples/textcompletion/typescript && npm install && npm run build && npm run start` |
     | PowerShell | `cd samples/textcompletion/powershell && dotnet build --output bin && func start` |
     | Python | `cd samples/textcompletion/python && pip install -r requirements.txt && func start` |
     | Java | `cd samples/textcompletion/java && mvn clean package && dotnet build && mvn azure-functions:run` |
@@ -47,7 +49,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 1. Send a request to the `WhoIs` function. The following is an example request:
 
 ```http
-POST http://localhost:7071/api/whois/pikachu
+GET http://localhost:7071/api/whois/pikachu
 ```
 
 The HTTP response should look something like the following example (with newlines added for readability):

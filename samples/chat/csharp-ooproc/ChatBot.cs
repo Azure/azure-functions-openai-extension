@@ -1,5 +1,4 @@
-﻿using System.Net;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -13,6 +12,9 @@ namespace ChatBot;
 /// </summary>
 public static class ChatBot
 {
+    const string DefaultChatStorageConnectionSetting = "AzureWebJobsStorage";
+    const string DefaultCollectionName = "ChatState";
+
     public class CreateRequest
     {
         [JsonPropertyName("instructions")]
@@ -25,22 +27,29 @@ public static class ChatBot
         string chatId)
     {
         var responseJson = new { chatId };
-
-        using StreamReader reader = new(req.Body);
-
-        string request = await reader.ReadToEndAsync();
-
-        CreateRequest? createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
-
-        if (createRequestBody == null)
+        CreateRequest? createRequestBody;
+        try
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.");
+            using StreamReader reader = new(req.Body);
+
+            string request = await reader.ReadToEndAsync();
+
+            createRequestBody = JsonSerializer.Deserialize<CreateRequest>(request);
+
+        }
+        catch (Exception ex)
+        {
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.", ex.Message);
         }
 
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(responseJson) { StatusCode = 201 },
-            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody.Instructions),
+            ChatBotCreateRequest = new AssistantCreateRequest(chatId, createRequestBody?.Instructions)
+            {
+                ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting,
+                CollectionName = DefaultCollectionName
+            },
         };
     }
 
@@ -57,7 +66,7 @@ public static class ChatBot
     public static async Task<IActionResult> PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
-        [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
+        [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
         return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
     }
@@ -66,7 +75,7 @@ public static class ChatBot
     public static async Task<IActionResult> GetChatState(
        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "chats/{chatId}")] HttpRequestData req,
        string chatId,
-       [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}")] AssistantState state,
+       [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state,
        FunctionContext context)
     {
         return new OkObjectResult(state);

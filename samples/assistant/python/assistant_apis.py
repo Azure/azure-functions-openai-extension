@@ -3,6 +3,8 @@ import azure.functions as func
 
 apis = func.Blueprint()
 
+DEFAULT_CHAT_STORAGE_SETTING = "AzureWebJobsStorage"
+DEFAULT_CHAT_COLLECTION_NAME = "ChatState"
 
 @apis.function_name("CreateAssistant")
 @apis.route(route="assistants/{assistantId}", methods=["PUT"])
@@ -15,7 +17,9 @@ def create_assistant(req: func.HttpRequest, requests: func.Out[str]) -> func.Htt
             """
     create_request = {
         "id": assistantId,
-        "instructions": instructions
+        "instructions": instructions,
+        "chatStorageConnectionSetting": DEFAULT_CHAT_STORAGE_SETTING,
+        "collectionName": DEFAULT_CHAT_COLLECTION_NAME
     }
     requests.set(json.dumps(create_request))
     response_json = {"assistantId": assistantId}
@@ -24,7 +28,7 @@ def create_assistant(req: func.HttpRequest, requests: func.Out[str]) -> func.Htt
 
 @apis.function_name("PostUserQuery")
 @apis.route(route="assistants/{assistantId}", methods=["POST"])
-@apis.assistant_post_input(arg_name="state", id="{assistantId}", user_message="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+@apis.assistant_post_input(arg_name="state", id="{assistantId}", user_message="{Query.message}", model="%CHAT_MODEL_DEPLOYMENT_NAME%", chat_storage_connection_setting=DEFAULT_CHAT_STORAGE_SETTING, collection_name=DEFAULT_CHAT_COLLECTION_NAME)
 def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
     # Parse the JSON string into a dictionary
     data = json.loads(state)
@@ -36,6 +40,6 @@ def post_user_response(req: func.HttpRequest, state: str) -> func.HttpResponse:
 
 @apis.function_name("GetChatState")
 @apis.route(route="assistants/{assistantId}", methods=["GET"])
-@apis.assistant_query_input(arg_name="state", id="{assistantId}", timestamp_utc="{Query.timestampUTC}")
+@apis.assistant_query_input(arg_name="state", id="{assistantId}", timestamp_utc="{Query.timestampUTC}", chat_storage_connection_setting=DEFAULT_CHAT_STORAGE_SETTING, collection_name=DEFAULT_CHAT_COLLECTION_NAME)
 def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
     return func.HttpResponse(state, status_code=200, mimetype="application/json")

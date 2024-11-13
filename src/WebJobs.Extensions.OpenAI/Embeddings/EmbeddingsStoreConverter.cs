@@ -48,9 +48,14 @@ class EmbeddingsStoreConverter :
     // Called by the host when processing binding requests from out-of-process workers.
     internal SearchableDocument ToSearchableDocument(string? json)
     {
+        if (json is null)
+        {
+            throw new ArgumentNullException(nameof(json));
+        }
         this.logger.LogDebug("Creating searchable document from JSON string: {Text}", json);
-        SearchableDocument document = JsonSerializer.Deserialize<SearchableDocument>(json, options);
-        return document ?? throw new ArgumentException("Invalid search request.");
+        SearchableDocument document = JsonSerializer.Deserialize<SearchableDocument>(json, options)
+            ?? throw new ArgumentException("Invalid search request.");
+        return document;
     }
 
     sealed class SemanticDocumentCollector : IAsyncCollector<SearchableDocument>

@@ -5,6 +5,7 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Data.Tables;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +18,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 public interface IAssistantService
 {
     Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken);
-    Task<AssistantState> GetStateAsync(string id, DateTime since, CancellationToken cancellationToken);
+    Task<AssistantState> GetStateAsync(AssistantQueryAttribute assistantQuery, CancellationToken cancellationToken);
     Task<AssistantState> PostMessageAsync(AssistantPostAttribute attribute, CancellationToken cancellationToken);
 }
 
@@ -33,11 +34,17 @@ class DefaultAssistantService : IAssistantService
 
     readonly TableClient tableClient;
     readonly TableServiceClient tableServiceClient;
+    const string DefaultChatStorage = "AzureWebJobsStorage";
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
+    readonly AzureComponentFactory azureComponentFactory;
+    readonly IConfiguration configuration;
+    TableServiceClient? tableServiceClient;
+    TableClient? tableClient;
 
     public DefaultAssistantService(
         IOptions<OpenAIConfigOptions> openAiConfigOptions,
+        AzureComponentFactory azureComponentFactory,
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
         ILoggerFactory loggerFactory)
@@ -47,29 +54,11 @@ class DefaultAssistantService : IAssistantService
             throw new ArgumentNullException(nameof(loggerFactory));
         }
 
-        if (openAiConfigOptions is null)
-        {
-            throw new ArgumentNullException(nameof(openAiConfigOptions));
-        }
-
         this.skillInvoker = skillInvoker ?? throw new ArgumentNullException(nameof(skillInvoker));
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
-
-        string connectionStringName = openAiConfigOptions.Value.StorageConnectionName;
-
-        // Set connection string name to be AzureWebJobsStorage if it's null or empty
-        if (string.IsNullOrEmpty(connectionStringName))
-        {
-            connectionStringName = "AzureWebJobsStorage";
-        }
-
-        this.logger.LogInformation("Using {ConnectionStringName} for table storage connection string name", connectionStringName);
-
-        string connectionString = configuration.GetValue<string>(connectionStringName);
-
-        this.tableServiceClient = new TableServiceClient(connectionString);
-        this.tableClient = this.tableServiceClient.GetTableClient(openAiConfigOptions.Value.CollectionName);
+        this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
+        this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)
@@ -79,11 +68,13 @@ class DefaultAssistantService : IAssistantService
             request.Id,
             request.Instructions ?? "(none)");
 
+        TableClient tableClient = this.GetOrCreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
+
         // Create the table if it doesn't exist
-        await this.tableClient.CreateIfNotExistsAsync();
+        await tableClient.CreateIfNotExistsAsync();
 
         // Check to see if the assistant has already been initialized
-        AsyncPageable<TableEntity> queryResultsFilter = this.tableClient.QueryAsync<TableEntity>(
+        AsyncPageable<TableEntity> queryResultsFilter = tableClient.QueryAsync<TableEntity>(
             filter: $"PartitionKey eq '{request.Id}'",
             cancellationToken: cancellationToken);
 
@@ -99,7 +90,7 @@ class DefaultAssistantService : IAssistantService
                     "Deleting {Count} record(s) for assistant '{Id}'.",
                     deleteBatch.Count,
                     request.Id);
-                await this.tableClient.SubmitTransactionAsync(deleteBatch);
+                await tableClient.SubmitTransactionAsync(deleteBatch);
                 deleteBatch.Clear();
             }
         }
@@ -142,18 +133,27 @@ class DefaultAssistantService : IAssistantService
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, assistantStateEntity));
 
         // Add the batch of table transaction actions to the table
-        await this.tableClient.SubmitTransactionAsync(batch);
+        await tableClient.SubmitTransactionAsync(batch);
     }
 
-    public async Task<AssistantState> GetStateAsync(string id, DateTime after, CancellationToken cancellationToken)
+    public async Task<AssistantState> GetStateAsync(AssistantQueryAttribute assistantQuery, CancellationToken cancellationToken)
     {
-        DateTime afterUtc = after.ToUniversalTime();
+        string id = assistantQuery.Id;
+        string timestampString = Uri.UnescapeDataString(assistantQuery.TimestampUtc);
+        if (!DateTime.TryParse(timestampString, out DateTime timestamp))
+        {
+            throw new ArgumentException($"Invalid timestamp '{assistantQuery.TimestampUtc}'");
+        }
+
+        DateTime afterUtc = timestamp.ToUniversalTime();
         this.logger.LogInformation(
             "Reading state for assistant entity '{Id}' and getting chat messages after {Timestamp}",
             id,
             afterUtc.ToString("o"));
 
-        InternalChatState? chatState = await this.LoadChatStateAsync(id, cancellationToken);
+        TableClient tableClient = this.GetOrCreateTableClient(assistantQuery.ChatStorageConnectionSetting, assistantQuery.CollectionName);
+
+        InternalChatState? chatState = await this.LoadChatStateAsync(id, tableClient, cancellationToken);
         if (chatState is null)
         {
             this.logger.LogWarning("No assistant exists with ID = '{Id}'", id);
@@ -195,7 +195,9 @@ class DefaultAssistantService : IAssistantService
 
         this.logger.LogInformation("Posting message to assistant entity '{Id}'", attribute.Id);
 
-        InternalChatState? chatState = await this.LoadChatStateAsync(attribute.Id, cancellationToken);
+        TableClient tableClient = this.GetOrCreateTableClient(attribute.ChatStorageConnectionSetting, attribute.CollectionName);
+
+        InternalChatState? chatState = await this.LoadChatStateAsync(attribute.Id, tableClient, cancellationToken);
 
         // Check if assistant has been deactivated
         if (chatState is null || !chatState.Metadata.Exists)
@@ -364,7 +366,7 @@ class DefaultAssistantService : IAssistantService
         batch.Add(new TableTransactionAction(TableTransactionActionType.UpdateMerge, chatState.Metadata));
 
         // Add the batch of table transaction actions to the table
-        await this.tableClient.SubmitTransactionAsync(batch, cancellationToken);
+        await tableClient.SubmitTransactionAsync(batch, cancellationToken);
 
         // return the latest assistant message in the chat state
         List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
@@ -389,10 +391,10 @@ class DefaultAssistantService : IAssistantService
         return state;
     }
 
-    async Task<InternalChatState?> LoadChatStateAsync(string id, CancellationToken cancellationToken)
+    async Task<InternalChatState?> LoadChatStateAsync(string id, TableClient tableClient, CancellationToken cancellationToken)
     {
         // Check to see if any entity exists with partition id
-        AsyncPageable<TableEntity> itemsWithPartitionKey = this.tableClient.QueryAsync<TableEntity>(
+        AsyncPageable<TableEntity> itemsWithPartitionKey = tableClient.QueryAsync<TableEntity>(
             filter: $"PartitionKey eq '{id}'",
             cancellationToken: cancellationToken);
 
@@ -448,5 +450,53 @@ class DefaultAssistantService : IAssistantService
                     throw new InvalidOperationException($"Unknown chat role '{entity.Role}'");
             }
         }
+    }
+
+    TableClient GetOrCreateTableClient(string? chatStorageConnectionSetting, string? collectionName)
+    {
+        if (this.tableClient is not null)
+        {
+            return this.tableClient;
+        }
+
+        string connectionStringName = chatStorageConnectionSetting ?? string.Empty;
+        IConfigurationSection tableConfigSection = this.configuration.GetSection(connectionStringName);
+        string storageAccountUri = string.Empty;
+        if (tableConfigSection.Exists())
+        {
+            storageAccountUri = tableConfigSection["tableServiceUri"];
+        }
+
+        // Check if URI for table storage is present
+        if (!string.IsNullOrEmpty(storageAccountUri))
+        {
+            this.logger.LogInformation("Using Managed Identity");
+
+            // Create an instance of TablesBindingOptions and set its properties
+            TableBindingOptions tableOptions = new()
+            {
+                ServiceUri = new Uri(storageAccountUri),
+                Credential = this.azureComponentFactory.CreateTokenCredential(tableConfigSection)
+            };
+
+            // Now call CreateClient without any arguments
+            this.tableServiceClient = tableOptions.CreateClient();
+
+        }
+        else
+        {
+            // Else, will use the connection string
+            connectionStringName = chatStorageConnectionSetting ?? DefaultChatStorage;
+            string connectionString = this.configuration.GetValue<string>(connectionStringName);
+
+            this.logger.LogInformation("using connection string for table service client");
+
+            this.tableServiceClient = new TableServiceClient(connectionString);
+        }
+
+        this.logger.LogInformation("Using {CollectionName} for table storage collection name", collectionName);
+        this.tableClient = this.tableServiceClient.GetTableClient(collectionName);
+
+        return this.tableClient;
     }
 }

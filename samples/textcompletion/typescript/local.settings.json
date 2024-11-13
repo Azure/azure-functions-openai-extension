@@ -1,0 +1,10 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "AzureWebJobsFeatureFlags": "EnableWorkerIndexing",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AZURE_OPENAI_ENDPOINT": "Placeholder for the Azure OpenAI endpoint value",
+    "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo"
+  }
+}

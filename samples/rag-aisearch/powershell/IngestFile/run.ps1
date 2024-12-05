@@ -7,7 +7,7 @@ $ErrorActionPreference = 'Stop'
 $inputJson = $Request.Body
 
 if (-not $inputJson -or -not $inputJson.Url) {
-    throw 'Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.'
+    throw 'Invalid request body. Make sure that you pass in {\"url\": value } as the request body.'
 }
 
 $uri = [URI]$inputJson.Url

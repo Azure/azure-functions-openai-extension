@@ -18,7 +18,7 @@
       "name": "EmbeddingsStoreOutput",
       "type": "embeddingsStore",
       "direction": "out",
-      "input": "{Url}",
+      "input": "{url}",
       "inputType": "Url",
       "connectionName": "AISearchEndpoint",
       "collection": "openai-index",

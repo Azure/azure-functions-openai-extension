@@ -17,11 +17,11 @@ app.http('IngestFile', {
     extraOutputs: [embeddingsStoreOutput],
     handler: async (request, context) => {
         let requestBody = await request.json();
-        if (!requestBody || !requestBody.Url) {
-            throw new Error("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
+        if (!requestBody || !requestBody.url) {
+            throw new Error("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
         }
 
-        let uri = requestBody.Url;
+        let uri = requestBody.url;
         let url = new URL(uri);
 
         let fileName = path.basename(url.pathname);
@@ -40,7 +40,7 @@ const semanticSearchInput = input.generic({
     type: "semanticSearch",
     connectionName: "CosmosDBMongoVCoreConnectionString",
     collection: "openai-index",
-    query: "{Prompt}",
+    query: "{prompt}",
     chatModel: "%CHAT_MODEL_DEPLOYMENT_NAME%",
     embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
 });

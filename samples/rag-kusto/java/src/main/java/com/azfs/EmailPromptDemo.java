@@ -34,14 +34,14 @@ public class EmailPromptDemo {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{Url}", inputType = InputType.Url,
+        @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
                 connectionName = "KustoConnectionString", collection = "Documents",
                 model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws URISyntaxException {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
         {
-            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
+            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
         }
 
         URI uri = new URI(request.getBody().getUrl());
@@ -80,7 +80,7 @@ public class EmailPromptDemo {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<SemanticSearchRequest> request,
-        @SemanticSearch(name = "search", connectionName = "KustoConnectionString", collection = "Documents", query = "{Prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) String semanticSearchContext,
+        @SemanticSearch(name = "search", connectionName = "KustoConnectionString", collection = "Documents", query = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) String semanticSearchContext,
         final ExecutionContext context) {
             String response = new JSONObject(semanticSearchContext).getString("Response");
             return request.createResponseBuilder(HttpStatus.OK)

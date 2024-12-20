@@ -16,13 +16,13 @@ public static class FilePrompt
 {
     public class EmbeddingsRequest
     {
-        [JsonPropertyName("Url")]
+        [JsonPropertyName("url")]
         public string? Url { get; set; }
     }
 
     public class SemanticSearchRequest
     {
-        [JsonPropertyName("Prompt")]
+        [JsonPropertyName("prompt")]
         public string? Prompt { get; set; }
     }
 
@@ -44,7 +44,7 @@ public static class FilePrompt
 
         if (string.IsNullOrWhiteSpace(requestBody?.Url))
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
         }
 
         if (!Uri.TryCreate(requestBody.Url, UriKind.Absolute, out Uri? uri))
@@ -63,7 +63,7 @@ public static class FilePrompt
 
     public class EmbeddingsStoreOutputResponse
     {
-        [EmbeddingsStoreOutput("{Url}", InputType.Url, "CosmosDBMongoVCoreConnectionString", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [EmbeddingsStoreOutput("{url}", InputType.Url, "CosmosDBMongoVCoreConnectionString", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public required SearchableDocument SearchableDocument { get; init; }
 
         public IActionResult? HttpResponse { get; set; }
@@ -72,7 +72,7 @@ public static class FilePrompt
     [Function("PromptFile")]
     public static IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-        [SemanticSearchInput("CosmosDBMongoVCoreConnectionString", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+        [SemanticSearchInput("CosmosDBMongoVCoreConnectionString", "openai-index", Query = "{prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
     {
         return new ContentResult { Content = result.Response, ContentType = "text/plain" };
     }

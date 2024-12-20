@@ -2,17 +2,17 @@
 POST http://localhost:7071/api/embeddings
 Content-Type: application/json
 
-{"RawText": "Enter raw text here for embedding generation."}
+{"rawText": "Enter raw text here for embedding generation."}
 
 
 ### Embeddings from File
 POST http://localhost:7071/api/embeddings-from-file
 Content-Type: application/json
 
-{"FilePath": "D:\\test\\test_file.txt"}
+{"filePath": "D:\\test\\test_file.txt"}
 
 ### Embeddings from Url
 POST http://localhost:7071/api/embeddings-from-url
 Content-Type: application/json
 
-{"Url":"https://url/test/test_file.txt"} 
+{"url":"https://url/test/test_file.txt"} 

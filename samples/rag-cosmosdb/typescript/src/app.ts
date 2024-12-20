@@ -1,7 +1,8 @@
 import { app, input, output } from "@azure/functions";
+import * as path from 'path';
 
 interface EmbeddingsRequest {
-    Url?: string;
+    url?: string;
 }
 
 const embeddingsStoreOutput = output.generic({
@@ -19,18 +20,19 @@ app.http('IngestFile', {
     extraOutputs: [embeddingsStoreOutput],
     handler: async (request, context) => {
         let requestBody: EmbeddingsRequest | null = await request.json();
-        if (!requestBody || !requestBody.Url) {
-            throw new Error("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
+        if (!requestBody || !requestBody.url) {
+            throw new Error("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
         }
 
-        let uri = requestBody.Url;
-        let filename = uri.split('/').pop();
+        let uri = requestBody.url;
+        let url = new URL(uri);
 
-        context.extraOutputs.set(embeddingsStoreOutput, { title: filename });
+        let fileName = path.basename(url.pathname);
+        context.extraOutputs.set(embeddingsStoreOutput, { title: fileName });
 
         let response = {
             status: "success",
-            title: filename
+            title: fileName
         };
 
         return { status: 202, jsonBody: response } 
@@ -41,7 +43,7 @@ const semanticSearchInput = input.generic({
     type: "semanticSearch",
     connectionName: "CosmosDBMongoVCoreConnectionString",
     collection: "openai-index",
-    query: "{Prompt}",
+    query: "{prompt}",
     chatModel: "%CHAT_MODEL_DEPLOYMENT_NAME%",
     embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
 });

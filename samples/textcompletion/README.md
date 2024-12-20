@@ -49,7 +49,7 @@ Please refer to the root level [README](../../README.md#requirements) for prereq
 1. Send a request to the `WhoIs` function. The following is an example request:
 
 ```http
-POST http://localhost:7071/api/whois/pikachu
+GET http://localhost:7071/api/whois/pikachu
 ```
 
 The HTTP response should look something like the following example (with newlines added for readability):

@@ -13,6 +13,45 @@ The sample is available in the following language stacks:
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
+## Managed Identity and Endpoint Configuration
+
+1. Configure AI Search API Access Control (Strongly Recommended to use RBAC) -
+   Update the AI Search API access control to `Role-based access control`:
+   * Navigate to **Settings** → **Keys** → **API Access Control**.
+   * If API keys must be used, refer to the [Use of API Keys](#use-of-api-key) section.
+
+2. Assign Required Roles (Strongly Recommended to use managed identity) -
+   Ensure the user or function app's managed identity has the following roles assigned:
+   * **Search Service Contributor**: Provides access to manage search service resources like indexes and indexers.
+   * **Search Index Data Contributor**: Provides read/write access to search indexes.  
+     For more details on available roles, visit [Search Service RBAC Roles](https://learn.microsoft.com/azure/search/search-security-rbac#built-in-roles-used-in-search).
+
+3. Managed Identity-Based Authentication on Azure
+
+    If no Resource Id or Client Id is specified, the system-assigned managed identity will be used by default.
+
+    1. User-Assigned Managed Identity:
+
+        ```json
+        "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net",
+        "<ConnectionNamePrefix>__credential": "managedidentity",
+        "<ConnectionNamePrefix>__managedIdentityResourceId": "Resource Id of managed identity", 
+        "<ConnectionNamePrefix>__managedIdentityClientId": "Client Id of managed identity"
+        ```
+
+        Only one of managedIdentityResourceId or managedIdentityClientId should be specified, not both.
+
+    2. System-Assigned Managed Identity or local development:
+
+       ```json
+       "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net"
+       ```
+
+       Specifying credential is optional for system assigned managed identity
+
+4. Binding Configuration -
+    Pass the configured `ConnectionNamePrefix` value, example `AISearch` to the `connectionName` property in the `SemanticSearchInput` or `EmbeddingsStoreOutput` bindings. Default is `AISearchEndpoint` if just the endpoint is being configured in local.settings.json or environment variables to use DefaultAzureCredential.
+
 ## Running the sample
 
 This sample requires creating an Azure AI Search with Semantic Ranker. You can do this by following the [Azure AI Search quickstart](https://learn.microsoft.com/en-us/azure/search/search-create-service-portal)
@@ -20,12 +59,6 @@ and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure
 
 Once you have an Azure AI Search resource, you can run the sample by following these steps:
 
-1. Update the `AISearchEndpoint` value in `local.settings.json` to match your Azure AI Search endpoint.
-1. (Strongly Recommended) Update the AI search API access control to `Role based access control` (Settings -> Keys -> API Access Control). If the use of api keys is required, visit the [use of api keys](#use-of-api-key).
-1. (Strongly Recommended) Make sure the user or function app managed identity has following roles assigned:
-    * `Search Service Contributor` – provides access to manage the search service's indexes, indexers, etc.
-    * `Search Index Data Contributor` – provides read/write access to search indexes
-    Visit [this](https://learn.microsoft.com/azure/search/search-security-rbac#built-in-roles-used-in-search) link for more info on the available roles in Search Service
 1. Always configure the search provider type in the `host.json` as shown in below snippet.
 1. Use of Semantic Search, Semantic Captions and Vector Search Dimensions are configurable. You may configure the `host.json` file within the project and following example shows the default values:
 
@@ -91,20 +124,11 @@ Algorithm - HnswAlgorithmConfiguration
 Azure AI Search offers key-based authentication that you can use on connections to your search service. [More information](https://learn.microsoft.com/azure/search/search-security-api-keys). Use of API Key is optional and managed identities are recommended way for authentication.
 
 1. Update the AI search API access control to `API keys` or `Both` (Settings -> Keys -> API Access Control).
-1. You may configure the `host.json` file within the project and following example shows the default values:
+1. Update your configuration (local.settings.json or environment variables) to include the following settings or configuration section:
 
-    ```json
-    "extensions": {
-        "openai": {
-            "searchProvider": {
-                "type": "azureAiSearch",
-                "isSemanticSearchEnabled": true,
-                "useSemanticCaptions": true,
-                "vectorSearchDimensions": 1536,
-                "searchAPIKeySetting": "SearchAPIKey"
-            }
-        }
-    }
-    ```
+   ```json
+   "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net",
+   "<ConnectionNamePrefix>__apiKey": "<AISearch-API-Key>"
+   ```
 
-1. Add the `SearchAPIKey` key and its value in `local.settings.json` or function app environment variables.
+1. Pass the conifgured `ConnectionNamePrefix` value, example `AISearch` to the `connectionName` property in the `SemanticSearchInput` or `EmbeddingsStoreOutput` bindings.

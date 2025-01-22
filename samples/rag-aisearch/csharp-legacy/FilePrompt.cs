@@ -42,7 +42,7 @@ public static class FilePrompt
     [FunctionName("PromptFile")]
     public static IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-        [SemanticSearch("AISearch", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+        [SemanticSearch("AISearchEndpoint", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
     {
         return new ContentResult { Content = result.Response, ContentType = "text/plain" };
     }

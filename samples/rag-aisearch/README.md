@@ -13,6 +13,9 @@ The sample is available in the following language stacks:
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
+This sample requires creating an Azure AI Search with (optional) Semantic Ranker. You can do this by following the [Azure AI Search quickstart](https://learn.microsoft.com/en-us/azure/search/search-create-service-portal)
+and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure/search/semantic-how-to-enable-disable?tabs=enable-portal) for semantic ranking and captions features.
+
 ## Managed Identity and Endpoint Configuration
 
 1. Configure AI Search API Access Control (Strongly Recommended to use RBAC) -
@@ -32,6 +35,8 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 
     1. User-Assigned Managed Identity:
 
+        // Note and TODO: Use of user-assigned managed identity for AI Search is breaking at the moment, since Azure OpenAI authentication also needs update to support a separate identity.
+
         ```json
         "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net",
         "<ConnectionNamePrefix>__credential": "managedidentity",
@@ -43,9 +48,10 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 
     2. System-Assigned Managed Identity or local development:
 
-       ```json
-       "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net"
-       ```
+        ```json
+        "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net",
+        "<ConnectionNamePrefix>__credential": "managedidentity",
+        ```
 
        Specifying credential is optional for system assigned managed identity
 
@@ -53,9 +59,6 @@ Please refer to the [root README](../../README.md#requirements) for common prere
     Pass the configured `ConnectionNamePrefix` value, example `AISearch` to the `connectionName` property in the `SemanticSearchInput` or `EmbeddingsStoreOutput` bindings. Default is `AISearchEndpoint` if just the endpoint is being configured in local.settings.json or environment variables to use DefaultAzureCredential.
 
 ## Running the sample
-
-This sample requires creating an Azure AI Search with Semantic Ranker. You can do this by following the [Azure AI Search quickstart](https://learn.microsoft.com/en-us/azure/search/search-create-service-portal)
-and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure/search/semantic-how-to-enable-disable?tabs=enable-portal) for semantic ranking and captions features.
 
 Once you have an Azure AI Search resource, you can run the sample by following these steps:
 
@@ -131,4 +134,4 @@ Azure AI Search offers key-based authentication that you can use on connections 
    "<ConnectionNamePrefix>__apiKey": "<AISearch-API-Key>"
    ```
 
-1. Pass the conifgured `ConnectionNamePrefix` value, example `AISearch` to the `connectionName` property in the `SemanticSearchInput` or `EmbeddingsStoreOutput` bindings.
+1. Pass the configured `ConnectionNamePrefix` value, example `AISearch` to the `connectionName` property in the `SemanticSearchInput` or `EmbeddingsStoreOutput` bindings.

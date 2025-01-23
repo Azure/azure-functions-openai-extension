@@ -297,11 +297,14 @@ sealed class AzureAISearchProvider : ISearchProvider
                 searchIndexClient = string.IsNullOrEmpty(this.apiKey) ? new(new Uri(this.endpoint),
                 this.GetSearchTokenCredential()) : new(new Uri(this.endpoint), new AzureKeyCredential(this.apiKey));
 
+                this.logger.LogInformation("Created SearchIndexClient for connection {connectionName}", connectionInfo.ConnectionName);
+
                 return (searchIndexClient, this.endpoint);
             });
 
         return searchIndexClient;
     }
+
     SearchClient GetSearchClient(ConnectionInfo connectionInfo)
     {
         SearchClient searchClient;
@@ -314,6 +317,8 @@ sealed class AzureAISearchProvider : ISearchProvider
                 string searchIndexName = connectionInfo.CollectionName ?? defaultSearchIndexName;
                 searchClient = string.IsNullOrEmpty(this.apiKey) ? new(new Uri(this.endpoint), searchIndexName,
                 this.GetSearchTokenCredential()) : new(new Uri(this.endpoint), searchIndexName, new AzureKeyCredential(this.apiKey));
+
+                this.logger.LogInformation("Created SearchClient for connection {connectionName} and index {searchIndexName}", connectionInfo.ConnectionName, searchIndexName);
 
                 return (searchClient, this.endpoint, searchIndexName);
             });
@@ -328,16 +333,39 @@ sealed class AzureAISearchProvider : ISearchProvider
 
     void SetConfigSectionProperties()
     {
+        // Retrieve the configuration section
         this.searchConnectionConfigSection = this.configuration.GetSection(this.searchConnectionNamePrefix);
+
+        // Extract values from the configuration section if it exists
         if (this.searchConnectionConfigSection.Exists())
         {
-            this.endpoint = this.searchConnectionConfigSection.GetValue<string>(endpointSettingSuffix);
-            this.apiKey = this.searchConnectionConfigSection.GetValue<string>(apiKeySettingSuffix);
+            this.endpoint = this.searchConnectionConfigSection[endpointSettingSuffix];
+            this.apiKey = this.searchConnectionConfigSection[apiKeySettingSuffix];
+
+
+            if (!string.IsNullOrEmpty(this.apiKey))
+            {
+                this.logger.LogInformation("Using key based authentication.");
+            }
+
+            if (!string.IsNullOrEmpty(this.endpoint))
+            {
+                this.logger.LogInformation("Using configured endpoint in the section - {this.searchConnectionNamePrefix}", this.searchConnectionNamePrefix);
+                return;
+            }
         }
-        else
+
+        // Fallback to global configuration property
+        this.endpoint = this.configuration.GetValue<string>(this.searchConnectionNamePrefix);
+        if (!string.IsNullOrEmpty(this.endpoint))
         {
-            this.endpoint = this.configuration.GetValue<string>(this.searchConnectionNamePrefix)
-                ?? throw new InvalidOperationException($"Configuration section or endpoint {this.searchConnectionNamePrefix} does not exist.");
+            this.logger.LogInformation("Using DefaultAzureCredential with fallback to connection name configuration property {property} as the endpoint setting", this.searchConnectionNamePrefix);
+            return;
         }
+
+        // Throw exception if no valid configuration is found
+        string errorMessage = $"Configuration section or endpoint '{this.searchConnectionNamePrefix}' does not exist.";
+        this.logger.LogError(errorMessage);
+        throw new InvalidOperationException(errorMessage);
     }
 }

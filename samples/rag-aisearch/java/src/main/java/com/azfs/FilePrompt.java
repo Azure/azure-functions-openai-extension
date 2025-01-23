@@ -5,7 +5,8 @@
  */
 package com.azfs;
 
-import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URI;
 import java.nio.file.Paths;
 
 import org.json.JSONObject;
@@ -22,7 +23,6 @@ import com.microsoft.azure.functions.openai.annotation.embeddings.EmbeddingsStor
 import com.microsoft.azure.functions.openai.annotation.embeddings.InputType;
 import com.microsoft.azure.functions.openai.annotation.search.SearchableDocument;
 import com.microsoft.azure.functions.openai.annotation.search.SemanticSearch;
-import com.sun.jndi.toolkit.url.Uri;
 
 public class FilePrompt {
 
@@ -36,14 +36,14 @@ public class FilePrompt {
         @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
                 connectionName = "AISearchEndpoint", collection = "openai-index",
                 model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
-        final ExecutionContext context) throws MalformedURLException {
+        final ExecutionContext context) throws URISyntaxException {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
         {
             throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
         }
 
-        Uri uri = new Uri(request.getBody().getUrl());
+        URI uri = new URI(request.getBody().getUrl());
         String filename = Paths.get(uri.getPath()).getFileName().toString();
 
         EmbeddingsStoreOutputResponse embeddingsStoreOutputResponse = new EmbeddingsStoreOutputResponse(new SearchableDocument(filename));

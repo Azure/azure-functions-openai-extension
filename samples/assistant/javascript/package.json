@@ -8,9 +8,8 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.0.0"
-  },
-  "devDependencies": {
+    "@azure/functions": "^4.0.0",
+    "assistant": "file:"
   },
   "main": "src/functions/*.js"
 }

@@ -225,7 +225,7 @@ This HTTP trigger function takes a URL of a file as input, generates embeddings 
 ```csharp
 public class EmbeddingsRequest
 {
-    [JsonPropertyName("Url")]
+    [JsonPropertyName("url")]
     public string? Url { get; set; }
 }
 
@@ -233,26 +233,43 @@ public class EmbeddingsRequest
 public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
 {
+    ArgumentNullException.ThrowIfNull(req);
+
     using StreamReader reader = new(req.Body);
     string request = await reader.ReadToEndAsync();
 
-    EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
-
-    if (requestBody == null || requestBody.Url == null)
+    if (string.IsNullOrWhiteSpace(request))
     {
-        throw new ArgumentException("Invalid request body. Make sure that you pass in {\"Url\": value } as the request body.");
+        throw new ArgumentException("Request body is empty.");
     }
 
-    Uri uri = new(requestBody.Url);
-    string filename = Path.GetFileName(uri.AbsolutePath);
+    EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
 
-    HttpResponseData response = req.CreateResponse(HttpStatusCode.Created);
+    if (string.IsNullOrWhiteSpace(requestBody?.Url))
+    {
+        throw new ArgumentException("Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
+    }
+
+    if (!Uri.TryCreate(requestBody.Url, UriKind.Absolute, out Uri? uri))
+    {
+        throw new ArgumentException("Invalid Url format.");
+    }
+
+    string filename = Path.GetFileName(uri.AbsolutePath);
 
     return new EmbeddingsStoreOutputResponse
     {
-        HttpResponse = response,
+        HttpResponse = new OkObjectResult(new { status = HttpStatusCode.OK }),
         SearchableDocument = new SearchableDocument(filename)
     };
+}
+
+public class EmbeddingsStoreOutputResponse
+{
+    [EmbeddingsStoreOutput("{url}", InputType.Url, "AISearchEndpoint", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+    public required SearchableDocument SearchableDocument { get; init; }
+
+    public IActionResult? HttpResponse { get; set; }
 }
 ```
 
@@ -266,7 +283,7 @@ def ingest_file(req: func.HttpRequest, requests: func.Out[str]) -> func.HttpResp
     user_message = req.get_json()
     if not user_message:
         return func.HttpResponse(json.dumps({"message": "No message provided"}), status_code=400, mimetype="application/json")
-    file_name_with_extension = os.path.basename(user_message["Url"])
+    file_name_with_extension = os.path.basename(user_message["url"])
     title = os.path.splitext(file_name_with_extension)[0]
     create_request = {
         "title": title
@@ -289,14 +306,14 @@ This HTTP trigger function takes a query prompt as input, pulls in semantically 
 ```csharp
 public class SemanticSearchRequest
 {
-    [JsonPropertyName("Prompt")]
+    [JsonPropertyName("prompt")]
     public string? Prompt { get; set; }
 }
 
 [Function("PromptFile")]
 public static IActionResult PromptFile(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearchInput("AISearchEndpoint", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+    [SemanticSearchInput("AISearchEndpoint", "openai-index", Query = "{prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }
@@ -307,11 +324,11 @@ public static IActionResult PromptFile(
 ```python
 @app.function_name("PromptFile")
 @app.route(methods=["POST"])
-@app.semantic_search_input(arg_name="result", connection_name="AISearchEndpoint", collection="openai-index", query="{Prompt}", embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%", chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%")
+@app.semantic_search_input(arg_name="result", connection_name="AISearchEndpoint", collection="openai-index", query="{prompt}", embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%", chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%")
 def prompt_file(req: func.HttpRequest, result: str) -> func.HttpResponse:
     result_json = json.loads(result)
     response_json = {
-        "content": result_json.get("response"),
+        "content": result_json.get("Response"),
         "content_type": "text/plain"
     }
     return func.HttpResponse(json.dumps(response_json), status_code=200, mimetype="application/json")
@@ -324,7 +341,7 @@ POST http://localhost:7127/api/PromptFile
 Content-Type: application/json
 
 {
-    "Prompt": "Was a decision made to officially release an OpenAI binding for Azure Functions?"
+    "prompt": "Was a decision made to officially release an OpenAI binding for Azure Functions?"
 }
 ```
 
@@ -356,7 +373,7 @@ public static string WhoIs(
 ```csharp
 public class SemanticSearchRequest
 {
-    [JsonPropertyName("Prompt")]
+    [JsonPropertyName("prompt")]
     public string? Prompt { get; set; }
 }
 
@@ -364,7 +381,7 @@ public class SemanticSearchRequest
 [Function("PromptEmail")]
 public IActionResult PromptEmail(
     [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-    [SemanticSearchInput("KustoConnectionString", "Documents", Query = "{Prompt}", ChatModel = "my-gpt-4", EmbeddingsModel = "my-ada-2")] SemanticSearchContext result)
+    [SemanticSearchInput("KustoConnectionString", "Documents", Query = "{prompt}", ChatModel = "my-gpt-4", EmbeddingsModel = "my-ada-2")] SemanticSearchContext result)
 {
     return new ContentResult { Content = result.Response, ContentType = "text/plain" };
 }

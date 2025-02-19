@@ -94,6 +94,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assistant-legacy", "assista
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-legacy\AssistantSample.csproj", "{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "chat-legacy", "chat-legacy", "{4FA3A174-8E02-4FAD-8F4C-96467C4E42C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatBotSample", "samples\chat\csharp-legacy\ChatBotSample.csproj", "{22BF3620-0682-434F-ABDE-059BBD248355}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -168,6 +172,10 @@ Global
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22BF3620-0682-434F-ABDE-059BBD248355}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22BF3620-0682-434F-ABDE-059BBD248355}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22BF3620-0682-434F-ABDE-059BBD248355}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22BF3620-0682-434F-ABDE-059BBD248355}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -198,6 +206,8 @@ Global
 		{4057D224-2A7C-4186-86D6-66F79542561B} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
 		{20E3EDFF-0628-4AAC-BAD2-30E2C6862C30} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB} = {20E3EDFF-0628-4AAC-BAD2-30E2C6862C30}
+		{4FA3A174-8E02-4FAD-8F4C-96467C4E42C4} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{22BF3620-0682-434F-ABDE-059BBD248355} = {4FA3A174-8E02-4FAD-8F4C-96467C4E42C4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

@@ -18,12 +18,12 @@ and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure
 
 ## Managed Identity and Endpoint Configuration
 
-1. Configure AI Search API Access Control (Strongly Recommended to use RBAC) -
+1. Configure AI Search API Access Control (strongly recommended to use RBAC) -
    Update the AI Search API access control to `Role-based access control`:
    * Navigate to **Settings** → **Keys** → **API Access Control**.
    * If API keys must be used, refer to the [Use of API Keys](#use-of-api-key) section.
 
-2. Assign Required Roles (Strongly Recommended to use managed identity) -
+2. Assign Required Roles (strongly recommended to use managed identity) -
    Ensure the user or function app's managed identity has the following roles assigned:
    * **Search Service Contributor**: Provides access to manage search service resources like indexes and indexers.
    * **Search Index Data Contributor**: Provides read/write access to search indexes.  

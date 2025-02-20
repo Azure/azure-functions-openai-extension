@@ -294,8 +294,9 @@ sealed class AzureAISearchProvider : ISearchProvider
             connectionInfo.ConnectionName,
             name =>
             {
-                searchIndexClient = string.IsNullOrEmpty(this.apiKey) ? new(new Uri(this.endpoint),
-                this.GetSearchTokenCredential()) : new(new Uri(this.endpoint), new AzureKeyCredential(this.apiKey));
+                searchIndexClient = string.IsNullOrEmpty(this.apiKey) ?
+                                new(new Uri(this.endpoint), this.GetSearchTokenCredential()) :
+                                new(new Uri(this.endpoint), new AzureKeyCredential(this.apiKey));
 
                 this.logger.LogInformation("Created SearchIndexClient for connection {connectionName}", connectionInfo.ConnectionName);
 
@@ -315,8 +316,9 @@ sealed class AzureAISearchProvider : ISearchProvider
             name =>
             {
                 string searchIndexName = connectionInfo.CollectionName ?? defaultSearchIndexName;
-                searchClient = string.IsNullOrEmpty(this.apiKey) ? new(new Uri(this.endpoint), searchIndexName,
-                this.GetSearchTokenCredential()) : new(new Uri(this.endpoint), searchIndexName, new AzureKeyCredential(this.apiKey));
+                searchClient = string.IsNullOrEmpty(this.apiKey) ?
+                            new(new Uri(this.endpoint), searchIndexName, this.GetSearchTokenCredential()) :
+                            new(new Uri(this.endpoint), searchIndexName, new AzureKeyCredential(this.apiKey));
 
                 this.logger.LogInformation("Created SearchClient for connection {connectionName} and index {searchIndexName}", connectionInfo.ConnectionName, searchIndexName);
 

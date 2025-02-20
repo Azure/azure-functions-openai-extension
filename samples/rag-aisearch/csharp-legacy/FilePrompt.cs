@@ -20,7 +20,7 @@ public static class FilePrompt
     [FunctionName("IngestFile")]
     public static async Task<IActionResult> IngestFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-        [EmbeddingsStore("{url}", InputType.Url, "AISearch", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [EmbeddingsStore("{url}", InputType.Url, "AISearchEndpoint", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         IAsyncCollector<SearchableDocument> output)
     {
         if (string.IsNullOrWhiteSpace(req.Url))
@@ -30,7 +30,7 @@ public static class FilePrompt
 
         if (!Uri.TryCreate(req.Url, UriKind.Absolute, out Uri? uri))
         {
-            throw new ArgumentException("Invalid Url format.");
+            return new BadRequestResult();
         }
 
         string title = Path.GetFileName(uri.AbsolutePath);

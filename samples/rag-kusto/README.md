@@ -65,10 +65,10 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     POST http://localhost:7071/api/IngestEmail
     Content-Type: application/json
 
-    {"Url":"https://url/test/test_file.txt"}
+    {"url":"https://url/test/test_file.txt"}
     ```
 
-    The results of the request will be the embeddings of the text file, which will be saved to your Kusto database.
+    The results of the request will be the embeddings of the text file, which will be saved to the Kusto database.
 
 1. Send an HTTP GET request to query your ingested data.
 
@@ -76,7 +76,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     POST http://localhost:7071/api/PromptEmail
     Content-Type: application/json
 
-    {"Prompt":"INSERT PROMPT HERE"}
+    {"prompt":"INSERT PROMPT HERE"}
     ```
 
     The results of the request will be the model's response to the prompt, using information from the previously ingested embeddings.

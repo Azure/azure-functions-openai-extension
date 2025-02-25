@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Breaking
 
 - Managed identity support and consistency established with other Azure Functions extensions
--
 
 ## v0.3.0 - 2024/10/08
 

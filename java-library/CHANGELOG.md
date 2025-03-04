@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Update azure-ai-openai from 1.0.0-beta.11 to 1.0.0-beta.13
+- Update azure-ai-openai from 1.0.0-beta.11 to 1.0.0-beta.14
 
 ## v0.4.0 - 2024/10/08
 

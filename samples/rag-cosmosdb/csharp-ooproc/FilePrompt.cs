@@ -30,14 +30,17 @@ public static class FilePrompt
     public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
     {
-        ArgumentNullException.ThrowIfNull(req);
-
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
+        EmbeddingsStoreOutputResponse badRequestResponse = new()
+        {
+            HttpResponse = new BadRequestResult(),
+            SearchableDocument = new SearchableDocument(string.Empty)
+        };
 
         if (string.IsNullOrWhiteSpace(request))
         {
-            throw new ArgumentException("Request body is empty.");
+            return badRequestResponse;
         }
 
         EmbeddingsRequest? requestBody = JsonSerializer.Deserialize<EmbeddingsRequest>(request);
@@ -49,7 +52,7 @@ public static class FilePrompt
 
         if (!Uri.TryCreate(requestBody.Url, UriKind.Absolute, out Uri? uri))
         {
-            throw new ArgumentException("Invalid Url format.");
+            return badRequestResponse;
         }
 
         string filename = Path.GetFileName(uri.AbsolutePath);

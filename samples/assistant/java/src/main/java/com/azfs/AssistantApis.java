@@ -33,7 +33,7 @@ public class AssistantApis {
      * account
      * where chat data will be stored.
      */
-    String DEFAULT_CHATSTORAGE = "AzureWebJobsStorage";
+    final String DEFAULT_CHATSTORAGE = "AzureWebJobsStorage";
 
     /**
      * The default collection name for the table storage account.
@@ -41,7 +41,7 @@ public class AssistantApis {
      * account
      * where chat data will be stored.
      */
-    String DEFAULT_COLLECTION = "ChatState";
+    final String DEFAULT_COLLECTION = "ChatState";
 
     /*
      * HTTP PUT function that creates a new assistant chat bot with the specified ID.

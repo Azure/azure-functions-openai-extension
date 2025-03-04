@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
+import com.azure.identity.DefaultAzureCredential;
+import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.openai.annotation.assistant.*;
@@ -58,16 +60,17 @@ public class AssistantSkills {
     }
 
     private TodoManager createTodoManager() {
-        String cosmosDbConnectionEndpoint = System.getenv("CosmosDbConnectionEndpoint");
-        String cosmosDbKey = System.getenv("CosmosDbKey");
-
-        if (cosmosDbConnectionEndpoint == null || cosmosDbConnectionEndpoint.isEmpty()
-        || cosmosDbKey == null || cosmosDbKey.isEmpty()) {
+        String cosmosDbConnectionEndpoint = System.getenv("CosmosDbConnectionEndpoint").trim();
+        
+        if (cosmosDbConnectionEndpoint == null || cosmosDbConnectionEndpoint.isEmpty()) {
             return new InMemoryTodoManager();
         } else {
+            DefaultAzureCredential credential = new DefaultAzureCredentialBuilder()
+            .build();
+
             CosmosClient cosmosClient = new CosmosClientBuilder()
                     .endpoint(cosmosDbConnectionEndpoint)
-                    .key(cosmosDbKey)
+                    .credential(credential)
                     .buildClient();
             return new CosmosDbTodoManager(cosmosClient);
         }

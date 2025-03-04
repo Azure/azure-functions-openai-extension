@@ -98,6 +98,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-aisearch-legacy", "rag-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticAISearchEmbeddingsLegacy", "samples\rag-aisearch\csharp-legacy\SemanticAISearchEmbeddingsLegacy.csproj", "{AA0F286F-36CA-4A8B-A11F-5EF82D248204}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "chat-legacy", "chat-legacy", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatBotSample", "samples\chat\csharp-legacy\ChatBotSample.csproj", "{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +180,10 @@ Global
 		{AA0F286F-36CA-4A8B-A11F-5EF82D248204}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA0F286F-36CA-4A8B-A11F-5EF82D248204}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA0F286F-36CA-4A8B-A11F-5EF82D248204}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -208,6 +216,8 @@ Global
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB} = {20E3EDFF-0628-4AAC-BAD2-30E2C6862C30}
 		{44352EEE-0A55-48DC-BD32-A8D734638007} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{AA0F286F-36CA-4A8B-A11F-5EF82D248204} = {44352EEE-0A55-48DC-BD32-A8D734638007}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

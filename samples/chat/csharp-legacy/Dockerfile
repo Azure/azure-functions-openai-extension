@@ -5,7 +5,7 @@ COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet/shared /usr/share
 
 # Need to build the full repo to get the samples to work
 COPY . /root
-RUN cd /root/samples/chat/csharp-inproc && \
+RUN cd /root/samples/chat/csharp-legacy && \
     mkdir -p /home/site/wwwroot && \
     dotnet restore --verbosity normal && \
     dotnet build --no-restore -c Release && \

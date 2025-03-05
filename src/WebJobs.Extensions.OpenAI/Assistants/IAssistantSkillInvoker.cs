@@ -4,17 +4,17 @@
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text;
-using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Host.Executors;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OpenAI.Assistants;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 public interface IAssistantSkillInvoker
 {
-    IList<ChatCompletionsFunctionToolDefinition>? GetFunctionsDefinitions();
-    Task<string?> InvokeAsync(ChatCompletionsFunctionToolCall call, CancellationToken cancellationToken);
+    IList<FunctionToolDefinition>? GetFunctionsDefinitions();
+    Task<string?> InvokeAsync(FunctionToolDefinition call, CancellationToken cancellationToken);
 }
 
 class SkillInvocationContext
@@ -70,14 +70,14 @@ public class AssistantSkillManager : IAssistantSkillInvoker
         this.skills.Remove(name);
     }
 
-    IList<ChatCompletionsFunctionToolDefinition>? IAssistantSkillInvoker.GetFunctionsDefinitions()
+    IList<FunctionToolDefinition>? IAssistantSkillInvoker.GetFunctionsDefinitions()
     {
         if (this.skills.Count == 0)
         {
             return null;
         }
 
-        List<ChatCompletionsFunctionToolDefinition> functions = new(capacity: this.skills.Count);
+        List<FunctionToolDefinition> functions = new(capacity: this.skills.Count);
         foreach (Skill skill in this.skills.Values)
         {
             // The parameters can be defined in the attribute JSON or can be inferred from
@@ -85,9 +85,9 @@ public class AssistantSkillManager : IAssistantSkillInvoker
             string parametersJson = skill.Attribute.ParameterDescriptionJson ??
                 JsonConvert.SerializeObject(GetParameterDefinition(skill));
 
-            functions.Add(new ChatCompletionsFunctionToolDefinition
+            functions.Add(new FunctionToolDefinition
             {
-                Name = skill.Name,
+                FunctionName = skill.Name,
                 Description = skill.Attribute.FunctionDescription,
                 Parameters = BinaryData.FromBytes(Encoding.UTF8.GetBytes(parametersJson)),
             });
@@ -140,7 +140,7 @@ public class AssistantSkillManager : IAssistantSkillInvoker
     }
 
     async Task<string?> IAssistantSkillInvoker.InvokeAsync(
-        ChatCompletionsFunctionToolCall call,
+        FunctionToolDefinition call,
         CancellationToken cancellationToken)
     {
         if (call is null)
@@ -148,14 +148,14 @@ public class AssistantSkillManager : IAssistantSkillInvoker
             throw new ArgumentNullException(nameof(call));
         }
 
-        if (call.Name is null)
+        if (call.FunctionName is null)
         {
             throw new ArgumentException("The function call must have a name", nameof(call));
         }
 
-        if (!this.skills.TryGetValue(call.Name, out Skill? skill))
+        if (!this.skills.TryGetValue(call.FunctionName, out Skill? skill))
         {
-            throw new InvalidOperationException($"No skill registered with name '{call.Name}'");
+            throw new InvalidOperationException($"No skill registered with name '{call.FunctionName}'");
         }
 
         SkillInvocationContext skillInvocationContext = new(call.Arguments);
@@ -170,7 +170,7 @@ public class AssistantSkillManager : IAssistantSkillInvoker
                 InvokeHandler = async userCodeInvoker =>
                 {
                     // Invoke the function and attempt to get the result.
-                    this.logger.LogInformation("Invoking user-code function '{Name}'", call.Name);
+                    this.logger.LogInformation("Invoking user-code function '{Name}'", call.FunctionName);
                     Task invokeTask = userCodeInvoker.Invoke();
                     if (invokeTask is Task<object> invokeTaskWithResult)
                     {

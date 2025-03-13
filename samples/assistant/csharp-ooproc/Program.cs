@@ -4,6 +4,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AssistantSample;
+using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +23,8 @@ var host = new HostBuilder()
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         });
 
-        string? cosmosDbConnectionString = Environment.GetEnvironmentVariable("CosmosDbConnectionString");
-        if (string.IsNullOrEmpty(cosmosDbConnectionString))
+        string? cosmosDBEndpoint = Environment.GetEnvironmentVariable("CosmosDbConnectionString");
+        if (string.IsNullOrEmpty(cosmosDBEndpoint))
         {
             // Use an in-memory implementation of ITodoManager if no CosmosDB connection string is provided
             services.AddSingleton<ITodoManager, InMemoryTodoManager>();
@@ -51,7 +52,7 @@ var host = new HostBuilder()
                     }
                 };
 
-                return new CosmosClient(cosmosDbConnectionString, cosmosClientOptions);
+                return new CosmosClient(cosmosDBEndpoint, new DefaultAzureCredential(), cosmosClientOptions);
             });
 
             services.AddSingleton<ITodoManager, CosmosDbTodoManager>();

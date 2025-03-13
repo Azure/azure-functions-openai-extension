@@ -15,8 +15,6 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.47.2" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.1" />
-    <!--Explicitly add the Newtonsoft.Json package reference to fix the vulnerability.-->
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Functions.Worker.Extensions.OpenAI\Functions.Worker.Extensions.OpenAI.csproj" />

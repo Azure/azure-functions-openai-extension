@@ -81,7 +81,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functions.Worker.Extensions.OpenAI.CosmosDBSearch", "src\Functions.Worker.Extensions.OpenAI.CosmosDBSearch\Functions.Worker.Extensions.OpenAI.CosmosDBSearch.csproj", "{FD53AA42-6DC5-422F-919C-FB33591DC9E7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb", "rag-comosdb", "{24193510-C974-42E2-AE1F-1097E16A2445}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-cosmosdb", "rag-cosmosdb", "{24193510-C974-42E2-AE1F-1097E16A2445}"
 	ProjectSection(SolutionItems) = preProject
 		samples\rag-cosmosdb\demo.http = samples\rag-cosmosdb\demo.http
 	EndProjectSection
@@ -101,6 +101,22 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "chat-legacy", "chat-legacy", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatBotSample", "samples\chat\csharp-legacy\ChatBotSample.csproj", "{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "embeddings-legacy", "embeddings-legacy", "{E81C75FE-B967-43D7-93F6-ADD70F8274D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-cosmosdb-legacy", "rag-cosmosdb-legacy", "{4F208B03-C74C-458B-8300-9FF82F3C6325}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-kusto-legacy", "rag-kusto-legacy", "{B87CBFFB-8221-45E8-8631-4BB1685D50F0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "textcompletion-legacy", "textcompletion-legacy", "{5315AE81-BC33-49F2-935B-69287BB44CBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmbeddingsLegacy", "samples\embeddings\csharp-legacy\EmbeddingsLegacy.csproj", "{ABCA4604-EEC3-00AD-CD82-9B4554481304}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDBSearchLegacy", "samples\rag-cosmosdb\csharp-legacy\CosmosDBSearchLegacy.csproj", "{BB20B2C0-35AE-CC75-61CE-C2713C83E4F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KustoSearchLegacy", "samples\rag-kusto\csharp-legacy\KustoSearchLegacy.csproj", "{C5ACB61F-CDAC-E93F-895E-4D46F086DE61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextCompletionLegacy", "samples\textcompletion\csharp-legacy\TextCompletionLegacy.csproj", "{73C26271-7B8D-4B38-B454-D9902B92270F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -184,6 +200,22 @@ Global
 		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABCA4604-EEC3-00AD-CD82-9B4554481304}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABCA4604-EEC3-00AD-CD82-9B4554481304}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABCA4604-EEC3-00AD-CD82-9B4554481304}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABCA4604-EEC3-00AD-CD82-9B4554481304}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB20B2C0-35AE-CC75-61CE-C2713C83E4F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB20B2C0-35AE-CC75-61CE-C2713C83E4F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB20B2C0-35AE-CC75-61CE-C2713C83E4F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB20B2C0-35AE-CC75-61CE-C2713C83E4F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5ACB61F-CDAC-E93F-895E-4D46F086DE61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5ACB61F-CDAC-E93F-895E-4D46F086DE61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5ACB61F-CDAC-E93F-895E-4D46F086DE61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5ACB61F-CDAC-E93F-895E-4D46F086DE61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73C26271-7B8D-4B38-B454-D9902B92270F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73C26271-7B8D-4B38-B454-D9902B92270F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73C26271-7B8D-4B38-B454-D9902B92270F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73C26271-7B8D-4B38-B454-D9902B92270F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -218,6 +250,14 @@ Global
 		{AA0F286F-36CA-4A8B-A11F-5EF82D248204} = {44352EEE-0A55-48DC-BD32-A8D734638007}
 		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{C0BB23BB-F6FF-6B43-0C7A-3A3755502ADE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{E81C75FE-B967-43D7-93F6-ADD70F8274D1} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{4F208B03-C74C-458B-8300-9FF82F3C6325} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{B87CBFFB-8221-45E8-8631-4BB1685D50F0} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{5315AE81-BC33-49F2-935B-69287BB44CBD} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{ABCA4604-EEC3-00AD-CD82-9B4554481304} = {E81C75FE-B967-43D7-93F6-ADD70F8274D1}
+		{BB20B2C0-35AE-CC75-61CE-C2713C83E4F6} = {4F208B03-C74C-458B-8300-9FF82F3C6325}
+		{C5ACB61F-CDAC-E93F-895E-4D46F086DE61} = {B87CBFFB-8221-45E8-8631-4BB1685D50F0}
+		{73C26271-7B8D-4B38-B454-D9902B92270F} = {5315AE81-BC33-49F2-935B-69287BB44CBD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

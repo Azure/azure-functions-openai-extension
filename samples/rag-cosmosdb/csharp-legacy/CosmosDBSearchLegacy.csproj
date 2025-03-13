@@ -9,8 +9,11 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\..\src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
+    <ProjectReference Include="..\..\..\src\WebJobs.Extensions.OpenAI.CosmosDBSearch\WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj" />
+    <ProjectReference Include="..\..\..\src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <FunctionsPreservedDependencies Include="System.Memory.Data.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

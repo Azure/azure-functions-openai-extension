@@ -35,7 +35,7 @@ public static class ChatBot
         };
         await createRequests.AddAsync(assistantCreateRequest);
         var responseJson = new { chatId };
-        return new ObjectResult(responseJson) { StatusCode = 202 };
+        return new ObjectResult(responseJson) { StatusCode = 201 };
     }
 
     [FunctionName(nameof(GetChatState))]

@@ -41,7 +41,7 @@ static class AssistantApis
         };
         await createRequests.AddAsync(assistantCreateRequest);
         var responseJson = new { assistantId };
-        return new ObjectResult(responseJson) { StatusCode = 202 };
+        return new ObjectResult(responseJson) { StatusCode = 201 };
     }
 
     /// <summary>

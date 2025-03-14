@@ -65,7 +65,7 @@ class SemanticSearchConverter :
 
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", embeddingsRequest.Input);
         Response<OpenAISDK.Embeddings> embeddingsResponse = await this.openAIClient.GetEmbeddingsAsync(embeddingsRequest, cancellationToken);
-        this.logger.LogInformation("Received OpenAI embeddings count: {response}", embeddingsResponse.Value.Data[0].Embedding.Length);
+        this.logger.LogInformation("Received OpenAI embeddings count: {response}", embeddingsResponse.Value.Data.Count);
 
 
         ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection);

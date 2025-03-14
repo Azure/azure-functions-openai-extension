@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  
+
   <PropertyGroup>
     <Description>Microsoft Azure WebJobs SDK Extension for OpenAI - Kusto Search Package.</Description>
     <Version>$(KustoVersion)</Version>
@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="12.2.7" />
     <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="12.2.7" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
   </ItemGroup>

@@ -1,7 +1,7 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 
-# Add support for .NET 6 (required for Azure Functions build process)
-COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet/shared /usr/share/dotnet/shared
+# Add support for .NET 8 (required for Azure Functions build process)
+COPY --from=mcr.microsoft.com/dotnet/sdk:8.0 /usr/share/dotnet/shared /usr/share/dotnet/shared
 
 # Need to build the full repo to get the samples to work
 COPY . /root

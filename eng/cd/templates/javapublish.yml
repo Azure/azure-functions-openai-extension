@@ -16,7 +16,7 @@ stages:
               approvers: |-
                 [TEAM FOUNDATION]\Varad Meru's Team
       - job: JavaReleaseJob
-        displayName: Agent job
+        displayName: Java Release Job
         dependsOn: PreDeploymentApprovalJob
         condition: succeeded()
         timeoutInMinutes: 0
@@ -30,7 +30,7 @@ stages:
               targetPath: '$(Pipeline.Workspace)/drop-java-library'
         steps:
           - task: PowerShell@2
-            displayName: PowerShell Script
+            displayName: Extract and Prepare Java Library Package
             inputs:
               targetType: inline
               script: |-

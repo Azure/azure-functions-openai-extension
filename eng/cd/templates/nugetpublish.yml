@@ -47,7 +47,7 @@ stages:
               feedPublish: e6a70c92-4128-439f-8012-382fe78d6396/1e0b47db-42dd-4931-a098-8cb031234dcc
               allowPackageConflicts: true
           - task: PowerShell@2
-            displayName: PowerShell Script
+            displayName: Copy all packages to a single directory
             inputs:
               targetType: inline
               script: |-

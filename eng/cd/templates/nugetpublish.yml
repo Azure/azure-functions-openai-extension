@@ -1,0 +1,67 @@
+parameters:
+  stageName: ''
+  displayName: ''
+  artifactName: ''
+  packagePattern: ''
+  blobPrefix: ''
+
+stages:
+  - stage: ${{ parameters.stageName }}
+    displayName: ${{ parameters.displayName }}
+    jobs:
+      - job: PreDeploymentApprovalJob
+        displayName: Pre-Deployment Approval
+        condition: succeeded()
+        timeoutInMinutes: 5760
+        pool: server
+        steps:
+          - task: ManualValidation@1
+            inputs:
+              notifyUsers: |-
+                [TEAM FOUNDATION]\Varad Meru's Team
+              approvers: |-
+                [TEAM FOUNDATION]\Varad Meru's Team
+      - job: NugetReleaseJob
+        displayName: Agent job
+        dependsOn: PreDeploymentApprovalJob
+        condition: succeeded()
+        timeoutInMinutes: 0
+        templateContext:
+          type: releaseJob
+          isProduction: true
+          inputs:
+            - input: pipelineArtifact
+              pipeline: 'AzureFunctionsOpenAIExtension'
+              artifactName: ${{ parameters.artifactName }}
+              targetPath: '$(Pipeline.Workspace)/${{ parameters.artifactName }}'
+        steps:
+          - task: NuGetToolInstaller@1
+            displayName: Use NuGet 5.x
+            inputs:
+              versionSpec: 5.x
+          - task: 1ES.PublishNuGet@1
+            displayName: 'Internal Feed Publish ${{ parameters.packagePattern }}'
+            inputs:
+              packageParentPath: '$(Build.ArtifactStagingDirectory)'
+              packagesToPush: $(System.DefaultWorkingDirectory)/**/${{ parameters.artifactName }}/${{ parameters.packagePattern }}
+              feedPublish: e6a70c92-4128-439f-8012-382fe78d6396/1e0b47db-42dd-4931-a098-8cb031234dcc
+              allowPackageConflicts: true
+          - task: PowerShell@2
+            displayName: PowerShell Script
+            inputs:
+              targetType: inline
+              script: |-
+                md "$(System.DefaultWorkingDirectory)\packages"
+                copy "$(System.DefaultWorkingDirectory)\**\${{ parameters.artifactName }}\${{ parameters.packagePattern }}" "$(System.DefaultWorkingDirectory)\packages"
+                ls "$(System.DefaultWorkingDirectory)\packages" | write-verbose -Verbose
+              pwsh: true
+              workingDirectory: $(System.DefaultWorkingDirectory)/Azure Functions OpenAI Extension/${{ parameters.artifactName }}
+          - task: AzureFileCopy@6
+            displayName: Package Upload
+            inputs:
+              SourcePath: $(System.DefaultWorkingDirectory)/packages/*
+              ConnectedServiceNameARM: azuresdkpartnerdrops
+              Destination: AzureBlob
+              StorageAccountRM: azuresdkpartnerdrops
+              ContainerName: drops
+              BlobPrefix: ${{ parameters.blobPrefix }}

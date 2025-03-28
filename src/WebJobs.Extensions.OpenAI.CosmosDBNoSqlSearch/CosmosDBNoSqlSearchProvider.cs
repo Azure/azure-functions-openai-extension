@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +23,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     readonly ConcurrentDictionary<string, CosmosClient> cosmosDBClients = new();
 
     public string Name { get; set; } = "CosmosDBNoSqlSearch";
+    public string CosmosDBConnectionSetting = "CosmosDBNoSqlConnectionString";
 
     /// <summary>
     /// Initializes CosmosDB search provider.
@@ -111,42 +114,44 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document, cancellationToken);
     }
 
-    CosmosClient GetCosmosClient(string connectionStringName)
+    CosmosClient GetCosmosClient(string connectionString)
     {
         CosmosClient cosmosClient;
         if (
-            !string.IsNullOrEmpty(connectionStringName)
-            && this.cosmosDBClients.TryGetValue(connectionStringName, out cosmosClient)
+            !string.IsNullOrEmpty(connectionString)
+            && this.cosmosDBClients.TryGetValue(connectionString, out cosmosClient)
         )
         {
-            // cosmosClient is already assigned by TryGetValue
+            cosmosClient = this.cosmosDBClients[connectionString];
         }
         else
         {
-            cosmosClient = this.CreateCosmosClient(connectionStringName);
+            cosmosClient = this.CreateCosmosClient(connectionString);
         }
-        this.cosmosDBClients[connectionStringName] = cosmosClient;
+        this.cosmosDBClients[connectionString] = cosmosClient;
         return cosmosClient;
     }
 
-    CosmosClient CreateCosmosClient(string connectionStringName)
+    CosmosClient CreateCosmosClient(string connectionString)
     {
         IConfigurationSection cosmosConfigSection = this.configuration.GetSection(
-            connectionStringName
+            this.CosmosDBConnectionSetting
         );
         string cosmosAccountUri = string.Empty;
-
         if (cosmosConfigSection.Exists())
         {
             cosmosAccountUri = cosmosConfigSection["cosmosUri"];
         }
 
-        // check if the URI for the cosmos account is present
+        // Check if the URI for the cosmos account is present
         if (!string.IsNullOrEmpty(cosmosAccountUri))
         {
+            this.logger.LogInformation("Using Managed Identity");
+
+            TokenCredential credential = new DefaultAzureCredential();
             return new CosmosClient(
                 cosmosAccountUri,
-                cosmosConfigSection["tokenCredential"],
+                credential,
                 new CosmosClientOptions
                 {
                     ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
@@ -156,17 +161,16 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         else
         {
             // Else, will use the connection string
-            var builder = new DbConnectionStringBuilder
-            {
-                ConnectionString = this.configuration.GetValue<string>(connectionStringName)
-            };
+            // var builder = new DbConnectionStringBuilder
+            // {
+            //     ConnectionString = this.configuration.GetValue<string>(connectionStringName)
+            // };
 
-            string? endpoint = builder["AccountEndpoint"]?.ToString();
-            string? key = builder["AccountKey"]?.ToString();
+            // string? endpoint = builder["AccountEndpoint"]?.ToString();
+            // string? key = builder["AccountKey"]?.ToString();
 
             return new CosmosClient(
-                endpoint,
-                key,
+                connectionString,
                 new CosmosClientOptions
                 {
                     ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
@@ -193,7 +197,6 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
                     DateTime.UtcNow
                 );
 
-                // MemoryRecordWithId record = new MemoryRecordWithId(document, i);
                 await cosmosClient
                     .GetDatabase(this.cosmosDBNoSqlSearchConfigOptions.Value.DatabaseName)
                     .GetContainer(document.ConnectionInfo!.CollectionName)

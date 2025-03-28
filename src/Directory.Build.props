@@ -21,6 +21,7 @@
   </PropertyGroup>
 
   <!-- Version settings: https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/ -->
+  <!--Update the version in /eng/cd/templates/release-variables after bump of any version-->
   <PropertyGroup>
     <MajorVersion>0</MajorVersion>
     <MinorVersion>19</MinorVersion>

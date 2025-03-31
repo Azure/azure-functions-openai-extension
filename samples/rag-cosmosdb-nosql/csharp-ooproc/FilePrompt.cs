@@ -60,7 +60,7 @@ public static class FilePrompt
         [EmbeddingsStoreOutput(
             "{Url}",
             InputType.Url,
-            "CosmosDBNoSqlConnectionString",
+            "CosmosDBNoSql",
             "openai-index",
             Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
         )]
@@ -73,7 +73,7 @@ public static class FilePrompt
     public static IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
         [SemanticSearchInput(
-            "CosmosDBNoSqlConnectionString",
+            "CosmosDBNoSql",
             "openai-index",
             Query = "{Prompt}",
             ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%",

@@ -86,14 +86,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb", "rag-comosdb"
 		samples\rag-cosmosdb\demo.http = samples\rag-cosmosdb\demo.http
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch", "src\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj", "{9ab90dc0-2b1f-43b8-8ec1-7a20b53859ea}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch", "src\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj", "{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch", "src\Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch\Functions.Worker.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj", "{6990598F-66A7-4476-943A-781849DEDD3B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb-nosql", "rag-comosdb-nosql", "{9285C43E-9DE3-4FED-9C58-09073C35B357}"
-	ProjectSection(SolutionItems) = preProject
-		samples\rag-cosmosdb-nosql\demo.http = samples\rag-cosmosdb-nosql\demo.http
-	EndProjectSection
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-comosdb-nosql-legacy", "rag-comosdb-nosql-legacy", "{9285C43E-9DE3-4FED-9C58-09073C35B357}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SemanticCosmosDBSearchEmbeddings", "samples\rag-cosmosdb\csharp-ooproc\SemanticCosmosDBSearchEmbeddings.csproj", "{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC}"
 EndProject
@@ -102,6 +99,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assistant-legacy", "assistant-legacy", "{20E3EDFF-0628-4AAC-BAD2-30E2C6862C30}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistantSample", "samples\assistant\csharp-legacy\AssistantSample.csproj", "{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDBNoSQLSearchLegacy", "samples\rag-cosmosdb-nosql\csharp-legacy\CosmosDBNoSQLSearchLegacy.csproj", "{E9F60030-827E-E74A-1CF3-79AFDF8AB239}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-cosmosdb-nosql", "rag-cosmosdb-nosql", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticCosmosDBNoSqlSearchEmbeddings", "samples\rag-cosmosdb-nosql\csharp-ooproc\SemanticCosmosDBNoSqlSearchEmbeddings.csproj", "{10C35EF8-BA40-30F1-DD9B-B114921A7916}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -161,14 +164,14 @@ Global
 		{3B232EA0-9CAE-4488-8579-E86F1FCFEE9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B232EA0-9CAE-4488-8579-E86F1FCFEE9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B232EA0-9CAE-4488-8579-E86F1FCFEE9A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6990598F-66A7-4476-943A-781849DEDD3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6990598F-66A7-4476-943A-781849DEDD3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6990598F-66A7-4476-943A-781849DEDD3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -185,6 +188,14 @@ Global
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9F60030-827E-E74A-1CF3-79AFDF8AB239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9F60030-827E-E74A-1CF3-79AFDF8AB239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9F60030-827E-E74A-1CF3-79AFDF8AB239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9F60030-827E-E74A-1CF3-79AFDF8AB239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10C35EF8-BA40-30F1-DD9B-B114921A7916}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10C35EF8-BA40-30F1-DD9B-B114921A7916}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10C35EF8-BA40-30F1-DD9B-B114921A7916}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10C35EF8-BA40-30F1-DD9B-B114921A7916}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -209,15 +220,18 @@ Global
 		{F413D075-38DA-4357-AB60-E6E157018827} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{CAB7034D-FBA9-4A7D-B50B-E9029DFD0DEF} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{3B232EA0-9CAE-4488-8579-E86F1FCFEE9A} = {7A80B95C-AD57-4057-AED0-48629B75874F}
-		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{FD53AA42-6DC5-422F-919C-FB33591DC9E7} = {7A80B95C-AD57-4057-AED0-48629B75874F}
-		{6990598F-66A7-4476-943A-781849DEDD3B} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{24193510-C974-42E2-AE1F-1097E16A2445} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{9AB90DC0-2B1F-43B8-8EC1-7A20B53859EA} = {7A80B95C-AD57-4057-AED0-48629B75874F}
+		{6990598F-66A7-4476-943A-781849DEDD3B} = {7A80B95C-AD57-4057-AED0-48629B75874F}
 		{9285C43E-9DE3-4FED-9C58-09073C35B357} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{D4EC72DC-5B7C-4C24-AA72-A18EF04041BC} = {24193510-C974-42E2-AE1F-1097E16A2445}
 		{4057D224-2A7C-4186-86D6-66F79542561B} = {C5578BE5-AAC7-4616-9A35-41CA5903882A}
 		{20E3EDFF-0628-4AAC-BAD2-30E2C6862C30} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
 		{FF68DF4B-82A3-4032-8673-91FCBBD1F8FB} = {20E3EDFF-0628-4AAC-BAD2-30E2C6862C30}
+		{E9F60030-827E-E74A-1CF3-79AFDF8AB239} = {9285C43E-9DE3-4FED-9C58-09073C35B357}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {865C9FB5-1043-47BE-B650-25A2B42030A3}
+		{10C35EF8-BA40-30F1-DD9B-B114921A7916} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

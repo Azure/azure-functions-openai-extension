@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.Common;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
@@ -24,6 +22,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 
     public string Name { get; set; } = "CosmosDBNoSqlSearch";
     public string CosmosDBConnectionSetting = "CosmosDBNoSqlConnectionString";
+    const string endpointSettingSuffix = "Endpoint";
 
     /// <summary>
     /// Initializes CosmosDB search provider.
@@ -59,8 +58,10 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         CancellationToken cancellationToken
     )
     {
-        // Create cosmos client if not exists in the cache.
-        CosmosClient cosmosClient = this.GetCosmosClient(document.ConnectionInfo!.ConnectionName);
+        this.CosmosDBConnectionSetting = document.ConnectionInfo?.ConnectionName ?? this.CosmosDBConnectionSetting;
+
+        // Retrieve an existing Cosmos client or create a new one if it's not already in the cache.
+        CosmosClient cosmosClient = this.GetCosmosClient();
 
         DatabaseResponse databaseResponse = await cosmosClient
             .CreateDatabaseIfNotExistsAsync(
@@ -114,61 +115,41 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document, cancellationToken);
     }
 
-    CosmosClient GetCosmosClient(string connectionString)
+    CosmosClient GetCosmosClient()
     {
-        CosmosClient cosmosClient;
-        if (
-            !string.IsNullOrEmpty(connectionString)
-            && this.cosmosDBClients.TryGetValue(connectionString, out cosmosClient)
-        )
-        {
-            cosmosClient = this.cosmosDBClients[connectionString];
-        }
-        else
-        {
-            cosmosClient = this.CreateCosmosClient(connectionString);
-        }
-        this.cosmosDBClients[connectionString] = cosmosClient;
+        CosmosClient cosmosClient = this.cosmosDBClients.GetOrAdd(
+                this.CosmosDBConnectionSetting,
+                _ => this.CreateCosmosClient()
+             );
         return cosmosClient;
     }
 
-    CosmosClient CreateCosmosClient(string connectionString)
+    CosmosClient CreateCosmosClient()
     {
-        IConfigurationSection cosmosConfigSection = this.configuration.GetSection(
-            this.CosmosDBConnectionSetting
-        );
-        string cosmosAccountUri = string.Empty;
+        IConfigurationSection cosmosConfigSection = this.configuration.GetSection(this.CosmosDBConnectionSetting);
         if (cosmosConfigSection.Exists())
         {
-            cosmosAccountUri = cosmosConfigSection["cosmosUri"];
+            string cosmosAccountUri = cosmosConfigSection["Endpoint"];
+
+            if (!string.IsNullOrEmpty(cosmosAccountUri))
+            {
+                this.logger.LogInformation("Using Managed Identity for Cosmos DB No SQL Connection.");
+                TokenCredential credential = new DefaultAzureCredential();
+                return new CosmosClient(
+                    cosmosAccountUri,
+                    credential,
+                    new CosmosClientOptions
+                    {
+                        ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
+                    }
+                );
+            }
         }
 
-        // Check if the URI for the cosmos account is present
-        if (!string.IsNullOrEmpty(cosmosAccountUri))
+        string connectionString = this.configuration.GetValue<string>(this.CosmosDBConnectionSetting);
+        if (!string.IsNullOrEmpty(connectionString))
         {
-            this.logger.LogInformation("Using Managed Identity");
-
-            TokenCredential credential = new DefaultAzureCredential();
-            return new CosmosClient(
-                cosmosAccountUri,
-                credential,
-                new CosmosClientOptions
-                {
-                    ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName
-                }
-            );
-        }
-        else
-        {
-            // Else, will use the connection string
-            // var builder = new DbConnectionStringBuilder
-            // {
-            //     ConnectionString = this.configuration.GetValue<string>(connectionStringName)
-            // };
-
-            // string? endpoint = builder["AccountEndpoint"]?.ToString();
-            // string? key = builder["AccountKey"]?.ToString();
-
+            this.logger.LogInformation("Using Connection String for Cosmos DB No SQL connection.");
             return new CosmosClient(
                 connectionString,
                 new CosmosClientOptions
@@ -177,6 +158,11 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
                 }
             );
         }
+
+        // Throw exception if no valid configuration is found
+        string errorMessage = $"Configuration section or endpoint '{this.CosmosDBConnectionSetting}' does not exist.";
+        this.logger.LogError(errorMessage);
+        throw new InvalidOperationException(errorMessage);
     }
 
     async Task UpsertVectorAsync(
@@ -227,8 +213,10 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(request.ConnectionInfo));
         }
 
+        this.CosmosDBConnectionSetting = request.ConnectionInfo.ConnectionName ?? this.CosmosDBConnectionSetting;
+
         // Create cosmos client if not exists in the cache.
-        CosmosClient cosmosClient = this.GetCosmosClient(request.ConnectionInfo!.ConnectionName);
+        CosmosClient cosmosClient = this.GetCosmosClient();
 
         try
         {
@@ -279,7 +267,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             List<SearchResult> searchResults = new();
             while (feedIterator.HasMoreResults)
             {
-                foreach (var memoryRecord in await feedIterator.ReadNextAsync())
+                foreach (MemoryRecordWithSimilarityScore memoryRecord in await feedIterator.ReadNextAsync())
                 {
                     searchResults.Add(new SearchResult(memoryRecord.Title, memoryRecord.Text));
                 }

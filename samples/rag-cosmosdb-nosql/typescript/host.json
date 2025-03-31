@@ -1,0 +1,27 @@
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
+    }
+  },
+  "extensions": {
+    "openai": {
+      "searchProvider": {
+        "type": "cosmosDBNoSqlSearch",
+        "applicationName": "openai-functions-nosql",
+        "vectorDataType": "float32",
+        "vectorDimensions": 1536,
+        "vectorDistanceFunction": "cosine",
+        "vectorIndexType": "quantizedFlat",
+        "databaseName": "function-db",
+        "databaseThroughput": 5000,
+        "containerThroughput": 5000,
+        "embeddingKey": "/embedding",
+        "textKey": "/text",
+        "whereFilterClause": "",
+        "limitOffsetFilterClause": ""
+      }
+    }
+  }
+}

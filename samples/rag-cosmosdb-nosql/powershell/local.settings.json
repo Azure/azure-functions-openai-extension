@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "powershell",
+    "FUNCTIONS_WORKER_RUNTIME_VERSION": "7.2",
+    "CosmosDBNoSql__Endpoint": "",
+    "AZURE_OPENAI_ENDPOINT": "https://<resource-name>.openai.azure.com/",
+    "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo",
+    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
+  }
+}

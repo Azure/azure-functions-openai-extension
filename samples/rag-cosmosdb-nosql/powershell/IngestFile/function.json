@@ -1,0 +1,28 @@
+{
+  "bindings": [
+    {
+      "authLevel": "function",
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "Request",
+      "methods": [
+        "post"
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "Response"
+    },
+    {
+      "name": "EmbeddingsStoreOutput",
+      "type": "embeddingsStore",
+      "direction": "out",
+      "input": "{url}",
+      "inputType": "Url",
+      "connectionName": "CosmosDBNoSql",
+      "collection": "openai-index",
+      "model": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+    }
+  ]
+}

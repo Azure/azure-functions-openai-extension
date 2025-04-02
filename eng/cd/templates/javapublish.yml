@@ -27,7 +27,7 @@ stages:
             - input: pipelineArtifact
               pipeline: 'AzureFunctionsOpenAIExtension'
               artifactName: 'drop-java-library'
-              targetPath: '$(Pipeline.Workspace)/drop-java-library'
+              targetPath: '$(Build.ArtifactStagingDirectory)/drop-java-library'
         steps:
           - task: PowerShell@2
             displayName: Extract and Prepare Java Library Package
@@ -39,16 +39,16 @@ stages:
                 ${packageVersion} = ${baseName}.Replace("${PACKAGENAME}-", "")
                 Write-Host "##vso[task.setvariable variable=packageversion;]$packageVersion" 
                 md "$(System.DefaultWorkingDirectory)\packages"
-                copy "$(System.DefaultWorkingDirectory)\Azure Functions OpenAI Extension\drop-java-library\java-library\azure-functions-java-library-openai*"  "$(System.DefaultWorkingDirectory)\packages"
+                copy "$(Build.ArtifactStagingDirectory)\drop-java-library\java-library\azure-functions-java-library-openai*"  "$(System.DefaultWorkingDirectory)\packages"
                 ls "$(System.DefaultWorkingDirectory)\packages" | write-verbose -Verbose
+              workingDirectory: $(Build.ArtifactStagingDirectory)/drop-java-library/java-library
               pwsh: true
-              workingDirectory: $(System.DefaultWorkingDirectory)/Azure Functions OpenAI Extension/drop-java-library/java-library
           - task: AzureFileCopy@6
             displayName: Package Upload
             inputs:
               SourcePath: $(System.DefaultWorkingDirectory)/packages/*
-              ConnectedServiceNameARM: azuresdkpartnerdrops
-              Destination: AzureBlob
-              StorageAccountRM: azuresdkpartnerdrops
+              azureSubscription: 'azure-sdk-partner-drops'
+              Destination: 'AzureBlob'
+              storage: azuresdkpartnerdrops
               ContainerName: drops
               BlobPrefix: azure-functions/java/azure-functions-java-library-openai/$(packageVersion)

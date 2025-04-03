@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.Text.Json;
-using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Logging;
-using OpenAISDK = Azure.AI.OpenAI;
+using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
@@ -13,7 +14,7 @@ class EmbeddingsConverter :
     IAsyncConverter<EmbeddingsAttribute, EmbeddingsContext>,
     IAsyncConverter<EmbeddingsAttribute, string>
 {
-    readonly OpenAISDK.OpenAIClient openAIClient;
+    readonly EmbeddingClient embeddingClient;
     readonly ILogger logger;
 
     // Note: we need this converter as Azure.AI.OpenAI does not support System.Text.Json serialization since their constructors are internal
@@ -22,9 +23,10 @@ class EmbeddingsConverter :
         Converters = { new EmbeddingsContextConverter(), new SearchableDocumentJsonConverter() }
     };
 
-    public EmbeddingsConverter(OpenAISDK.OpenAIClient openAIClient, ILoggerFactory loggerFactory)
+    public EmbeddingsConverter(AzureOpenAIClient azureOpenAIClient, ILoggerFactory loggerFactory)
     {
-        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
+        // ToDo: Handle the deployment name retrieval better
+        this.embeddingClient = azureOpenAIClient.GetEmbeddingClient("embedding") ?? throw new ArgumentNullException(nameof(azureOpenAIClient));
         this.logger = loggerFactory?.CreateLogger<EmbeddingsConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -47,11 +49,11 @@ class EmbeddingsConverter :
         EmbeddingsAttribute attribute,
         CancellationToken cancellationToken)
     {
-        OpenAISDK.EmbeddingsOptions request = await EmbeddingsHelper.BuildRequest(attribute.MaxOverlap, attribute.MaxChunkLength, attribute.Model, attribute.InputType, attribute.Input);
-        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request.Input);
-        Response<OpenAISDK.Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
-        this.logger.LogInformation("Received OpenAI embeddings count: {response}", response.Value.Data.Count);
+        List<string> input = await EmbeddingsHelper.BuildRequest(attribute.MaxOverlap, attribute.MaxChunkLength, attribute.Model, attribute.InputType, attribute.Input);
+        this.logger.LogInformation("Sending OpenAI embeddings request");
+        ClientResult<OpenAIEmbeddingCollection> response = await this.embeddingClient.GenerateEmbeddingsAsync(input);
+        this.logger.LogInformation("Received OpenAI embeddings count: {response}", response.Value.Count);
 
-        return new EmbeddingsContext(request, response);
+        return new EmbeddingsContext(input, response);
     }
 }

@@ -246,16 +246,16 @@ sealed class AzureAISearchProvider : ISearchProvider
     {
         int iteration = 0;
         IndexDocumentsBatch<SearchDocument> batch = new();
-        for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
+        for (int i = 0; i < document.Embeddings?.Response?.Count; i++)
         {
             batch.Actions.Add(new IndexDocumentsAction<SearchDocument>(
                 IndexActionType.MergeOrUpload,
                 new SearchDocument
                 {
                     ["id"] = Guid.NewGuid().ToString("N"),
-                    ["text"] = document.Embeddings.Request.Input![i],
+                    ["text"] = document.Embeddings.Input![i],
                     ["title"] = Path.GetFileNameWithoutExtension(document.Title),
-                    ["embeddings"] = document.Embeddings.Response.Data[i].Embedding.ToArray() ?? Array.Empty<float>(),
+                    ["embeddings"] = document.Embeddings.Response[i].ToFloats().ToArray() ?? Array.Empty<float>(),
                     ["timestamp"] = DateTime.UtcNow
                 }));
             iteration++;

@@ -18,7 +18,7 @@ public class AssistantState
         DateTime LastUpdatedAt,
         int TotalMessages,
         int TotalTokens,
-        IReadOnlyList<ChatMessage> RecentMessages)
+        IReadOnlyList<AssistantMessage> RecentMessages)
     {
         this.Id = Id;
         this.Exists = Exists;
@@ -69,5 +69,5 @@ public class AssistantState
     /// Gets a list of the recent messages from the assistant.
     /// </summary>
     [JsonProperty("recentMessages")]
-    public IReadOnlyList<ChatMessage> RecentMessages { get; set; } = Array.Empty<ChatMessage>();
+    public IReadOnlyList<AssistantMessage> RecentMessages { get; set; } = Array.Empty<AssistantMessage>();
 }

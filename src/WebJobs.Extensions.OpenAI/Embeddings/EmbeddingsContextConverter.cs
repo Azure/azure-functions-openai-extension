@@ -4,7 +4,7 @@
 using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using OpenAISDK = Azure.AI.OpenAI;
+using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
@@ -22,10 +22,10 @@ class EmbeddingsContextConverter : JsonConverter<EmbeddingsContext>
     public override void Write(Utf8JsonWriter writer, EmbeddingsContext value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
-        writer.WritePropertyName("request"u8);
-        ((IJsonModel<OpenAISDK.EmbeddingsOptions>)value.Request).Write(writer, modelReaderWriterOptions);
+        writer.WritePropertyName("input"u8);
+        ((IJsonModel<EmbeddingGenerationOptions>)value.Input).Write(writer, modelReaderWriterOptions);
 
-        if (value.Response is IJsonModel<OpenAISDK.Embeddings> response)
+        if (value.Response is IJsonModel<OpenAIEmbeddingCollection> response)
         {
             writer.WritePropertyName("response"u8);
             response.Write(writer, modelReaderWriterOptions);

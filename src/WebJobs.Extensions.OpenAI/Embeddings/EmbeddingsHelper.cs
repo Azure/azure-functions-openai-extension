@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using Azure.AI.OpenAI;
+using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 static class EmbeddingsHelper
@@ -17,7 +17,7 @@ static class EmbeddingsHelper
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
     }
 
-    public static async Task<EmbeddingsOptions> BuildRequest(int maxOverlap, int maxChunkLength, string model, InputType inputType, string input)
+    public static async Task<List<string>> BuildRequest(int maxOverlap, int maxChunkLength, string model, InputType inputType, string input)
     {
         using TextReader reader = await GetTextReader(inputType, input);
         if (maxOverlap >= maxChunkLength)
@@ -26,7 +26,7 @@ static class EmbeddingsHelper
         }
 
         List<string> chunks = GetTextChunks(reader, 0, maxChunkLength, maxOverlap).ToList();
-        return new EmbeddingsOptions(model, chunks);
+        return chunks;
     }
 
     static async Task<TextReader> GetTextReader(InputType inputType, string input)

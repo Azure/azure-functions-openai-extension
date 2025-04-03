@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Description;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
+using OpenAI.Chat;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -66,20 +66,12 @@ public sealed class TextCompletionAttribute : Attribute
     [AutoResolve]
     public string? MaxTokens { get; set; } = "100";
 
-    internal ChatCompletionsOptions BuildRequest()
+    internal ChatCompletionOptions BuildRequest()
     {
-        ChatCompletionsOptions request = new()
-        {
-            DeploymentName = this.Model,
-            Messages =
-            {
-                new ChatRequestUserMessage(this.Prompt),
-            }
-        };
-
+        ChatCompletionOptions request = new();
         if (int.TryParse(this.MaxTokens, out int maxTokens))
         {
-            request.MaxTokens = maxTokens;
+            request.MaxOutputTokenCount = maxTokens;
         }
 
         if (float.TryParse(this.Temperature, out float temperature))
@@ -89,7 +81,7 @@ public sealed class TextCompletionAttribute : Attribute
 
         if (float.TryParse(this.TopP, out float topP))
         {
-            request.NucleusSamplingFactor = topP;
+            request.TopP = topP;
         }
 
         return request;

@@ -15,21 +15,21 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 [Extension("OpenAI")]
 partial class OpenAIExtension : IExtensionConfigProvider
 {
-    readonly OpenAIClient openAIClient;
+    readonly AzureOpenAIClient openAIClient;
     readonly TextCompletionConverter textCompletionConverter;
     readonly EmbeddingsConverter embeddingsConverter;
     readonly EmbeddingsStoreConverter embeddingsStoreConverter;
     readonly SemanticSearchConverter semanticSearchConverter;
-    readonly AssistantBindingConverter chatBotConverter;
+    readonly AssistantBindingConverter assistantConverter;
     readonly AssistantSkillTriggerBindingProvider assistantskillTriggerBindingProvider;
 
     public OpenAIExtension(
-        OpenAIClient openAIClient,
+        AzureOpenAIClient openAIClient,
         TextCompletionConverter textCompletionConverter,
         EmbeddingsConverter embeddingsConverter,
         EmbeddingsStoreConverter embeddingsStoreConverter,
         SemanticSearchConverter semanticSearchConverter,
-        AssistantBindingConverter chatBotConverter,
+        AssistantBindingConverter assistantConverter,
         AssistantSkillTriggerBindingProvider assistantTriggerBindingProvider)
     {
         this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
@@ -37,7 +37,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
         this.embeddingsConverter = embeddingsConverter ?? throw new ArgumentNullException(nameof(embeddingsConverter));
         this.embeddingsStoreConverter = embeddingsStoreConverter ?? throw new ArgumentNullException(nameof(embeddingsStoreConverter));
         this.semanticSearchConverter = semanticSearchConverter ?? throw new ArgumentNullException(nameof(semanticSearchConverter));
-        this.chatBotConverter = chatBotConverter ?? throw new ArgumentNullException(nameof(chatBotConverter));
+        this.assistantConverter = assistantConverter ?? throw new ArgumentNullException(nameof(assistantConverter));
         this.assistantskillTriggerBindingProvider = assistantTriggerBindingProvider ?? throw new ArgumentNullException(nameof(assistantTriggerBindingProvider));
     }
 
@@ -64,18 +64,18 @@ partial class OpenAIExtension : IExtensionConfigProvider
         semanticSearchRule.BindToInput<string>(this.semanticSearchConverter);
 
         // Assistant support
-        var chatBotCreateRule = context.AddBindingRule<AssistantCreateAttribute>();
-        chatBotCreateRule.BindToCollector<AssistantCreateRequest>(this.chatBotConverter);
-        context.AddConverter<JObject, AssistantCreateRequest>(this.chatBotConverter.ToAssistantCreateRequest);
-        context.AddConverter<string, AssistantCreateRequest>(this.chatBotConverter.ToAssistantCreateRequest);
+        var assistantCreateRule = context.AddBindingRule<AssistantCreateAttribute>();
+        assistantCreateRule.BindToCollector<AssistantCreateRequest>(this.assistantConverter);
+        context.AddConverter<JObject, AssistantCreateRequest>(this.assistantConverter.ToAssistantCreateRequest);
+        context.AddConverter<string, AssistantCreateRequest>(this.assistantConverter.ToAssistantCreateRequest);
 
-        var chatBotPostRule = context.AddBindingRule<AssistantPostAttribute>();
-        chatBotPostRule.BindToInput<AssistantState>(this.chatBotConverter);
-        chatBotPostRule.BindToInput<string>(this.chatBotConverter);
+        var assistantPostRule = context.AddBindingRule<AssistantPostAttribute>();
+        assistantPostRule.BindToInput<AssistantState>(this.assistantConverter);
+        assistantPostRule.BindToInput<string>(this.assistantConverter);
 
-        var chatBotQueryRule = context.AddBindingRule<AssistantQueryAttribute>();
-        chatBotQueryRule.BindToInput<AssistantState>(this.chatBotConverter);
-        chatBotQueryRule.BindToInput<string>(this.chatBotConverter);
+        var assistantQueryRule = context.AddBindingRule<AssistantQueryAttribute>();
+        assistantQueryRule.BindToInput<AssistantState>(this.assistantConverter);
+        assistantQueryRule.BindToInput<string>(this.assistantConverter);
 
         // Assistant skill trigger support
         context.AddBindingRule<AssistantSkillTriggerAttribute>()

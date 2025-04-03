@@ -1,13 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.Text;
 using System.Text.Json;
 using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenAI;
+using OpenAI.Chat;
+using OpenAI.Embeddings;
 using OpenAISDK = Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
@@ -16,7 +21,8 @@ class SemanticSearchConverter :
     IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>,
     IAsyncConverter<SemanticSearchAttribute, string>
 {
-    readonly OpenAISDK.OpenAIClient openAIClient;
+    readonly ChatClient chatClient;
+    readonly EmbeddingClient embeddingClient;
     readonly ILogger logger;
     readonly ISearchProvider? searchProvider;
 
@@ -30,12 +36,14 @@ class SemanticSearchConverter :
         };
 
     public SemanticSearchConverter(
-        OpenAISDK.OpenAIClient openAIClient,
+        AzureOpenAIClient azureOpenAIClient,
         ILoggerFactory loggerFactory,
         IEnumerable<ISearchProvider> searchProviders,
         IOptions<OpenAIConfigOptions> openAiConfigOptions)
     {
-        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
+        //ToDo: Handle retrieval of the model better
+        this.chatClient = azureOpenAIClient.GetChatClient(deploymentName: Environment.GetEnvironmentVariable("CHAT_MODEL_DEPLOYMENT_NAME")) ?? throw new ArgumentNullException(nameof(azureOpenAIClient));
+        this.embeddingClient = azureOpenAIClient.GetEmbeddingClient(deploymentName: Environment.GetEnvironmentVariable("EMBEDDING_MODEL_DEPLOYMENT_NAME")) ?? throw new ArgumentNullException(nameof(azureOpenAIClient));
         this.logger = loggerFactory?.CreateLogger<SemanticSearchConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
 
         openAiConfigOptions.Value.SearchProvider.TryGetValue("type", out object value);
@@ -61,12 +69,9 @@ class SemanticSearchConverter :
         }
 
         // Get the embeddings for the query, which will be used for doing a semantic search
-        OpenAISDK.EmbeddingsOptions embeddingsRequest = new(attribute.EmbeddingsModel, new List<string> { attribute.Query });
-
-        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", embeddingsRequest.Input);
-        Response<OpenAISDK.Embeddings> embeddingsResponse = await this.openAIClient.GetEmbeddingsAsync(embeddingsRequest, cancellationToken);
-        this.logger.LogInformation("Received OpenAI embeddings count: {response}", embeddingsResponse.Value.Data.Count);
-
+        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", attribute.Query);
+        ClientResult<OpenAIEmbedding> embedding = await this.embeddingClient.GenerateEmbeddingAsync(attribute.Query, cancellationToken: cancellationToken);
+        this.logger.LogInformation("Received OpenAI embeddings");
 
         ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection);
         if (string.IsNullOrEmpty(connectionInfo.ConnectionName))
@@ -81,7 +86,7 @@ class SemanticSearchConverter :
         // Search for relevant document snippets using the original query and the embeddings
         SearchRequest searchRequest = new(
             attribute.Query,
-            embeddingsResponse.Value.Data[0].Embedding,
+            embedding.Value.ToFloats(),
             attribute.MaxKnowledgeCount,
             connectionInfo);
         SearchResponse searchResponse = await this.searchProvider.SearchAsync(searchRequest);
@@ -95,20 +100,16 @@ class SemanticSearchConverter :
         }
 
         // Call the chat API with the new combined prompt to get a response back
-        OpenAISDK.ChatCompletionsOptions chatCompletionsOptions = new()
-        {
-            DeploymentName = attribute.ChatModel,
-            Messages =
+        IList<ChatMessage> messages = new List<ChatMessage>()
                 {
-                    new OpenAISDK.ChatRequestSystemMessage(promptBuilder.ToString()),
-                    new OpenAISDK.ChatRequestUserMessage(attribute.Query),
-                }
-        };
+                    new SystemChatMessage(promptBuilder.ToString()),
+                    new UserChatMessage(attribute.Query),
+                };
 
-        Response<OpenAISDK.ChatCompletions> chatResponse = await this.openAIClient.GetChatCompletionsAsync(chatCompletionsOptions);
+        ClientResult<ChatCompletion> chatResponse = await this.chatClient.CompleteChatAsync(messages);
 
         // Give the user the full context, including the embeddings information as well as the chat info
-        return new SemanticSearchContext(new EmbeddingsContext(embeddingsRequest, embeddingsResponse), chatResponse);
+        return new SemanticSearchContext(new EmbeddingsContext(new List<string> { attribute.Query }, null), chatResponse);
     }
 
     async Task<SemanticSearchContext> IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>.ConvertAsync(

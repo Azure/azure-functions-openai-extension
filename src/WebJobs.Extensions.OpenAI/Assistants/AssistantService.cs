@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using Azure;
 using Azure.AI.OpenAI;
 using Azure.Data.Tables;
@@ -8,6 +9,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OpenAI.Chat;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
@@ -28,7 +30,7 @@ class DefaultAssistantService : IAssistantService
     /// </summary>
     const int FunctionCallBatchLimit = 50;
     const string DefaultChatStorage = "AzureWebJobsStorage";
-    readonly OpenAIClient openAIClient;
+    readonly ChatClient chatClient;
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
     readonly AzureComponentFactory azureComponentFactory;
@@ -37,7 +39,7 @@ class DefaultAssistantService : IAssistantService
     TableClient? tableClient;
 
     public DefaultAssistantService(
-        OpenAIClient openAIClient,
+        AzureOpenAIClient openAIClient,
         AzureComponentFactory azureComponentFactory,
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
@@ -49,7 +51,9 @@ class DefaultAssistantService : IAssistantService
         }
 
         this.skillInvoker = skillInvoker ?? throw new ArgumentNullException(nameof(skillInvoker));
-        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
+
+        //ToDo: Handle retrieval of the model better
+        this.chatClient = openAIClient.GetChatClient(deploymentName: Environment.GetEnvironmentVariable("CHAT_MODEL_DEPLOYMENT_NAME")) ?? throw new ArgumentNullException(nameof(openAIClient));
 
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
         this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
@@ -117,7 +121,8 @@ class DefaultAssistantService : IAssistantService
                 partitionKey: request.Id,
                 messageIndex: 1, // 1-based index
                 content: request.Instructions,
-                role: ChatRole.System);
+                role: ChatMessageRole.System,
+                toolCalls: null);
 
             batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
         }
@@ -152,7 +157,7 @@ class DefaultAssistantService : IAssistantService
         if (chatState is null)
         {
             this.logger.LogWarning("No assistant exists with ID = '{Id}'", id);
-            return new AssistantState(id, false, default, default, 0, 0, Array.Empty<ChatMessage>());
+            return new AssistantState(id, false, default, default, 0, 0, Array.Empty<AssistantMessage>());
         }
 
         List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
@@ -171,7 +176,7 @@ class DefaultAssistantService : IAssistantService
             chatState.Metadata.LastUpdatedAt,
             chatState.Metadata.TotalMessages,
             chatState.Metadata.TotalTokens,
-            filteredChatMessages.Select(msg => new ChatMessage(msg.Content, msg.Role, msg.Name)).ToList());
+            filteredChatMessages.Select(msg => new AssistantMessage(msg.Content, msg.Role)).ToList());
         return state;
     }
 
@@ -198,7 +203,7 @@ class DefaultAssistantService : IAssistantService
         if (chatState is null || !chatState.Metadata.Exists)
         {
             this.logger.LogWarning("[{Id}] Ignoring request sent to nonexistent assistant.", attribute.Id);
-            return new AssistantState(attribute.Id, false, default, default, 0, 0, Array.Empty<ChatMessage>());
+            return new AssistantState(attribute.Id, false, default, default, 0, 0, Array.Empty<AssistantMessage>());
         }
 
         this.logger.LogInformation("[{Id}] Received message: {Text}", attribute.Id, attribute.UserMessage);
@@ -211,51 +216,55 @@ class DefaultAssistantService : IAssistantService
             partitionKey: attribute.Id,
             messageIndex: ++chatState.Metadata.TotalMessages,
             content: attribute.UserMessage,
-            role: ChatRole.User);
+            role: ChatMessageRole.User,
+            toolCalls: null);
         chatState.Messages.Add(chatMessageEntity);
 
         // Add the chat message to the batch
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
 
         string deploymentName = attribute.Model ?? OpenAIModels.DefaultChatModel;
-        IList<ChatCompletionsFunctionToolDefinition>? functions = this.skillInvoker.GetFunctionsDefinitions();
+        IList<ChatTool>? functions = this.skillInvoker.GetFunctionsDefinitions();
 
         // We loop if the model returns function calls. Otherwise, we break after receiving a response.
         while (true)
         {
             // Get the next response from the LLM
-            ChatCompletionsOptions chatRequest = new(deploymentName, ToOpenAIChatRequestMessages(chatState.Messages));
+            ChatCompletionOptions chatRequest = new ChatCompletionOptions();
             if (functions is not null)
             {
-                foreach (ChatCompletionsFunctionToolDefinition fn in functions)
+                foreach (ChatTool fn in functions)
                 {
                     chatRequest.Tools.Add(fn);
                 }
             }
+            chatRequest.ToolChoice = ChatToolChoice.CreateAutoChoice();
+            IEnumerable<ChatMessage> chatMessages = ToOpenAIChatRequestMessages(chatState.Messages);
 
-            Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(
-                chatRequest,
-                cancellationToken);
+            // ToDo: Pass more ChatCompletionOptions like TextCompletion
+            ClientResult<ChatCompletion> response = await this.chatClient.CompleteChatAsync(chatMessages, chatRequest);
 
             // We don't normally expect more than one message, but just in case we get multiple messages,
             // return all of them separated by two newlines.
             string replyMessage = string.Join(
                 Environment.NewLine + Environment.NewLine,
-                response.Value.Choices.Select(choice => choice.Message.Content));
-            if (!string.IsNullOrWhiteSpace(replyMessage))
+                response.Value.Content.Select(message => message.Text));
+            if (!string.IsNullOrWhiteSpace(replyMessage) || response.Value.ToolCalls.Any())
             {
                 this.logger.LogInformation(
-                    "[{Id}] Got LLM response consisting of {Count} tokens: {Text}",
+                    "[{Id}] Got LLM response consisting of {Count} tokens: [{Text}] && {Count} ToolCalls",
                     attribute.Id,
-                    response.Value.Usage.CompletionTokens,
-                    replyMessage);
+                    response.Value.Usage.OutputTokenCount,
+                    replyMessage,
+                    response.Value.ToolCalls.Count);
 
                 // Add the user message as a new Chat message entity
                 ChatMessageTableEntity replyFromAssistantEntity = new(
                     partitionKey: attribute.Id,
                     messageIndex: ++chatState.Metadata.TotalMessages,
                     content: replyMessage,
-                    role: ChatRole.Assistant);
+                    role: ChatMessageRole.Assistant,
+                    toolCalls: response.Value.ToolCalls);
                 chatState.Messages.Add(replyFromAssistantEntity);
 
                 // Add the reply from assistant chat message to the batch
@@ -268,12 +277,11 @@ class DefaultAssistantService : IAssistantService
             }
 
             // Set the total tokens that have been consumed.
-            chatState.Metadata.TotalTokens = response.Value.Usage.TotalTokens;
+            chatState.Metadata.TotalTokens = response.Value.Usage.TotalTokenCount;
 
             // Check for function calls (which are described in the API as tools)
-            List<ChatCompletionsFunctionToolCall> functionCalls = response.Value.Choices
-                .SelectMany(c => c.Message.ToolCalls)
-                .OfType<ChatCompletionsFunctionToolCall>()
+            List<ChatToolCall> functionCalls = response.Value.ToolCalls
+                .OfType<ChatToolCall>()
                 .ToList();
             if (functionCalls.Count == 0)
             {
@@ -299,16 +307,17 @@ class DefaultAssistantService : IAssistantService
                 attribute.Id,
                 functionCalls.Count);
 
+
             // Invoke the function calls and add the responses to the chat history.
             List<Task<object>> tasks = new(capacity: functionCalls.Count);
-            foreach (ChatCompletionsFunctionToolCall call in functionCalls)
+            foreach (ChatToolCall call in functionCalls)
             {
                 // CONSIDER: Call these in parallel
                 this.logger.LogInformation(
                     "[{Id}] Calling function '{Name}' with arguments: {Args}",
                     attribute.Id,
-                    call.Name,
-                    call.Arguments);
+                    call.FunctionName,
+                    call.FunctionArguments);
 
                 string? functionResult;
                 try
@@ -320,7 +329,7 @@ class DefaultAssistantService : IAssistantService
                     this.logger.LogInformation(
                         "[{id}] Function '{Name}' returned the following content: {Content}",
                         attribute.Id,
-                        call.Name,
+                        call.FunctionName,
                         functionResult);
                 }
                 catch (Exception ex)
@@ -329,7 +338,7 @@ class DefaultAssistantService : IAssistantService
                         ex,
                         "[{id}] Function '{Name}' failed with an unhandled exception",
                         attribute.Id,
-                        call.Name);
+                        call.FunctionName);
 
                     // CONSIDER: Automatic retries?
                     functionResult = "The function call failed. Let the user know and ask if they'd like you to try again";
@@ -346,9 +355,10 @@ class DefaultAssistantService : IAssistantService
                 ChatMessageTableEntity functionResultEntity = new(
                     partitionKey: attribute.Id,
                     messageIndex: ++chatState.Metadata.TotalMessages,
-                    content: functionResult,
-                    role: ChatRole.Function,
-                    name: call.Name);
+                    content: $"Function Name: '{call.FunctionName}' and Function Result: '{functionResult}'",
+                    role: ChatMessageRole.Tool,
+                    name: call.Id,
+                    toolCalls: null);
                 chatState.Messages.Add(functionResultEntity);
 
                 batch.Add(new TableTransactionAction(TableTransactionActionType.Add, functionResultEntity));
@@ -365,7 +375,7 @@ class DefaultAssistantService : IAssistantService
 
         // return the latest assistant message in the chat state
         List<ChatMessageTableEntity> filteredChatMessages = chatState.Messages
-            .Where(msg => msg.CreatedAt > timeFilter && msg.Role == ChatRole.Assistant)
+            .Where(msg => msg.CreatedAt > timeFilter && msg.Role == ChatMessageRole.Assistant.ToString())
             .ToList();
 
         this.logger.LogInformation(
@@ -381,7 +391,7 @@ class DefaultAssistantService : IAssistantService
             chatState.Metadata.LastUpdatedAt,
             chatState.Metadata.TotalMessages,
             chatState.Metadata.TotalTokens,
-            filteredChatMessages.Select(msg => new ChatMessage(msg.Content, msg.Role, msg.Name)).ToList());
+            filteredChatMessages.Select(msg => new AssistantMessage(msg.Content, msg.Role)).ToList());
 
         return state;
     }
@@ -420,26 +430,30 @@ class DefaultAssistantService : IAssistantService
         return new InternalChatState(id, assistantStateEntity, chatMessageList);
     }
 
-    static IEnumerable<ChatRequestMessage> ToOpenAIChatRequestMessages(IEnumerable<ChatMessageTableEntity> entities)
+    static IEnumerable<ChatMessage> ToOpenAIChatRequestMessages(IEnumerable<ChatMessageTableEntity> entities)
     {
         foreach (ChatMessageTableEntity entity in entities)
         {
             switch (entity.Role.ToLowerInvariant())
             {
                 case "user":
-                    yield return new ChatRequestUserMessage(entity.Content);
+                    yield return new UserChatMessage(entity.Content);
                     break;
                 case "assistant":
-                    yield return new ChatRequestAssistantMessage(entity.Content);
+                    if (entity.ToolCalls != null && entity.ToolCalls.Any())
+                    {
+                        yield return new AssistantChatMessage(entity.ToolCalls);
+                    }
+                    else
+                    {
+                        yield return new AssistantChatMessage(entity.Content);
+                    }
                     break;
                 case "system":
-                    yield return new ChatRequestSystemMessage(entity.Content);
-                    break;
-                case "function":
-                    yield return new ChatRequestFunctionMessage(entity.Name, entity.Content);
+                    yield return new SystemChatMessage(entity.Content);
                     break;
                 case "tool":
-                    yield return new ChatRequestToolMessage(entity.Content, toolCallId: entity.Name);
+                    yield return new ToolChatMessage(toolCallId: entity.Name, entity.Content);
                     break;
                 default:
                     throw new InvalidOperationException($"Unknown chat role '{entity.Role}'");

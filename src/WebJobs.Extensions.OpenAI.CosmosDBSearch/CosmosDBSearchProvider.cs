@@ -211,7 +211,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
     async Task UpsertVectorAsync(MongoClient cosmosClient, SearchableDocument document)
     {
         List<BsonDocument> list = new();
-        for (int i = 0; i < document.Embeddings?.Response?.Data.Count; i++)
+        for (int i = 0; i < document.Embeddings?.Response?.Count; i++)
         {
             BsonDocument vectorDocument =
                 new()
@@ -219,15 +219,14 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                     { "id", Guid.NewGuid().ToString("N") },
                     {
                         this.cosmosDBSearchConfigOptions.Value.TextKey,
-                            document.Embeddings.Request.Input![i]
+                            document.Embeddings.Input![i]
                     },
                     { "title", Path.GetFileNameWithoutExtension(document.Title) },
                     {
                         this.cosmosDBSearchConfigOptions.Value.EmbeddingKey,
                         new BsonArray(
                             document
-                                .Embeddings.Response.Data[i]
-                                .Embedding.ToArray()
+                                .Embeddings.Response[i].ToFloats().ToArray()
                                 .Select(e => new BsonDouble(Convert.ToDouble(e)))
                         )
                     },

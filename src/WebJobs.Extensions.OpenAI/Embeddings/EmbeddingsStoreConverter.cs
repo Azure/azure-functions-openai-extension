@@ -1,19 +1,21 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.Text.Json;
 using Azure;
+using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using OpenAI.Embeddings;
 using OpenAISDK = Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 class EmbeddingsStoreConverter :
     IAsyncConverter<EmbeddingsStoreAttribute, IAsyncCollector<SearchableDocument>>
 {
-    readonly OpenAISDK.OpenAIClient openAIClient;
-    readonly ILogger logger;
+    readonly EmbeddingClient embeddingClient; readonly ILogger logger;
     readonly ISearchProvider? searchProvider;
 
     // Note: we need this converter as Azure.AI.OpenAI does not support System.Text.Json serialization since their constructors are internal
@@ -22,12 +24,13 @@ class EmbeddingsStoreConverter :
         Converters = { new EmbeddingsContextConverter(), new SearchableDocumentJsonConverter() }
     };
 
-    public EmbeddingsStoreConverter(OpenAISDK.OpenAIClient openAIClient,
+    public EmbeddingsStoreConverter(AzureOpenAIClient azureOpenAIClient,
         ILoggerFactory loggerFactory,
         IEnumerable<ISearchProvider> searchProviders,
         IOptions<OpenAIConfigOptions> openAiConfigOptions)
     {
-        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
+        // ToDo: Handle the deployment name retrieval better
+        this.embeddingClient = azureOpenAIClient.GetEmbeddingClient("embedding") ?? throw new ArgumentNullException(nameof(azureOpenAIClient));
         this.logger = loggerFactory?.CreateLogger<EmbeddingsStoreConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
         openAiConfigOptions.Value.SearchProvider.TryGetValue("type", out object value);
         this.searchProvider = searchProviders?
@@ -41,7 +44,7 @@ class EmbeddingsStoreConverter :
             throw new InvalidOperationException(
                 "No search provider is configured. Search providers are configured in the host.json file. For .NET apps, the appropriate nuget package must also be added to the app's project file.");
         }
-        IAsyncCollector<SearchableDocument> collector = new SemanticDocumentCollector(input, this.searchProvider, this.openAIClient, this.logger);
+        IAsyncCollector<SearchableDocument> collector = new SemanticDocumentCollector(input, this.searchProvider, this.embeddingClient, this.logger);
         return Task.FromResult(collector);
     }
 
@@ -62,14 +65,14 @@ class EmbeddingsStoreConverter :
     {
         readonly EmbeddingsStoreAttribute attribute;
         readonly ISearchProvider searchProvider;
-        readonly OpenAISDK.OpenAIClient openAIClient;
+        readonly EmbeddingClient embeddingClient;
         readonly ILogger logger;
 
-        public SemanticDocumentCollector(EmbeddingsStoreAttribute attribute, ISearchProvider searchProvider, OpenAISDK.OpenAIClient openAIClient, ILogger logger)
+        public SemanticDocumentCollector(EmbeddingsStoreAttribute attribute, ISearchProvider searchProvider, EmbeddingClient embeddingClient, ILogger logger)
         {
             this.attribute = attribute;
             this.searchProvider = searchProvider;
-            this.openAIClient = openAIClient;
+            this.embeddingClient = embeddingClient;
             this.logger = logger;
         }
 
@@ -85,10 +88,10 @@ class EmbeddingsStoreConverter :
             }
 
             // Get embeddings from OpenAI
-            OpenAISDK.EmbeddingsOptions request = await EmbeddingsHelper.BuildRequest(this.attribute.MaxOverlap, this.attribute.MaxChunkLength, this.attribute.Model, this.attribute.InputType, this.attribute.Input);
-            this.logger.LogInformation("Sending OpenAI embeddings request to deployment: {deploymentName}", request.DeploymentName);
-            Response<OpenAISDK.Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
-            EmbeddingsContext embeddingsContext = new(request, response);
+            List<string> input = await EmbeddingsHelper.BuildRequest(this.attribute.MaxOverlap, this.attribute.MaxChunkLength, this.attribute.Model, this.attribute.InputType, this.attribute.Input);
+            this.logger.LogInformation("Sending OpenAI embeddings request");
+            ClientResult<OpenAIEmbeddingCollection> response = await this.embeddingClient.GenerateEmbeddingsAsync(input);
+            EmbeddingsContext embeddingsContext = new (input, response);
             this.logger.LogInformation("Received OpenAI embeddings of count: {count}", embeddingsContext.Count);
 
             // Add document to the embed store

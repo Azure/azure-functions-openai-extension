@@ -71,7 +71,7 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
 
    `NumLists` is the number of clusters that the inverted file (IVF) uses to group the vector data, as mentioned [here](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/vector-search#create-an-vector-index-using-ivf). By default, the number of clusters will be 1.
 
-   `Kind` is the Type of vector index to create. The options are vector-ivf and vector-hnsw. Note vector-ivf is available on all cluster tiers and vector-hnsw is available on M40 cluster tiers and higher.
+   `Kind` is the Type of vector index to create. The options are vector-ivf, vector-hnsw and vector-diskann. Note vector-ivf is available on all cluster tiers and vector-hnsw/vector-diskann is available on M40 cluster tiers and higher.
 
    `Similarity` is the Similarity metric to use with the index. Possible options are COS (cosine distance), L2 (Euclidean distance), and IP (inner product).
 
@@ -80,6 +80,12 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
    `EfConstruction` is the size of the dynamic candidate list for constructing the graph (64 by default, minimum value is 4, maximum value is 1000). Higher efConstruction will result in better index quality and higher accuracy, but it will also increase the time required to build the index. efConstruction has to be at least 2 \* m
 
    `EfSearch` The size of the dynamic candidate list for search (40 by default). A higher value provides better recall at the cost of speed.
+
+   `MaxDegree` Maximum number of edges per node in the graph. This parameter ranges from 20 to 2048 (default is 32). Higher maxDegree is suitable for datasets with high dimensionality and/or high accuracy requirements.
+
+   `LBuild` Sets the number of candidate neighbors evaluated during DiskANN index construction. This parameter, which ranges from 10 to 500 (default is 50), balances accuracy and computational overhead: higher values improve index quality and accuracy but increase build time
+
+   `LSearch` Specifies the size of the dynamic candidate list for search. The default value is 40, with a configurable range from 10 to 1000. Increasing the value enhances recall but may reduce search speed.
 
 1. Use a terminal window to navigate to the sample directory
 
@@ -108,5 +114,6 @@ Mongo vCore has two vector index options:
 
 - vector-ivf (default value) : available on all cluster tiers.
 - vector-hnsw : available on M40 cluster tier and higher.
+- vector-diskann : available on M40 cluster tier and higher.
 
 Please read more about Vector Search in CosmosDB Mongo vCore [here](https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/vector-search).

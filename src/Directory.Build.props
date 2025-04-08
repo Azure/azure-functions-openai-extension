@@ -21,9 +21,10 @@
   </PropertyGroup>
 
   <!-- Version settings: https://andrewlock.net/version-vs-versionsuffix-vs-packageversion-what-do-they-all-mean/ -->
+  <!--Update the version in /eng/cd/templates/release-variables after bump of any version-->
   <PropertyGroup>
     <MajorVersion>0</MajorVersion>
-    <MinorVersion>18</MinorVersion>
+    <MinorVersion>19</MinorVersion>
     <PatchVersion>0</PatchVersion>
     <VersionPrefix>$(MajorVersion).$(MinorVersion).$(PatchVersion)</VersionPrefix>
     <VersionSuffix>alpha</VersionSuffix>
@@ -36,7 +37,7 @@
     <!-- Version for azure AI search webjobs and worker project -->
     <AzureAISearchVersion>0.4.0-alpha</AzureAISearchVersion>
     <!-- Version for CosmosDB search webjobs and worker project -->
-    <CosmosDBSearchVersion>0.3.0-alpha</CosmosDBSearchVersion>
+    <CosmosDBSearchVersion>0.4.0-alpha</CosmosDBSearchVersion>
     <!-- Version for CosmosDB NoSql vector search webjobs and worker project -->
     <CosmosDBNoSqlSearchVersion>0.1.0-alpha</CosmosDBNoSqlSearchVersion>
   </PropertyGroup>

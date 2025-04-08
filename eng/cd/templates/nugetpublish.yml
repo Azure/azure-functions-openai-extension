@@ -1,0 +1,64 @@
+parameters:
+  stageName: ''
+  displayName: ''
+  artifactName: ''
+  packagePattern: ''
+  blobPrefix: ''
+
+stages:
+  - stage: ${{ parameters.stageName }}
+    dependsOn: []
+    displayName: ${{ parameters.displayName }}
+    jobs:
+      - job: PreDeploymentApprovalJob
+        displayName: Pre-Deployment Approval
+        condition: succeeded()
+        timeoutInMinutes: 5760
+        pool: server
+        steps:
+          - task: ManualValidation@1
+            inputs:
+              notifyUsers: |-
+                [TEAM FOUNDATION]\Varad Meru's Team
+              approvers: |-
+                [TEAM FOUNDATION]\Varad Meru's Team
+      - job: NugetReleaseJob
+        displayName: Nuget Release Job
+        dependsOn: PreDeploymentApprovalJob
+        condition: succeeded()
+        timeoutInMinutes: 0
+        templateContext:
+          type: releaseJob
+          isProduction: true
+          inputs:
+            - input: pipelineArtifact
+              pipeline: 'AzureFunctionsOpenAIExtension'
+              artifactName: ${{ parameters.artifactName }}
+              targetPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}'
+        steps:
+          - task: PowerShell@2
+            displayName: Prepare NuGet Packages for Azure Blob Storage
+            inputs:
+              targetType: inline
+              script: |-
+                md "$(System.DefaultWorkingDirectory)\packages"
+                copy "$(Build.ArtifactStagingDirectory)\${{ parameters.artifactName }}\${{ parameters.packagePattern }}" "$(System.DefaultWorkingDirectory)\packages"
+                ls "$(System.DefaultWorkingDirectory)\packages" | write-verbose -Verbose
+              pwsh: true
+          - task: 1ES.PublishNuget@1
+            displayName: Publish to staging feed
+            inputs:
+              packagesToPush: $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}/${{ parameters.packagePattern }}
+              packageParentPath: '$(Build.ArtifactStagingDirectory)'
+              publishVstsFeed: 'public/pre-release'
+              nuGetFeedType: internal 
+              allowPackageConflicts: true
+              publishPackageMetadata: true
+          - task: AzureFileCopy@6
+            inputs:
+              SourcePath: '$(System.DefaultWorkingDirectory)/packages/*'
+              azureSubscription: 'azure-sdk-partner-drops'
+              Destination: 'AzureBlob'
+              storage: 'azuresdkpartnerdrops'
+              ContainerName: 'drops'
+              BlobPrefix: '${{ parameters.blobPrefix }}'

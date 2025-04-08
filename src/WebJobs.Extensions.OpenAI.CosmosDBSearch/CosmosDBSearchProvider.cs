@@ -25,6 +25,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     public string Name { get; set; } = "CosmosDBSearch";
 
+    [BsonIgnoreExtraElements]
     internal class OutputDocument
     {
         public OutputDocument(string title, string text)
@@ -132,6 +133,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                 case "vector-hnsw":
                     pipeline = this.GetVectorHNSWSearchPipeline(request);
                     break;
+                case "vector-diskann":
+                    pipeline = this.GetVectorDiskANNSearchPipeline(request);
+                    break;
             }
 
             IAsyncCursor<BsonDocument> cursor = await collection.AggregateAsync<BsonDocument>(
@@ -182,6 +186,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                         break;
                     case "vector-hnsw":
                         vectorIndexDefinition = this.GetIndexDefinitionVectorHNSW();
+                        break;
+                    case "vector-diskann":
+                        vectorIndexDefinition = this.GetIndexDefinitionVectorDiskANN();
                         break;
                 }
 
@@ -344,6 +351,52 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         return pipeline;
     }
 
+    BsonDocument[] GetVectorDiskANNSearchPipeline(SearchRequest request)
+    {
+        BsonDocument[] pipeline = new BsonDocument[]
+        {
+                new()
+                {
+                    {
+                        "$search",
+                        new BsonDocument
+                        {
+                            {
+                                "cosmosSearch",
+                                new BsonDocument
+                                {
+                                    {
+                                        "vector",
+                                        !(request.Embeddings.IsEmpty)
+                                            ? new BsonArray(request.Embeddings.ToArray())
+                                            : new BsonArray()
+                                    },
+                                    { "path", this.cosmosDBSearchConfigOptions.Value.EmbeddingKey },
+                                    { "k", request.MaxResults },
+                                    { "lSearch", this.cosmosDBSearchConfigOptions.Value.LSearch }
+                                }
+                            },
+                            { "returnStoredSource", true }
+                        }
+                    }
+                },
+                new()
+                {
+                    {
+                        "$project",
+                        new BsonDocument
+                        {
+                            { "embedding", 0 },
+                            { "_id", 0 },
+                            { "id", 0 },
+                            { "timestamp", 0 }
+                        }
+                    }
+                }
+        };
+        return pipeline;
+    }
+
     BsonDocument GetIndexDefinitionVectorIVF()
     {
         return new BsonDocument
@@ -429,4 +482,47 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             }
         };
     }
+
+    BsonDocument GetIndexDefinitionVectorDiskANN()
+    {
+        return new BsonDocument
+        {
+            { "createIndexes", this.collectionName },
+            {
+                "indexes",
+                new BsonArray
+                {
+                    new BsonDocument
+                    {
+                        { "name", this.indexName },
+                        {
+                            "key",
+                            new BsonDocument
+                            {
+                                {
+                                    this.cosmosDBSearchConfigOptions.Value.EmbeddingKey,
+                                    "cosmosSearch"
+                                }
+                            }
+                        },
+                        {
+                            "cosmosSearchOptions",
+                            new BsonDocument
+                            {
+                                { "kind", this.cosmosDBSearchConfigOptions.Value.Kind },
+                                { "maxDegree", this.cosmosDBSearchConfigOptions.Value.MaxDegree },
+                                { "lBuild", this.cosmosDBSearchConfigOptions.Value.LBuild },
+                                { "similarity", this.cosmosDBSearchConfigOptions.Value.Similarity },
+                                {
+                                    "dimensions",
+                                    this.cosmosDBSearchConfigOptions.Value.VectorSearchDimensions
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+    }
+
 }

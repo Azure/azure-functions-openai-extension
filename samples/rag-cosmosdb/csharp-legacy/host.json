@@ -1,0 +1,25 @@
+{
+  "version": "2.0",
+  "logging": {
+    "logLevel": {
+      "Microsoft.Azure.WebJobs.Extensions.OpenAI": "Information"
+    }
+  },
+  "extensions": {
+    "openai": {
+      "searchProvider": {
+        "type": "cosmosDBSearch",
+        "vectorSearchDimensions": 1536,
+        "numLists": 1,
+        "kind": "vector-ivf",
+        "similarity": "COS",
+        "numberOfConnections": 16,
+        "efConstruction": 64,
+        "efSearch": 40,
+        "applicationName": "functionsAppName",
+        "embeddingKey": "embedding",
+        "textKey": "text"
+      }
+    }
+  }
+}

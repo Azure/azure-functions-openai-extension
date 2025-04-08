@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +20,8 @@ class Startup : FunctionsStartup
 {
     public override void Configure(IFunctionsHostBuilder builder)
     {
-        string? cosmosDbConnectionString = Environment.GetEnvironmentVariable("CosmosDbConnectionString");
-        if (string.IsNullOrEmpty(cosmosDbConnectionString))
+        string? cosmosDBEndpoint = Environment.GetEnvironmentVariable("CosmosDbConnectionString");
+        if (string.IsNullOrEmpty(cosmosDBEndpoint))
         {
             // Use an in-memory implementation of ITodoManager if no CosmosDB connection string is provided
             builder.Services.AddSingleton<ITodoManager, InMemoryTodoManager>();
@@ -48,7 +49,7 @@ class Startup : FunctionsStartup
                     }
                 };
 
-                return new CosmosClient(cosmosDbConnectionString, cosmosClientOptions);
+                return new CosmosClient(cosmosDBEndpoint, new DefaultAzureCredential(), cosmosClientOptions);
             });
 
             builder.Services.AddSingleton<ITodoManager, CosmosDbTodoManager>();

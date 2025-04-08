@@ -5,11 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.4.0 - Unreleased
+
+### Added
+
+- Added DiskANN support for CosmosDB (MongoDB) Search Provider. Refer [README](../../samples/rag-cosmosdb/README.md) for more information on usage.
+
 ## v0.3.0 - 2024/10/08
 
 ### Added
 
-- Added HNSW support for CosmosDB (MongoDB) Search Provider. Refer [README](../../samples/rag-cosmos-db/README.md) for more information on usage.
+- Added HNSW support for CosmosDB (MongoDB) Search Provider. Refer [README](../../samples/rag-cosmosdb/README.md) for more information on usage.
 
 ### Changed
 - Updated nuget dependencies

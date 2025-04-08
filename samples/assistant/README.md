@@ -182,6 +182,7 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 Additionally, if you want to run the sample with Cosmos DB, then you must also do the following:
 
 * Install the [Azure Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator), or get a connection string to a real Azure Cosmos DB resource.
+* If using managed identity based Cosmos DB connection, assign `Cosmos DB Built-in Data Contributor` (to write into configured container) and `Document DB Account Contributor` (to create database and container if doesnt exist) to the user or function app. Learn more at [aka.ms/cosmos-native-rbac](https://aka.ms/cosmos-native-rbac)
 * Update the `CosmosDbConnectionString` setting in the `local.settings.json` file and configure it with the connection string to your Cosmos DB resource (local or Azure).
 
 ### Chat Storage Configuration

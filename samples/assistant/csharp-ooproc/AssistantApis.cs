@@ -37,7 +37,7 @@ static class AssistantApis
 
         return new CreateChatBotOutput
         {
-            HttpResponse = new ObjectResult(new { assistantId }) { StatusCode = 202 },
+            HttpResponse = new ObjectResult(new { assistantId }) { StatusCode = 201 },
             ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions)
             {
                 ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting,

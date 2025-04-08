@@ -48,9 +48,9 @@ class EmbeddingsConverter :
         CancellationToken cancellationToken)
     {
         OpenAISDK.EmbeddingsOptions request = await EmbeddingsHelper.BuildRequest(attribute.MaxOverlap, attribute.MaxChunkLength, attribute.Model, attribute.InputType, attribute.Input);
-        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request);
+        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", request.Input);
         Response<OpenAISDK.Embeddings> response = await this.openAIClient.GetEmbeddingsAsync(request, cancellationToken);
-        this.logger.LogInformation("Received OpenAI embeddings response: {response}", response);
+        this.logger.LogInformation("Received OpenAI embeddings count: {response}", response.Value.Data.Count);
 
         return new EmbeddingsContext(request, response);
     }

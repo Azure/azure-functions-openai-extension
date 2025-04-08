@@ -1,12 +1,13 @@
 {
-    "IsEncrypted": false,
-    "Values": {
-      "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-      "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-      "CosmosDbConnectionString": "Local Cosmos DB emulator or Cosmos DB in Azure connection string",
-      "CosmosDatabaseName": "todoDB",
-      "CosmosContainerName": "myTasks",
-      "AZURE_OPENAI_ENDPOINT": "Placeholder for the Azure OpenAI endpoint value",
-      "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo"
-    }
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_INPROC_NET8_ENABLED": "1",
+    "CosmosDbConnectionString": "Local Cosmos DB emulator or Cosmos DB in Azure connection string",
+    "CosmosDatabaseName": "todoDB",
+    "CosmosContainerName": "myTasks",
+    "AZURE_OPENAI_ENDPOINT": "Placeholder for the Azure OpenAI endpoint value",
+    "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo"
   }
+}

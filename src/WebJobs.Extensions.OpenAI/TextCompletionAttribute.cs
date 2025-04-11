@@ -20,7 +20,9 @@ public sealed class TextCompletionAttribute : AssistantBaseAttribute
     /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
     public TextCompletionAttribute(string prompt, string aiConnectionName = "") : base(aiConnectionName)
     {
-        this.Prompt = prompt ?? throw new ArgumentNullException(nameof(prompt));
+        this.Prompt = string.IsNullOrEmpty(prompt)
+            ? throw new ArgumentException("Input cannot be null or empty.", nameof(prompt))
+            : prompt;
     }
 
     /// <summary>

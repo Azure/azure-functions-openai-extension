@@ -7,9 +7,15 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class AssistantPostAttribute : Attribute
+public sealed class AssistantPostAttribute : AssistantBaseAttribute
 {
-    public AssistantPostAttribute(string id, string userMessage)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AssistantPostAttribute"/> class.
+    /// </summary>
+    /// <param name="id">The assistant identifier.</param>
+    /// <param name="userMessage">The user message.</param>
+    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
+    public AssistantPostAttribute(string id, string userMessage, string aiConnectionName = "") : base(aiConnectionName)
     {
         this.Id = id;
         this.UserMessage = userMessage;
@@ -20,15 +26,6 @@ public sealed class AssistantPostAttribute : Attribute
     /// </summary>
     [AutoResolve]
     public string Id { get; }
-
-    /// <summary>
-    /// Gets or sets the OpenAI chat model to use.
-    /// </summary>
-    /// <remarks>
-    /// When using Azure OpenAI, then should be the name of the model <em>deployment</em>.
-    /// </remarks>
-    [AutoResolve]
-    public string? Model { get; set; }
 
     /// <summary>
     /// Gets or sets the user message to OpenAI.

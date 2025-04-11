@@ -15,7 +15,7 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 [Extension("OpenAI")]
 partial class OpenAIExtension : IExtensionConfigProvider
 {
-    readonly AzureOpenAIClient openAIClient;
+    readonly OpenAIClientFactory openAIClientFactory;
     readonly TextCompletionConverter textCompletionConverter;
     readonly EmbeddingsConverter embeddingsConverter;
     readonly EmbeddingsStoreConverter embeddingsStoreConverter;
@@ -24,7 +24,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
     readonly AssistantSkillTriggerBindingProvider assistantskillTriggerBindingProvider;
 
     public OpenAIExtension(
-        AzureOpenAIClient openAIClient,
+        OpenAIClientFactory openAIClientFactory,
         TextCompletionConverter textCompletionConverter,
         EmbeddingsConverter embeddingsConverter,
         EmbeddingsStoreConverter embeddingsStoreConverter,
@@ -32,7 +32,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
         AssistantBindingConverter assistantConverter,
         AssistantSkillTriggerBindingProvider assistantTriggerBindingProvider)
     {
-        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
+        this.openAIClientFactory = openAIClientFactory ?? throw new ArgumentNullException(nameof(openAIClientFactory));
         this.textCompletionConverter = textCompletionConverter ?? throw new ArgumentNullException(nameof(textCompletionConverter));
         this.embeddingsConverter = embeddingsConverter ?? throw new ArgumentNullException(nameof(embeddingsConverter));
         this.embeddingsStoreConverter = embeddingsStoreConverter ?? throw new ArgumentNullException(nameof(embeddingsStoreConverter));
@@ -82,6 +82,6 @@ partial class OpenAIExtension : IExtensionConfigProvider
             .BindToTrigger(this.assistantskillTriggerBindingProvider);
 
         // OpenAI service input binding support (NOTE: This may be removed in a future version.)
-        context.AddBindingRule<OpenAIServiceAttribute>().BindToInput(_ => this.openAIClient);
+        context.AddBindingRule<OpenAIServiceAttribute>().BindToInput(_ => this.openAIClientFactory);
     }
 }

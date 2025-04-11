@@ -3,7 +3,6 @@
 
 using System.ClientModel;
 using Azure;
-using Azure.AI.OpenAI;
 using Azure.Data.Tables;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Azure;
@@ -30,7 +29,7 @@ class DefaultAssistantService : IAssistantService
     /// </summary>
     const int FunctionCallBatchLimit = 50;
     const string DefaultChatStorage = "AzureWebJobsStorage";
-    readonly ChatClient chatClient;
+    readonly OpenAIClientFactory openAIClientFactory;
     readonly IAssistantSkillInvoker skillInvoker;
     readonly ILogger logger;
     readonly AzureComponentFactory azureComponentFactory;
@@ -39,7 +38,7 @@ class DefaultAssistantService : IAssistantService
     TableClient? tableClient;
 
     public DefaultAssistantService(
-        AzureOpenAIClient openAIClient,
+        OpenAIClientFactory openAIClientFactory,
         AzureComponentFactory azureComponentFactory,
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
@@ -51,11 +50,8 @@ class DefaultAssistantService : IAssistantService
         }
 
         this.skillInvoker = skillInvoker ?? throw new ArgumentNullException(nameof(skillInvoker));
-
-        //ToDo: Handle retrieval of the model better
-        this.chatClient = openAIClient.GetChatClient(deploymentName: Environment.GetEnvironmentVariable("CHAT_MODEL_DEPLOYMENT_NAME")) ?? throw new ArgumentNullException(nameof(openAIClient));
-
         this.logger = loggerFactory.CreateLogger<DefaultAssistantService>();
+        this.openAIClientFactory = openAIClientFactory ?? throw new ArgumentNullException(nameof(openAIClientFactory));
         this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
@@ -176,7 +172,7 @@ class DefaultAssistantService : IAssistantService
             chatState.Metadata.LastUpdatedAt,
             chatState.Metadata.TotalMessages,
             chatState.Metadata.TotalTokens,
-            filteredChatMessages.Select(msg => new AssistantMessage(msg.Content, msg.Role)).ToList());
+            filteredChatMessages.Select(msg => new AssistantMessage(msg.Content, msg.Role, msg.ToolCallsString)).ToList());
         return state;
     }
 
@@ -223,14 +219,13 @@ class DefaultAssistantService : IAssistantService
         // Add the chat message to the batch
         batch.Add(new TableTransactionAction(TableTransactionActionType.Add, chatMessageEntity));
 
-        string deploymentName = attribute.Model ?? OpenAIModels.DefaultChatModel;
         IList<ChatTool>? functions = this.skillInvoker.GetFunctionsDefinitions();
 
         // We loop if the model returns function calls. Otherwise, we break after receiving a response.
         while (true)
         {
             // Get the next response from the LLM
-            ChatCompletionOptions chatRequest = new ChatCompletionOptions();
+            ChatCompletionOptions chatRequest = attribute.BuildRequest();
             if (functions is not null)
             {
                 foreach (ChatTool fn in functions)
@@ -238,11 +233,12 @@ class DefaultAssistantService : IAssistantService
                     chatRequest.Tools.Add(fn);
                 }
             }
-            chatRequest.ToolChoice = ChatToolChoice.CreateAutoChoice();
+
             IEnumerable<ChatMessage> chatMessages = ToOpenAIChatRequestMessages(chatState.Messages);
 
-            // ToDo: Pass more ChatCompletionOptions like TextCompletion
-            ClientResult<ChatCompletion> response = await this.chatClient.CompleteChatAsync(chatMessages, chatRequest);
+            ClientResult<ChatCompletion> response = await this.openAIClientFactory.GetChatClient(
+                attribute.AIConnectionName,
+                attribute.ChatModel).CompleteChatAsync(chatMessages, chatRequest, cancellationToken: cancellationToken);
 
             // We don't normally expect more than one message, but just in case we get multiple messages,
             // return all of them separated by two newlines.
@@ -391,7 +387,7 @@ class DefaultAssistantService : IAssistantService
             chatState.Metadata.LastUpdatedAt,
             chatState.Metadata.TotalMessages,
             chatState.Metadata.TotalTokens,
-            filteredChatMessages.Select(msg => new AssistantMessage(msg.Content, msg.Role)).ToList());
+            filteredChatMessages.Select(msg => new AssistantMessage(msg.Content, msg.Role, msg.ToolCallsString)).ToList());
 
         return state;
     }

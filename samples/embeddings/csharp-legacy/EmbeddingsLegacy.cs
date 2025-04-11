@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
@@ -23,13 +22,13 @@ public static class EmbeddingsLegacy
     [FunctionName(nameof(GenerateEmbeddings_Http_Request))]
     public static void GenerateEmbeddings_Http_Request(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] EmbeddingsRequest req,
-        [Embeddings("{RawText}", InputType.RawText)] EmbeddingsContext embeddings,
+        [Embeddings("{RawText}", InputType.RawText, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(
-            "Received {count} embedding(s) for input text containing {length} characters.",
-            embeddings.Count,
-            req.RawText.Length);
+             "Received {count} embedding(s) for input text containing {length} characters.",
+             embeddings.Count,
+             req.RawText.Length);
 
         // TODO: Store the embeddings into a database or other storage.
     }
@@ -41,7 +40,7 @@ public static class EmbeddingsLegacy
     [FunctionName(nameof(GetEmbeddings_Http_FilePath))]
     public static void GetEmbeddings_Http_FilePath(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-file")] EmbeddingsRequest req,
-        [Embeddings("{FilePath}", InputType.FilePath, MaxChunkLength = 512)] EmbeddingsContext embeddings,
+        [Embeddings("{FilePath}", InputType.FilePath, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", MaxChunkLength = 512)] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(
@@ -59,7 +58,7 @@ public static class EmbeddingsLegacy
     [FunctionName(nameof(GetEmbeddings_Http_Url))]
     public static void GetEmbeddings_Http_Url(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-url")] EmbeddingsRequest req,
-        [Embeddings("{Url}", InputType.Url, MaxChunkLength = 512)] EmbeddingsContext embeddings,
+        [Embeddings("{Url}", InputType.Url, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", MaxChunkLength = 512)] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(

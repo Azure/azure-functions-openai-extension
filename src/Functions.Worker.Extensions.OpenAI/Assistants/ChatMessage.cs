@@ -15,10 +15,12 @@ public class ChatMessage
     /// </summary>
     /// <param name="content">The content of the message.</param>
     /// <param name="role">The role of the chat agent.</param>
-    public ChatMessage(string content, string role, string? name)
+    /// <param name="toolCalls">The tool calls.</param>
+    public ChatMessage(string content, string role, string toolCalls)
     {
         this.Content = content;
         this.Role = role;
+        this.ToolCalls = toolCalls;
     }
 
     /// <summary>
@@ -32,4 +34,10 @@ public class ChatMessage
     /// </summary>
     [JsonPropertyName("role")]
     public string Role { get; set; }
+
+    /// <summary>
+    /// Gets or sets the tool calls.
+    /// </summary>
+    [JsonPropertyName("toolCalls")]
+    public string ToolCalls { get; set; }
 }

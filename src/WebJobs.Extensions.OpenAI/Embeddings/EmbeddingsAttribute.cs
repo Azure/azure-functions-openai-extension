@@ -21,8 +21,9 @@ public sealed class EmbeddingsAttribute : EmbeddingsBaseAttribute
     /// </summary>
     /// <param name="input">The input source containing the data to generate embeddings for.</param>
     /// <param name="inputType">The type of the input.</param>
+    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="input"/> is <c>null</c>.</exception>
-    public EmbeddingsAttribute(string input, InputType inputType) : base(input, inputType)
+    public EmbeddingsAttribute(string input, InputType inputType, string aiConnectionName = "") : base(input, inputType, aiConnectionName)
     {
     }
 }

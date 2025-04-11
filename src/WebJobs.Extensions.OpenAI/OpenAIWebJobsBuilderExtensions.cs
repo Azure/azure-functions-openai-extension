@@ -28,31 +28,9 @@ public static class OpenAIWebJobsBuilderExtensions
             throw new ArgumentNullException(nameof(builder));
         }
 
-        // Register the client for Azure Open AI
-        string? azureOpenAIEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
-        string? openAIKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
-        string? azureOpenAIKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_KEY");
-
-        if (azureOpenAIEndpoint != null && !string.IsNullOrEmpty(azureOpenAIKey))
-        {
-            RegisterAzureOpenAIClient(builder.Services, azureOpenAIEndpoint, azureOpenAIKey);
-        }
-        else if (azureOpenAIEndpoint != null)
-        {
-            RegisterAzureOpenAIADAuthClient(builder.Services, azureOpenAIEndpoint);
-        }
-        else if (!string.IsNullOrEmpty(openAIKey))
-        {
-            RegisterOpenAIClient(builder.Services, openAIKey);
-        }
-        else
-        {
-            throw new InvalidOperationException("Must set AZURE_OPENAI_ENDPOINT or OPENAI_API_KEY environment variables.");
-        }
-
         // Register the WebJobs extension, which enables the bindings.
         builder.AddExtension<OpenAIExtension>();
-
+        
         // Service objects that will be used by the extension
         builder.Services.AddSingleton<TextCompletionConverter>();
         builder.Services.AddSingleton<EmbeddingsConverter>();
@@ -74,21 +52,8 @@ public static class OpenAIWebJobsBuilderExtensions
 
         builder.Services.AddAzureClientsCore(); // Adds AzureComponentFactory
 
+        builder.Services.AddSingleton<OpenAIClientFactory>();
+
         return builder;
-    }
-
-    static void RegisterAzureOpenAIClient(IServiceCollection services, string azureOpenAIEndpoint, string azureOpenAIKey)
-    {
-        services.AddAzureOpenAIClient(azureOpenAIEndpoint, azureOpenAIKey);
-    }
-
-    static void RegisterAzureOpenAIADAuthClient(IServiceCollection services, string azureOpenAIEndpoint)
-    {
-        services.AddAzureOpenAIClientWithDefaultAzureCredential(azureOpenAIEndpoint);
-    }
-
-    static void RegisterOpenAIClient(IServiceCollection services, string openAIKey)
-    {
-        services.AddOpenAIClient(openAIKey);
     }
 }

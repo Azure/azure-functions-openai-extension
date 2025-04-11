@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
-using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -14,13 +13,12 @@ class TextCompletionConverter :
     IAsyncConverter<TextCompletionAttribute, TextCompletionResponse>,
     IAsyncConverter<TextCompletionAttribute, string>
 {
-    readonly ChatClient chatClient;
+    readonly OpenAIClientFactory openAIClientFactory;
     readonly ILogger logger;
 
-    public TextCompletionConverter(AzureOpenAIClient openAIClient, ILoggerFactory loggerFactory)
+    public TextCompletionConverter(OpenAIClientFactory openAIClientFactory, ILoggerFactory loggerFactory)
     {
-        // ToDo: Handle the model retrieval better
-        this.chatClient = openAIClient.GetChatClient(deploymentName: Environment.GetEnvironmentVariable("CHAT_MODEL_DEPLOYMENT_NAME")) ?? throw new ArgumentNullException(nameof(openAIClient));
+        this.openAIClientFactory = openAIClientFactory ?? throw new ArgumentNullException(nameof(openAIClientFactory));
         this.logger = loggerFactory?.CreateLogger<TextCompletionConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -53,7 +51,9 @@ class TextCompletionConverter :
             new UserChatMessage(attribute.Prompt)
         };
 
-        ClientResult<ChatCompletion> response = await this.chatClient.CompleteChatAsync(chatMessages, options);
+        ClientResult<ChatCompletion> response = await this.openAIClientFactory.GetChatClient(
+            attribute.AIConnectionName,
+            attribute.ChatModel).CompleteChatAsync(chatMessages, options);
 
         string text = string.Join(
             Environment.NewLine + Environment.NewLine,

@@ -4,16 +4,12 @@
 using System.ClientModel;
 using System.Text;
 using System.Text.Json;
-using Azure;
-using Azure.AI.OpenAI;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenAI;
 using OpenAI.Chat;
 using OpenAI.Embeddings;
-using OpenAISDK = Azure.AI.OpenAI;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 
@@ -21,30 +17,27 @@ class SemanticSearchConverter :
     IAsyncConverter<SemanticSearchAttribute, SemanticSearchContext>,
     IAsyncConverter<SemanticSearchAttribute, string>
 {
-    readonly ChatClient chatClient;
-    readonly EmbeddingClient embeddingClient;
+    readonly OpenAIClientFactory openAIClientFactory;
     readonly ILogger logger;
     readonly ISearchProvider? searchProvider;
 
     static readonly JsonSerializerOptions options = new()
     {
-        Converters = { 
+        Converters = {
             new SearchableDocumentJsonConverter(),
             new EmbeddingsContextConverter(),
             new EmbeddingsOptionsJsonConverter(),
             new ChatCompletionsJsonConverter()}
-        };
+    };
 
     public SemanticSearchConverter(
-        AzureOpenAIClient azureOpenAIClient,
+        OpenAIClientFactory openAIClientFactory,
         ILoggerFactory loggerFactory,
         IEnumerable<ISearchProvider> searchProviders,
         IOptions<OpenAIConfigOptions> openAiConfigOptions)
     {
-        //ToDo: Handle retrieval of the model better
-        this.chatClient = azureOpenAIClient.GetChatClient(deploymentName: Environment.GetEnvironmentVariable("CHAT_MODEL_DEPLOYMENT_NAME")) ?? throw new ArgumentNullException(nameof(azureOpenAIClient));
-        this.embeddingClient = azureOpenAIClient.GetEmbeddingClient(deploymentName: Environment.GetEnvironmentVariable("EMBEDDING_MODEL_DEPLOYMENT_NAME")) ?? throw new ArgumentNullException(nameof(azureOpenAIClient));
         this.logger = loggerFactory?.CreateLogger<SemanticSearchConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+        this.openAIClientFactory = openAIClientFactory ?? throw new ArgumentNullException(nameof(openAIClientFactory));
 
         openAiConfigOptions.Value.SearchProvider.TryGetValue("type", out object value);
         this.logger.LogInformation("Type of the searchProvider configured in host file: {type}", value);
@@ -70,10 +63,12 @@ class SemanticSearchConverter :
 
         // Get the embeddings for the query, which will be used for doing a semantic search
         this.logger.LogInformation("Sending OpenAI embeddings request: {request}", attribute.Query);
-        ClientResult<OpenAIEmbedding> embedding = await this.embeddingClient.GenerateEmbeddingAsync(attribute.Query, cancellationToken: cancellationToken);
+        ClientResult<OpenAIEmbedding> embedding = await this.openAIClientFactory.GetEmbeddingClient(
+            attribute.AIConnectionName,
+            attribute.EmbeddingsModel).GenerateEmbeddingAsync(attribute.Query, cancellationToken: cancellationToken);
         this.logger.LogInformation("Received OpenAI embeddings");
 
-        ConnectionInfo connectionInfo = new(attribute.ConnectionName, attribute.Collection);
+        ConnectionInfo connectionInfo = new(attribute.SearchConnectionName, attribute.Collection);
         if (string.IsNullOrEmpty(connectionInfo.ConnectionName))
         {
             throw new InvalidOperationException("No connection string information was provided.");
@@ -106,7 +101,8 @@ class SemanticSearchConverter :
                     new UserChatMessage(attribute.Query),
                 };
 
-        ClientResult<ChatCompletion> chatResponse = await this.chatClient.CompleteChatAsync(messages);
+        ChatCompletionOptions completionOptions = attribute.BuildRequest();
+        ClientResult<ChatCompletion> chatResponse = await this.openAIClientFactory.GetChatClient(attribute.AIConnectionName, attribute.ChatModel).CompleteChatAsync(messages, completionOptions);
 
         // Give the user the full context, including the embeddings information as well as the chat info
         return new SemanticSearchContext(new EmbeddingsContext(new List<string> { attribute.Query }, null), chatResponse);

@@ -22,6 +22,10 @@ jobs:
           dotnet build $(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBSearch/WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj --configuration $(config) -p:Version=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion)
         displayName: Dotnet Build WebJobs.Extensions.OpenAI
 
+      - script: |
+          dotnet test $(System.DefaultWorkingDirectory)/tests/UnitTests/WebJobsOpenAIUnitTests.csproj --configuration $(config) --collect "Code Coverage"
+        displayName: Dotnet Test WebJobsOpenAIUnitTests
+
       - task: CopyFiles@2
         displayName: 'Copy NuGet WebJobs.Extensions.OpenAI to local directory'
         inputs:

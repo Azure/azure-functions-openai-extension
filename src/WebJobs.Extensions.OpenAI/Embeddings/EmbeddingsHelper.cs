@@ -40,6 +40,12 @@ static class EmbeddingsHelper
         }
         else if (inputType == InputType.Url)
         {
+            if (!Uri.TryCreate(input, UriKind.Absolute, out Uri? uriResult) || 
+                uriResult.Scheme != Uri.UriSchemeHttps)
+            {
+                throw new ArgumentException($"Invalid Url: {input}. Ensure it is a valid https Url.");
+            }
+
             Stream stream = await httpClient.GetStreamAsync(input);
             return new StreamReader(stream);
         }

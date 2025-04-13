@@ -121,8 +121,8 @@ class ChatMessageTableEntity : ITableEntity
         {
             if (!string.IsNullOrEmpty(value))
             {
-                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-                var cloneList = JsonSerializer.Deserialize<List<ChatToolCallClone>>(value, options);
+                JsonSerializerOptions options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+                List<ChatToolCallClone>? cloneList = JsonSerializer.Deserialize<List<ChatToolCallClone>>(value, options);
                 this.ToolCalls = cloneList != null ? this.DeserializeChatTool(cloneList) : new List<ChatToolCall>();
             }
             else
@@ -137,7 +137,7 @@ class ChatMessageTableEntity : ITableEntity
         IList<ChatToolCallClone> chatToolCloneList = new List<ChatToolCallClone>();
         foreach (ChatToolCall toolCall in toolCalls)
         {
-            ChatToolCallClone chatToolClone = new ChatToolCallClone(toolCall.Id, toolCall.FunctionName, toolCall.FunctionArguments.ToString(), toolCall.Kind.ToString());
+            ChatToolCallClone chatToolClone = new(toolCall.Id, toolCall.FunctionName, toolCall.FunctionArguments.ToString(), toolCall.Kind.ToString());
             chatToolCloneList.Add(chatToolClone);
         }
         return chatToolCloneList;
@@ -146,11 +146,10 @@ class ChatMessageTableEntity : ITableEntity
     IList<ChatToolCall> DeserializeChatTool(IList<ChatToolCallClone> clones)
     {
         IList<ChatToolCall> result = new List<ChatToolCall>();
-        foreach (var clone in clones)
+        foreach (ChatToolCallClone clone in clones)
         {
-            var kind = Enum.Parse<ChatToolCallKind>(clone.Kind);
-            var functionArgs = JsonDocument.Parse(clone.FunctionArguments).RootElement;
-            var toolCall = ChatToolCall.CreateFunctionToolCall(clone.Id, clone.FunctionName, BinaryData.FromString(functionArgs.GetRawText()));
+            JsonElement functionArgs = JsonDocument.Parse(clone.FunctionArguments).RootElement;
+            ChatToolCall toolCall = ChatToolCall.CreateFunctionToolCall(clone.Id, clone.FunctionName, BinaryData.FromString(functionArgs.GetRawText()));
             result.Add(toolCall);
         }
         return result;

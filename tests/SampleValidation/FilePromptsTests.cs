@@ -18,7 +18,7 @@ public class FilePromptTests
     {
         this.output = output;
         this.client = new HttpClient(new LoggingHandler(this.output));
-        this.cts = new CancellationTokenSource(delay: TimeSpan.FromMinutes(Debugger.IsAttached ? 5 : 1));
+        this.cts = new CancellationTokenSource(delay: TimeSpan.FromMinutes(Debugger.IsAttached ? 5 : 2));
 
         this.baseAddress = Environment.GetEnvironmentVariable("FUNC_BASE_ADDRESS") ?? "http://localhost:7071";
 
@@ -30,47 +30,39 @@ public class FilePromptTests
     }
 
     [Fact]
-    public async Task IngestFile_ValidUrl_ReturnsSuccess()
-    {        
-        // Prepare the request
-        var request = new { url = "https://github.com/Azure/azure-functions-openai-extension/blob/main/README.md" };
-
-        // Send the POST request to IngestFile
-        using HttpResponseMessage response = await this.client.PostAsJsonAsync(
-            requestUri: $"{this.baseAddress}/api/IngestFile",
-            request,
-            cancellationToken: this.cts.Token);
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.StartsWith("application/json", response.Content.Headers.ContentType?.MediaType);
-
-        // Validate the response content
-        string responseContent = await response.Content.ReadAsStringAsync(this.cts.Token);
-        JsonNode? jsonResponse = JsonNode.Parse(responseContent);
-        Assert.NotNull(jsonResponse);
-        Assert.Equal("success", jsonResponse!["status"]?.GetValue<string>());
-        Assert.Equal("README.md", jsonResponse!["title"]?.GetValue<string>());
-    }
-
-    [Fact]
-    public async Task PromptFile_ValidPrompt_ReturnsResponse()
+    public async Task Ingest_Prompt_File_Test()
     {
-        // Prepare the request
-        var request = new { prompt = "How can the textCompletion input binding be used from Azure Functions OpenAI extension?" };
+        // Step 1: Test IngestFile
+        var ingestRequest = new { url = "https://github.com/Azure/azure-functions-openai-extension/blob/main/README.md" };
 
-        // Send the POST request to PromptFile
-        using HttpResponseMessage response = await this.client.PostAsJsonAsync(
-            requestUri: $"{this.baseAddress}/api/PromptFile",
-            request,
+        using HttpResponseMessage ingestResponse = await this.client.PostAsJsonAsync(
+            requestUri: $"{this.baseAddress}/api/IngestFile",
+            ingestRequest,
             cancellationToken: this.cts.Token);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.StartsWith("text/plain", response.Content.Headers.ContentType?.MediaType);
+        Assert.Equal(HttpStatusCode.OK, ingestResponse.StatusCode);
+        Assert.StartsWith("application/json", ingestResponse.Content.Headers.ContentType?.MediaType);
 
-        // Validate the response content
-        string responseContent = await response.Content.ReadAsStringAsync(this.cts.Token);
-        Assert.False(string.IsNullOrWhiteSpace(responseContent));
-        Assert.Contains("OpenAI Chat Completions API", responseContent, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("README", responseContent, StringComparison.OrdinalIgnoreCase);
+        string ingestResponseContent = await ingestResponse.Content.ReadAsStringAsync(this.cts.Token);
+        JsonNode? ingestJsonResponse = JsonNode.Parse(ingestResponseContent);
+        Assert.NotNull(ingestJsonResponse);
+        Assert.Equal("success", ingestJsonResponse!["status"]?.GetValue<string>());
+        Assert.Equal("README.md", ingestJsonResponse!["title"]?.GetValue<string>());
+
+        // Step 2: Test PromptFile
+        var promptRequest = new { prompt = "How can the textCompletion input binding be used from Azure Functions OpenAI extension?" };
+
+        using HttpResponseMessage promptResponse = await this.client.PostAsJsonAsync(
+            requestUri: $"{this.baseAddress}/api/PromptFile",
+            promptRequest,
+            cancellationToken: this.cts.Token);
+
+        Assert.Equal(HttpStatusCode.OK, promptResponse.StatusCode);
+        Assert.StartsWith("text/plain", promptResponse.Content.Headers.ContentType?.MediaType);
+
+        string promptResponseContent = await promptResponse.Content.ReadAsStringAsync(this.cts.Token);
+        Assert.False(string.IsNullOrWhiteSpace(promptResponseContent));
+        Assert.Contains("OpenAI Chat Completions API", promptResponseContent, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("README", promptResponseContent, StringComparison.OrdinalIgnoreCase);
     }
 }

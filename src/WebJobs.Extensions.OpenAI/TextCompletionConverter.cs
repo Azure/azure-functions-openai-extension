@@ -53,7 +53,7 @@ class TextCompletionConverter :
 
         ClientResult<ChatCompletion> response = await this.openAIClientFactory.GetChatClient(
             attribute.AIConnectionName,
-            attribute.ChatModel).CompleteChatAsync(chatMessages, options);
+            attribute.ChatModel).CompleteChatAsync(chatMessages, options, cancellationToken: cancellationToken);
 
         string text = string.Join(
             Environment.NewLine + Environment.NewLine,

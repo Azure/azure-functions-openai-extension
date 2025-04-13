@@ -118,6 +118,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KustoSearchLegacy", "sample
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextCompletionLegacy", "samples\textcompletion\csharp-legacy\TextCompletionLegacy.csproj", "{73C26271-7B8D-4B38-B454-D9902B92270F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebJobsOpenAIUnitTests", "tests\UnitTests\WebJobsOpenAIUnitTests.csproj", "{52337999-5676-27FD-AE3D-CAAE406AE337}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -216,6 +218,10 @@ Global
 		{73C26271-7B8D-4B38-B454-D9902B92270F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73C26271-7B8D-4B38-B454-D9902B92270F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73C26271-7B8D-4B38-B454-D9902B92270F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52337999-5676-27FD-AE3D-CAAE406AE337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52337999-5676-27FD-AE3D-CAAE406AE337}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52337999-5676-27FD-AE3D-CAAE406AE337}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52337999-5676-27FD-AE3D-CAAE406AE337}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -258,6 +264,7 @@ Global
 		{BB20B2C0-35AE-CC75-61CE-C2713C83E4F6} = {4F208B03-C74C-458B-8300-9FF82F3C6325}
 		{C5ACB61F-CDAC-E93F-895E-4D46F086DE61} = {B87CBFFB-8221-45E8-8631-4BB1685D50F0}
 		{73C26271-7B8D-4B38-B454-D9902B92270F} = {5315AE81-BC33-49F2-935B-69287BB44CBD}
+		{52337999-5676-27FD-AE3D-CAAE406AE337} = {B99948E2-9853-4D9C-B784-19C2503CDA8B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {05A7A679-3A53-45B5-AE93-4313655E127D}

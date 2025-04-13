@@ -123,7 +123,7 @@ public class OpenAIClientFactory
             }
         }
 
-        string errorMessage = $"Configuration section '{aiConnectionName}' is missing required 'Endpoint' or 'Key' values.";
+        string errorMessage = $"Configuration section '{aiConnectionName}' is missing required 'Endpoint' and/or 'Key' values.";
         this.logger.LogError(errorMessage);
         throw new InvalidOperationException(errorMessage);
     }

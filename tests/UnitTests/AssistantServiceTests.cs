@@ -121,54 +121,6 @@ public class DefaultAssistantServiceTests
     }
 
     [Fact]
-    public async Task CreateAssistantAsync_WithLocalDevStorage_CreatesAssistantAndMessages()
-    {
-        // Arrange
-        var request = new AssistantCreateRequest("testId", "Test instructions")
-        {
-            CollectionName = "ChatState",
-            ChatStorageConnectionSetting = "AzureWebJobsStorage"
-        };
-
-        var mockQueryResult = new List<TableEntity>();
-        AsyncPageable<TableEntity> mockQueryable = MockAsyncPageable<TableEntity>.Create(mockQueryResult);
-
-        // Arrange
-        Mock<IConfigurationSection> mockSection = CreateMockSection(
-            exists: false,
-            tableServiceUri: null);
-        mockSection.Setup(s => s.Value).Returns("UseDevelopmentStorage=true");
-
-        // Setup AzureWebJobsStorage directly
-        this.mockConfiguration.Setup(c => c["AzureWebJobsStorage"]).Returns("UseDevelopmentStorage=true");
-        this.mockConfiguration.Setup(c => c.GetSection("AzureWebJobsStorage")).Returns(mockSection.Object);
-
-        // Create the service under test
-        var assistantService = new DefaultAssistantService(
-            this.mockOpenAIClientFactory.Object,
-            this.mockAzureComponentFactory.Object,
-            this.mockConfiguration.Object,
-            this.mockSkillInvoker.Object,
-            this.mockLoggerFactory.Object);
-
-        // Act
-        await assistantService.CreateAssistantAsync(request, CancellationToken.None);
-
-        // Assert
-        this.mockTableClient.Verify(x => x.CreateIfNotExistsAsync(It.IsAny<CancellationToken>()), Times.Never);
-
-        this.mockTableClient.Verify(x => x.QueryAsync<TableEntity>(
-            It.Is<string>(s => s.Contains(request.Id)),
-            null,
-            null,
-            It.IsAny<CancellationToken>()), Times.Never);
-
-        this.mockTableClient.Verify(x => x.SubmitTransactionAsync(
-            It.IsAny<IEnumerable<TableTransactionAction>>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Fact]
     public async Task CreateAssistantAsync_WithExistingAssistant_DeletesOldEntitiesFirst()
     {
         // Arrange

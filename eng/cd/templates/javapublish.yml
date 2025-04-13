@@ -1,0 +1,54 @@
+stages:
+  - stage: PublishJavaLibrary
+    displayName: Java Library Package
+    dependsOn: []
+    jobs:
+      - job: PreDeploymentApprovalJob
+        displayName: Pre-Deployment Approval
+        condition: succeeded()
+        timeoutInMinutes: 5760
+        pool: server
+        steps:
+          - task: ManualValidation@1
+            inputs:
+              notifyUsers: |-
+                [TEAM FOUNDATION]\Varad Meru's Team
+              approvers: |-
+                [TEAM FOUNDATION]\Varad Meru's Team
+      - job: JavaReleaseJob
+        displayName: Java Release Job
+        dependsOn: PreDeploymentApprovalJob
+        condition: succeeded()
+        timeoutInMinutes: 0
+        templateContext:
+          type: releaseJob
+          isProduction: true
+          inputs:
+            - input: pipelineArtifact
+              pipeline: 'AzureFunctionsOpenAIExtension'
+              artifactName: 'drop-java-library'
+              targetPath: '$(Build.ArtifactStagingDirectory)/drop-java-library'
+        steps:
+          - task: PowerShell@2
+            displayName: Extract and Prepare Java Library Package
+            inputs:
+              targetType: inline
+              script: |-
+                ${PACKAGENAME} = "azure-functions-java-library-openai"
+                ${baseName} = (Get-Item "${PACKAGENAME}-*.pom").BaseName
+                ${packageVersion} = ${baseName}.Replace("${PACKAGENAME}-", "")
+                Write-Host "##vso[task.setvariable variable=packageversion;]$packageVersion" 
+                md "$(System.DefaultWorkingDirectory)\packages"
+                copy "$(Build.ArtifactStagingDirectory)\drop-java-library\java-library\azure-functions-java-library-openai*"  "$(System.DefaultWorkingDirectory)\packages"
+                ls "$(System.DefaultWorkingDirectory)\packages" | write-verbose -Verbose
+              workingDirectory: $(Build.ArtifactStagingDirectory)/drop-java-library/java-library
+              pwsh: true
+          - task: AzureFileCopy@6
+            displayName: Package Upload
+            inputs:
+              SourcePath: $(System.DefaultWorkingDirectory)/packages/*
+              azureSubscription: 'azure-sdk-partner-drops'
+              Destination: 'AzureBlob'
+              storage: azuresdkpartnerdrops
+              ContainerName: drops
+              BlobPrefix: azure-functions/java/azure-functions-java-library-openai/$(packageVersion)

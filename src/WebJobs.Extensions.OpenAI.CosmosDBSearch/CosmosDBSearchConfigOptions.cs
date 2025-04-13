@@ -15,7 +15,7 @@ public class CosmosDBSearchConfigOptions
     public string IndexName { get; set; } = "openai-functions-index";
 
     // Application name for the client for tracking and logging
-    public string ApplicationName { get; set; } = "openai-function-appName";
+    public string ApplicationName { get; } = "OPENAI_FUNCTIONAPP";
 
     // Name of the field property which will contain the embeddings
     public string EmbeddingKey { get; set; } = "embedding";

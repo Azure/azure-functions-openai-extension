@@ -25,6 +25,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
     public string Name { get; set; } = "CosmosDBSearch";
 
+    [BsonIgnoreExtraElements]
     internal class OutputDocument
     {
         public OutputDocument(string title, string text)

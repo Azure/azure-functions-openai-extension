@@ -1,0 +1,57 @@
+trigger: none
+name: $(Date:yyyyMMdd).$(Rev:r)
+resources:
+  pipelines:
+    - pipeline: 'AzureFunctionsOpenAIExtension'
+      project: 'internal'
+      source: 'azure\azure-functions-openai-extension\openai-extension.official'
+  repositories:
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+
+variables:
+  - template: /eng/cd/templates/release-variables.yml@self
+  
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    pool:
+      name: 1es-pool-azfunc
+      image: 1es-windows-2022
+      os: windows
+    stages:
+      - template: templates/nugetpublish.yml
+        parameters:
+          stageName: WebJobWorker
+          displayName: WebJobs and Worker
+          artifactName: drop
+          packagePattern: 'Microsoft.Azure.*.Extensions.OpenAI.$(WebJobsVersion).nupkg'
+          blobPrefix: azure-functions/azure-functions-openai-extension/$(WebJobsVersion)
+
+      - template: templates/nugetpublish.yml
+        parameters:
+          stageName: Kusto
+          displayName: Kusto Package
+          artifactName: drop
+          packagePattern: '*.Extensions.OpenAI.Kusto.$(KustoVersion).nupkg'
+          blobPrefix: azure-functions/azure-functions-openai-extension-kusto/$(KustoVersion)
+
+      - template: templates/nugetpublish.yml
+        parameters:
+          stageName: AzureAISearch
+          displayName: AI Search Package
+          artifactName: drop
+          packagePattern: '*.Extensions.OpenAI.AzureAISearch.$(AzureAISearchVersion).nupkg'
+          blobPrefix: azure-functions/azure-functions-openai-extension-azureaisearch/$(AzureAISearchVersion)
+
+      - template: templates/nugetpublish.yml
+        parameters:
+          stageName: CosmosDBSearch
+          displayName: Cosmos Package
+          artifactName: drop
+          packagePattern: '*.Extensions.OpenAI.CosmosDBSearch.$(CosmosDBSearchVersion).nupkg'
+          blobPrefix: azure-functions/azure-functions-openai-extension-cosmosdbsearch/$(CosmosDBSearchVersion)
+
+      - template: templates/javapublish.yml

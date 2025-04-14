@@ -56,13 +56,4 @@ public @interface AssistantSkillTrigger {
     * @return The JSON description of the function parameter.
     */
    String parameterDescriptionJson() default "";
-
-   /**
-    * The OpenAI chat model to use.
-    * When using Azure OpenAI, this should be the name of the model deployment.
-    * 
-    * @return The OpenAI chat model to use.
-    */
-   String chatModel() default "gpt-3.5-turbo";
-
 }

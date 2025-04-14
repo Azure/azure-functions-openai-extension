@@ -17,8 +17,7 @@ public sealed class TextCompletionAttribute : AssistantBaseAttribute
     /// Initializes a new instance of the <see cref="TextCompletionAttribute"/> class with the specified text prompt.
     /// </summary>
     /// <param name="prompt">The prompt to generate completions for, encoded as a string.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
-    public TextCompletionAttribute(string prompt, string aiConnectionName = "") : base(aiConnectionName)
+    public TextCompletionAttribute(string prompt)
     {
         this.Prompt = string.IsNullOrEmpty(prompt)
             ? throw new ArgumentException("Input cannot be null or empty.", nameof(prompt))

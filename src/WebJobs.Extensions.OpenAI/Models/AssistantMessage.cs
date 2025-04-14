@@ -40,5 +40,5 @@ public class AssistantMessage
     /// Gets or sets the tool calls.
     /// </summary>
     [JsonProperty("toolCalls")]
-    public string ToolCalls { get; }
+    public string ToolCalls { get; set; }
 }

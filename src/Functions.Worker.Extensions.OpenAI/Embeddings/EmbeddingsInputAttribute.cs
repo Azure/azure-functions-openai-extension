@@ -12,13 +12,11 @@ public class EmbeddingsInputAttribute : InputBindingAttribute
     /// </summary>
     /// <param name="input">The input source containing the data to generate embeddings for.</param>
     /// <param name="inputType">The type of the input.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="input"/> is <c>null</c>.</exception>
-    public EmbeddingsInputAttribute(string input, InputType inputType, string aiConnectionName = "")
+    public EmbeddingsInputAttribute(string input, InputType inputType)
     {
         this.Input = input ?? throw new ArgumentNullException(nameof(input));
         this.InputType = inputType;
-        this.AIConnectionName = aiConnectionName;
     }
 
     /// <summary>
@@ -36,7 +34,7 @@ public class EmbeddingsInputAttribute : InputBindingAttribute
     /// For OpenAI:
     /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
     /// </remarks>
-    public string AIConnectionName { get; set; }
+    public string AIConnectionName { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the ID of the model to use.

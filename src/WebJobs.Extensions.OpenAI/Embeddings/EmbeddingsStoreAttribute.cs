@@ -20,11 +20,10 @@ public sealed class EmbeddingsStoreAttribute : EmbeddingsBaseAttribute
     /// The name of an app setting or environment variable which contains a connection string value.
     /// </param>
     /// <param name="collection">The name of the collection or table to search or store.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="input"/> or <paramref name="collection"/> or <paramref name="connectionName"/> are null.
     /// </exception>
-    public EmbeddingsStoreAttribute(string input, InputType inputType, string storeConnectionName, string collection, string aiConnectionName = "") : base(input, inputType, aiConnectionName)
+    public EmbeddingsStoreAttribute(string input, InputType inputType, string storeConnectionName, string collection) : base(input, inputType)
     {
         this.StoreConnectionName = storeConnectionName ?? throw new ArgumentNullException(nameof(storeConnectionName));
         this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));

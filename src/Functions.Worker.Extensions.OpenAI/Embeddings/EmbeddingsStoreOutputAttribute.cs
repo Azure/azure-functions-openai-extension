@@ -18,17 +18,15 @@ public class EmbeddingsStoreOutputAttribute : OutputBindingAttribute
     /// The name of an app setting or environment variable which contains a connection string value for embedding store.
     /// </param>
     /// <param name="collection">The name of the collection or table to search or store.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if <paramref name="input"/> or <paramref name="collection"/> or <paramref name="storeConnectionName"/> are null.
     /// </exception>
-    public EmbeddingsStoreOutputAttribute(string input, InputType inputType, string storeConnectionName, string collection, string aiConnectionName = "")
+    public EmbeddingsStoreOutputAttribute(string input, InputType inputType, string storeConnectionName, string collection)
     {
         this.Input = input ?? throw new ArgumentNullException(nameof(input));
         this.InputType = inputType;
         this.StoreConnectionName = storeConnectionName ?? throw new ArgumentNullException(nameof(storeConnectionName));
         this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));
-        this.AIConnectionName = aiConnectionName;
     }
 
     /// <summary>
@@ -46,7 +44,7 @@ public class EmbeddingsStoreOutputAttribute : OutputBindingAttribute
     /// For OpenAI:
     /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
     /// </remarks>
-    public string AIConnectionName { get; set; }
+    public string AIConnectionName { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the ID of the model to use.

@@ -22,11 +22,10 @@ public sealed class SemanticSearchAttribute : AssistantBaseAttribute
     /// The name of an app setting or environment variable which contains a connection string value of search provider.
     /// </param>
     /// <param name="collection">The name of the collection or table to search or store.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if either <paramref name="collection"/> or <paramref name="searchConnectionName"/> are null.
     /// </exception>
-    public SemanticSearchAttribute(string searchConnectionName, string collection, string aiConnectionName = "") : base(aiConnectionName)
+    public SemanticSearchAttribute(string searchConnectionName, string collection)
     {
         this.SearchConnectionName = searchConnectionName ?? throw new ArgumentNullException(nameof(searchConnectionName));
         this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));

@@ -16,15 +16,6 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 public class AssistantBaseAttribute : Attribute
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="AssistantBaseAttribute"/> class.
-    /// </summary>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
-    public AssistantBaseAttribute(string aiConnectionName = "")
-    {
-        this.AIConnectionName = aiConnectionName;
-    }
-
-    /// <summary>
     /// Gets or sets the name of the Large Language Model to invoke for chat responses.
     /// The default value is "gpt-3.5-turbo".
     /// </summary>
@@ -49,7 +40,7 @@ public class AssistantBaseAttribute : Attribute
     /// For OpenAI:
     /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
     /// </remarks>
-    public string AIConnectionName { get; set; }
+    public string AIConnectionName { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output

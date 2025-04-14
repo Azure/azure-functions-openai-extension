@@ -14,11 +14,9 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// Initializes a new instance of the <see cref="TextCompletionInputAttribute"/> class with the specified text prompt.
     /// </summary>
     /// <param name="prompt">The prompt to generate completions for, encoded as a string.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
-    public TextCompletionInputAttribute(string prompt, string aiConnectionName = "")
+    public TextCompletionInputAttribute(string prompt)
     {
         this.Prompt = prompt ?? throw new ArgumentNullException(nameof(prompt));
-        this.AIConnectionName = aiConnectionName;
     }
 
     /// <summary>
@@ -36,7 +34,7 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// For OpenAI:
     /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
     /// </remarks>
-    public string AIConnectionName { get; set; }
+    public string AIConnectionName { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the prompt to generate completions for, encoded as a string.

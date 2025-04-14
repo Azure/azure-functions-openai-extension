@@ -14,8 +14,7 @@ public sealed class AssistantPostAttribute : AssistantBaseAttribute
     /// </summary>
     /// <param name="id">The assistant identifier.</param>
     /// <param name="userMessage">The user message.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
-    public AssistantPostAttribute(string id, string userMessage, string aiConnectionName = "") : base(aiConnectionName)
+    public AssistantPostAttribute(string id, string userMessage)
     {
         this.Id = id;
         this.UserMessage = userMessage;

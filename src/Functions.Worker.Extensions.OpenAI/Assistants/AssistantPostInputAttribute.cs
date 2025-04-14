@@ -15,12 +15,10 @@ public sealed class AssistantPostInputAttribute : InputBindingAttribute
     /// </summary>
     /// <param name="id">The assistant identifier.</param>
     /// <param name="userMessage">The user message.</param>
-    /// <param name="aiConnectionName">The name of the configuration section for AI service connectivity settings.</param>
-    public AssistantPostInputAttribute(string id, string userMessage, string aiConnectionName = "")
+    public AssistantPostInputAttribute(string id, string userMessage)
     {
         this.Id = id;
         this.UserMessage = userMessage;
-        this.AIConnectionName = aiConnectionName;
     }
 
     /// <summary>
@@ -38,7 +36,7 @@ public sealed class AssistantPostInputAttribute : InputBindingAttribute
     /// For OpenAI:
     /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
     /// </remarks>
-    public string AIConnectionName { get; set; }
+    public string AIConnectionName { get; set; } = "";
 
     /// <summary>
     /// Gets the ID of the assistant to update.

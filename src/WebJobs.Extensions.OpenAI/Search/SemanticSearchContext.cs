@@ -40,5 +40,5 @@ public class SemanticSearchContext
     /// Gets the latest response message from the OpenAI Chat API.
     /// </summary>
     [JsonProperty("response")]
-    public string Response => this.Chat.Content.LastOrDefault().Text;
+    public string Response => this.Chat.Content.Last().Text;
 }

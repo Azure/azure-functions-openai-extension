@@ -1,23 +1,23 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.AI.OpenAI;
 using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OpenAI.Chat;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
-public class ChatCompletionsJsonConverter : JsonConverter<ChatCompletions>
+public class ChatCompletionJsonConverter : JsonConverter<ChatCompletion>
 {
     static readonly ModelReaderWriterOptions modelReaderWriterOptions = new("J");
-    public override ChatCompletions Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ChatCompletion Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         using JsonDocument jsonDocument = JsonDocument.ParseValue(ref reader);
-        return ModelReaderWriter.Read<ChatCompletions>(BinaryData.FromString(jsonDocument.RootElement.GetRawText()))!;
+        return ModelReaderWriter.Read<ChatCompletion>(BinaryData.FromString(jsonDocument.RootElement.GetRawText()))!;
     }
 
-    public override void Write(Utf8JsonWriter writer, ChatCompletions value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ChatCompletion value, JsonSerializerOptions options)
     {
-        ((IJsonModel<ChatCompletions>)value).Write(writer, modelReaderWriterOptions);
+        ((IJsonModel<ChatCompletion>)value).Write(writer, modelReaderWriterOptions);
     }
 }

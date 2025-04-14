@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 using OpenAI.Embeddings;
+
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
 /// <summary>
 /// Binding target for the <see cref="EmbeddingsAttribute"/>.
 /// </summary>
-/// <param name="Request">The embeddings request that was sent to OpenAI.</param>
+/// <param name="Input">The embeddings input that was sent to OpenAI.</param>
 /// <param name="Response">The embeddings response that was received from OpenAI.</param>
 public class EmbeddingsContext
 {

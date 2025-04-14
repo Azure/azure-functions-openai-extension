@@ -78,10 +78,10 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WritePropertyName("embeddingsContext"u8);
         writer.WriteStartObject();
 
-        if (value.Embeddings?.Input is IJsonModel<EmbeddingGenerationOptions> request)
+        if (value.Embeddings?.Input is List<string> inputList)
         {
-            writer.WritePropertyName("input"u8);
-            request.Write(writer, modelReaderWriterOptions);
+            var inputWrapper = JsonModelListWrapper.FromList(inputList);
+            inputWrapper.Write(writer, modelReaderWriterOptions);
         }
 
         if (value.Embeddings?.Response is IJsonModel<OpenAIEmbeddingCollection> response)

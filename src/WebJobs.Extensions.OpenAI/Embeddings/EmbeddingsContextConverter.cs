@@ -23,7 +23,12 @@ class EmbeddingsContextConverter : JsonConverter<EmbeddingsContext>
     {
         writer.WriteStartObject();
         writer.WritePropertyName("input"u8);
-        ((IJsonModel<EmbeddingGenerationOptions>)value.Input).Write(writer, modelReaderWriterOptions);
+
+        if (value.Input is List<string> inputList)
+        {
+            var inputWrapper = JsonModelListWrapper.FromList(inputList);
+            inputWrapper.Write(writer, modelReaderWriterOptions);
+        }
 
         if (value.Response is IJsonModel<OpenAIEmbeddingCollection> response)
         {

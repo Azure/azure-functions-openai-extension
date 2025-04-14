@@ -21,7 +21,7 @@
       "name": "TextCompletionResponse",
       "prompt": "Who is {name}?",
       "maxTokens": "100",
-      "model": "%CHAT_MODEL_DEPLOYMENT_NAME%"
+      "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%"
     }
   ]
 }

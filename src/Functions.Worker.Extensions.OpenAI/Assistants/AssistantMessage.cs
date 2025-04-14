@@ -8,15 +8,15 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
 /// <summary>
 /// Chat Message Entity which contains the content of the message, the role of the chat agent, and the name of the calling function if applicable.
 /// </summary>
-public class ChatMessage
+public class AssistantMessage
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="ChatMessage"/> class.
+    /// Initializes a new instance of the <see cref="AssistantMessage"/> class.
     /// </summary>
     /// <param name="content">The content of the message.</param>
     /// <param name="role">The role of the chat agent.</param>
     /// <param name="toolCalls">The tool calls.</param>
-    public ChatMessage(string content, string role, string toolCalls)
+    public AssistantMessage(string content, string role, string toolCalls)
     {
         this.Content = content;
         this.Role = role;

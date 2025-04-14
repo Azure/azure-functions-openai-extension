@@ -13,13 +13,16 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 
 ### Breaking
 
-- Model properties named to ChatModel and EmbeddingsModel in related bindings
-- Managed identity support through config section and binding parameter AIConnectionName.
+- Renamed model properites to `chatModel` and `embeddingsModel` in AssistantPost, Embeddings and TextCompletion bindings.
+- Renamed connectionName to `searchConnectionName` in SemanticSearch binding.
+- Renamed connectionName to `storeConnectionName` in EmbeddingsStore binding.
+- Renamed ChatMessage entity to AssistantMessage.
+- Managed identity support through config section and binding parameter `aiConnectionName` in AssistantPost, Embeddings, EmbeddingsStore, SemanticSearch and TextCompletion bindings.
 
 ### Changed
 
 - Updated Azure.AI.OpenAI from 1.0.0-beta.15 to 2.1.0
-- Updated Azure.Data.Tables from 12.9.1 to 12.10.0, Azure.Identity from 1.12.1 to 1.13.2, Microsoft.Extensions.Azure from 1.7.5 to 1.8.0
+- Updated Azure.Data.Tables from 12.9.1 to 12.10.0, Azure.Identity from 1.12.1 to 1.13.2, Microsoft.Extensions.Azure from 1.7.5 to 1.10.0
 
 ## v0.18.0 - 2024/10/08
 

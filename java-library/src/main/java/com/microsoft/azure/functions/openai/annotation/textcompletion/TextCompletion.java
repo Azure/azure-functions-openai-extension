@@ -12,10 +12,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
- 
+
 /**
  * <p>
- * Assistant query input attribute which is used query the Assistant to get current state.
+ * Assistant query input attribute which is used query the Assistant to get
+ * current state.
  * </p>
  * 
  * @since 1.0.0
@@ -40,15 +41,25 @@ public @interface TextCompletion {
     String prompt();
 
     /**
+     * The name of the configuration section for AI service connectivity settings.
+     * 
+     * @return The name of the configuration section for AI service connectivity
+     *         settings.
+     */
+    String aiConnectionName() default "";
+
+    /**
      * The ID of the model to use.
      *
      * @return The model ID.
      */
-    String model() default "gpt-3.5-turbo";
+    String chatModel() default "gpt-3.5-turbo";
 
     /**
-     * The sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output
-     * more random, while lower values like 0.2 will make it more focused and deterministic.
+     * The sampling temperature to use, between 0 and 2. Higher values like 0.8 will
+     * make the output
+     * more random, while lower values like 0.2 will make it more focused and
+     * deterministic.
      * It's generally recommended to use this or {@link #topP()} but not both.
      *
      * @return The sampling temperature value.
@@ -56,10 +67,13 @@ public @interface TextCompletion {
     String temperature() default "0.5";
 
     /**
-     * An alternative to sampling with temperature, called nucleus sampling, where the model considers
-     * the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10%
+     * An alternative to sampling with temperature, called nucleus sampling, where
+     * the model considers
+     * the results of the tokens with top_p probability mass. So 0.1 means only the
+     * tokens comprising the top 10%
      * probability mass are considered.
-     * It's generally recommended to use this or {@link #temperature()} but not both.
+     * It's generally recommended to use this or {@link #temperature()} but not
+     * both.
      *
      * @return The topP value.
      */
@@ -67,11 +81,13 @@ public @interface TextCompletion {
 
     /**
      * The maximum number of tokens to generate in the completion.
-     * The token count of your prompt plus max_tokens cannot exceed the model's context length.
-     * Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
+     * The token count of your prompt plus max_tokens cannot exceed the model's
+     * context length.
+     * Most models have a context length of 2048 tokens (except for the newest
+     * models, which support 4096).
      *
      * @return The maxTokens value.
      */
     String maxTokens() default "100";
- 
- }
+
+}

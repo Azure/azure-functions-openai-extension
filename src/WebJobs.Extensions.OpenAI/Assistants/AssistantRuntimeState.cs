@@ -6,13 +6,13 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 
-record struct MessageRecord(DateTime Timestamp, ChatMessage ChatMessageEntity);
+record struct MessageRecord(DateTime Timestamp, AssistantMessage ChatMessageEntity);
 
 [JsonObject(MemberSerialization.OptIn)]
 class AssistantRuntimeState
 {
     [JsonProperty("messages")]
-    public List<ChatMessage>? ChatMessages { get; set; }
+    public List<AssistantMessage>? ChatMessages { get; set; }
 
     [JsonProperty("totalTokens")]
     public int TotalTokens { get; set; } = 0;

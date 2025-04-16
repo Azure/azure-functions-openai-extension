@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.5.0 - Unreleased
 
+### Breaking
+
+- model properties renamed to `chatModel` and `embeddingsModel` in assistantPost, embeddings and textCompletion bindings.
+- renamed connectionName to `searchConnectionName` in semanticSearch binding.
+- renamed connectionName to `storeConnectionName` in embeddingsStore binding.
+- renamed ChatMessage to `AssistantMessage`.
+- managed identity support through config section and binding parameter `aiConnectionName` in assistantPost, embeddings, embeddingsStore, semanticSearch and textCompletion bindings.
+
 ### Changed
 
-- Update azure-ai-openai from 1.0.0-beta.11 to 1.0.0-beta.14
+- Update azure-ai-openai from 1.0.0-beta.11 to 1.0.0-beta.16
 
 ## v0.4.0 - 2024/10/08
 

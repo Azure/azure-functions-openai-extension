@@ -8,7 +8,7 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 public class EmbeddingsInputAttribute : InputBindingAttribute
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EmbeddingsAttribute"/> class with the specified input.
+    /// Initializes a new instance of the <see cref="EmbeddingsInputAttribute"/> class with the specified input.
     /// </summary>
     /// <param name="input">The input source containing the data to generate embeddings for.</param>
     /// <param name="inputType">The type of the input.</param>
@@ -20,12 +20,29 @@ public class EmbeddingsInputAttribute : InputBindingAttribute
     }
 
     /// <summary>
+    /// Gets or sets the name of the configuration section for AI service connectivity settings.
+    /// </summary>
+    /// <remarks>
+    /// This property specifies the name of the configuration section that contains connection details for the AI service.
+    /// 
+    /// For Azure OpenAI:
+    /// - If specified, looks for "Endpoint" and "Key" values in this configuration section
+    /// - If not specified or the section doesn't exist, falls back to environment variables:
+    ///   AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY
+    /// - For user-assigned managed identity authentication, this property is required
+    /// 
+    /// For OpenAI:
+    /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
+    /// </remarks>
+    public string AIConnectionName { get; set; } = "";
+
+    /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
     /// <remarks>
     /// Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
     /// </remarks>
-    public string Model { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
+    public string EmbeddingsModel { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.

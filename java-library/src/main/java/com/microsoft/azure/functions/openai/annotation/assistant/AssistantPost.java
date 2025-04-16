@@ -61,7 +61,7 @@ public @interface AssistantPost {
      * 
      * @return The OpenAI chat model to use.
      */
-    String model();
+    String chatModel();
 
     /**
      * The user message that user has entered for assistant to respond to.
@@ -69,6 +69,14 @@ public @interface AssistantPost {
      * @return The user message that user has entered for assistant to respond to.
      */
     String userMessage();
+
+    /**
+     * The name of the configuration section for AI service connectivity settings.
+     * 
+     * @return The name of the configuration section for AI service connectivity
+     *         settings.
+     */
+    String aiConnectionName() default "";
 
     /**
      * The configuration section name for the table settings for assistant chat
@@ -86,4 +94,39 @@ public @interface AssistantPost {
      *         returns {@code DEFAULT_COLLECTION}.
      */
     String collectionName() default DEFAULT_COLLECTION;
+
+    /**
+     * The sampling temperature to use, between 0 and 2. Higher values like 0.8 will
+     * make the output
+     * more random, while lower values like 0.2 will make it more focused and
+     * deterministic.
+     * It's generally recommended to use this or {@link #topP()} but not both.
+     *
+     * @return The sampling temperature value.
+     */
+    String temperature() default "0.5";
+
+    /**
+     * An alternative to sampling with temperature, called nucleus sampling, where
+     * the model considers
+     * the results of the tokens with top_p probability mass. So 0.1 means only the
+     * tokens comprising the top 10%
+     * probability mass are considered.
+     * It's generally recommended to use this or {@link #temperature()} but not
+     * both.
+     *
+     * @return The topP value.
+     */
+    String topP() default "";
+
+    /**
+     * The maximum number of tokens to generate in the completion.
+     * The token count of your prompt plus max_tokens cannot exceed the model's
+     * context length.
+     * Most models have a context length of 2048 tokens (except for the newest
+     * models, which support 4096).
+     *
+     * @return The maxTokens value.
+     */
+    String maxTokens() default "100";
 }

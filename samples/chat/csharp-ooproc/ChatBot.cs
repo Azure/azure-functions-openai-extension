@@ -23,8 +23,8 @@ public static class ChatBot
 
     [Function(nameof(CreateChatBot))]
     public static async Task<CreateChatBotOutput> CreateChatBot(
-        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "chats/{chatId}")] HttpRequestData req,
-        string chatId)
+    [HttpTrigger(AuthorizationLevel.Function, "put", Route = "chats/{chatId}")] HttpRequestData req,
+    string chatId)
     {
         var responseJson = new { chatId };
         CreateRequest? createRequestBody;
@@ -39,7 +39,7 @@ public static class ChatBot
         }
         catch (Exception ex)
         {
-            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.", ex.Message);
+            throw new ArgumentException("Invalid request body. Make sure that you pass in {\"instructions\": value } as the request body.", ex);
         }
 
         return new CreateChatBotOutput
@@ -63,16 +63,16 @@ public static class ChatBot
     }
 
     [Function(nameof(PostUserResponse))]
-    public static async Task<IActionResult> PostUserResponse(
+    public static IActionResult PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
-        [AssistantPostInput("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
+        [AssistantPostInput("{chatId}", "{Query.message}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
         return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
     }
 
     [Function(nameof(GetChatState))]
-    public static async Task<IActionResult> GetChatState(
+    public static IActionResult GetChatState(
        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "chats/{chatId}")] HttpRequestData req,
        string chatId,
        [AssistantQueryInput("{chatId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state,

@@ -12,7 +12,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
- 
+
 /**
  * <p>
  * Embeddings input attribute which is used for embedding generation.
@@ -34,17 +34,21 @@ public @interface EmbeddingsInput {
 
     /**
      * The ID of the model to use.
-     * Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. 
-     * Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
+     * Changing the default embeddings model is a breaking change, since any changes
+     * will be stored in a vector database for lookup.
+     * Changing the default model can cause the lookups to start misbehaving if they
+     * don't match the data that was previously ingested into the vector database.
      *
      * @return The model ID.
      */
-    String model() default "text-embedding-ada-002";
+    String embeddingsModel() default "text-embedding-ada-002";
 
     /**
      * The maximum number of characters to chunk the input into.
-     * At the time of writing, the maximum input tokens allowed for second-generation input embedding models
-     * like text-embedding-ada-002 is 8191. 1 token is ~4 chars in English, which translates to roughly 32K
+     * At the time of writing, the maximum input tokens allowed for
+     * second-generation input embedding models
+     * like text-embedding-ada-002 is 8191. 1 token is ~4 chars in English, which
+     * translates to roughly 32K
      * characters of English input that can fit into a single chunk.
      * 
      * @return The maximum number of characters to chunk the input into.
@@ -66,10 +70,18 @@ public @interface EmbeddingsInput {
     String input();
 
     /**
+     * The name of the configuration section for AI service connectivity settings.
+     * 
+     * @return The name of the configuration section for AI service connectivity
+     *         settings.
+     */
+    String aiConnectionName() default "";
+
+    /**
      * The input type.
      * 
      * @return The input type.
      */
     InputType inputType();
- 
- }
+
+}

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.Azure.WebJobs.Description;
+using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
@@ -11,22 +12,22 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 /// </summary>
 [Binding]
 [AttributeUsage(AttributeTargets.Parameter)]
-public sealed class SemanticSearchAttribute : Attribute
+public sealed class SemanticSearchAttribute : AssistantBaseAttribute
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="SemanticSearchAttribute"/> class with the specified connection
     /// and collection names.
     /// </summary>
-    /// <param name="connectionName">
-    /// The name of an app setting or environment variable which contains a connection string value.
+    /// <param name="searchConnectionName">
+    /// The name of an app setting or environment variable which contains a connection string value of search provider.
     /// </param>
     /// <param name="collection">The name of the collection or table to search or store.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown if either <paramref name="collection"/> or <paramref name="connectionName"/> are null.
+    /// Thrown if either <paramref name="collection"/> or <paramref name="searchConnectionName"/> are null.
     /// </exception>
-    public SemanticSearchAttribute(string connectionName, string collection)
+    public SemanticSearchAttribute(string searchConnectionName, string collection)
     {
-        this.ConnectionName = connectionName ?? throw new ArgumentNullException(nameof(connectionName));
+        this.SearchConnectionName = searchConnectionName ?? throw new ArgumentNullException(nameof(searchConnectionName));
         this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));
     }
 
@@ -37,7 +38,7 @@ public sealed class SemanticSearchAttribute : Attribute
     /// This property supports binding expressions.
     /// </remarks>
     [AutoResolve]
-    public string ConnectionName { get; set; }
+    public string SearchConnectionName { get; set; }
 
     /// <summary>
     /// The name of the collection or table or index to search.
@@ -67,16 +68,6 @@ public sealed class SemanticSearchAttribute : Attribute
     /// </remarks>
     [AutoResolve]
     public string EmbeddingsModel { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
-
-    /// <summary>
-    /// Gets or sets the name of the Large Language Model to invoke for chat responses.
-    /// The default value is "gpt-3.5-turbo".
-    /// </summary>
-    /// <remarks>
-    /// This property supports binding expressions.
-    /// </remarks>
-    [AutoResolve]
-    public string ChatModel { get; set; } = OpenAIModels.DefaultChatModel;
 
     /// <summary>
     /// Gets or sets the system prompt to use for prompting the large language model.

@@ -23,7 +23,7 @@ public static class TextCompletions
     [Function(nameof(WhoIs))]
     public static IActionResult WhoIs(
         [HttpTrigger(AuthorizationLevel.Function, Route = "whois/{name}")] HttpRequestData req,
-        [TextCompletionInput("Who is {name}?", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response)
+        [TextCompletionInput("Who is {name}?", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response)
     {
         return new OkObjectResult(response.Content);
     }
@@ -35,7 +35,7 @@ public static class TextCompletions
     [Function(nameof(GenericCompletion))]
     public static IActionResult GenericCompletion(
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-        [TextCompletionInput("{Prompt}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response,
+        [TextCompletionInput("{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%")] TextCompletionResponse response,
         ILogger log)
     {
         string text = response.Content;

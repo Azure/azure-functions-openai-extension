@@ -20,11 +20,11 @@ public class AssistantState {
     private String lastUpdatedAt;
     private int totalMessages;
     private int totalTokens;
-    private List<ChatMessage> recentMessages;
+    private List<AssistantMessage> recentMessages;
 
     public AssistantState(String id, boolean exists,
-                        String createdAt, String lastUpdatedAt,
-                        int totalMessages, int totalTokens, List<ChatMessage> recentMessages) {
+            String createdAt, String lastUpdatedAt,
+            int totalMessages, int totalTokens, List<AssistantMessage> recentMessages) {
         this.id = id;
         this.exists = exists;
         this.createdAt = createdAt;
@@ -56,7 +56,7 @@ public class AssistantState {
      * Gets timestamp of when assistant is created.
      * 
      * @return The timestamp of when assistant is created.
-     */ 
+     */
     public String getCreatedAt() {
         return createdAt;
     }
@@ -93,7 +93,7 @@ public class AssistantState {
      * 
      * @return A list of the recent messages from the assistant.
      */
-    public List<ChatMessage> getRecentMessages() {
+    public List<AssistantMessage> getRecentMessages() {
         return recentMessages;
     }
 
@@ -156,8 +156,8 @@ public class AssistantState {
      * 
      * @param recentMessages A list of the recent messages from the assistant.
      */
-    public void setRecentMessages(List<ChatMessage> recentMessages) {
+    public void setRecentMessages(List<AssistantMessage> recentMessages) {
         this.recentMessages = recentMessages;
     }
-    
+
 }

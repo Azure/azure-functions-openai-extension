@@ -48,10 +48,10 @@ public static class ChatBot
     }
 
     [FunctionName(nameof(PostUserResponse))]
-    public static async Task<IActionResult> PostUserResponse(
+    public static IActionResult PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}")] HttpRequest req,
         string chatId,
-        [AssistantPost("{chatId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState updatedState)
+        [AssistantPost("{chatId}", "{Query.message}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState updatedState)
     {
         return new OkObjectResult(updatedState.RecentMessages.Any() ? updatedState.RecentMessages[updatedState.RecentMessages.Count - 1].Content : "No response returned.");
     }

@@ -11,7 +11,7 @@ const embeddingsStoreOutput = output.generic({
     inputType: "url", 
     connectionName: "CosmosDBMongoVCoreConnectionString", 
     collection: "openai-index", 
-    model: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+    embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
 });
 
 app.http('IngestFile', {

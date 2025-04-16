@@ -59,10 +59,10 @@ static class AssistantApis
     /// HTTP POST function that sends user prompts to the assistant chat bot.
     /// </summary>
     [Function(nameof(PostUserQuery))]
-    public static async Task<IActionResult> PostUserQuery(
+    public static IActionResult PostUserQuery(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId,
-        [AssistantPostInput("{assistantId}", "{Query.message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
+        [AssistantPostInput("{assistantId}", "{Query.message}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
         return new OkObjectResult(state.RecentMessages.Any() ? state.RecentMessages[state.RecentMessages.Count - 1].Content : "No response returned.");
     }
@@ -71,7 +71,7 @@ static class AssistantApis
     /// HTTP GET function that queries the conversation history of the assistant chat bot.
     /// </summary>
     [Function(nameof(GetChatState))]
-    public static async Task<IActionResult> GetChatState(
+    public static IActionResult GetChatState(
        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "assistants/{assistantId}")] HttpRequestData req,
        string assistantId,
        [AssistantQueryInput("{assistantId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)

@@ -71,7 +71,7 @@ For additional details on using identity-based connections, refer to the [Azure 
     public static async Task<HttpResponseData> PostUserResponse(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
         string chatId,
-        [AssistantPostInput("{chatId}", "{message}", Model = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
+        [AssistantPostInput("{chatId}", "{message}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%")] AssistantState state)
 
     ```
 

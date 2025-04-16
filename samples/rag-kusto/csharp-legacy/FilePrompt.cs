@@ -20,7 +20,7 @@ public static class FilePrompt
     [FunctionName("IngestFile")]
     public static async Task<IActionResult> IngestFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-        [EmbeddingsStore("{url}", InputType.Url, "KustoConnectionString", "Documents", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [EmbeddingsStore("{url}", InputType.Url, "KustoConnectionString", "Documents", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         IAsyncCollector<SearchableDocument> output)
     {
         if (string.IsNullOrWhiteSpace(req.Url))

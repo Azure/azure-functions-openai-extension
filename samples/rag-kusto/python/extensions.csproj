@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net60</TargetFramework>
+    <TargetFramework>net80</TargetFramework>
     <WarningsAsErrors></WarningsAsErrors>
     <DefaultItemExcludes>**</DefaultItemExcludes>
     <OutDir>bin</OutDir>

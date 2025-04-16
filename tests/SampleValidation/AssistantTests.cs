@@ -71,7 +71,7 @@ namespace SampleValidation
             Assert.StartsWith("text/plain", questionResponse.Content.Headers.ContentType?.MediaType);
 
             // Ensure that the model responded and mentioned the new todo item.
-            await ValidateAssistantResponseAsync(expectedMessageCount: 4, expectedContent: "Buy milk", hasTotalTokens: true);
+            await ValidateAssistantResponseAsync(expectedMessageCount: 5, expectedContent: "Buy milk", hasTotalTokens: true);
 
             // Local function to validate each chat bot response
             async Task ValidateAssistantResponseAsync(int expectedMessageCount, string expectedContent, bool hasTotalTokens = false)
@@ -107,7 +107,7 @@ namespace SampleValidation
 
                     // The timestamp filter should ensure we only ever look at the most recent messages
                     Assert.True(messageArray!.Count <= totalMessages);
-                    Assert.True(messageArray!.Count <= 4);
+                    Assert.True(messageArray!.Count <= 5);
 
                     if (totalMessages >= expectedMessageCount)
                     {
@@ -118,13 +118,23 @@ namespace SampleValidation
                         {
                             // Make sure the first message is the system message
                             JsonNode systemMessage = messageArray!.First()!;
-                            Assert.Equal("system", systemMessage["role"]?.GetValue<string>());
+                            Assert.Equal("system", systemMessage["role"]?.GetValue<string>(), StringComparer.OrdinalIgnoreCase);
                         }
                         else
                         {
+                            // Validate the third message contains the toolcalls string with task description
+                            if (messageArray.Count >= 2)
+                            {
+                                JsonNode thirdMessage = messageArray![1]!;
+                                Assert.Equal("assistant", thirdMessage["role"]?.GetValue<string>(), StringComparer.OrdinalIgnoreCase);
+                                string? thirdMessageToolCalls = thirdMessage["toolCalls"]?.GetValue<string>();
+                                Assert.NotNull(thirdMessageToolCalls);
+                                Assert.Contains("AddTodo", thirdMessageToolCalls, StringComparison.OrdinalIgnoreCase);
+                            }
+
                             // Make sure that the last message is from the chat bot (assistant)
                             JsonNode lastMessage = messageArray![messageArray.Count - 1]!;
-                            Assert.Equal("assistant", lastMessage["role"]?.GetValue<string>());
+                            Assert.Equal("assistant", lastMessage["role"]?.GetValue<string>(), StringComparer.OrdinalIgnoreCase);
                             Assert.Contains("Buy milk", lastMessage!["content"]?.GetValue<string>());
                         }
 

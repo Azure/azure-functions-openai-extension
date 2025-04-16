@@ -67,7 +67,7 @@ public static class FilePrompt
 
     public class EmbeddingsStoreOutputResponse
     {
-        [EmbeddingsStoreOutput("{url}", InputType.Url, "AISearchEndpoint", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [EmbeddingsStoreOutput("{url}", InputType.Url, "AISearchEndpoint", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         public required SearchableDocument SearchableDocument { get; init; }
 
         public IActionResult? HttpResponse { get; set; }

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Managed identity support and consistency established with other Azure Functions extensions
 
+### Changed
+
+- Updated Microsoft.Azure.WebJobs.Extensions.OpenAI to 0.19.0
+
 ## v0.3.0 - 2024/10/08
 
 ### Changed

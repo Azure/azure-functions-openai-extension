@@ -21,7 +21,7 @@ public class CosmosDBNoSqlSearchConfigOptions
     public DistanceFunction VectorDistanceFunction { get; set; } = DistanceFunction.Cosine;
 
     // The dimensions for the vectors.
-    public ulong VectorDimensions { get; set; } = 1536;
+    public int VectorDimensions { get; set; } = 1536;
 
     // The vector index type, value can be flat, quantizedFlat, diskAnn
     public VectorIndexType VectorIndexType { get; set; } = VectorIndexType.QuantizedFlat;

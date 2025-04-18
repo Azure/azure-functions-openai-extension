@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Microsoft Azure WebJobs SDK Extension for OpenAI - Cosmos DB Search for MongoDB Package.</Description>
+    <Description>Microsoft Azure WebJobs SDK Extension for OpenAI - Cosmos DB Search for NoSql Package.</Description>
     <Version>$(CosmosDBNoSqlSearchVersion)</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.43.0-preview.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.48.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -15,7 +15,14 @@ This sample requires creating an Azure CosmosDB NoSql. You can do this by follwi
 
 Once you have an Cosmos DB resource, you can run the sample by following these steps:
 
-1. Update the `CosmosDBNoSqlConnectionString` value in `local.settings.json` to match your connection string from the Cosmos DB resource. You may obtain the connection string by following [these instructions](https://learn.microsoft.com/en-us/azure/cosmos-db/data-explorer).
+1. The application can either be run with Key based authentication or AAD.
+
+Key based auth:
+Update the `CosmosDBNoSql` value in `local.settings.json` to match your connection string from the Cosmos DB resource. You may obtain the connection string by following [these instructions](https://learn.microsoft.com/en-us/azure/cosmos-db/data-explorer).
+
+AAD auth:
+Update the `CosmosDBNoSql__Endpoint` value in `local.settings.json` to match your connection string from the Cosmos DB resource. You may follow the below links to add aad authentication for [Data Plane](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/security/how-to-grant-data-plane-role-based-access?tabs=built-in-definition%2Cjava&pivots=azure-interface-cli) and [Control Plane](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/security/how-to-grant-control-plane-role-based-access?tabs=built-in-definition%2Cjava&pivots=azure-interface-portal) operations for CosmosDB.
+
 1. Always configure the search provider type in the `host.json` as shown in below snippet. Read here about the [configs](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/vector-search) provided below.
 
    ```json

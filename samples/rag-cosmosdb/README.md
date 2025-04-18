@@ -15,22 +15,6 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 
 ### Chat Storage Configuration
 
-1. **Managed Identity - Assign Permissions**:
-
-   - Please refer to this two documents to assign permissions for cosmos db account to the managed identity.
-     - [Control Plane operations](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/security/how-to-grant-control-plane-role-based-access?tabs=built-in-definition%2Ccsharp&pivots=azure-interface-cli)
-     - [Data Plane operations](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/security/how-to-grant-data-plane-role-based-access?tabs=built-in-definition%2Ccsharp&pivots=azure-interface-cli)
-
-1. **Configure Cosmos URI**:
-
-   - Set the `cosmosUri` in the configuration as follows:
-
-     ```json
-     "<CONNECTION_NAME_PREFIX>__cosmosUri": "cosmosUri"
-     ```
-
-   - Replace `CONNECTION_NAME_PREFIX` with the appropriate prefix.
-
 ## Running the sample
 
 This sample requires creating an Azure Cosmos DB for MongoDB vCore. You can do this by following the [Cosmos DB for MongoDB vCore Quickstart](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/quickstart-portal).

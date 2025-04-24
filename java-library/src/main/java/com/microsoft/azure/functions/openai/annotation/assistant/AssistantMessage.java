@@ -8,8 +8,7 @@ package com.microsoft.azure.functions.openai.annotation.assistant;
 
 /**
  * <p>
- * Chat Message Entity which contains the content of the message, the role of
- * the chat agent, and the name of the calling function if applicable.
+ * Chat Message Entity which contains the content of the message, the role of the chat agent, and the name of the calling function if applicable.
  * </p>
  */
 public class AssistantMessage {

@@ -1,12 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.ClientModel;
 using System.Text.Json;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 class EmbeddingsStoreConverter :
@@ -89,16 +87,8 @@ class EmbeddingsStoreConverter :
             }
 
             // Get embeddings from OpenAI
-            List<string> input = await EmbeddingsHelper.BuildRequest(this.attribute.MaxOverlap,
-                this.attribute.MaxChunkLength,
-                this.attribute.InputType,
-                this.attribute.Input);
-            this.logger.LogInformation("Sending OpenAI embeddings request");
-            ClientResult<OpenAIEmbeddingCollection> response = await this.openAIClientFactory.GetEmbeddingClient(
-                this.attribute.AIConnectionName,
-                this.attribute.EmbeddingsModel).GenerateEmbeddingsAsync(input, cancellationToken: cancellationToken);
-            EmbeddingsContext embeddingsContext = new(input, response);
-            this.logger.LogInformation("Received OpenAI embeddings of count: {count}", embeddingsContext.Count);
+            EmbeddingsContext embeddingsContext = await EmbeddingsHelper.
+                GenerateEmbeddingsAsync(this.attribute, this.openAIClientFactory, this.logger, cancellationToken);
 
             // Add document to the embed store
             item.Embeddings = embeddingsContext;

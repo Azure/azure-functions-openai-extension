@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.ClientModel;
 using System.Text.Json;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Extensions.Logging;
-using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 
@@ -49,16 +47,10 @@ class EmbeddingsConverter :
         EmbeddingsAttribute attribute,
         CancellationToken cancellationToken)
     {
-        List<string> input = await EmbeddingsHelper.BuildRequest(attribute.MaxOverlap,
-            attribute.MaxChunkLength,
-            attribute.InputType,
-            attribute.Input);
-        this.logger.LogInformation("Sending OpenAI embeddings request");
-        ClientResult<OpenAIEmbeddingCollection> response = await this.openAIClientFactory.GetEmbeddingClient(
-            attribute.AIConnectionName,
-            attribute.EmbeddingsModel).GenerateEmbeddingsAsync(input, cancellationToken: cancellationToken);
-        this.logger.LogInformation("Received OpenAI embeddings count: {response}", response.Value.Count);
-
-        return new EmbeddingsContext(input, response);
+        return await EmbeddingsHelper.GenerateEmbeddingsAsync(
+            attribute,
+            this.openAIClientFactory,
+            this.logger,
+            cancellationToken);
     }
 }

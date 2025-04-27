@@ -7,6 +7,7 @@
 package com.microsoft.azure.functions.openai.annotation.assistant;
 
 import com.microsoft.azure.functions.annotation.CustomBinding;
+import com.microsoft.azure.functions.openai.constants.ModelDefaults;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -61,7 +62,7 @@ public @interface AssistantPost {
      * 
      * @return The OpenAI chat model to use.
      */
-    String chatModel();
+    String chatModel() default ModelDefaults.DEFAULT_CHAT_MODEL;
 
     /**
      * The user message that user has entered for assistant to respond to.

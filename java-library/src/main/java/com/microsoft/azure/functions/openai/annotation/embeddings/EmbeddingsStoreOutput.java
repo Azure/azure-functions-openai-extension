@@ -7,6 +7,7 @@
 package com.microsoft.azure.functions.openai.annotation.embeddings;
 
 import com.microsoft.azure.functions.annotation.CustomBinding;
+import com.microsoft.azure.functions.openai.constants.ModelDefaults;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,7 +35,7 @@ public @interface EmbeddingsStoreOutput {
      *
      * @return The model ID.
      */
-    String embeddingsModel() default "text-embedding-ada-002";
+    String embeddingsModel() default ModelDefaults.DEFAULT_EMBEDDINGS_MODEL;
 
     /**
      * The maximum number of characters to chunk the input into.

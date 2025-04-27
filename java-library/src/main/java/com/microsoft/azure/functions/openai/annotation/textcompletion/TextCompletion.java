@@ -7,6 +7,7 @@
 package com.microsoft.azure.functions.openai.annotation.textcompletion;
 
 import com.microsoft.azure.functions.annotation.CustomBinding;
+import com.microsoft.azure.functions.openai.constants.ModelDefaults;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -53,7 +54,7 @@ public @interface TextCompletion {
      *
      * @return The model ID.
      */
-    String chatModel() default "gpt-3.5-turbo";
+    String chatModel() default ModelDefaults.DEFAULT_CHAT_MODEL;
 
     /**
      * The sampling temperature to use, between 0 and 2. Higher values like 0.8 will

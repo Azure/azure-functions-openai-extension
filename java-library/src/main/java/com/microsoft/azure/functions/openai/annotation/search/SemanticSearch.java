@@ -7,6 +7,7 @@
 package com.microsoft.azure.functions.openai.annotation.search;
 
 import com.microsoft.azure.functions.annotation.CustomBinding;
+import com.microsoft.azure.functions.openai.constants.ModelDefaults;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -66,16 +67,16 @@ public @interface SemanticSearch {
      *
      * @return The model to use for embeddings.
      */
-    String embeddingsModel() default "text-embedding-ada-002";
+    String embeddingsModel() default ModelDefaults.DEFAULT_EMBEDDINGS_MODEL;
 
     /**
      * the name of the Large Language Model to invoke for chat responses.
      * The default value is "gpt-3.5-turbo".
      * This property supports binding expressions.
-     *
+     * 
      * @return The name of the Large Language Model to invoke for chat responses.
      */
-    String chatModel() default "gpt-3.5-turbo";
+    String chatModel() default ModelDefaults.DEFAULT_CHAT_MODEL;
 
     /**
      * The system prompt to use for prompting the large language model.

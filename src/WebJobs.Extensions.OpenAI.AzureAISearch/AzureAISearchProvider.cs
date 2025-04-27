@@ -253,7 +253,7 @@ sealed class AzureAISearchProvider : ISearchProvider
                 new SearchDocument
                 {
                     ["id"] = Guid.NewGuid().ToString("N"),
-                    ["text"] = document.Embeddings.Input![i],
+                    ["text"] = document.Embeddings.Request![i],
                     ["title"] = Path.GetFileNameWithoutExtension(document.Title),
                     ["embeddings"] = document.Embeddings.Response[i].ToFloats().ToArray() ?? Array.Empty<float>(),
                     ["timestamp"] = DateTime.UtcNow

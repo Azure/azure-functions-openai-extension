@@ -7,16 +7,16 @@ namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 
 public class EmbeddingsContext
 {
-    public EmbeddingsContext(IList<string> Input, OpenAIEmbeddingCollection? Response)
+    public EmbeddingsContext(IList<string> Request, OpenAIEmbeddingCollection? Response)
     {
-        this.Input = Input;
+        this.Request = Request;
         this.Response = Response;
     }
 
     /// <summary>
     /// Embeddings request sent to OpenAI.
     /// </summary>
-    public IList<string> Input { get; set; }
+    public IList<string> Request { get; set; }
 
     /// <summary>
     /// Embeddings response from OpenAI.

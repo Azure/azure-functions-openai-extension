@@ -220,7 +220,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
                     { "id", Guid.NewGuid().ToString("N") },
                     {
                         this.cosmosDBSearchConfigOptions.Value.TextKey,
-                            document.Embeddings.Input![i]
+                            document.Embeddings.Request![i]
                     },
                     { "title", Path.GetFileNameWithoutExtension(document.Title) },
                     {

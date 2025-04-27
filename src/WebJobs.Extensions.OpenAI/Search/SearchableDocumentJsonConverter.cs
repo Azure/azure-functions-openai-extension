@@ -29,9 +29,14 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
             {
                 foreach (JsonProperty embeddingContextItem in item.Value.EnumerateObject())
                 {
-                    if (embeddingContextItem.NameEquals("input"u8))
+                    if (embeddingContextItem.NameEquals("request"u8))
                     {
-                        input = new List<string>(); // ToDo: revisit
+                        // Parse the array of string inputs
+                        input = new List<string>();
+                        foreach (JsonElement element in embeddingContextItem.Value.EnumerateArray())
+                        {
+                            input.Add(element.GetString() ?? string.Empty);
+                        }
                     }
                     if (embeddingContextItem.NameEquals("response"u8))
                     {
@@ -78,8 +83,9 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WritePropertyName("embeddingsContext"u8);
         writer.WriteStartObject();
 
-        if (value.Embeddings?.Input is List<string> inputList)
+        if (value.Embeddings?.Request is List<string> inputList)
         {
+            writer.WritePropertyName("request"u8);
             var inputWrapper = JsonModelListWrapper.FromList(inputList);
             inputWrapper.Write(writer, modelReaderWriterOptions);
         }

@@ -11,16 +11,16 @@ import java.util.List;
 
 public class EmbeddingsContext {
 
-    private List<String> input;
+    private List<String> request;
     private Embeddings response;
     private int count = 0;
 
-    public List<String> getInput() {
-        return input;
+    public List<String> getRequest() {
+        return request;
     }
 
-    public void setInput(List<String> input) {
-        this.input = input;
+    public void setRequest(List<String> request) {
+        this.request = request;
     }
 
     public Embeddings getResponse() {
@@ -38,7 +38,8 @@ public class EmbeddingsContext {
      */
     public int getCount() {
         return this.response != null && this.response.getData() != null
-                ? this.count : 0;
+                ? this.count
+                : 0;
     }
 
 }

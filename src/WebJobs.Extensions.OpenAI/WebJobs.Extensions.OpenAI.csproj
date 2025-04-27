@@ -13,4 +13,8 @@
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.10.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="WebJobsOpenAIUnitTests" />
+  </ItemGroup>
+
 </Project>

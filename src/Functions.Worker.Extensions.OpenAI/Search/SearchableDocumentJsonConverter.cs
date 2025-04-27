@@ -24,9 +24,9 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WritePropertyName("embeddingsContext"u8);
         writer.WriteStartObject();
 
-        if (value.EmbeddingsContext?.Input is List<string> inputList)
+        if (value.EmbeddingsContext?.Request is List<string> inputList)
         {
-            writer.WritePropertyName("input"u8);
+            writer.WritePropertyName("request"u8);
             var inputWrapper = JsonModelListWrapper.FromList(inputList);
             inputWrapper.Write(writer, modelReaderWriterOptions);
         }

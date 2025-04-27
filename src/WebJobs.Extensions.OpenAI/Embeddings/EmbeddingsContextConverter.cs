@@ -22,9 +22,9 @@ class EmbeddingsContextConverter : JsonConverter<EmbeddingsContext>
     public override void Write(Utf8JsonWriter writer, EmbeddingsContext value, JsonSerializerOptions options)
     {
         writer.WriteStartObject();
-        writer.WritePropertyName("input"u8);
+        writer.WritePropertyName("request"u8);
 
-        if (value.Input is List<string> inputList)
+        if (value.Request is List<string> inputList)
         {
             var inputWrapper = JsonModelListWrapper.FromList(inputList);
             inputWrapper.Write(writer, modelReaderWriterOptions);

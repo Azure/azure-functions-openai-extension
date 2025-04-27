@@ -8,20 +8,20 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 /// <summary>
 /// Binding target for the <see cref="EmbeddingsAttribute"/>.
 /// </summary>
-/// <param name="Input">The embeddings input that was sent to OpenAI.</param>
+/// <param name="Request">The embeddings request that was sent to OpenAI.</param>
 /// <param name="Response">The embeddings response that was received from OpenAI.</param>
 public class EmbeddingsContext
 {
-    public EmbeddingsContext(IList<string> Input, OpenAIEmbeddingCollection? Response)
+    public EmbeddingsContext(IList<string> Request, OpenAIEmbeddingCollection? Response)
     {
-        this.Input = Input;
+        this.Request = Request;
         this.Response = Response;
     }
 
     /// <summary>
     /// Embeddings request sent to OpenAI.
     /// </summary>
-    public IList<string> Input { get; set; }
+    public IList<string> Request { get; set; }
 
     /// <summary>
     /// Embeddings response from OpenAI.

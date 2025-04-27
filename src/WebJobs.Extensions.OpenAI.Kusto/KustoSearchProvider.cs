@@ -83,7 +83,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
             table.Rows.Add(
                 Guid.NewGuid().ToString("N"),
                 Path.GetFileNameWithoutExtension(document.Title),
-                document.Embeddings.Input![i],
+                document.Embeddings.Request![i],
                 GetEmbeddingsString(document.Embeddings.Response[i].ToFloats().ToArray(), true),
                 DateTime.UtcNow);
         }

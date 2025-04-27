@@ -113,7 +113,7 @@ class AssistantSkillTriggerBindingProvider : ITriggerBindingProvider
             SkillInvocationContext skillInvocationContext = (SkillInvocationContext)value;
 
             object? convertedValue;
-            if (!string.IsNullOrEmpty(skillInvocationContext.Arguments.ToString()))
+            if (!string.IsNullOrEmpty(skillInvocationContext.Arguments?.ToString()))
             {
                 // We expect that input to always be a string value in the form {"paramName":paramValue}
                 JObject argsJson = JObject.Parse(skillInvocationContext.Arguments.ToString());

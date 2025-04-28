@@ -143,4 +143,12 @@ public sealed class SemanticSearchInputAttribute : InputBindingAttribute
     /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
     /// </remarks>
     public string? MaxTokens { get; set; } = "2048";
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the model is a reasoning model.
+    /// </summary>
+    /// <remarks>
+    /// Warning: This is experimental and associated with the reasoning model until all models have parity in the expected properties.
+    /// </remarks>
+    public bool IsReasoningModel { get; set; }
 }

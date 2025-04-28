@@ -64,6 +64,14 @@ public class AssistantBaseAttribute : Attribute
     public string? TopP { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether the model is a reasoning model.
+    /// </summary>
+    /// <remarks>
+    /// Warning: This is experimental and associated with the reasoning model until all models have parity in the expected properties.
+    /// </remarks>
+    public bool IsReasoningModel { get; set; }
+
+    /// <summary>
     /// Gets or sets the maximum number of tokens to output in the completion. Default value = 100.
     /// </summary>
     /// <remarks>
@@ -76,20 +84,38 @@ public class AssistantBaseAttribute : Attribute
     internal ChatCompletionOptions BuildRequest()
     {
         ChatCompletionOptions request = new();
-        if (int.TryParse(this.MaxTokens, out int maxTokens))
-        {
-            request.MaxOutputTokenCount = maxTokens;
-        }
-
-        if (float.TryParse(this.Temperature, out float temperature))
-        {
-            request.Temperature = temperature;
-        }
-
         if (float.TryParse(this.TopP, out float topP))
         {
             request.TopP = topP;
         }
+
+        if (this.IsReasoningModel)
+        {
+            this.MaxTokens = null;
+            this.Temperature = null; // property not supported for reasoning model.
+        }
+        else
+        {
+            if (int.TryParse(this.MaxTokens, out int maxTokens))
+            {
+                request.MaxOutputTokenCount = maxTokens;
+            }
+
+            if (float.TryParse(this.Temperature, out float temperature))
+            {
+                request.Temperature = temperature;
+            }
+        }
+
+        // ToDo: SetNewMaxCompletionTokensPropertyEnabled() has a bug in the current version 
+        // of the Azure.AI.OpenAI SDK but is fixed in the next preview.
+        // 
+        // This method doesn't swap max_tokens with max_completion_tokens and throws errors 
+        // if max_tokens is set. max_completion_tokens is not configurable due to this bug.
+        // 
+        // Hence, setting max_tokens to null for reasoning models until the fixed SDK version 
+        // can be adopted.
+        // request.SetNewMaxCompletionTokensPropertyEnabled(this.IsReasoningModel);
 
         return request;
     }

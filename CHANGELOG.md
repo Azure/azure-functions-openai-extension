@@ -24,6 +24,10 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 - Updated Azure.AI.OpenAI from 1.0.0-beta.15 to 2.1.0
 - Updated Azure.Data.Tables from 12.9.1 to 12.10.0, Azure.Identity from 1.12.1 to 1.13.2, Microsoft.Extensions.Azure from 1.7.5 to 1.10.0
 
+### Added
+
+- Introduced experimental `isReasoningModel` property to support reasoning models. Setting of max_completion_tokens and reasoning_effort is not supported with current underlying Azure.AI.OpenAI
+
 ## v0.18.0 - 2024/10/08
 
 ### Changed

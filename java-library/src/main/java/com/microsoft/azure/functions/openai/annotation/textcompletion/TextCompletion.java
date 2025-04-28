@@ -91,4 +91,10 @@ public @interface TextCompletion {
      */
     String maxTokens() default "100";
 
+    /**
+     * Indicates whether the assistant uses a reasoning model.
+     *
+     * @return {@code true} if the assistant is based on a reasoning model; {@code false} otherwise.
+     */
+    boolean isReasoningModel();
 }

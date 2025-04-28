@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update azure-ai-openai from 1.0.0-beta.11 to 1.0.0-beta.16
 
+### Added
+
+- Introduced experimental `isReasoningModel` property to support reasoning models. Setting of max_completion_tokens and reasoning_effort is not supported with current underlying Azure.AI.OpenAI
+
 ## v0.4.0 - 2024/10/08
 
 ### Changed

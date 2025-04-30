@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure;
-using Azure.AI.OpenAI;
+using System.ClientModel;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OpenAI.Chat;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
 
@@ -13,12 +13,12 @@ class TextCompletionConverter :
     IAsyncConverter<TextCompletionAttribute, TextCompletionResponse>,
     IAsyncConverter<TextCompletionAttribute, string>
 {
-    readonly OpenAIClient openAIClient;
+    readonly OpenAIClientFactory openAIClientFactory;
     readonly ILogger logger;
 
-    public TextCompletionConverter(OpenAIClient openAIClient, ILoggerFactory loggerFactory)
+    public TextCompletionConverter(OpenAIClientFactory openAIClientFactory, ILoggerFactory loggerFactory)
     {
-        this.openAIClient = openAIClient ?? throw new ArgumentNullException(nameof(openAIClient));
+        this.openAIClientFactory = openAIClientFactory ?? throw new ArgumentNullException(nameof(openAIClientFactory));
         this.logger = loggerFactory?.CreateLogger<TextCompletionConverter>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -43,18 +43,22 @@ class TextCompletionConverter :
         TextCompletionAttribute attribute,
         CancellationToken cancellationToken)
     {
-        ChatCompletionsOptions options = attribute.BuildRequest();
-        this.logger.LogInformation("Sending OpenAI completion request: {request}", options);
+        ChatCompletionOptions options = attribute.BuildRequest();
+        this.logger.LogInformation("Sending OpenAI completion request with prompt: {request}", attribute.Prompt);
 
-        Response<ChatCompletions> response = await this.openAIClient.GetChatCompletionsAsync(
-            options,
-            cancellationToken);
+        IList<ChatMessage> chatMessages = new List<ChatMessage>()
+        {
+            new UserChatMessage(attribute.Prompt)
+        };
+
+        ClientResult<ChatCompletion> response = await this.openAIClientFactory.GetChatClient(
+            attribute.AIConnectionName,
+            attribute.ChatModel).CompleteChatAsync(chatMessages, options, cancellationToken: cancellationToken);
 
         string text = string.Join(
             Environment.NewLine + Environment.NewLine,
-            response.Value.Choices.Select(choice => choice.Message.Content));
-        TextCompletionResponse textCompletionResponse = new(text, response.Value.Usage.TotalTokens);
-        
+            response.Value.Content[0].Text);
+        TextCompletionResponse textCompletionResponse = new(text, response.Value.Usage.TotalTokenCount);
         return textCompletionResponse;
     }
 }

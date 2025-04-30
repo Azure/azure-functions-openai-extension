@@ -21,7 +21,7 @@
       "direction": "in",
       "inputType": "RawText",
       "input": "{rawText}",
-      "model": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
     }
   ]
 }

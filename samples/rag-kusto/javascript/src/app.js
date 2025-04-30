@@ -8,7 +8,7 @@ const embeddingsStoreOutput = output.generic({
     inputType: "url",
     connectionName: "KustoConnectionString",
     collection: "Documents",
-    model: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+    embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
 });
 
 app.http('IngestEmail', {

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Text.Json.Serialization;
-using Azure.AI.OpenAI;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
+using OpenAI.Chat;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 
@@ -17,11 +17,11 @@ public class SemanticSearchContext
     /// </summary>
     /// <param name="Embeddings">The embeddings context associated with the semantic search.</param>
     /// <param name="Chat">The chat response from the large language model.</param>
-    public SemanticSearchContext(EmbeddingsContext Embeddings, ChatCompletions Chat)
+    public SemanticSearchContext(EmbeddingsContext Embeddings, ChatCompletion Chat)
     {
         this.Embeddings = Embeddings;
         this.Chat = Chat;
-        
+
     }
 
     /// <summary>
@@ -34,12 +34,11 @@ public class SemanticSearchContext
     /// Gets the chat response from the large language model.
     /// </summary>
     [JsonPropertyName("chat")]
-    public ChatCompletions Chat { get; }
-
+    public ChatCompletion Chat { get; }
 
     /// <summary>
     /// Gets the latest response message from the OpenAI Chat API.
     /// </summary>
     [JsonPropertyName("response")]
-    public string Response => this.Chat.Choices.Last().Message.Content;
- }
+    public string Response => this.Chat.Content.Last().Text;
+}

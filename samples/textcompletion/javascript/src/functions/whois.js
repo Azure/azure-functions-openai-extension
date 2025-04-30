@@ -5,7 +5,7 @@ const openAICompletionInput = input.generic({
     prompt: 'Who is {name}?',
     maxTokens: '100',
     type: 'textCompletion',
-    model: '%CHAT_MODEL_DEPLOYMENT_NAME%'
+    chatModel: '%CHAT_MODEL_DEPLOYMENT_NAME%'
 })
 
 app.http('whois', {

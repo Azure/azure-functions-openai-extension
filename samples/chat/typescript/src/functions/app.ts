@@ -52,7 +52,7 @@ app.http('GetChatState', {
 const assistantPostInput = input.generic({
     type: 'assistantPost',
     id: '{chatID}',
-    model: '%CHAT_MODEL_DEPLOYMENT_NAME%',
+    chatModel: '%CHAT_MODEL_DEPLOYMENT_NAME%',
     userMessage: '{Query.message}',
     chatStorageConnectionSetting: CHAT_STORAGE_CONNECTION_SETTING,
     collectionName: COLLECTION_NAME

@@ -41,7 +41,7 @@ public class EmbeddingsGenerator
     [Function(nameof(GenerateEmbeddings_Http_RequestAsync))]
     public async Task GenerateEmbeddings_Http_RequestAsync(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] HttpRequestData req,
-        [EmbeddingsInput("{rawText}", InputType.RawText, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+        [EmbeddingsInput("{rawText}", InputType.RawText, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
@@ -63,7 +63,7 @@ public class EmbeddingsGenerator
     [Function(nameof(GetEmbeddings_Http_FilePath))]
     public async Task GetEmbeddings_Http_FilePath(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-file")] HttpRequestData req,
-        [EmbeddingsInput("{filePath}", InputType.FilePath, MaxChunkLength = 512, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+        [EmbeddingsInput("{filePath}", InputType.FilePath, MaxChunkLength = 512, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
@@ -84,7 +84,7 @@ public class EmbeddingsGenerator
     [Function(nameof(GetEmbeddings_Http_URL))]
     public async Task GetEmbeddings_Http_URL(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-url")] HttpRequestData req,
-        [EmbeddingsInput("{url}", InputType.Url, MaxChunkLength = 512, Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
+        [EmbeddingsInput("{url}", InputType.Url, MaxChunkLength = 512, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();

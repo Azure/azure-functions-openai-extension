@@ -20,6 +20,23 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     }
 
     /// <summary>
+    /// Gets or sets the name of the configuration section for AI service connectivity settings.
+    /// </summary>
+    /// <remarks>
+    /// This property specifies the name of the configuration section that contains connection details for the AI service.
+    /// 
+    /// For Azure OpenAI:
+    /// - If specified, looks for "Endpoint" and "Key" values in this configuration section
+    /// - If not specified or the section doesn't exist, falls back to environment variables:
+    ///   AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY
+    /// - For user-assigned managed identity authentication, this property is required
+    /// 
+    /// For OpenAI:
+    /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
+    /// </remarks>
+    public string AIConnectionName { get; set; } = "";
+
+    /// <summary>
     /// Gets or sets the prompt to generate completions for, encoded as a string.
     /// </summary>
     public string Prompt { get; }
@@ -27,7 +44,7 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// <summary>
     /// Gets or sets the ID of the model to use.
     /// </summary>
-    public string Model { get; set; } = "gpt-3.5-turbo";
+    public string ChatModel { get; set; } = "gpt-3.5-turbo";
 
     /// <summary>
     /// Gets or sets the sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output
@@ -56,4 +73,12 @@ public sealed class TextCompletionInputAttribute : InputBindingAttribute
     /// Most models have a context length of 2048 tokens (except for the newest models, which support 4096).
     /// </remarks>
     public string? MaxTokens { get; set; } = "100";
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the model is a reasoning model.
+    /// </summary>
+    /// <remarks>
+    /// Warning: This is experimental and associated with the reasoning model until all models have parity in the expected properties.
+    /// </remarks>
+    public bool IsReasoningModel { get; set; }
 }

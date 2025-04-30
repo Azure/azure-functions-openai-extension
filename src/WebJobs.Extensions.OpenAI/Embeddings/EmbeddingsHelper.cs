@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using System.Diagnostics;
-using Azure.AI.OpenAI;
+using Microsoft.Extensions.Logging;
+using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 static class EmbeddingsHelper
@@ -17,16 +19,35 @@ static class EmbeddingsHelper
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
     }
 
-    public static async Task<EmbeddingsOptions> BuildRequest(int maxOverlap, int maxChunkLength, string model, InputType inputType, string input)
+    internal static async Task<EmbeddingsContext> GenerateEmbeddingsAsync(
+        EmbeddingsBaseAttribute attribute,
+        OpenAIClientFactory openAIClientFactory,
+        ILogger logger,
+        CancellationToken cancellationToken = default)
     {
-        using TextReader reader = await GetTextReader(inputType, input);
-        if (maxOverlap >= maxChunkLength)
+        List<string> chunks = await BuildRequest(attribute);
+
+        logger.LogInformation("Sending OpenAI embeddings request");
+
+        ClientResult<OpenAIEmbeddingCollection> response = await openAIClientFactory.GetEmbeddingClient(
+            attribute.AIConnectionName,
+            attribute.EmbeddingsModel).GenerateEmbeddingsAsync(chunks, cancellationToken: cancellationToken);
+
+        logger.LogInformation("Received OpenAI embeddings count: {count}", response.Value.Count);
+
+        return new EmbeddingsContext(chunks, response);
+    }
+
+    static async Task<List<string>> BuildRequest(EmbeddingsBaseAttribute attribute)
+    {
+        using TextReader reader = await GetTextReader(attribute.InputType, attribute.Input);
+        if (attribute.MaxOverlap >= attribute.MaxChunkLength)
         {
-            throw new ArgumentOutOfRangeException($"MaxOverlap ({maxOverlap}) must be less than MaxChunkLength ({maxChunkLength}).");
+            throw new ArgumentOutOfRangeException($"MaxOverlap ({attribute.MaxOverlap}) must be less than MaxChunkLength ({attribute.MaxChunkLength}).");
         }
 
-        List<string> chunks = GetTextChunks(reader, 0, maxChunkLength, maxOverlap).ToList();
-        return new EmbeddingsOptions(model, chunks);
+        List<string> chunks = GetTextChunks(reader, 0, attribute.MaxChunkLength, attribute.MaxOverlap).ToList();
+        return chunks;
     }
 
     static async Task<TextReader> GetTextReader(InputType inputType, string input)
@@ -41,6 +62,12 @@ static class EmbeddingsHelper
         }
         else if (inputType == InputType.Url)
         {
+            if (!Uri.TryCreate(input, UriKind.Absolute, out Uri? uriResult) ||
+                uriResult.Scheme != Uri.UriSchemeHttps)
+            {
+                throw new ArgumentException($"Invalid Url: {input}. Ensure it is a valid https Url.");
+            }
+
             Stream stream = await httpClient.GetStreamAsync(input);
             return new StreamReader(stream);
         }

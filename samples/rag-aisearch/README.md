@@ -35,16 +35,14 @@ and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure
 
     1. User-Assigned Managed Identity:
 
-        // Note and TODO: Use of user-assigned managed identity for AI Search is breaking at the moment, since Azure OpenAI authentication also needs update to support a separate identity.
-
         ```json
         "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net",
         "<ConnectionNamePrefix>__credential": "managedidentity",
         "<ConnectionNamePrefix>__managedIdentityResourceId": "Resource Id of managed identity", 
-        "<ConnectionNamePrefix>__managedIdentityClientId": "Client Id of managed identity"
+        "<ConnectionNamePrefix>__clientId": "Client Id of managed identity"
         ```
 
-        Only one of managedIdentityResourceId or managedIdentityClientId should be specified, not both.
+        Only one of managedIdentityResourceId or clientId should be specified, not both.
 
     2. System-Assigned Managed Identity or local development:
 
@@ -56,7 +54,7 @@ and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure
        Specifying credential is optional for system assigned managed identity
 
 4. Binding Configuration -
-    Pass the configured `ConnectionNamePrefix` value, example `AISearch` to the `connectionName` property in the `SemanticSearchInput` or `EmbeddingsStoreOutput` bindings. Default is `AISearchEndpoint` if just the endpoint is being configured in local.settings.json or environment variables to use DefaultAzureCredential.
+    Pass the configured `ConnectionNamePrefix` value, example `AISearch` to the `searchConnectionName` property in the `SemanticSearchInput` or `EmbeddingsStoreOutput` bindings. Default is `AISearchEndpoint` if just the endpoint is being configured in local.settings.json or environment variables to use DefaultAzureCredential.
 
 ## Running the sample
 

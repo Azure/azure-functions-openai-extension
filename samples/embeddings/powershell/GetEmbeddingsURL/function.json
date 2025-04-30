@@ -22,7 +22,7 @@
       "inputType": "Url",
       "input": "{url}",
       "maxChunkLength": 512,
-      "model": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
     }
   ]
 }

@@ -25,7 +25,7 @@ public sealed class Startup : WorkerExtensionStartup
             jsonSerializerOptions.Converters.Add(new EmbeddingsJsonConverter());
             jsonSerializerOptions.Converters.Add(new EmbeddingsOptionsJsonConverter());
             jsonSerializerOptions.Converters.Add(new SearchableDocumentJsonConverter());
-            jsonSerializerOptions.Converters.Add(new ChatCompletionsJsonConverter());
+            jsonSerializerOptions.Converters.Add(new ChatCompletionJsonConverter());
         });
     }
 }

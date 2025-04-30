@@ -42,12 +42,4 @@ public sealed class AssistantSkillTriggerAttribute : Attribute
     /// https://platform.openai.com/docs/api-reference/chat/create#chat-create-tools.
     /// </remarks>
     public string? ParameterDescriptionJson { get; set; }
-
-    /// <summary>
-    /// Gets or sets the OpenAI chat model to use.
-    /// </summary>
-    /// <remarks>
-    /// When using Azure OpenAI, then should be the name of the model <em>deployment</em>.
-    /// </remarks>
-    public string Model { get; set; } = "gpt-3.5-turbo";
 }

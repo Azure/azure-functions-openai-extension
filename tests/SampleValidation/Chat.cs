@@ -125,13 +125,13 @@ public class Chat
                     {
                         // Make sure the first message is the system message
                         JsonNode systemMessage = messageArray!.First()!;
-                        Assert.Equal("system", systemMessage["role"]?.GetValue<string>());
+                        Assert.Equal("system", systemMessage["role"]?.GetValue<string>(), StringComparer.OrdinalIgnoreCase);
                     }
                     else
                     {
                         // Make sure that the last message is from the chat bot (assistant)
                         JsonNode lastMessage = messageArray![messageArray.Count - 1]!;
-                        Assert.Equal("assistant", lastMessage["role"]?.GetValue<string>());
+                        Assert.Equal("assistant", lastMessage["role"]?.GetValue<string>(), StringComparer.OrdinalIgnoreCase);
                         Assert.StartsWith("Yo!", lastMessage!["content"]?.GetValue<string>());
                     }
 

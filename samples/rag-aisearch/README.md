@@ -39,10 +39,10 @@ and optionally [enable semantic ranking](https://learn.microsoft.com/en-us/azure
         "<ConnectionNamePrefix>__endpoint": "https://<resource-name>.search.windows.net",
         "<ConnectionNamePrefix>__credential": "managedidentity",
         "<ConnectionNamePrefix>__managedIdentityResourceId": "Resource Id of managed identity", 
-        "<ConnectionNamePrefix>__managedIdentityClientId": "Client Id of managed identity"
+        "<ConnectionNamePrefix>__clientId": "Client Id of managed identity"
         ```
 
-        Only one of managedIdentityResourceId or managedIdentityClientId should be specified, not both.
+        Only one of managedIdentityResourceId or clientId should be specified, not both.
 
     2. System-Assigned Managed Identity or local development:
 

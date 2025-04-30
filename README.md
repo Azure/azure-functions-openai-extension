@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://dev.azure.com/azfunc/Azure%20Functions/_apis/build/status%2FExtension-OpenAI%2FAzure%20Functions%20OpenAI%20Extension%20PR%20CI?branchName=main)](https://dev.azure.com/azfunc/Azure%20Functions/_build/latest?definitionId=303&branchName=main)
 
-This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
+This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4, o-series) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
 This extension depends on the [Azure AI OpenAI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
 
@@ -62,10 +62,10 @@ The optional `AIConnectionName` property specifies the name of a configuration s
         "<ConnectionNamePrefix>__endpoint": "Placeholder for the Azure OpenAI endpoint value",
         "<ConnectionNamePrefix>__credential": "managedidentity",
         "<ConnectionNamePrefix>__managedIdentityResourceId": "Resource Id of managed identity", 
-        "<ConnectionNamePrefix>__managedIdentityClientId": "Client Id of managed identity"
+        "<ConnectionNamePrefix>__clientId": "Client Id of managed identity"
     ```
 
-  * Only one of managedIdentityResourceId or managedIdentityClientId should be specified, not both.
+  * Only one of managedIdentityResourceId or clientId should be specified, not both.
   * If no Resource Id or Client Id is specified, the system-assigned managed identity will be used by default.
   * Pass the configured `ConnectionNamePrefix` value, example `AzureOpenAI` to the `AIConnectionName` property.
 
@@ -98,6 +98,10 @@ public static IActionResult PostUserResponse(
     return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
 }
 ```
+
+## Using Reasoning Models
+
+If using reasoning models, set the `IsReasoningModel` property to true in `AssistantPost`, `SemanticSearch` and `TextCompletion` bindings. This is required due to difference in expected properties for reasoning models.
 
 ## Features
 

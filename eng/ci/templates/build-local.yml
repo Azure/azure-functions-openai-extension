@@ -60,5 +60,5 @@ jobs:
           dir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
           dotnet nuget add source $(System.DefaultWorkingDirectory)/NuGetPackagesLocal --configfile  %appdata%/NuGet/NuGet.Config
           dotnet nuget list source --configfile  %appdata%/NuGet/NuGet.Config
-          dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) --configfile %appdata%/NuGet/NuGet.Config
+          dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) /p:CosmosDBNoSqlSearchVersion=$(fakeWebJobsPackageVersion) --configfile %appdata%/NuGet/NuGet.Config
         displayName: Build from local NuGet packages

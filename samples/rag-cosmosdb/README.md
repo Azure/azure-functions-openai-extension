@@ -13,8 +13,6 @@ The sample is available in the following language stacks:
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
-### Chat Storage Configuration
-
 ## Running the sample
 
 This sample requires creating an Azure Cosmos DB for MongoDB vCore. You can do this by following the [Cosmos DB for MongoDB vCore Quickstart](https://learn.microsoft.com/azure/cosmos-db/mongodb/vcore/quickstart-portal).

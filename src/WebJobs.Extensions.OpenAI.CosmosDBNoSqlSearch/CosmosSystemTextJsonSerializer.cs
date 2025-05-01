@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -51,7 +50,7 @@ public class CosmosSystemTextJsonSerializer : CosmosLinqSerializer
 
     public override Stream ToStream<T>(T input)
     {
-        MemoryStream streamPayload = new MemoryStream();
+        MemoryStream streamPayload = new();
         this.systemTextJsonSerializer.Serialize(streamPayload, input, input.GetType(), default);
         streamPayload.Position = 0;
         return streamPayload;
@@ -79,7 +78,6 @@ public class CosmosSystemTextJsonSerializer : CosmosLinqSerializer
         }
 
         // Do any additional handling of JsonSerializerOptions here.
-
         return memberInfo.Name;
     }
 }

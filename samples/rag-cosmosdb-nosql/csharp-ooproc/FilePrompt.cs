@@ -62,7 +62,7 @@ public static class FilePrompt
             InputType.Url,
             "CosmosDBNoSql",
             "openai-index",
-            Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+            EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
         )]
         public required SearchableDocument SearchableDocument { get; init; }
 

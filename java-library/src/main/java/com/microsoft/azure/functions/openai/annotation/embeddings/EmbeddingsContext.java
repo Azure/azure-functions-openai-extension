@@ -7,19 +7,19 @@
 package com.microsoft.azure.functions.openai.annotation.embeddings;
 
 import com.azure.ai.openai.models.Embeddings;
-import com.azure.ai.openai.models.EmbeddingsOptions;
+import java.util.List;
 
 public class EmbeddingsContext {
 
-    private EmbeddingsOptions request;
+    private List<String> request;
     private Embeddings response;
     private int count = 0;
 
-    public EmbeddingsOptions getRequest() {
+    public List<String> getRequest() {
         return request;
     }
 
-    public void setRequest(EmbeddingsOptions request) {
+    public void setRequest(List<String> request) {
         this.request = request;
     }
 
@@ -38,7 +38,8 @@ public class EmbeddingsContext {
      */
     public int getCount() {
         return this.response != null && this.response.getData() != null
-                ? this.count : 0;
+                ? this.count
+                : 0;
     }
 
 }

@@ -5,7 +5,7 @@ using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
-using OpenAISDK = Azure.AI.OpenAI;
+using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
@@ -16,8 +16,8 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         using JsonDocument jsonDocument = JsonDocument.ParseValue(ref reader);
 
         // Properties for SearchableDocument
-        OpenAISDK.EmbeddingsOptions embeddingsOptions = new();
-        OpenAISDK.Embeddings? embeddings = null;
+        IList<string> input = new List<string>();
+        OpenAIEmbeddingCollection? embeddings = null;
         int count;
         string title = string.Empty;
         string connectionName = string.Empty;
@@ -31,11 +31,16 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
                 {
                     if (embeddingContextItem.NameEquals("request"u8))
                     {
-                        embeddingsOptions = ModelReaderWriter.Read<OpenAISDK.EmbeddingsOptions>(BinaryData.FromString(embeddingContextItem.Value.GetRawText()))!;
+                        // Parse the array of string inputs
+                        input = new List<string>();
+                        foreach (JsonElement element in embeddingContextItem.Value.EnumerateArray())
+                        {
+                            input.Add(element.GetString() ?? string.Empty);
+                        }
                     }
                     if (embeddingContextItem.NameEquals("response"u8))
                     {
-                        embeddings = ModelReaderWriter.Read<OpenAISDK.Embeddings>(BinaryData.FromString(embeddingContextItem.Value.GetRawText()))!;
+                        embeddings = ModelReaderWriter.Read<OpenAIEmbeddingCollection>(BinaryData.FromString(embeddingContextItem.Value.GetRawText()))!;
                     }
                     if (embeddingContextItem.NameEquals("count"u8))
                     {
@@ -65,7 +70,7 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         }
         SearchableDocument searchableDocument = new SearchableDocument(title)
         {
-            Embeddings = new EmbeddingsContext(embeddingsOptions, embeddings),
+            Embeddings = new EmbeddingsContext(input, embeddings),
             ConnectionInfo = new ConnectionInfo(connectionName, collectionName),
         };
         return searchableDocument;
@@ -78,13 +83,14 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WritePropertyName("embeddingsContext"u8);
         writer.WriteStartObject();
 
-        if (value.Embeddings?.Request is IJsonModel<OpenAISDK.EmbeddingsOptions> request)
+        if (value.Embeddings?.Request is List<string> inputList)
         {
             writer.WritePropertyName("request"u8);
-            request.Write(writer, modelReaderWriterOptions);
+            var inputWrapper = JsonModelListWrapper.FromList(inputList);
+            inputWrapper.Write(writer, modelReaderWriterOptions);
         }
 
-        if (value.Embeddings?.Response is IJsonModel<OpenAISDK.Embeddings> response)
+        if (value.Embeddings?.Response is IJsonModel<OpenAIEmbeddingCollection> response)
         {
             writer.WritePropertyName("response"u8);
             response.Write(writer, modelReaderWriterOptions);

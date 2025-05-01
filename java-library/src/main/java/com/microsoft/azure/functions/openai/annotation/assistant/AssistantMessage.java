@@ -11,35 +11,23 @@ package com.microsoft.azure.functions.openai.annotation.assistant;
  * Chat Message Entity which contains the content of the message, the role of the chat agent, and the name of the calling function if applicable.
  * </p>
  */
-public class ChatMessage {
+public class AssistantMessage {
 
     private String content;
     private String role;
-    private String name;
+    private String toolCalls;
 
     /**
-     * Initializes a new instance of the ChatMessage class.
+     * Initializes a new instance of the AssistantMessage class.
      *
-     * @param content The content of the message.
-     * @param role    The role of the chat agent.
+     * @param content   The content of the message.
+     * @param role      The role of the chat agent.
+     * @param toolCalls The toolCalls of the calling function if applicable.
      */
-    public ChatMessage(String content, String role) {
+    public AssistantMessage(String content, String role, String toolCalls) {
         this.content = content;
         this.role = role;
-    }
-
-    
-    /**
-     * Initializes a new instance of the ChatMessage class.
-     *
-     * @param content The content of the message.
-     * @param role    The role of the chat agent.
-     * @param name    The name of the calling function if applicable.
-     */
-    public ChatMessage(String content, String role, String name) {
-        this.content = content;
-        this.role = role;
-        this.name = name;
+        this.toolCalls = toolCalls;
     }
 
     /**
@@ -79,21 +67,20 @@ public class ChatMessage {
     }
 
     /**
-     * Gets the name of the calling function if applicable.
+     * Gets the toolCalls of the calling function if applicable.
      * 
-     * @return The name of the calling function if applicable.
+     * @return The toolCalls of the calling function if applicable.
      */
-    public String getName() {
-        return name;
+    public String getToolCalls() {
+        return toolCalls;
     }
 
     /**
-     * Sets the name of the calling function if applicable.
+     * Sets the toolCalls of the calling function if applicable.
      * 
-     * @param name The name of the calling function if applicable.
+     * @param toolCalls The toolCalls of the calling function if applicable.
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setToolCalls(String toolCalls) {
+        this.toolCalls = toolCalls;
     }
 }
-

@@ -22,7 +22,7 @@
       "dataType": "string",
       "id": "{assistantId}",
       "userMessage": "{Query.message}",
-      "model": "%CHAT_MODEL_DEPLOYMENT_NAME%",
+      "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",
       "chatStorageConnectionSetting": "AzureWebJobsStorage",
       "collectionName": "ChatState"
     }

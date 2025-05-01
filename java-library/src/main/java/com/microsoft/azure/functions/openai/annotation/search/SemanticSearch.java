@@ -7,11 +7,12 @@
 package com.microsoft.azure.functions.openai.annotation.search;
 
 import com.microsoft.azure.functions.annotation.CustomBinding;
+import com.microsoft.azure.functions.openai.constants.ModelDefaults;
 
- import java.lang.annotation.ElementType;
- import java.lang.annotation.Retention;
- import java.lang.annotation.RetentionPolicy;
- import java.lang.annotation.Target;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
@@ -26,12 +27,21 @@ public @interface SemanticSearch {
     String name();
 
     /**
-     * The name of an app setting or environment variable which contains a connection string value.
+     * The name of the configuration section for AI service connectivity settings.
+     * 
+     * @return The name of the configuration section for AI service connectivity
+     *         settings.
+     */
+    String aiConnectionName() default "";
+
+    /**
+     * The name of an app setting or environment variable which contains a
+     * connection string value.
      * This property supports binding expressions.
      *
      * @return The connection name.
      */
-    String connectionName();
+    String searchConnectionName();
 
     /**
      * The name of the collection or table to search.
@@ -50,7 +60,6 @@ public @interface SemanticSearch {
      */
     String query() default "";
 
-
     /**
      * The model to use for embeddings.
      * The default value is "text-embedding-ada-002".
@@ -58,21 +67,21 @@ public @interface SemanticSearch {
      *
      * @return The model to use for embeddings.
      */
-    String embeddingsModel() default "text-embedding-ada-002";
+    String embeddingsModel() default ModelDefaults.DEFAULT_EMBEDDINGS_MODEL;
 
     /**
      * the name of the Large Language Model to invoke for chat responses.
      * The default value is "gpt-3.5-turbo".
      * This property supports binding expressions.
-     *
+     * 
      * @return The name of the Large Language Model to invoke for chat responses.
      */
-    String chatModel() default "gpt-3.5-turbo";
-
+    String chatModel() default ModelDefaults.DEFAULT_CHAT_MODEL;
 
     /**
      * The system prompt to use for prompting the large language model.
-     * The system prompt will be appended with knowledge that is fetched as a result of the Query.
+     * The system prompt will be appended with knowledge that is fetched as a result
+     * of the Query.
      * The combined prompt will then be sent to the OpenAI Chat API.
      * This property supports binding expressions.
      *
@@ -94,4 +103,46 @@ public @interface SemanticSearch {
      * @return The number of knowledge items to inject into the SystemPrompt.
      */
     int maxKnowledgeLength() default 1;
+
+    /**
+     * The sampling temperature to use, between 0 and 2. Higher values like 0.8 will
+     * make the output
+     * more random, while lower values like 0.2 will make it more focused and
+     * deterministic.
+     * It's generally recommended to use this or {@link #topP()} but not both.
+     *
+     * @return The sampling temperature value.
+     */
+    String temperature() default "0.5";
+
+    /**
+     * An alternative to sampling with temperature, called nucleus sampling, where
+     * the model considers
+     * the results of the tokens with top_p probability mass. So 0.1 means only the
+     * tokens comprising the top 10%
+     * probability mass are considered.
+     * It's generally recommended to use this or {@link #temperature()} but not
+     * both.
+     *
+     * @return The topP value.
+     */
+    String topP() default "";
+
+    /**
+     * The maximum number of tokens to generate in the completion.
+     * The token count of your prompt plus max_tokens cannot exceed the model's
+     * context length.
+     * Most models have a context length of 2048 tokens (except for the newest
+     * models, which support 4096).
+     *
+     * @return The maxTokens value.
+     */
+    String maxTokens() default "2048";
+
+    /**
+     * Indicates whether the assistant uses a reasoning model.
+     *
+     * @return {@code true} if the assistant is based on a reasoning model; {@code false} otherwise.
+     */
+    boolean isReasoningModel();
 }

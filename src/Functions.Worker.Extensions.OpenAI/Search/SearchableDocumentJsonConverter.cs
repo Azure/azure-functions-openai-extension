@@ -4,7 +4,8 @@
 using System.ClientModel.Primitives;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using OpenAISDK = Azure.AI.OpenAI;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
+using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 
@@ -23,12 +24,13 @@ class SearchableDocumentJsonConverter : JsonConverter<SearchableDocument>
         writer.WritePropertyName("embeddingsContext"u8);
         writer.WriteStartObject();
 
-        if (value.EmbeddingsContext?.Request is IJsonModel<OpenAISDK.EmbeddingsOptions> request)
+        if (value.EmbeddingsContext?.Request is List<string> inputList)
         {
             writer.WritePropertyName("request"u8);
-            request.Write(writer, modelReaderWriterOptions);
+            var inputWrapper = JsonModelListWrapper.FromList(inputList);
+            inputWrapper.Write(writer, modelReaderWriterOptions);
         }
-        if (value.EmbeddingsContext?.Response is IJsonModel<OpenAISDK.Embeddings> response)
+        if (value.EmbeddingsContext?.Response is IJsonModel<OpenAIEmbeddingCollection> response)
         {
             writer.WritePropertyName("response"u8);
             response.Write(writer, modelReaderWriterOptions);

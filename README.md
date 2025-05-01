@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://dev.azure.com/azfunc/Azure%20Functions/_apis/build/status%2FExtension-OpenAI%2FAzure%20Functions%20OpenAI%20Extension%20PR%20CI?branchName=main)](https://dev.azure.com/azfunc/Azure%20Functions/_build/latest?definitionId=303&branchName=main)
 
-This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
+This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4, o-series) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
 This extension depends on the [Azure AI OpenAI SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/openai/Azure.AI.OpenAI).
 
@@ -29,18 +29,79 @@ Add following section to `host.json` of the function app for non dotnet language
 
 ## Requirements
 
-* [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or greater (Visual Studio 2022 recommended)
+* [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or greater (Visual Studio 2022 recommended)
 * [Azure Functions Core Tools v4.x](https://learn.microsoft.com/azure/azure-functions/functions-run-local?tabs=v4%2Cwindows%2Cnode%2Cportal%2Cbash)
-* Update settings in Azure Function or the `local.settings.json` file for local development with the following keys:
-    1. For Azure, `AZURE_OPENAI_ENDPOINT` - [Azure OpenAI resource](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal) (e.g. `https://***.openai.azure.com/`) set.
-    1. For Azure, assign the user or function app managed identity `Cognitive Services OpenAI User` role on the Azure OpenAI resource. It is strongly recommended  to use managed identity to avoid overhead of secrets maintenance, however if there is a need for key based authentication add the setting `AZURE_OPENAI_KEY` and its value in the settings.
-    1. For non- Azure, `OPENAI_API_KEY` - An OpenAI account and an [API key](https://platform.openai.com/account/api-keys) saved into a setting.  
-    If using environment variables, Learn more in [.env readme](./env/README.md).
-    1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
-    1. If using user assigned managed identity, add `AZURE_CLIENT_ID` to environment variable settings with value as client id of the managed identity.
-    1. Visit binding specific samples README for additional settings that might be required for each binding.
 * Azure Storage emulator such as [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) running in the background
 * The target language runtime (e.g. dotnet, nodejs, powershell, python, java) installed on your machine. Refer the official supported versions.
+* Update settings in Azure Function or the `local.settings.json` file for local development with the following keys:
+    1. Update `CHAT_MODEL_DEPLOYMENT_NAME` and `EMBEDDING_MODEL_DEPLOYMENT_NAME` keys to Azure Deployment names or override default OpenAI model names.
+    1. Visit binding specific samples README for additional settings that might be required for each binding.
+    1. Refer [Configuring AI Service Connections](#configuring-ai-service-connections)
+
+## Configuring AI Service Connections
+
+The Azure Functions OpenAI Extension provides flexible options for configuring connections to AI services through the `AIConnectionName` property in the AssistantPost, TextCompletion, SemanticSearch, EmbeddingsStore, Embeddings bindings
+
+### Managed Identity Role
+
+Strongly recommended to use managed identity and ensure the user or function app's managed identity has the role - `Cognitive Services OpenAI User`
+
+### AIConnectionName Property
+
+The optional `AIConnectionName` property specifies the name of a configuration section that contains connection details for the AI service:
+
+#### For Azure OpenAI Service
+
+* If specified, the extension looks for `Endpoint` and `Key` values in the named configuration section
+* If not specified or the configuration section doesn't exist, the extension falls back to environment variables:
+  * `AZURE_OPENAI_ENDPOINT` and/or
+  * `AZURE_OPENAI_KEY`
+* For user-assigned managed identity authentication, a configuration section is required
+
+    ```json
+        "<ConnectionNamePrefix>__endpoint": "Placeholder for the Azure OpenAI endpoint value",
+        "<ConnectionNamePrefix>__credential": "managedidentity",
+        "<ConnectionNamePrefix>__managedIdentityResourceId": "Resource Id of managed identity", 
+        "<ConnectionNamePrefix>__clientId": "Client Id of managed identity"
+    ```
+
+  * Only one of managedIdentityResourceId or clientId should be specified, not both.
+  * If no Resource Id or Client Id is specified, the system-assigned managed identity will be used by default.
+  * Pass the configured `ConnectionNamePrefix` value, example `AzureOpenAI` to the `AIConnectionName` property.
+
+#### For OpenAI Service (non-Azure)
+
+* Set the `OPENAI_API_KEY` environment variable
+
+### Configuration Examples
+
+#### Example: Using a configuration section
+
+In `local.settings.json` or app environment variables:
+
+```json
+"AzureOpenAI__endpoint": "Placeholder for the Azure OpenAI endpoint value",
+"AzureOpenAI__credential": "managedidentity",
+```
+
+Specifying credential is optional for system assigned managed identity
+
+Function usage example:
+
+```csharp
+[Function(nameof(PostUserResponse))]
+public static IActionResult PostUserResponse(
+    [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequestData req,
+    string chatId,
+    [AssistantPostInput("{chatId}", "{Query.message}", AIConnectionName = "AzureOpenAI", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
+{
+    return new OkObjectResult(state.RecentMessages.LastOrDefault()?.Content ?? "No response returned.");
+}
+```
+
+## Using Reasoning Models
+
+If using reasoning models, set the `IsReasoningModel` property to true in `AssistantPost`, `SemanticSearch` and `TextCompletion` bindings. This is required due to difference in expected properties for reasoning models.
 
 ## Features
 
@@ -270,7 +331,7 @@ public static async Task<EmbeddingsStoreOutputResponse> IngestFile(
 
 public class EmbeddingsStoreOutputResponse
 {
-    [EmbeddingsStoreOutput("{url}", InputType.Url, "AISearchEndpoint", "openai-index", Model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+    [EmbeddingsStoreOutput("{url}", InputType.Url, "AISearchEndpoint", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
     public required SearchableDocument SearchableDocument { get; init; }
 
     public IActionResult? HttpResponse { get; set; }

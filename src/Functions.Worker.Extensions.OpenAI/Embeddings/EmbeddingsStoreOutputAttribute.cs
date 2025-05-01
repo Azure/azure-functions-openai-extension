@@ -14,20 +14,37 @@ public class EmbeddingsStoreOutputAttribute : OutputBindingAttribute
     /// <param name="input">The input source containing the data to generate embeddings for
     /// and is interpreted based on the value for <paramref name="inputType"/>.</param>
     /// <param name="inputType">The type of the input.</param>
-    /// <param name="connectionName">
-    /// The name of an app setting or environment variable which contains a connection string value.
+    /// <param name="storeConnectionName">
+    /// The name of an app setting or environment variable which contains a connection string value for embedding store.
     /// </param>
     /// <param name="collection">The name of the collection or table to search or store.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown if <paramref name="input"/> or <paramref name="collection"/> or <paramref name="connectionName"/> are null.
+    /// Thrown if <paramref name="input"/> or <paramref name="collection"/> or <paramref name="storeConnectionName"/> are null.
     /// </exception>
-    public EmbeddingsStoreOutputAttribute(string input, InputType inputType, string connectionName, string collection)
+    public EmbeddingsStoreOutputAttribute(string input, InputType inputType, string storeConnectionName, string collection)
     {
         this.Input = input ?? throw new ArgumentNullException(nameof(input));
         this.InputType = inputType;
-        this.ConnectionName = connectionName ?? throw new ArgumentNullException(nameof(connectionName));
+        this.StoreConnectionName = storeConnectionName ?? throw new ArgumentNullException(nameof(storeConnectionName));
         this.Collection = collection ?? throw new ArgumentNullException(nameof(collection));
     }
+
+    /// <summary>
+    /// Gets or sets the name of the configuration section for AI service connectivity settings.
+    /// </summary>
+    /// <remarks>
+    /// This property specifies the name of the configuration section that contains connection details for the AI service.
+    /// 
+    /// For Azure OpenAI:
+    /// - If specified, looks for "Endpoint" and "Key" values in this configuration section
+    /// - If not specified or the section doesn't exist, falls back to environment variables:
+    ///   AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY
+    /// - For user-assigned managed identity authentication, configuration section is required
+    /// 
+    /// For OpenAI:
+    /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
+    /// </remarks>
+    public string AIConnectionName { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the ID of the model to use.
@@ -35,7 +52,7 @@ public class EmbeddingsStoreOutputAttribute : OutputBindingAttribute
     /// <remarks>
     /// Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
     /// </remarks>
-    public string Model { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
+    public string EmbeddingsModel { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.
@@ -70,7 +87,7 @@ public class EmbeddingsStoreOutputAttribute : OutputBindingAttribute
     /// <remarks>
     /// This property supports binding expressions.
     /// </remarks>
-    public string ConnectionName { get; set; }
+    public string StoreConnectionName { get; set; }
 
     /// <summary>
     /// The name of the collection or table to search.

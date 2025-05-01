@@ -25,9 +25,28 @@ public class EmbeddingsBaseAttribute : Attribute
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="input"/> is <c>null</c>.</exception>
     public EmbeddingsBaseAttribute(string input, InputType inputType)
     {
-        this.Input = input ?? throw new ArgumentNullException(nameof(input));
+        this.Input = string.IsNullOrEmpty(input)
+            ? throw new ArgumentException("Input cannot be null or empty.", nameof(input))
+            : input;
         this.InputType = inputType;
     }
+
+    /// <summary>
+    /// Gets or sets the name of the configuration section for AI service connectivity settings.
+    /// </summary>
+    /// <remarks>
+    /// This property specifies the name of the configuration section that contains connection details for the AI service.
+    /// 
+    /// For Azure OpenAI:
+    /// - If specified, looks for "Endpoint" and "Key" values in this configuration section
+    /// - If not specified or the section doesn't exist, falls back to environment variables:
+    ///   AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_KEY
+    /// - For user-assigned managed identity authentication, configuration section is required
+    /// 
+    /// For OpenAI:
+    /// - For OpenAI service (non-Azure), set the OPENAI_API_KEY environment variable.
+    /// </remarks>
+    public string AIConnectionName { get; set; } = "";
 
     /// <summary>
     /// Gets or sets the ID of the model to use.
@@ -36,7 +55,7 @@ public class EmbeddingsBaseAttribute : Attribute
     /// Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
     /// </remarks>
     [AutoResolve]
-    public string Model { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
+    public string EmbeddingsModel { get; set; } = OpenAIModels.DefaultEmbeddingsModel;
 
     /// <summary>
     /// Gets or sets the maximum number of characters to chunk the input into.

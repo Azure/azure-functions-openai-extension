@@ -7,6 +7,7 @@
 package com.microsoft.azure.functions.openai.annotation.embeddings;
 
 import com.microsoft.azure.functions.annotation.CustomBinding;
+import com.microsoft.azure.functions.openai.constants.ModelDefaults;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,17 +28,21 @@ public @interface EmbeddingsStoreOutput {
 
     /**
      * The ID of the model to use.
-     * Changing the default embeddings model is a breaking change, since any changes will be stored in a vector database for lookup. 
-     * Changing the default model can cause the lookups to start misbehaving if they don't match the data that was previously ingested into the vector database.
+     * Changing the default embeddings model is a breaking change, since any changes
+     * will be stored in a vector database for lookup.
+     * Changing the default model can cause the lookups to start misbehaving if they
+     * don't match the data that was previously ingested into the vector database.
      *
      * @return The model ID.
      */
-    String model() default "text-embedding-ada-002";
+    String embeddingsModel() default ModelDefaults.DEFAULT_EMBEDDINGS_MODEL;
 
     /**
      * The maximum number of characters to chunk the input into.
-     * At the time of writing, the maximum input tokens allowed for second-generation input embedding models
-     * like text-embedding-ada-002 is 8191. 1 token is ~4 chars in English, which translates to roughly 32K
+     * At the time of writing, the maximum input tokens allowed for
+     * second-generation input embedding models
+     * like text-embedding-ada-002 is 8191. 1 token is ~4 chars in English, which
+     * translates to roughly 32K
      * characters of English input that can fit into a single chunk.
      * 
      * @return The maximum number of characters to chunk the input into.
@@ -66,13 +71,22 @@ public @interface EmbeddingsStoreOutput {
     InputType inputType();
 
     /**
-     * The name of an app setting or environment variable which contains a connection string value.
+     * The name of the configuration section for AI service connectivity settings.
+     * 
+     * @return The name of the configuration section for AI service connectivity
+     *         settings.
+     */
+    String aiConnectionName() default "";
+
+    /**
+     * The name of an app setting or environment variable which contains a
+     * connection string value.
      * This property supports binding expressions.
      *
-     * @return The connection name.
+     * @return The store connection name.
      */
-    String connectionName();
- 
+    String storeConnectionName();
+
     /**
      * The name of the collection or table to search.
      * This property supports binding expressions.

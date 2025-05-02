@@ -56,6 +56,13 @@ jobs:
           Contents: 'Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBSearch.$(fakeWebJobsPackageVersion).nupkg'
           TargetFolder: '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
 
+      - task: CopyFiles@2
+        displayName: 'Copy NuGet WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch to local directory'
+        inputs:
+          SourceFolder: '$(System.DefaultWorkingDirectory)/src/WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch/bin/Release/'
+          Contents: 'Microsoft.Azure.WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch.$(fakeWebJobsPackageVersion).nupkg'
+          TargetFolder: '$(System.DefaultWorkingDirectory)/NuGetPackagesLocal'
+
       - script: |
           dir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
           dotnet nuget add source $(System.DefaultWorkingDirectory)/NuGetPackagesLocal --configfile  %appdata%/NuGet/NuGet.Config

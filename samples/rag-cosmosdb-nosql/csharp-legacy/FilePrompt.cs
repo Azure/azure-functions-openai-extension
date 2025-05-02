@@ -20,7 +20,7 @@ public static class FilePrompt
     [FunctionName("IngestFile")]
     public static async Task<IActionResult> IngestFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] EmbeddingsRequest req,
-        [EmbeddingsStore("{url}", InputType.Url, "CosmosDBNoSql", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [EmbeddingsStore("{url}", InputType.Url, "CosmosDBNoSqlEndpoint", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
         IAsyncCollector<SearchableDocument> output)
     {
         if (string.IsNullOrWhiteSpace(req.Url))
@@ -42,7 +42,7 @@ public static class FilePrompt
     [FunctionName("PromptFile")]
     public static IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-        [SemanticSearch("CosmosDBNoSql", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+        [SemanticSearch("CosmosDBNoSqlEndpoint", "openai-index", Query = "{Prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
     {
         return new ContentResult { Content = result.Response, ContentType = "text/plain" };
     }

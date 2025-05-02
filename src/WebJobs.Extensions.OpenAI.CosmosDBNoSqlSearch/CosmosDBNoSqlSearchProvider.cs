@@ -9,6 +9,7 @@ using Azure.Core;
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,11 +20,13 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 {
     readonly IConfiguration configuration;
     readonly ILogger logger;
+    readonly AzureComponentFactory azureComponentFactory;
     readonly IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions;
     readonly ConcurrentDictionary<string, CosmosClient> cosmosDBClients = new();
 
     public string Name { get; set; } = "CosmosDBNoSqlSearch";
-    public string CosmosDBConnectionSetting = "CosmosDBNoSqlConnectionString";
+
+    string CosmosDBConnectionSetting = "CosmosDBNoSqlConnectionString";
     const string endpointSettingSuffix = "Endpoint";
 
     /// <summary>
@@ -33,20 +36,83 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     /// <param name="loggerFactory">The logger factory.</param>
     /// <param name="cosmosDBNoSqlSearchConfigOptions">Cosmos DB No Sql search config options.</param>
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
+    /// <exception cref="ArgumentException">Throws ArgumentException if configuration values are invalid.</exception>
     public CosmosDBNoSqlSearchProvider(
         IConfiguration configuration,
         ILoggerFactory loggerFactory,
-        IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions
+        IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions,
+        AzureComponentFactory azureComponentFactory
     )
     {
         this.configuration =
             configuration ?? throw new ArgumentNullException(nameof(configuration));
-        if (loggerFactory == null)
+        this.azureComponentFactory =
+            azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
+        this.cosmosDBNoSqlSearchConfigOptions =
+            cosmosDBNoSqlSearchConfigOptions ?? throw new ArgumentNullException(nameof(cosmosDBNoSqlSearchConfigOptions));
+        this.logger =
+            loggerFactory?.CreateLogger<CosmosDBNoSqlSearchProvider>() ?? throw new ArgumentNullException(nameof(loggerFactory));
+
+        // Validate configuration early to fail fast if anything is misconfigured
+        this.ValidateConfiguration();
+    }
+
+    /// <summary>
+    /// Validates the configuration values early to ensure they meet requirements.
+    /// </summary>
+    /// <exception cref="ArgumentException">Thrown when configuration values are invalid.</exception>
+    void ValidateConfiguration()
+    {
+        CosmosDBNoSqlSearchConfigOptions config = this.cosmosDBNoSqlSearchConfigOptions.Value;
+
+        // Validate DatabaseName
+        if (string.IsNullOrWhiteSpace(config.DatabaseName))
         {
-            throw new ArgumentNullException(nameof(loggerFactory));
+            string errorMessage = "DatabaseName cannot be null or empty.";
+            this.logger.LogError(errorMessage);
+            throw new ArgumentException(errorMessage, nameof(config.DatabaseName));
         }
-        this.cosmosDBNoSqlSearchConfigOptions = cosmosDBNoSqlSearchConfigOptions;
-        this.logger = loggerFactory.CreateLogger<CosmosDBNoSqlSearchProvider>();
+
+        // Validate VectorDimensions
+        if (config.VectorDimensions <= 0)
+        {
+            string errorMessage = $"VectorDimensions must be greater than 0. Found: {config.VectorDimensions}";
+            this.logger.LogError(errorMessage);
+            throw new ArgumentException(errorMessage, nameof(config.VectorDimensions));
+        }
+
+        // Validate EmbeddingKey
+        if (string.IsNullOrWhiteSpace(config.EmbeddingKey))
+        {
+            string errorMessage = "EmbeddingKey cannot be null or empty.";
+            this.logger.LogError(errorMessage);
+            throw new ArgumentException(errorMessage, nameof(config.EmbeddingKey));
+        }
+
+        // Validate ApplicationName
+        if (string.IsNullOrWhiteSpace(config.ApplicationName))
+        {
+            string errorMessage = "ApplicationName cannot be null or empty.";
+            this.logger.LogError(errorMessage);
+            throw new ArgumentException(errorMessage, nameof(config.ApplicationName));
+        }
+
+        // Validate throughput values
+        if (config.DatabaseThroughput < 400) // 400 RU/s is the minimum
+        {
+            string errorMessage = $"DatabaseThroughput must be at least 400 RU/s. Found: {config.DatabaseThroughput}";
+            this.logger.LogError(errorMessage);
+            throw new ArgumentException(errorMessage, nameof(config.DatabaseThroughput));
+        }
+
+        if (config.ContainerThroughput < 400)
+        {
+            string errorMessage = $"ContainerThroughput must be at least 400 RU/s. Found: {config.ContainerThroughput}";
+            this.logger.LogError(errorMessage);
+            throw new ArgumentException(errorMessage, nameof(config.ContainerThroughput));
+        }
+
+        this.logger.LogInformation("CosmosDB NoSQL configuration validated successfully.");
     }
 
     /// <summary>
@@ -131,9 +197,13 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 
     CosmosClient CreateCosmosClient()
     {
+        CosmosClientOptions cosmosClientOptions = this.CreateCosmosClientOptions();
+
+        // First, try to get endpoint from configuration section
         IConfigurationSection cosmosConfigSection = this.configuration.GetSection(
             this.CosmosDBConnectionSetting
         );
+
         if (cosmosConfigSection.Exists())
         {
             string cosmosAccountUri = cosmosConfigSection[endpointSettingSuffix];
@@ -141,62 +211,77 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             if (!string.IsNullOrEmpty(cosmosAccountUri))
             {
                 this.logger.LogInformation(
-                    "Using Managed Identity for Cosmos DB No SQL Connection."
+                    "Using managed identity for Cosmos DB No SQL connection with endpoint from config section."
                 );
-                TokenCredential credential = new DefaultAzureCredential();
 
-                var serializerOptions = new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    PropertyNameCaseInsensitive = true,
-                    IncludeFields = true
-                };
-                // custom converter here
-                serializerOptions.Converters.Add(new ReadOnlyMemoryFloatConverter());
+                TokenCredential tokenCredential = this.azureComponentFactory.CreateTokenCredential(cosmosConfigSection);
+
                 return new CosmosClient(
                     cosmosAccountUri,
-                    credential,
-                    new CosmosClientOptions
-                    {
-                        ApplicationName = this.cosmosDBNoSqlSearchConfigOptions
-                            .Value
-                            .ApplicationName,
-                        Serializer = new CosmosSystemTextJsonSerializer(serializerOptions)
-                    }
+                    tokenCredential,
+                    cosmosClientOptions
                 );
             }
         }
 
-        string connectionString = this.configuration.GetValue<string>(
+        // Try to get connection info from connection string setting
+        string connectionSettingValue = this.configuration.GetValue<string>(
             this.CosmosDBConnectionSetting
         );
-        if (!string.IsNullOrEmpty(connectionString))
-        {
-            this.logger.LogInformation("Using Connection String for Cosmos DB No SQL connection.");
 
-            var serializerOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true,
-                IncludeFields = true
-            };
-            // custom converter here
-            serializerOptions.Converters.Add(new ReadOnlyMemoryFloatConverter());
+        if (Uri.TryCreate(connectionSettingValue, UriKind.Absolute, out Uri? uri))
+        {
+            // Connection setting value is actually an endpoint URI
+            this.logger.LogInformation(
+                $"Using Managed Identity for Cosmos DB No SQL Connection with endpoint from connection setting value."
+            );
+
             return new CosmosClient(
-                connectionString,
-                new CosmosClientOptions
-                {
-                    ApplicationName = this.cosmosDBNoSqlSearchConfigOptions.Value.ApplicationName,
-                    Serializer = new CosmosSystemTextJsonSerializer(serializerOptions)
-                }
+                connectionSettingValue, // This is the endpoint URI
+                new DefaultAzureCredential(),
+                cosmosClientOptions
+            );
+        }
+
+        if (!string.IsNullOrEmpty(connectionSettingValue))
+        {
+            // If we have a connection setting value  and couldn't parse it as a URI,
+            // it's probably a true connection string with embedded credentials
+            this.logger.LogInformation(
+                "Using connection string authentication for Cosmos DB. Consider using Managed Identity instead."
+            );
+
+            return new CosmosClient(
+                connectionSettingValue,
+                cosmosClientOptions
             );
         }
 
         // Throw exception if no valid configuration is found
         string errorMessage =
-            $"Configuration section or endpoint '{this.CosmosDBConnectionSetting}' does not exist.";
+            $"Configuration section or connection endpoint/string '{this.CosmosDBConnectionSetting}' does not exist.";
         this.logger.LogError(errorMessage);
         throw new InvalidOperationException(errorMessage);
+    }
+
+    CosmosClientOptions CreateCosmosClientOptions()
+    {
+        var serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true,
+            IncludeFields = true
+        };
+        // custom converter here
+        serializerOptions.Converters.Add(new ReadOnlyMemoryFloatConverter());
+
+        return new CosmosClientOptions
+        {
+            ApplicationName = this.cosmosDBNoSqlSearchConfigOptions
+                .Value
+                .ApplicationName,
+            Serializer = new CosmosSystemTextJsonSerializer(serializerOptions)
+        };
     }
 
     async Task UpsertVectorAsync(
@@ -235,6 +320,16 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         }
     }
 
+    /// <summary>
+    /// Searches for documents in the CosmosDB NoSQL database using vector similarity search.
+    /// </summary>
+    /// <param name="request">The search request containing embeddings and connection information.</param>
+    /// <returns>
+    /// A SearchResponse containing the search results ordered by similarity to the query embedding.
+    /// </returns>
+    /// <exception cref="ArgumentException">Thrown when embeddings are not provided.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when connection information is not provided.</exception>
+    /// <exception cref="CosmosException">Thrown when there is an error communicating with the CosmosDB service.</exception>
     public async Task<SearchResponse> SearchAsync(SearchRequest request)
     {
         if (request.Embeddings.IsEmpty)

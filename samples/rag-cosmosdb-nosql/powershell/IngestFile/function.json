@@ -20,9 +20,9 @@
       "direction": "out",
       "input": "{url}",
       "inputType": "Url",
-      "connectionName": "CosmosDBNoSql",
+      "connectionName": "CosmosDBNoSqlEndpoint",
       "collection": "openai-index",
-      "model": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
     }
   ]
 }

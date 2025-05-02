@@ -14,7 +14,7 @@
                 "vectorDimensions": 1536,
                 "vectorDistanceFunction": "cosine",
                 "vectorIndexType": "quantizedFlat",
-                "databaseName": "function-db",
+                "databaseName": "openai-extension-db",
                 "databaseThroughput": 5000,
                 "containerThroughput": 5000,
                 "embeddingKey": "/embedding",

@@ -104,7 +104,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDBNoSQLSearchLegacy",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-cosmosdb-nosql", "rag-cosmosdb-nosql", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SemanticCosmosDBNoSqlSearchEmbeddings", "samples\rag-cosmosdb-nosql\csharp-ooproc\SemanticCosmosDBNoSqlSearchEmbeddings.csproj", "{10C35EF8-BA40-30F1-DD9B-B114921A7916}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmosDBNoSqlSearch", "samples\rag-cosmosdb-nosql\csharp-ooproc\CosmosDBNoSqlSearch.csproj", "{10C35EF8-BA40-30F1-DD9B-B114921A7916}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rag-aisearch-legacy", "rag-aisearch-legacy", "{44352EEE-0A55-48DC-BD32-A8D734638007}"
 EndProject

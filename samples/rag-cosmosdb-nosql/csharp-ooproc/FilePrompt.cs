@@ -10,19 +10,19 @@ using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Embeddings;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Search;
 using Microsoft.Azure.Functions.Worker.Http;
 
-namespace CosmosDBNoSqlSearchEmbeddings;
+namespace CosmosDBNoSqlSearch;
 
 public static class FilePrompt
 {
     public class EmbeddingsRequest
     {
-        [JsonPropertyName("Url")]
+        [JsonPropertyName("url")]
         public string? Url { get; set; }
     }
 
     public class SemanticSearchRequest
     {
-        [JsonPropertyName("Prompt")]
+        [JsonPropertyName("prompt")]
         public string? Prompt { get; set; }
     }
 
@@ -60,7 +60,7 @@ public static class FilePrompt
         [EmbeddingsStoreOutput(
             "{Url}",
             InputType.Url,
-            "CosmosDBNoSql",
+            "CosmosDBNoSqlEndpoint",
             "openai-index",
             EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
         )]
@@ -73,7 +73,7 @@ public static class FilePrompt
     public static IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
         [SemanticSearchInput(
-            "CosmosDBNoSql",
+            "CosmosDBNoSqlEndpoint",
             "openai-index",
             Query = "{Prompt}",
             ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%",

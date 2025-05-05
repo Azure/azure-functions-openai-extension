@@ -108,10 +108,10 @@ public class AssistantApis {
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("assistantId") String assistantId,        
-        @AssistantPost(name="newMessages", id = "{assistantId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}", chatStorageConnectionSetting = DEFAULT_CHATSTORAGE, collectionName = DEFAULT_COLLECTION) AssistantState state,
+        @AssistantPost(name="newMessages", id = "{assistantId}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}", chatStorageConnectionSetting = DEFAULT_CHATSTORAGE, collectionName = DEFAULT_COLLECTION) AssistantState state,
         final ExecutionContext context) {
             
-            List<ChatMessage> recentMessages = state.getRecentMessages();
+            List<AssistantMessage> recentMessages = state.getRecentMessages();
             String response = recentMessages.isEmpty() ? "No response returned." : recentMessages.get(recentMessages.size() - 1).getContent();
             
             return request.createResponseBuilder(HttpStatus.OK)

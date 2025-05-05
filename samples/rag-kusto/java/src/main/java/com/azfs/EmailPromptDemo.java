@@ -35,8 +35,8 @@ public class EmailPromptDemo {
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<EmbeddingsRequest> request,
         @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
-                connectionName = "KustoConnectionString", collection = "Documents",
-                model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
+                storeConnectionName = "KustoConnectionString", collection = "Documents",
+                embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws URISyntaxException {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
@@ -80,7 +80,7 @@ public class EmailPromptDemo {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS)
             HttpRequestMessage<SemanticSearchRequest> request,
-        @SemanticSearch(name = "search", connectionName = "KustoConnectionString", collection = "Documents", query = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) String semanticSearchContext,
+        @SemanticSearch(name = "search", searchConnectionName = "KustoConnectionString", collection = "Documents", query = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%" ) String semanticSearchContext,
         final ExecutionContext context) {
             String response = new JSONObject(semanticSearchContext).getString("Response");
             return request.createResponseBuilder(HttpStatus.OK)

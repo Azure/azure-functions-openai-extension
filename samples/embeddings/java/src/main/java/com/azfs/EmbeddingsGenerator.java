@@ -20,32 +20,30 @@ import com.microsoft.azure.functions.openai.annotation.embeddings.InputType;
 public class EmbeddingsGenerator {
 
     /**
-     * Example showing how to use the EmbeddingsInput input binding to generate embeddings 
+     * Example showing how to use the EmbeddingsInput input binding to generate embeddings
      * for a raw text string.
      */
     @FunctionName("GenerateEmbeddingsHttpRequest")
     public HttpResponseMessage generateEmbeddingsHttpRequest(
-        @HttpTrigger(
-            name = "req", 
-            methods = {HttpMethod.POST},
-            authLevel = AuthorizationLevel.ANONYMOUS,
-            route = "embeddings")
-        HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
-        final ExecutionContext context) {
+            @HttpTrigger(
+                name = "req", 
+                methods = {HttpMethod.POST},
+                authLevel = AuthorizationLevel.ANONYMOUS,
+                route = "embeddings")
+            HttpRequestMessage<EmbeddingsRequest> request,
+            @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
+            final ExecutionContext context) {
 
-        if (request.getBody() == null)
+        if (request.getBody() == null) 
         {
-            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"rawText\": value } as the request body.");
+            throw new IllegalArgumentException(
+                    "Invalid request body. Make sure that you pass in {\"rawText\": value } as the request body.");
         }
 
         JSONObject embeddingsContextJsonObject = new JSONObject(embeddingsContext);
-        
+
         context.getLogger().info(String.format("Received %d embedding(s) for input text containing %s characters.",
-                embeddingsContextJsonObject.getJSONObject("response")
-                        .getJSONArray("data")
-                        .getJSONObject(0)
-                        .getJSONArray("embedding").length(),
+                embeddingsContextJsonObject.get("count"),
                 request.getBody().getRawText().length()));
 
         // TODO: Store the embeddings into a database or other storage.
@@ -69,18 +67,16 @@ public class EmbeddingsGenerator {
         @EmbeddingsInput(name = "Embeddings", input = "{FilePath}", inputType = InputType.FilePath, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
         final ExecutionContext context) {
 
-        if (request.getBody() == null)
+        if (request.getBody() == null) 
         {
-            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"rawText\": value } as the request body.");
+            throw new IllegalArgumentException(
+                    "Invalid request body. Make sure that you pass in {\"filePath\": value } as the request body.");
         }
 
         JSONObject embeddingsContextJsonObject = new JSONObject(embeddingsContext);
-        
+
         context.getLogger().info(String.format("Received %d embedding(s) for input file %s.",
-                embeddingsContextJsonObject.getJSONObject("response")
-                        .getJSONArray("data")
-                        .getJSONObject(0)
-                        .getJSONArray("embedding").length(),
+                embeddingsContextJsonObject.get("count"),
                 request.getBody().getFilePath()));
 
         // TODO: Store the embeddings into a database or other storage.
@@ -104,25 +100,23 @@ public class EmbeddingsGenerator {
         @EmbeddingsInput(name = "Embeddings", input = "{Url}", inputType = InputType.Url, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
         final ExecutionContext context) {
 
-        if (request.getBody() == null)
+        if (request.getBody() == null) 
         {
-            throw new IllegalArgumentException("Invalid request body. Make sure that you pass in {\"rawText\": value } as the request body.");
+            throw new IllegalArgumentException(
+                    "Invalid request body. Make sure that you pass in {\"url\": value } as the request body.");
         }
 
         JSONObject embeddingsContextJsonObject = new JSONObject(embeddingsContext);
-        
+
         context.getLogger().info(String.format("Received %d embedding(s) for input url %s.",
-                embeddingsContextJsonObject.getJSONObject("response")
-                        .getJSONArray("data")
-                        .getJSONObject(0)
-                        .getJSONArray("embedding").length(),
+                embeddingsContextJsonObject.get("count"),
                 request.getBody().getUrl()));
 
         // TODO: Store the embeddings into a database or other storage.
         return request.createResponseBuilder(HttpStatus.ACCEPTED)
                 .header("Content-Type", "application/json")
                 .build();
-    }    
+    }
 
     public class EmbeddingsRequest {
         private String rawText;
@@ -151,8 +145,7 @@ public class EmbeddingsGenerator {
 
         public void setUrl(String url) {
             this.url = url;
-        }        
-    }  
- 
-}
+        }
+    }
 
+}

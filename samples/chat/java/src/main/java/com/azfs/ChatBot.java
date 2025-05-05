@@ -21,7 +21,7 @@ import com.microsoft.azure.functions.openai.annotation.assistant.AssistantQuery;
 import com.microsoft.azure.functions.openai.annotation.assistant.AssistantPost;
 import com.microsoft.azure.functions.openai.annotation.assistant.AssistantCreateRequest;
 import com.microsoft.azure.functions.openai.annotation.assistant.AssistantState;
-import com.microsoft.azure.functions.openai.annotation.assistant.ChatMessage;
+import com.microsoft.azure.functions.openai.annotation.assistant.AssistantMessage;
 
 import java.util.List;
 import java.util.Optional;
@@ -100,10 +100,10 @@ public class ChatBot {
             route = "chats/{chatId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("chatId") String chatId,        
-        @AssistantPost(name="newMessages", id = "{chatId}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}") AssistantState state,
+        @AssistantPost(name="newMessages", id = "{chatId}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}") AssistantState state,
         final ExecutionContext context) {
 
-            List<ChatMessage> recentMessages = state.getRecentMessages();
+            List<AssistantMessage> recentMessages = state.getRecentMessages();
             String response = recentMessages.isEmpty() ? "No response returned." : recentMessages.get(recentMessages.size() - 1).getContent();
             
             return request.createResponseBuilder(HttpStatus.OK)

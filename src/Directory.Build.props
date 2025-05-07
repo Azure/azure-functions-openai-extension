@@ -35,7 +35,7 @@
     <!-- Version for kusto webjobs and worker project -->
     <KustoVersion>0.17.0-alpha</KustoVersion>
     <!-- Version for azure AI search webjobs and worker project -->
-    <AzureAISearchVersion>0.4.0-alpha</AzureAISearchVersion>
+    <AzureAISearchVersion>0.5.0-alpha</AzureAISearchVersion>
     <!-- Version for CosmosDB search webjobs and worker project -->
     <CosmosDBSearchVersion>0.4.0-alpha</CosmosDBSearchVersion>
     <!-- Version for CosmosDB NoSql vector search webjobs and worker project -->

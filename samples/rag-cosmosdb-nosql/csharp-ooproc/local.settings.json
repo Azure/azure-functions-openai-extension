@@ -1,0 +1,11 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+        "CosmosDBNoSqlEndpoint": "https://<resource-name>.documents.azure.com:443/",
+        "AZURE_OPENAI_ENDPOINT": "Placeholder for the Azure OpenAI endpoint value",
+        "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo",
+        "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
+    }
+}

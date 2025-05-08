@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net80</TargetFramework>
+        <WarningsAsErrors></WarningsAsErrors>
+        <DefaultItemExcludes>**</DefaultItemExcludes>
+        <OutDir>bin</OutDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Azure.WebJobs.Script.ExtensionsMetadataGenerator"
+            Version="4.0.*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference
+            Include="../../../src/WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch/WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj" />
+        <ProjectReference
+            Include="../../../src/WebJobs.Extensions.OpenAI/WebJobs.Extensions.OpenAI.csproj" />
+    </ItemGroup>
+</Project>

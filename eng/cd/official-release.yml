@@ -59,7 +59,7 @@ extends:
           stageName: CosmosDBNoSQLSearch
           displayName: Cosmos NoSQL Package
           artifactName: drop
-          packagePattern: '*.Extensions.OpenAI.CosmosDBSearch.$(CosmosDBNoSQLSearchVersion).nupkg'
+          packagePattern: '*.Extensions.OpenAI.CosmosDBNoSqlSearch.$(CosmosDBNoSQLSearchVersion).nupkg'
           blobPrefix: azure-functions/azure-functions-openai-extension-cosmosdbnosqlsearch/$(CosmosDBNoSQLSearchVersion)
 
       - template: templates/javapublish.yml

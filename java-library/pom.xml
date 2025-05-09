@@ -37,19 +37,14 @@
 
 	<developers>
 		<developer>
-			<id>amamounelsayed</id>
-			<name>Ahmed El Sayed</name>
-			<email>ahelsaye@microsoft.com</email>
+			<id>vameru</id>
+			<name>Varad Meru</name>
+			<email>vameru@microsoft.com</email>
 		</developer>
 		<developer>
-			<id>shreyas-gopalakrishna</id>
-			<name>Shreyas Gopalakrishna</name>
-			<email>shreyasg@microsoft.com</email>
-		</developer>
-		<developer>
-			<id>kamperiadis</id>
-			<name>Kirstyn Joy Amperiadis</name>
-			<email>kamperiadis@microsoft.com</email>
+			<id>manvkaur</id>
+			<name>Manvir Kaur</name>
+			<email>manvkaur@microsoft.com</email>
 		</developer>
 	</developers>
 

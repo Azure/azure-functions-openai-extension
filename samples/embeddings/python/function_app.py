@@ -11,7 +11,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     arg_name="embeddings",
     input="{rawText}",
     input_type="rawText",
-    model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
 )
 def generate_embeddings_http_request(
     req: func.HttpRequest, embeddings: str
@@ -34,7 +34,7 @@ def generate_embeddings_http_request(
     input="{filePath}",
     input_type="filePath",
     max_chunk_length=512,
-    model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
 )
 def generate_embeddings_http_file_path(
     req: func.HttpRequest, embeddings: str
@@ -57,7 +57,7 @@ def generate_embeddings_http_file_path(
     input="{url}",
     input_type="url",
     max_chunk_length=512,
-    model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
 )
 def generate_embeddings_http_url(
     req: func.HttpRequest, embeddings: str

@@ -54,7 +54,7 @@ def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
     arg_name="state",
     id="{chatId}",
     user_message="{Query.message}",
-    model="%CHAT_MODEL_DEPLOYMENT_NAME%",
+    chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
     chat_storage_connection_setting=DEFAULT_CHAT_STORAGE_SETTING,
     collection_name=DEFAULT_CHAT_COLLECTION_NAME,
 )

@@ -9,7 +9,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     arg_name="response",
     prompt="Who is {name}?",
     max_tokens="100",
-    model="%CHAT_MODEL_DEPLOYMENT_NAME%",
+    chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
 )
 def whois(req: func.HttpRequest, response: str) -> func.HttpResponse:
     response_json = json.loads(response)
@@ -20,7 +20,7 @@ def whois(req: func.HttpRequest, response: str) -> func.HttpResponse:
 @app.text_completion_input(
     arg_name="response",
     prompt="{Prompt}",
-    model="%CHAT_MODEL_DEPLOYMENT_NAME%",
+    chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
 )
 def genericcompletion(
     req: func.HttpRequest,

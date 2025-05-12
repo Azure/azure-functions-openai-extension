@@ -11,9 +11,9 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     arg_name="requests",
     input="{url}",
     input_type="url",
-    connection_name="AISearchEndpoint",
+    store_connection_name="AISearchEndpoint",
     collection="openai-index",
-    model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
 )
 def ingest_file(
     req: func.HttpRequest, requests: func.Out[str]

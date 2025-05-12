@@ -37,7 +37,7 @@ def create_assistant(
     arg_name="state",
     id="{assistantId}",
     user_message="{Query.message}",
-    model="%CHAT_MODEL_DEPLOYMENT_NAME%",
+    chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
     chat_storage_connection_setting=DEFAULT_CHAT_STORAGE_SETTING,
     collection_name=DEFAULT_CHAT_COLLECTION_NAME,
 )

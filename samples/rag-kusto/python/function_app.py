@@ -11,9 +11,9 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     arg_name="requests",
     input="{url}",
     input_type="url",
-    connection_name="KustoConnectionString",
+    store_connection_name="KustoConnectionString",
     collection="Documents",
-    model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
 )
 def ingest_email(
     req: func.HttpRequest, requests: func.Out[str]
@@ -39,7 +39,7 @@ def ingest_email(
 @app.route(methods=["POST"])
 @app.semantic_search_input(
     arg_name="result",
-    connection_name="KustoConnectionString",
+    search_connection_name="KustoConnectionString",
     collection="Documents",
     query="{prompt}",
     embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",

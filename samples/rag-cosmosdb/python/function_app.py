@@ -11,9 +11,9 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     arg_name="requests",
     input="{url}",
     input_type="url",
-    connection_name="CosmosDBMongoVCoreConnectionString",
+    store_connection_name="CosmosDBMongoVCoreConnectionString",
     collection="openai-index",
-    model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
 )
 def ingest_file(
     req: func.HttpRequest, requests: func.Out[str]
@@ -39,7 +39,7 @@ def ingest_file(
 @app.route(methods=["POST"])
 @app.semantic_search_input(
     arg_name="result",
-    connection_name="CosmosDBMongoVCoreConnectionString",
+    search_connection_name="CosmosDBMongoVCoreConnectionString",
     collection="openai-index",
     query="{prompt}",
     embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",

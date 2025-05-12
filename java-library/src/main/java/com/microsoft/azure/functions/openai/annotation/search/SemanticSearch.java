@@ -140,9 +140,9 @@ public @interface SemanticSearch {
     String maxTokens() default "2048";
 
     /**
-     * Indicates whether the assistant uses a reasoning model.
+     * Indicates whether the chat completion api uses a reasoning model.
      *
-     * @return {@code true} if the assistant is based on a reasoning model; {@code false} otherwise.
+     * @return {@code true} if the chat completion api is based on a reasoning model; {@code false} otherwise.
      */
-    boolean isReasoningModel();
+    boolean isReasoningModel() default false;
 }

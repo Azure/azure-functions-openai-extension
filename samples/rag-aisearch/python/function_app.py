@@ -39,7 +39,7 @@ def ingest_file(
 @app.route(methods=["POST"])
 @app.semantic_search_input(
     arg_name="result",
-    connection_name="AISearchEndpoint",
+    search_connection_name="AISearchEndpoint",
     collection="openai-index",
     query="{prompt}",
     embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",

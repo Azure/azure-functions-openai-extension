@@ -60,7 +60,7 @@ public class AssistantSkills {
     }
 
     private TodoManager createTodoManager() {
-        String cosmosDbConnectionEndpoint = System.getenv("CosmosDbConnectionEndpoint").trim();
+        String cosmosDbConnectionEndpoint = System.getenv("CosmosDbConnectionEndpoint");
         
         if (cosmosDbConnectionEndpoint == null || cosmosDbConnectionEndpoint.isEmpty()) {
             return new InMemoryTodoManager();
@@ -69,7 +69,7 @@ public class AssistantSkills {
             .build();
 
             CosmosClient cosmosClient = new CosmosClientBuilder()
-                    .endpoint(cosmosDbConnectionEndpoint)
+                    .endpoint(cosmosDbConnectionEndpoint.trim())
                     .credential(credential)
                     .buildClient();
             return new CosmosDbTodoManager(cosmosClient);

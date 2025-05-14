@@ -31,18 +31,24 @@ public async Task GenerateEmbeddings_Http_RequestAsync(
 ```python
 @app.function_name("GenerateEmbeddingsHttpRequest")
 @app.route(route="embeddings", methods=["POST"])
-@app.generic_input_binding(arg_name="embeddings", type="embeddings", data_type=func.DataType.STRING, input="{rawText}", input_type="rawText", model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%")
-def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> func.HttpResponse:
+@app.embeddings_input(
+    arg_name="embeddings",
+    input="{rawText}",
+    input_type="rawText",
+    embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+)
+def generate_embeddings_http_request(
+    req: func.HttpRequest, embeddings: str
+) -> func.HttpResponse:
     user_message = req.get_json()
     embeddings_json = json.loads(embeddings)
-    embeddings_request = {
-        "raw_text": user_message.get("RawText"),
-        "file_path": user_message.get("FilePath")
-    }
-    logging.info(f'Received {embeddings_json.get("count")} embedding(s) for input text '
-        f'containing {len(embeddings_request.get("raw_text"))} characters.')
+    embeddings_request = {"raw_text": user_message.get("rawText")}
+    logging.info(
+        f'Received {embeddings_json.get("count")} embedding(s) for input text '
+        f'containing {len(embeddings_request.get("raw_text"))} characters.'
+    )
     # TODO: Store the embeddings into a database or other storage.
-    return func.HttpResponse(status_code=202)
+    return func.HttpResponse(status_code=200)
 ```
 
 ## Prerequisites

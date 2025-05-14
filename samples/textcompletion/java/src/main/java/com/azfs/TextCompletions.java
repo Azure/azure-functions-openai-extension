@@ -37,7 +37,7 @@ public class TextCompletions {
             route = "whois/{name}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("name") String name,
-        @TextCompletion(prompt = "Who is {name}?", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", name = "response") TextCompletionResponse response,
+        @TextCompletion(prompt = "Who is {name}?", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", name = "response", isReasoningModel = false) TextCompletionResponse response,
         final ExecutionContext context) {
         return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")
@@ -56,7 +56,7 @@ public class TextCompletions {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.ANONYMOUS) 
             HttpRequestMessage<Optional<String>> request,
-        @TextCompletion(prompt = "{prompt}", model = "%CHAT_MODEL_DEPLOYMENT_NAME%", name = "response") TextCompletionResponse response,
+        @TextCompletion(prompt = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", name = "response", isReasoningModel = false) TextCompletionResponse response,
         final ExecutionContext context) {
         return request.createResponseBuilder(HttpStatus.OK)
             .header("Content-Type", "application/json")

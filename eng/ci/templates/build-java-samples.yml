@@ -17,3 +17,45 @@ jobs:
           mavenPomFile: samples/textcompletion/java/pom.xml
           options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
           checkStyleRunAnalysis: true
+
+      - task: Maven@3
+        displayName: Build Text Assistant Sample
+        inputs:
+          mavenPomFile: samples/assistant/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true
+
+      - task: Maven@3
+        displayName: Build Text Embeddings Sample
+        inputs:
+          mavenPomFile: samples/embeddings/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true
+
+      - task: Maven@3
+        displayName: Build Text RAG AI Search Sample
+        inputs:
+          mavenPomFile: samples/rag-aisearch/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true
+
+      - task: Maven@3
+        displayName: Build Text RAG Cosmos DB MongoDB Sample
+        inputs:
+          mavenPomFile: samples/rag-cosmosdb/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true
+
+      - task: Maven@3
+        displayName: Build Text RAG Cosmos DB NoSql Sample
+        inputs:
+          mavenPomFile: samples/rag-cosmosdb-nosql/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true
+
+      - task: Maven@3
+        displayName: Build Text RAG Kusto Sample
+        inputs:
+          mavenPomFile: samples/rag-kusto/java/pom.xml
+          options: --batch-mode --define=org.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn --update-snapshots
+          checkStyleRunAnalysis: true

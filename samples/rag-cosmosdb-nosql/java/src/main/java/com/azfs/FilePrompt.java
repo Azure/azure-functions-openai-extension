@@ -35,7 +35,7 @@ public class FilePrompt {
             HttpRequestMessage<EmbeddingsRequest> request,
         @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
                 connectionName = "CosmosDBNoSqlEndpoint", collection = "openai-index",
-                model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
+                embeddings_model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws URISyntaxException {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)

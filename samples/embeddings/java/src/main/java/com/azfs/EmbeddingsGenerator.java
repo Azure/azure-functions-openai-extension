@@ -31,7 +31,7 @@ public class EmbeddingsGenerator {
                 authLevel = AuthorizationLevel.ANONYMOUS,
                 route = "embeddings")
             HttpRequestMessage<EmbeddingsRequest> request,
-            @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
+            @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
             final ExecutionContext context) {
 
         if (request.getBody() == null) 
@@ -64,7 +64,7 @@ public class EmbeddingsGenerator {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "embeddings-from-file")
         HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsInput(name = "Embeddings", input = "{FilePath}", inputType = InputType.FilePath, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
+        @EmbeddingsInput(name = "Embeddings", input = "{FilePath}", inputType = InputType.FilePath, maxChunkLength = 512, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
         final ExecutionContext context) {
 
         if (request.getBody() == null) 
@@ -97,7 +97,7 @@ public class EmbeddingsGenerator {
             authLevel = AuthorizationLevel.ANONYMOUS,
             route = "embeddings-from-url")
         HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsInput(name = "Embeddings", input = "{Url}", inputType = InputType.Url, maxChunkLength = 512, model = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
+        @EmbeddingsInput(name = "Embeddings", input = "{Url}", inputType = InputType.Url, maxChunkLength = 512, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
         final ExecutionContext context) {
 
         if (request.getBody() == null) 

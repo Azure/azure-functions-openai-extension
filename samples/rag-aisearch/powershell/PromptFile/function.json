@@ -18,7 +18,7 @@
       "name": "SemanticSearchInput",
       "type": "semanticSearch",
       "direction": "in",
-      "connectionName": "AISearchEndpoint",
+      "searchConnectionName": "AISearchEndpoint",
       "collection": "openai-index",
       "query": "{prompt}",
       "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",

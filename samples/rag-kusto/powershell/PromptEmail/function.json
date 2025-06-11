@@ -18,7 +18,7 @@
       "name": "SemanticSearchInput",
       "type": "semanticSearch",
       "direction": "in",
-      "connectionName": "KustoConnectionString",
+      "searchConnectionName": "KustoConnectionString",
       "collection": "Documents",
       "query": "{prompt}",
       "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",

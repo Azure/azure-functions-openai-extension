@@ -20,7 +20,7 @@
       "direction": "out",
       "input": "{url}",
       "inputType": "Url",
-      "connectionName": "AISearchEndpoint",
+      "storeConnectionName": "AISearchEndpoint",
       "collection": "openai-index",
       "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
     }

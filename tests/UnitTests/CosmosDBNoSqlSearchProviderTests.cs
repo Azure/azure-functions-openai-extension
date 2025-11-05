@@ -239,7 +239,7 @@ public class CosmosDBNoSqlSearchProviderTests
     }
 
     [Fact]
-    public void SearchAsync_WithEmptyEmbeddings_ThrowsArgumentException()
+    public async Task SearchAsync_WithEmptyEmbeddings_ThrowsArgumentException()
     {
         // Arrange
         var provider = new CosmosDBNoSqlSearchProvider(
@@ -248,23 +248,18 @@ public class CosmosDBNoSqlSearchProviderTests
             this.mockOptions.Object,
             this.mockAzureComponentFactory.Object);
 
-        var request = new SearchRequest
-        {
-            Embeddings = ReadOnlyMemory<float>.Empty,
-            MaxResults = 10,
-            ConnectionInfo = new ConnectionInfo
-            {
-                ConnectionName = "TestConnection",
-                CollectionName = "TestCollection"
-            }
-        };
+        var request = new SearchRequest(
+            "test query",
+            ReadOnlyMemory<float>.Empty,
+            10,
+            new ConnectionInfo("TestConnection", "TestCollection"));
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentException>(() => provider.SearchAsync(request));
+        await Assert.ThrowsAsync<ArgumentException>(() => provider.SearchAsync(request));
     }
 
     [Fact]
-    public void SearchAsync_WithNullConnectionInfo_ThrowsArgumentNullException()
+    public async Task SearchAsync_WithNullConnectionInfo_ThrowsArgumentNullException()
     {
         // Arrange
         var provider = new CosmosDBNoSqlSearchProvider(
@@ -273,16 +268,15 @@ public class CosmosDBNoSqlSearchProviderTests
             this.mockOptions.Object,
             this.mockAzureComponentFactory.Object);
 
-        var request = new SearchRequest
-        {
-            Embeddings = new ReadOnlyMemory<float>(new float[] { 0.1f, 0.2f, 0.3f }),
-            MaxResults = 10,
-            ConnectionInfo = null
-        };
+#nullable disable
+        var request = new SearchRequest(
+            "test query",
+            new ReadOnlyMemory<float>(new float[] { 0.1f, 0.2f, 0.3f }),
+            10,
+            null);
+#nullable restore
 
         // Act & Assert
-#nullable disable
-        Assert.ThrowsAsync<ArgumentNullException>(() => provider.SearchAsync(request));
-#nullable restore
+        await Assert.ThrowsAsync<ArgumentNullException>(() => provider.SearchAsync(request));
     }
 }

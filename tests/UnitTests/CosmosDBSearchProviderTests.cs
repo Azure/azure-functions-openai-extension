@@ -33,7 +33,6 @@ public class CosmosDBSearchProviderTests
         var options = new CosmosDBSearchConfigOptions
         {
             VectorSearchDimensions = 1536,
-            ApplicationName = "TestApp",
             DatabaseName = "TestDB",
             IndexName = "TestIndex",
             Kind = "vector-ivf"
@@ -74,7 +73,6 @@ public class CosmosDBSearchProviderTests
         var invalidOptions = new CosmosDBSearchConfigOptions
         {
             VectorSearchDimensions = 1, // Invalid: less than 2
-            ApplicationName = "TestApp",
             DatabaseName = "TestDB",
             IndexName = "TestIndex"
         };
@@ -121,7 +119,6 @@ public class CosmosDBSearchProviderTests
         var validOptions = new CosmosDBSearchConfigOptions
         {
             VectorSearchDimensions = dimensions,
-            ApplicationName = "TestApp",
             DatabaseName = "TestDB",
             IndexName = "TestIndex",
             Kind = "vector-ivf"
@@ -139,7 +136,7 @@ public class CosmosDBSearchProviderTests
     }
 
     [Fact]
-    public void SearchAsync_WithEmptyEmbeddings_ThrowsArgumentException()
+    public async Task SearchAsync_WithEmptyEmbeddings_ThrowsArgumentException()
     {
         // Arrange
         var provider = new CosmosDBSearchProvider(
@@ -147,18 +144,13 @@ public class CosmosDBSearchProviderTests
             this.mockOptions.Object,
             this.mockConfiguration.Object);
 
-        var request = new SearchRequest
-        {
-            Embeddings = ReadOnlyMemory<float>.Empty,
-            MaxResults = 10,
-            ConnectionInfo = new ConnectionInfo
-            {
-                ConnectionName = "TestConnection",
-                CollectionName = "TestCollection"
-            }
-        };
+        var request = new SearchRequest(
+            "test query",
+            ReadOnlyMemory<float>.Empty,
+            10,
+            new ConnectionInfo("TestConnection", "TestCollection"));
 
         // Act & Assert
-        Assert.ThrowsAsync<ArgumentException>(() => provider.SearchAsync(request));
+        await Assert.ThrowsAsync<ArgumentException>(() => provider.SearchAsync(request));
     }
 }

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated MongoDB.Driver to 2.30.0 (from 2.*)
+- Updated MongoDB.Driver to 3.5.0 (from 2.*)
 
 ## v0.4.0 - 2025/05/05
 

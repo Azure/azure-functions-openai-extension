@@ -96,7 +96,6 @@ public class CosmosDBSearchProviderTests
         var invalidOptions = new CosmosDBSearchConfigOptions
         {
             VectorSearchDimensions = dimensions,
-            ApplicationName = "TestApp",
             DatabaseName = "TestDB",
             IndexName = "TestIndex"
         };

@@ -44,6 +44,19 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         AzureComponentFactory azureComponentFactory
     )
     {
+
+#if RELEASE
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS")))
+        {
+            Environment.SetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS", "prod");
+        }
+#else
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS")))
+        {
+            Environment.SetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS", "dev");
+        }
+#endif
+
         this.configuration =
             configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.azureComponentFactory =
@@ -238,7 +251,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 
             return new CosmosClient(
                 connectionSettingValue, // This is the endpoint URI
-                new DefaultAzureCredential(),
+                new DefaultAzureCredential(DefaultAzureCredential.DefaultEnvironmentVariableName),
                 cosmosClientOptions
             );
         }

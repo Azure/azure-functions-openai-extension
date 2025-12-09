@@ -31,6 +31,19 @@ public class OpenAIClientFactory
         AzureComponentFactory azureComponentFactory,
         ILoggerFactory loggerFactory)
     {
+
+#if RELEASE
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS")))
+        {
+            Environment.SetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS", "prod");
+        }
+#else
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS")))
+        {
+            Environment.SetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS", "dev");
+        }
+#endif
+
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
         this.logger = loggerFactory?.CreateLogger<OpenAIClientFactory>() ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -118,7 +131,7 @@ public class OpenAIClientFactory
 
                 TokenCredential tokenCredential = section.Exists() ?
                     this.azureComponentFactory.CreateTokenCredential(section) :
-                    new DefaultAzureCredential();
+                    new DefaultAzureCredential(DefaultAzureCredential.DefaultEnvironmentVariableName);
                 return this.CreateAzureOpenAIClientWithTokenCredential(this.aiEndpoint, tokenCredential);
             }
         }

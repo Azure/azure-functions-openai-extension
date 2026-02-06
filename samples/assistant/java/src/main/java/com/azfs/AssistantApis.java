@@ -61,10 +61,28 @@ public class AssistantApis {
             
             String instructions = "Don't make assumptions about what values to plug into functions.\n" +
                     "Ask for clarification if a user request is ambiguous.";
+            boolean preserveChatHistory = false;
+
+            if (request.getBody().isPresent()) {
+                JSONObject body = new JSONObject(request.getBody().get());
+                if (body.has("instructions")) {
+                    instructions = body.getString("instructions");
+                }
+                if (body.has("preserveChatHistory")) {
+                    preserveChatHistory = body.getBoolean("preserveChatHistory");
+                }
+            }
 
             AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(assistantId, instructions);
             assistantCreateRequest.setChatStorageConnectionSetting(DEFAULT_CHATSTORAGE);
             assistantCreateRequest.setCollectionName(DEFAULT_COLLECTION);
+            try {
+                assistantCreateRequest.getClass()
+                    .getMethod("setPreserveChatHistory", boolean.class)
+                    .invoke(assistantCreateRequest, preserveChatHistory);
+            } catch (Exception ex) {
+                context.getLogger().warning("PreserveChatHistory not supported by current SDK version.");
+            }
 
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();

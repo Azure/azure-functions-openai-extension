@@ -49,6 +49,19 @@ sealed class AzureAISearchProvider : ISearchProvider
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
     public AzureAISearchProvider(IConfiguration configuration, ILoggerFactory loggerFactory, IOptions<AzureAISearchConfigOptions> azureAiSearchConfigOptions, AzureComponentFactory azureComponentFactory)
     {
+
+#if RELEASE
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS")))
+        {
+            Environment.SetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS", "prod");
+        }
+#else
+        if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS")))
+        {
+            Environment.SetEnvironmentVariable("AZURE_TOKEN_CREDENTIALS", "dev");
+        }
+
+#endif
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
 
@@ -331,7 +344,7 @@ sealed class AzureAISearchProvider : ISearchProvider
     TokenCredential GetSearchTokenCredential() =>
         this.searchConnectionConfigSection.Exists()
             ? this.azureComponentFactory.CreateTokenCredential(this.searchConnectionConfigSection)
-            : new DefaultAzureCredential();
+            : new DefaultAzureCredential(DefaultAzureCredential.DefaultEnvironmentVariableName);
 
     void SetConfigSectionProperties()
     {

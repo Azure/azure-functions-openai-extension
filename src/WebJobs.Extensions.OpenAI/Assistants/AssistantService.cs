@@ -257,7 +257,7 @@ class DefaultAssistantService : IAssistantService
 
             ChatMessageTableEntity newSystemMessage = new(
                 partitionKey: request.Id,
-                messageIndex: chatState.Metadata.TotalMessages + 1,
+                messageIndex: 0,
                 content: request.Instructions,
                 role: ChatMessageRole.System,
                 toolCalls: null);

@@ -246,7 +246,6 @@ class DefaultAssistantService : IAssistantService
         if (systemMessage is not null)
         {
             systemMessage.Content = request.Instructions;
-            systemMessage.CreatedAt = DateTime.UtcNow;
             this.logger.LogInformation(
                 "[{Id}] Existing system message found. Updating system instructions.",
                 request.Id);

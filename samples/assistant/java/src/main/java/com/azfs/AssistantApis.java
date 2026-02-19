@@ -80,8 +80,16 @@ public class AssistantApis {
                 assistantCreateRequest.getClass()
                     .getMethod("setPreserveChatHistory", boolean.class)
                     .invoke(assistantCreateRequest, preserveChatHistory);
-            } catch (Exception ex) {
-                context.getLogger().warning("PreserveChatHistory not supported by current SDK version.");
+            } catch (NoSuchMethodException ex) {
+                // Older SDK version that does not support preserveChatHistory; continue without it.
+                context.getLogger().warning(
+                    "PreserveChatHistory not supported by current SDK version (method setPreserveChatHistory not found): "
+                        + ex.getMessage());
+            } catch (ReflectiveOperationException ex) {
+                // Method exists but could not be invoked due to a reflection error.
+                context.getLogger().warning(
+                    "Failed to invoke setPreserveChatHistory via reflection: "
+                        + ex.getClass().getSimpleName() + ": " + ex.getMessage());
             }
 
             message.setValue(assistantCreateRequest);

@@ -14,15 +14,23 @@ def create_assistant(
     req: func.HttpRequest, requests: func.Out[str]
 ) -> func.HttpResponse:
     assistantId = req.route_params.get("assistantId")
+    body = {}
+    try:
+        body = req.get_json()
+    except ValueError:
+        body = {}
     instructions = """
             Don't make assumptions about what values to plug into functions.
             Ask for clarification if a user request is ambiguous.
             """
+    request_instructions = body.get("instructions", instructions)
+    preserve_chat_history = bool(body.get("preserveChatHistory", False))
     create_request = {
         "id": assistantId,
-        "instructions": instructions,
+        "instructions": request_instructions,
         "chatStorageConnectionSetting": DEFAULT_CHAT_STORAGE_SETTING,
         "collectionName": DEFAULT_CHAT_COLLECTION_NAME,
+        "preserveChatHistory": preserve_chat_history,
     }
     requests.set(json.dumps(create_request))
     response_json = {"assistantId": assistantId}

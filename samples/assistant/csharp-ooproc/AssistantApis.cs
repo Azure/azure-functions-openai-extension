@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.OpenAI.Assistants;
@@ -34,16 +35,34 @@ static class AssistantApis
 
         string request = await reader.ReadToEndAsync();
 
+        CreateAssistantRequest? createRequest = null;
+        if (!string.IsNullOrWhiteSpace(request))
+        {
+            createRequest = JsonSerializer.Deserialize<CreateAssistantRequest>(
+                request,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+
+        string requestInstructions = createRequest?.Instructions ?? instructions;
+
 
         return new CreateChatBotOutput
         {
             HttpResponse = new ObjectResult(new { assistantId }) { StatusCode = 201 },
-            ChatBotCreateRequest = new AssistantCreateRequest(assistantId, instructions)
+            ChatBotCreateRequest = new AssistantCreateRequest(assistantId, requestInstructions)
             {
                 ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting,
                 CollectionName = DefaultCollectionName,
+                PreserveChatHistory = createRequest?.PreserveChatHistory ?? false,
             },
         };
+    }
+
+    class CreateAssistantRequest
+    {
+        public string? Instructions { get; set; }
+
+        public bool PreserveChatHistory { get; set; }
     }
 
     public class CreateChatBotOutput

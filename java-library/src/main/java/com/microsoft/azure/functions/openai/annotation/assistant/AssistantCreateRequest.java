@@ -15,6 +15,7 @@ public class AssistantCreateRequest {
     private String instructions = "You are a helpful assistant.";
     private String chatStorageConnectionSetting;
     private String collectionName = "ChatState";
+    private boolean preserveChatHistory;
 
     public AssistantCreateRequest(String id) {
         this.id = id;
@@ -105,5 +106,23 @@ public class AssistantCreateRequest {
      */
     public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
+    }
+
+    /**
+     * Gets whether existing chat history should be preserved when updating instructions.
+     *
+     * @return True to preserve chat history; otherwise false.
+     */
+    public boolean isPreserveChatHistory() {
+        return preserveChatHistory;
+    }
+
+    /**
+     * Sets whether existing chat history should be preserved when updating instructions.
+     *
+     * @param preserveChatHistory True to preserve chat history; otherwise false.
+     */
+    public void setPreserveChatHistory(boolean preserveChatHistory) {
+        this.preserveChatHistory = preserveChatHistory;
     }
 }

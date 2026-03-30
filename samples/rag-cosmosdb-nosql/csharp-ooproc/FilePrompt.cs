@@ -66,6 +66,7 @@ public static class FilePrompt
         )]
         public required SearchableDocument SearchableDocument { get; init; }
 
+        [HttpResult]
         public IActionResult? HttpResponse { get; set; }
     }
 

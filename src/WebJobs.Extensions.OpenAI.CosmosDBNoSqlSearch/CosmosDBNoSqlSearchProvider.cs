@@ -206,7 +206,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 
         if (cosmosConfigSection.Exists())
         {
-            string cosmosAccountUri = cosmosConfigSection[endpointSettingSuffix];
+            string? cosmosAccountUri = cosmosConfigSection[endpointSettingSuffix];
 
             if (!string.IsNullOrEmpty(cosmosAccountUri))
             {
@@ -225,7 +225,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         }
 
         // Try to get connection info from connection string setting
-        string connectionSettingValue = this.configuration.GetValue<string>(
+        string? connectionSettingValue = this.configuration.GetValue<string>(
             this.CosmosDBConnectionSetting
         );
 

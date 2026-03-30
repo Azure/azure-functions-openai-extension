@@ -14,6 +14,10 @@
   </ItemGroup>
   <ItemGroup>
     <FunctionsPreservedDependencies Include="System.Memory.Data.dll" />
+    <FunctionsPreservedDependencies Include="Microsoft.IdentityModel.Tokens.dll" />
+    <FunctionsPreservedDependencies Include="Microsoft.IdentityModel.Abstractions.dll" />
+    <FunctionsPreservedDependencies Include="Microsoft.IdentityModel.Logging.dll" />
+    <FunctionsPreservedDependencies Include="Microsoft.IdentityModel.JsonWebTokens.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

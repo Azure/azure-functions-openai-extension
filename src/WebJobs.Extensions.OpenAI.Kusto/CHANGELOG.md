@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.18.0 - 2026/03/30
+
+### Changed
+
+- Upgraded Microsoft.Azure.Kusto.Data and Microsoft.Azure.Kusto.Ingest from 12.2.7 to 14.1.1
+
 ## v0.17.0 - 2025/05/08
 
 - Updated Microsoft.Azure.WebJobs.Extensions.OpenAI to 0.19.0

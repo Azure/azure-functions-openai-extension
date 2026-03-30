@@ -52,7 +52,7 @@ public class AssistantSkills {
         @AssistantSkillTrigger(
                 name = "assistantSkillGetTodos",
                 functionDescription = "Fetch the list of previously created todo tasks")
-        Object inputIgnored,
+        String inputIgnored,
         final ExecutionContext context) {
 
         context.getLogger().info("Fetching list of todos");

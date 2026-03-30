@@ -1,4 +1,5 @@
 import { Container, CosmosClient } from "@azure/cosmos"
+import { DefaultAzureCredential } from "@azure/identity"
 
 export class TodoItem {
     constructor(public id: string, public task: string) { }
@@ -59,11 +60,14 @@ class CosmosDbTodoManager implements ITodoManager {
 }
 
 export function CreateTodoManager(): ITodoManager {
-    const cosmosDbConnectionString = process.env.CosmosDbConnectionString
-    if (!cosmosDbConnectionString) {
-        return new InMemoryTodoManager()
-    } else {
-        const cosmosClient = new CosmosClient(cosmosDbConnectionString)
+    const cosmosDbEndpoint = process.env.CosmosDbEndpoint
+    
+    if (cosmosDbEndpoint) {
+        // Use managed identity authentication with endpoint
+        const credential = new DefaultAzureCredential()
+        const cosmosClient = new CosmosClient({ endpoint: cosmosDbEndpoint, aadCredentials: credential })
         return new CosmosDbTodoManager(cosmosClient)
+    } else {
+        return new InMemoryTodoManager()
     }
 }

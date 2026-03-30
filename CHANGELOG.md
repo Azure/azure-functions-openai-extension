@@ -9,6 +9,14 @@ Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will ma
 
 Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
 
+## v0.20.0 - TBD
+
+### Changed
+
+- Updated Azure.Data.Tables from 12.10.0 to 12.11.0
+- Updated Azure.Identity from 1.13.2 to 1.17.1
+- Updated Microsoft.Extensions.Azure from 1.10.0 to 1.13.1
+
 ## v0.19.0 - 2025/05/05
 
 ### Breaking

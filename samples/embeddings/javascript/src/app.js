@@ -17,7 +17,7 @@ app.http('generateEmbeddings', {
         let response = context.extraInputs.get(embeddingsHttpInput);
 
         context.log(
-            `Received ${response.count} embedding(s) for input text containing ${requestBody.RawText.length} characters.`
+            `Received ${response.count} embedding(s) for input text containing ${requestBody.rawText?.length ?? 0} characters.`
         );
         
         // TODO: Store the embeddings into a database or other storage.
@@ -44,7 +44,7 @@ app.http('getEmbeddingsFilePath', {
         let response = context.extraInputs.get(embeddingsFilePathInput);
 
         context.log(
-            `Received ${response.count} embedding(s) for input file ${requestBody.FilePath}.`
+            `Received ${response.count} embedding(s) for input file ${requestBody.filePath}.`
         );
         
         // TODO: Store the embeddings into a database or other storage.
@@ -71,7 +71,7 @@ app.http('getEmbeddingsUrl', {
         let response = context.extraInputs.get(embeddingsUrlInput);
 
         context.log(
-            `Received ${response.count} embedding(s) for input url ${requestBody.Url}.`
+            `Received ${response.count} embedding(s) for input url ${requestBody.url}.`
         );
         
         // TODO: Store the embeddings into a database or other storage.

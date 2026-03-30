@@ -341,8 +341,8 @@ sealed class AzureAISearchProvider : ISearchProvider
         // Extract values from the configuration section if it exists
         if (this.searchConnectionConfigSection.Exists())
         {
-            this.endpoint = this.searchConnectionConfigSection[endpointSettingSuffix];
-            this.apiKey = this.searchConnectionConfigSection[apiKeySettingSuffix];
+            this.endpoint = this.searchConnectionConfigSection[endpointSettingSuffix] ?? string.Empty;
+            this.apiKey = this.searchConnectionConfigSection[apiKeySettingSuffix] ?? string.Empty;
 
 
             if (!string.IsNullOrEmpty(this.apiKey))
@@ -358,7 +358,7 @@ sealed class AzureAISearchProvider : ISearchProvider
         }
 
         // Fallback to global configuration property
-        this.endpoint = this.configuration.GetValue<string>(this.searchConnectionNamePrefix);
+        this.endpoint = this.configuration.GetValue<string>(this.searchConnectionNamePrefix) ?? string.Empty;
         if (!string.IsNullOrEmpty(this.endpoint))
         {
             this.logger.LogInformation("Using DefaultAzureCredential with fallback to connection name configuration property {property} as the endpoint setting", this.searchConnectionNamePrefix);

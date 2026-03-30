@@ -157,7 +157,7 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
 
     KustoConnectionStringBuilder GetKustoConnectionString(string connectionName)
     {
-        string connectionString = this.configuration.GetValue<string>(connectionName);
+        string? connectionString = this.configuration.GetValue<string>(connectionName);
         if (string.IsNullOrEmpty(connectionString))
         {
             throw new InvalidOperationException($"""

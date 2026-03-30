@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.5.0 - TBD
+
+### Changed
+
+- Updated MongoDB.Driver from 2.30.0 to 3.7.1
+- Fixed `CosmosDBSearchProvider` to properly initialize `databaseName` and `indexName` in constructor
+  - Previously, `SearchAsync` could fail if called before `AddDocumentAsync` due to uninitialized database name
+
 ## v0.4.0 - 2025/05/05
 
 ### Added

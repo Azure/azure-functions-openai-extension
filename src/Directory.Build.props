@@ -24,7 +24,7 @@
   <!--Update the version in /eng/cd/templates/release-variables after bump of any version-->
   <PropertyGroup>
     <MajorVersion>0</MajorVersion>
-    <MinorVersion>19</MinorVersion>
+    <MinorVersion>20</MinorVersion>
     <PatchVersion>0</PatchVersion>
     <VersionPrefix>$(MajorVersion).$(MinorVersion).$(PatchVersion)</VersionPrefix>
     <VersionSuffix>alpha</VersionSuffix>

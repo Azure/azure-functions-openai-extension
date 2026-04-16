@@ -540,7 +540,7 @@ class DefaultAssistantService : IAssistantService
         string storageAccountUri = string.Empty;
         if (tableConfigSection.Exists())
         {
-            storageAccountUri = tableConfigSection["tableServiceUri"];
+            storageAccountUri = tableConfigSection["tableServiceUri"] ?? string.Empty;
         }
 
         // Check if URI for table storage is present
@@ -563,7 +563,7 @@ class DefaultAssistantService : IAssistantService
         {
             // Else, will use the connection string
             connectionStringName = chatStorageConnectionSetting ?? DefaultChatStorage;
-            string connectionString = this.configuration.GetValue<string>(connectionStringName);
+            string? connectionString = this.configuration.GetValue<string>(connectionStringName);
             
             this.logger.LogInformation("using connection string for table service client");
 

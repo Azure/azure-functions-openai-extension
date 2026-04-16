@@ -9,7 +9,7 @@ const embeddingsStoreOutput = output.generic({
     type: "embeddingsStore",
     input: "{url}",
     inputType: "url",
-    connectionName: "KustoConnectionString",
+    storeConnectionName: "KustoConnectionString",
     collection: "Documents",
     embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
 });
@@ -41,7 +41,7 @@ app.http('IngestEmail', {
 
 const semanticSearchInput = input.generic({
     type: "semanticSearch",
-    connectionName: "KustoConnectionString",
+    searchConnectionName: "KustoConnectionString",
     collection: "Documents",
     query: "{prompt}",
     chatModel: "%CHAT_MODEL_DEPLOYMENT_NAME%",

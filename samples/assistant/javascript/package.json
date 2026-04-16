@@ -8,9 +8,8 @@
   },
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
-    "@azure/functions": "^4.11.0"
-  },
-  "devDependencies": {
+    "@azure/functions": "^4.11.0",
+    "@azure/identity": "^4.13.1"
   },
   "main": "src/functions/*.js"
 }

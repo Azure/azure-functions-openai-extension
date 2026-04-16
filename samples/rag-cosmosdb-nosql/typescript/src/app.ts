@@ -9,7 +9,7 @@ const embeddingsStoreOutput = output.generic({
     type: "embeddingsStore",
     input: "{url}", 
     inputType: "url", 
-    connectionName: "CosmosDBNoSqlEndpoint", 
+    storeConnectionName: "CosmosDBNoSqlEndpoint", 
     collection: "openai-index", 
     embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
 });
@@ -41,7 +41,7 @@ app.http('IngestFile', {
 
 const semanticSearchInput = input.generic({
     type: "semanticSearch",
-    connectionName: "CosmosDBNoSqlEndpoint",
+    searchConnectionName: "CosmosDBNoSqlEndpoint",
     collection: "openai-index",
     query: "{prompt}",
     chatModel: "%CHAT_MODEL_DEPLOYMENT_NAME%",

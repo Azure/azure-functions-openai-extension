@@ -68,6 +68,9 @@ sealed class CosmosDBSearchProvider : ISearchProvider
         this.cosmosDBSearchConfigOptions = cosmosDBSearchConfigOptions;
         this.logger = loggerFactory.CreateLogger<CosmosDBSearchProvider>();
         this.configuration = configuration;
+
+        this.databaseName = cosmosDBSearchConfigOptions.Value.DatabaseName;
+        this.indexName = cosmosDBSearchConfigOptions.Value.IndexName;
     }
 
     /// <summary>
@@ -83,9 +86,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
             _ => this.CreateMongoClient(document.ConnectionInfo.ConnectionName)
         );
 
-        this.databaseName = this.cosmosDBSearchConfigOptions.Value.DatabaseName;
         this.collectionName = document.ConnectionInfo.CollectionName;
-        this.indexName = this.cosmosDBSearchConfigOptions.Value.IndexName;
         this.CreateVectorIndexIfNotExists(cosmosClient);
 
         await this.UpsertVectorAsync(cosmosClient, document);
@@ -121,7 +122,7 @@ sealed class CosmosDBSearchProvider : ISearchProvider
 
             IMongoCollection<BsonDocument> collection = cosmosClient
                 .GetDatabase(this.databaseName)
-                .GetCollection<BsonDocument>(this.collectionName);
+                .GetCollection<BsonDocument>(request.ConnectionInfo.CollectionName);
 
             // Search Azure Cosmos DB for MongoDB vCore collection for similar embeddings and project fields.
             BsonDocument[]? pipeline = null;

@@ -1,4 +1,5 @@
 const { CosmosClient } = require("@azure/cosmos");
+const { DefaultAzureCredential } = require("@azure/identity");
 
 class TodoItem {
     id;
@@ -59,12 +60,15 @@ class CosmosDbTodoManager {
 }
 
 function CreateTodoManager() {
-    const cosmosDbConnectionString = process.env.CosmosDbConnectionString
-    if (!cosmosDbConnectionString) {
-        return new InMemoryTodoManager()
-    } else {
-        const cosmosClient = new CosmosClient(cosmosDbConnectionString)
+    const cosmosDbEndpoint = process.env.CosmosDbEndpoint
+    
+    if (cosmosDbEndpoint) {
+        // Use managed identity authentication with endpoint
+        const credential = new DefaultAzureCredential()
+        const cosmosClient = new CosmosClient({ endpoint: cosmosDbEndpoint, aadCredentials: credential })
         return new CosmosDbTodoManager(cosmosClient)
+    } else {
+        return new InMemoryTodoManager()
     }
 }
 

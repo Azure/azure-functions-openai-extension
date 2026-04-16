@@ -1,7 +1,7 @@
 import { app, input } from "@azure/functions";
 
 interface EmbeddingsHttpRequest {
-    RawText?: string;
+    rawText?: string;
 }
 
 const embeddingsHttpInput = input.generic({
@@ -21,7 +21,7 @@ app.http('generateEmbeddings', {
         let response: any = context.extraInputs.get(embeddingsHttpInput);
 
         context.log(
-            `Received ${response.count} embedding(s) for input text containing ${requestBody.RawText.length} characters.`
+            `Received ${response.count} embedding(s) for input text containing ${requestBody.rawText?.length ?? 0} characters.`
         );
         
         // TODO: Store the embeddings into a database or other storage.
@@ -31,7 +31,7 @@ app.http('generateEmbeddings', {
 });
 
 interface EmbeddingsFilePath {
-    FilePath?: string;
+    filePath?: string;
 }
 
 const embeddingsFilePathInput = input.generic({
@@ -52,7 +52,7 @@ app.http('getEmbeddingsFilePath', {
         let response: any = context.extraInputs.get(embeddingsFilePathInput);
 
         context.log(
-            `Received ${response.count} embedding(s) for input file ${requestBody.FilePath}.`
+            `Received ${response.count} embedding(s) for input file ${requestBody.filePath}.`
         );
         
         // TODO: Store the embeddings into a database or other storage.
@@ -62,7 +62,7 @@ app.http('getEmbeddingsFilePath', {
 });
 
 interface EmbeddingsUrlPath {
-    Url?: string;
+    url?: string;
 }
 
 const embeddingsUrlInput = input.generic({
@@ -83,7 +83,7 @@ app.http('getEmbeddingsUrl', {
         let response: any = context.extraInputs.get(embeddingsUrlInput);
 
         context.log(
-            `Received ${response.count} embedding(s) for input url ${requestBody.Url}.`
+            `Received ${response.count} embedding(s) for input url ${requestBody.url}.`
         );
         
         // TODO: Store the embeddings into a database or other storage.

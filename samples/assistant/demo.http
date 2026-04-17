@@ -2,6 +2,16 @@
 PUT http://localhost:7071/api/assistants/assistant123
 
 
+### Update instructions without resetting chat history
+PUT http://localhost:7071/api/assistants/assistant123
+Content-Type: application/json
+
+{
+	"instructions": "You are a concise assistant.",
+	"preserveChatHistory": true
+}
+
+
 ### Reminder #1 - Remind me to call my dad
 POST http://localhost:7071/api/assistants/assistant123?message=Remind%20me%20to%20call%20my%20dad
 

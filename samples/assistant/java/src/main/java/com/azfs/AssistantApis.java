@@ -61,10 +61,36 @@ public class AssistantApis {
             
             String instructions = "Don't make assumptions about what values to plug into functions.\n" +
                     "Ask for clarification if a user request is ambiguous.";
+            boolean preserveChatHistory = false;
+
+            if (request.getBody().isPresent()) {
+                JSONObject body = new JSONObject(request.getBody().get());
+                if (body.has("instructions")) {
+                    instructions = body.getString("instructions");
+                }
+                if (body.has("preserveChatHistory")) {
+                    preserveChatHistory = body.getBoolean("preserveChatHistory");
+                }
+            }
 
             AssistantCreateRequest assistantCreateRequest = new AssistantCreateRequest(assistantId, instructions);
             assistantCreateRequest.setChatStorageConnectionSetting(DEFAULT_CHATSTORAGE);
             assistantCreateRequest.setCollectionName(DEFAULT_COLLECTION);
+            try {
+                assistantCreateRequest.getClass()
+                    .getMethod("setPreserveChatHistory", boolean.class)
+                    .invoke(assistantCreateRequest, preserveChatHistory);
+            } catch (NoSuchMethodException ex) {
+                // Older SDK version that does not support preserveChatHistory; continue without it.
+                context.getLogger().warning(
+                    "PreserveChatHistory not supported by current SDK version (method setPreserveChatHistory not found): "
+                        + ex.getMessage());
+            } catch (ReflectiveOperationException ex) {
+                // Method exists but could not be invoked due to a reflection error.
+                context.getLogger().warning(
+                    "Failed to invoke setPreserveChatHistory via reflection: "
+                        + ex.getClass().getSimpleName() + ": " + ex.getMessage());
+            }
 
             message.setValue(assistantCreateRequest);
             JSONObject response = new JSONObject();

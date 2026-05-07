@@ -16,16 +16,24 @@ app.http('CreateAssistant', {
     extraOutputs: [chatBotCreateOutput],
     handler: async (request: HttpRequest, context: InvocationContext) => {
         const assistantId = request.params.assistantId
+        let inputJson: any = {}
+        try {
+            inputJson = await request.json()
+        } catch {
+            inputJson = {}
+        }
         const instructions =
             `
             Don't make assumptions about what values to plug into functions.
             Ask for clarification if a user request is ambiguous.
             `
+        const requestInstructions = inputJson.instructions ?? instructions
         const createRequest = {
             id: assistantId,
-            instructions: instructions,
+            instructions: requestInstructions,
             chatStorageConnectionSetting: CHAT_STORAGE_CONNECTION_SETTING,
-            collectionName: COLLECTION_NAME
+            collectionName: COLLECTION_NAME,
+            preserveChatHistory: inputJson.preserveChatHistory === true
         }
         context.extraOutputs.set(chatBotCreateOutput, createRequest)
         return { status: 202, jsonBody: { assistantId: assistantId } }

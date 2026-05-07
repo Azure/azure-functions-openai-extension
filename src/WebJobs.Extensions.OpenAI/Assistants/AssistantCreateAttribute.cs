@@ -69,4 +69,9 @@ public class AssistantCreateRequest
     /// Table collection name for chat storage.
     /// </summary>
     public string CollectionName { get; set; } = "ChatState";
+
+    /// <summary>
+    /// When true, preserves existing chat history and only updates the system instructions.
+    /// </summary>
+    public bool PreserveChatHistory { get; set; }
 }

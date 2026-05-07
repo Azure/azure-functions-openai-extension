@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -34,14 +36,36 @@ static class AssistantApis
             Don't make assumptions about what values to plug into functions.
             Ask for clarification if a user request is ambiguous.
             """;
-        AssistantCreateRequest assistantCreateRequest = new(assistantId, instructions)
+
+        CreateAssistantRequest? createRequest = null;
+        using (StreamReader reader = new(req.Body))
+        {
+            string body = await reader.ReadToEndAsync();
+            if (!string.IsNullOrWhiteSpace(body))
+            {
+                createRequest = JsonSerializer.Deserialize<CreateAssistantRequest>(
+                    body,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+        }
+
+        string requestInstructions = createRequest?.Instructions ?? instructions;
+        AssistantCreateRequest assistantCreateRequest = new(assistantId, requestInstructions)
         {
             ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting,
             CollectionName = DefaultCollectionName,
+            PreserveChatHistory = createRequest?.PreserveChatHistory ?? false,
         };
         await createRequests.AddAsync(assistantCreateRequest);
         var responseJson = new { assistantId };
         return new ObjectResult(responseJson) { StatusCode = 201 };
+    }
+
+    class CreateAssistantRequest
+    {
+        public string? Instructions { get; set; }
+
+        public bool PreserveChatHistory { get; set; }
     }
 
     /// <summary>

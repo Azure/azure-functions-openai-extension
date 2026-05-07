@@ -235,6 +235,18 @@ For additional details on using identity-based connections, refer to the [Azure 
     PUT http://localhost:7168/api/assistants/assistant123
     ```
 
+    You can optionally provide a JSON body to set or update the assistant instructions. By default, the assistant is reset on creation. To preserve existing chat history and only update the system instructions for an existing assistant, set `preserveChatHistory` to `true`.
+
+    ```http
+    PUT http://localhost:7168/api/assistants/assistant123
+    Content-Type: application/json
+
+    {
+      "instructions": "You are a concise assistant.",
+      "preserveChatHistory": true
+    }
+    ```
+
     > **NOTE:** The `assistant123` value is the unique ID of the assistant. You can use any value you like, but it must be unique and must be used consistently in all subsequent requests.
 
     > **NOTE:** All the HTTP requests in this sample can also be found in the [demo.http](demo.http) file, which can be opened and run in most IDEs.

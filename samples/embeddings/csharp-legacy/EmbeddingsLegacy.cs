@@ -22,7 +22,7 @@ public static class EmbeddingsLegacy
     [FunctionName(nameof(GenerateEmbeddings_Http_Request))]
     public static void GenerateEmbeddings_Http_Request(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings")] EmbeddingsRequest req,
-        [Embeddings("{RawText}", InputType.RawText, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] EmbeddingsContext embeddings,
+        [Embeddings("{RawText}", InputType.RawText, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI")] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(
@@ -40,7 +40,7 @@ public static class EmbeddingsLegacy
     [FunctionName(nameof(GetEmbeddings_Http_FilePath))]
     public static void GetEmbeddings_Http_FilePath(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-file")] EmbeddingsRequest req,
-        [Embeddings("{FilePath}", InputType.FilePath, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", MaxChunkLength = 512)] EmbeddingsContext embeddings,
+        [Embeddings("{FilePath}", InputType.FilePath, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI", MaxChunkLength = 512)] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(
@@ -58,7 +58,7 @@ public static class EmbeddingsLegacy
     [FunctionName(nameof(GetEmbeddings_Http_Url))]
     public static void GetEmbeddings_Http_Url(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-url")] EmbeddingsRequest req,
-        [Embeddings("{Url}", InputType.Url, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", MaxChunkLength = 512)] EmbeddingsContext embeddings,
+        [Embeddings("{Url}", InputType.Url, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI", MaxChunkLength = 512)] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(

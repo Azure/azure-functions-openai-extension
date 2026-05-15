@@ -35,7 +35,7 @@ public class FilePrompt {
             HttpRequestMessage<EmbeddingsRequest> request,
         @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
                 storeConnectionName = "CosmosDBNoSqlEndpoint", collection = "openai-index",
-                embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") OutputBinding<EmbeddingsStoreOutputResponse> output,
+                embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", aiConnectionName = "AzureOpenAI") OutputBinding<EmbeddingsStoreOutputResponse> output,
         final ExecutionContext context) throws URISyntaxException {
 
         if (request.getBody() == null || request.getBody().getUrl() == null)
@@ -79,7 +79,7 @@ public class FilePrompt {
             methods = {HttpMethod.POST},
             authLevel = AuthorizationLevel.FUNCTION)
             HttpRequestMessage<SemanticSearchRequest> request,
-        @SemanticSearch(name = "search", searchConnectionName = "CosmosDBNoSqlEndpoint", collection = "openai-index", query = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", isReasoningModel = false ) String semanticSearchContext,
+        @SemanticSearch(name = "search", searchConnectionName = "CosmosDBNoSqlEndpoint", collection = "openai-index", query = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", isReasoningModel = false, aiConnectionName = "AzureOpenAI" ) String semanticSearchContext,
         final ExecutionContext context) {
             String response = new JSONObject(semanticSearchContext).getString("Response");
             return request.createResponseBuilder(HttpStatus.OK)

@@ -1,9 +1,11 @@
 {
     "IsEncrypted": false,
     "Values": {
-      "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-      "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-      "AZURE_OPENAI_ENDPOINT": "Placeholder for the Azure OpenAI endpoint value",
-      "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+        "AzureOpenAI__endpoint": "https://<your-resource>.openai.azure.com/",
+        "AzureOpenAI__credential": "managedidentity",
+        "AzureOpenAI__clientId": "<user-assigned-managed-identity-client-id>",
+        "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
     }
 }

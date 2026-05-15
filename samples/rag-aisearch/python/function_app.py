@@ -14,6 +14,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     store_connection_name="AISearchEndpoint",
     collection="openai-index",
     embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    ai_connection_name="AzureOpenAI",
 )
 def ingest_file(
     req: func.HttpRequest, requests: func.Out[str]
@@ -43,6 +44,7 @@ def ingest_file(
     collection="openai-index",
     query="{prompt}",
     embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    ai_connection_name="AzureOpenAI",
     chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
 )
 def prompt_file(req: func.HttpRequest, result: str) -> func.HttpResponse:

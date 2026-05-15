@@ -23,7 +23,8 @@
       "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",
       "userMessage": "{Query.message}",
       "chatStorageConnectionSetting": "AzureWebJobsStorage",
-      "collectionName": "ChatState"
+      "collectionName": "ChatState",
+      "aiConnectionName": "AzureOpenAI"
     }
   ]
 }

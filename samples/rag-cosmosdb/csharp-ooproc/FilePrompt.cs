@@ -66,7 +66,7 @@ public static class FilePrompt
 
     public class EmbeddingsStoreOutputResponse
     {
-        [EmbeddingsStoreOutput("{url}", InputType.Url, "CosmosDBMongoVCoreConnectionString", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")]
+        [EmbeddingsStoreOutput("{url}", InputType.Url, "CosmosDBMongoVCoreConnectionString", "openai-index", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI")]
         public required SearchableDocument SearchableDocument { get; init; }
 
         [HttpResult]
@@ -76,7 +76,7 @@ public static class FilePrompt
     [Function("PromptFile")]
     public static IActionResult PromptFile(
         [HttpTrigger(AuthorizationLevel.Function, "post")] SemanticSearchRequest unused,
-        [SemanticSearchInput("CosmosDBMongoVCoreConnectionString", "openai-index", Query = "{prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%")] SemanticSearchContext result)
+        [SemanticSearchInput("CosmosDBMongoVCoreConnectionString", "openai-index", Query = "{prompt}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI")] SemanticSearchContext result)
     {
         return new ContentResult { Content = result.Response, ContentType = "text/plain" };
     }

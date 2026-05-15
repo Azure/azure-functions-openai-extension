@@ -100,7 +100,7 @@ public class ChatBot {
             route = "chats/{chatId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("chatId") String chatId,        
-        @AssistantPost(name="newMessages", id = "{chatId}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}") AssistantState state,
+        @AssistantPost(name="newMessages", id = "{chatId}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", aiConnectionName = "AzureOpenAI", userMessage = "{Query.message}") AssistantState state,
         final ExecutionContext context) {
 
             List<AssistantMessage> recentMessages = state.getRecentMessages();

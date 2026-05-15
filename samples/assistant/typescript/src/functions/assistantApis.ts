@@ -37,6 +37,7 @@ const assistantPostInput = input.generic({
     type: 'assistantPost',
     id: '{assistantId}',
     chatModel: '%CHAT_MODEL_DEPLOYMENT_NAME%',
+    aiConnectionName: 'AzureOpenAI',
     userMessage: '{Query.message}',
     chatStorageConnectionSetting: CHAT_STORAGE_CONNECTION_SETTING,
     collectionName: COLLECTION_NAME

@@ -10,6 +10,7 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
     prompt="Who is {name}?",
     max_tokens="100",
     chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
+    ai_connection_name="AzureOpenAI",
 )
 def whois(req: func.HttpRequest, response: str) -> func.HttpResponse:
     response_json = json.loads(response)
@@ -21,6 +22,7 @@ def whois(req: func.HttpRequest, response: str) -> func.HttpResponse:
     arg_name="response",
     prompt="{Prompt}",
     chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
+    ai_connection_name="AzureOpenAI",
 )
 def genericcompletion(
     req: func.HttpRequest,

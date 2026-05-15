@@ -62,7 +62,8 @@ public static class FilePrompt
             InputType.Url,
             "CosmosDBNoSqlEndpoint",
             "openai-index",
-            EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+            EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+            AIConnectionName = "AzureOpenAI"
         )]
         public required SearchableDocument SearchableDocument { get; init; }
 
@@ -78,7 +79,8 @@ public static class FilePrompt
             "openai-index",
             Query = "{Prompt}",
             ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%",
-            EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+            EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+            AIConnectionName = "AzureOpenAI"
         )]
             SemanticSearchContext result
     )

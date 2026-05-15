@@ -22,7 +22,8 @@
       "inputType": "Url",
       "storeConnectionName": "KustoConnectionString",
       "collection": "Documents",
-      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+      "aiConnectionName": "AzureOpenAI"
     }
   ]
 }

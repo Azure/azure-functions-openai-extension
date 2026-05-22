@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated Microsoft.Azure.Cosmos from 3.49.0 to 3.58.0
-  - Minor version upgrade with no code changes required
+- Updated Microsoft.Azure.Cosmos from 3.49.0 to 3.60.0
+- Updated Microsoft.Azure.WebJobs.Extensions.OpenAI to 0.20.0
 
 ## v0.1.0 - 2025/05/08
 

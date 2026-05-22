@@ -14,8 +14,9 @@ Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it 
 ### Changed
 
 - Updated Azure.Data.Tables from 12.10.0 to 12.11.0
-- Updated Azure.Identity from 1.13.2 to 1.17.1
-- Updated Microsoft.Extensions.Azure from 1.10.0 to 1.13.1
+- Updated Microsoft.Azure.WebJobs from 3.0.41 to 3.0.46
+- Updated Azure.Identity from 1.13.2 to 1.21.0
+- Updated Microsoft.Extensions.Azure from 1.10.0 to 1.14.0
 
 ## v0.19.0 - 2025/05/05
 

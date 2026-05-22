@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Updated MongoDB.Driver from 2.30.0 to 3.7.1
+- Updated MongoDB.Driver from 2.30.0 to 3.8.1
+- Updated Microsoft.Azure.WebJobs.Extensions.OpenAI to 0.20.0
 - Fixed `CosmosDBSearchProvider` to properly initialize `databaseName` and `indexName` in constructor
   - Previously, `SearchAsync` could fail if called before `AddDocumentAsync` due to uninitialized database name
 

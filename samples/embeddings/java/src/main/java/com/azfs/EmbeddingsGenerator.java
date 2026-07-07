@@ -28,7 +28,7 @@ public class EmbeddingsGenerator {
             @HttpTrigger(
                 name = "req", 
                 methods = {HttpMethod.POST},
-                authLevel = AuthorizationLevel.ANONYMOUS,
+                authLevel = AuthorizationLevel.FUNCTION,
                 route = "embeddings")
             HttpRequestMessage<EmbeddingsRequest> request,
             @EmbeddingsInput(name = "Embeddings", input = "{RawText}", inputType = InputType.RawText, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
@@ -61,7 +61,7 @@ public class EmbeddingsGenerator {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.POST},
-            authLevel = AuthorizationLevel.ANONYMOUS,
+            authLevel = AuthorizationLevel.FUNCTION,
             route = "embeddings-from-file")
         HttpRequestMessage<EmbeddingsRequest> request,
         @EmbeddingsInput(name = "Embeddings", input = "{FilePath}", inputType = InputType.FilePath, maxChunkLength = 512, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,
@@ -94,7 +94,7 @@ public class EmbeddingsGenerator {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.POST},
-            authLevel = AuthorizationLevel.ANONYMOUS,
+            authLevel = AuthorizationLevel.FUNCTION,
             route = "embeddings-from-url")
         HttpRequestMessage<EmbeddingsRequest> request,
         @EmbeddingsInput(name = "Embeddings", input = "{Url}", inputType = InputType.Url, maxChunkLength = 512, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%") String embeddingsContext,

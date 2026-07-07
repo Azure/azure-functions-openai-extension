@@ -31,7 +31,7 @@ public class FilePrompt {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.POST},
-            authLevel = AuthorizationLevel.ANONYMOUS)
+            authLevel = AuthorizationLevel.FUNCTION)
             HttpRequestMessage<EmbeddingsRequest> request,
         @EmbeddingsStoreOutput(name="EmbeddingsStoreOutput", input = "{url}", inputType = InputType.Url,
                 storeConnectionName = "CosmosDBNoSqlEndpoint", collection = "openai-index",
@@ -77,7 +77,7 @@ public class FilePrompt {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.POST},
-            authLevel = AuthorizationLevel.ANONYMOUS)
+            authLevel = AuthorizationLevel.FUNCTION)
             HttpRequestMessage<SemanticSearchRequest> request,
         @SemanticSearch(name = "search", searchConnectionName = "CosmosDBNoSqlEndpoint", collection = "openai-index", query = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", isReasoningModel = false ) String semanticSearchContext,
         final ExecutionContext context) {

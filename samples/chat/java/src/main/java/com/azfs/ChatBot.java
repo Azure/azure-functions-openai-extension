@@ -38,7 +38,7 @@ public class ChatBot {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.PUT},
-            authLevel = AuthorizationLevel.ANONYMOUS, 
+            authLevel = AuthorizationLevel.FUNCTION, 
             route = "chats/{chatId}") 
             HttpRequestMessage<Optional<CreateRequest>> request,
         @BindingName("chatId") String chatId,
@@ -79,7 +79,7 @@ public class ChatBot {
         @HttpTrigger(
             name = "req",
             methods = {HttpMethod.GET}, 
-            authLevel = AuthorizationLevel.ANONYMOUS,
+            authLevel = AuthorizationLevel.FUNCTION,
             route = "chats/{chatId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("chatId") String chatId,        
@@ -96,7 +96,7 @@ public class ChatBot {
         @HttpTrigger(
             name = "req",
             methods = {HttpMethod.POST}, 
-            authLevel = AuthorizationLevel.ANONYMOUS,
+            authLevel = AuthorizationLevel.FUNCTION,
             route = "chats/{chatId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("chatId") String chatId,        

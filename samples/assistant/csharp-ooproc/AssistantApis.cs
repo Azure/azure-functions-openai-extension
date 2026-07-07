@@ -21,7 +21,7 @@ static class AssistantApis
     /// </summary>
     [Function(nameof(CreateAssistant))]
     public static async Task<CreateChatBotOutput> CreateAssistant(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "assistants/{assistantId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId)
     {
         string instructions =
@@ -60,7 +60,7 @@ static class AssistantApis
     /// </summary>
     [Function(nameof(PostUserQuery))]
     public static IActionResult PostUserQuery(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "assistants/{assistantId}")] HttpRequestData req,
         string assistantId,
         [AssistantPostInput("{assistantId}", "{Query.message}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
@@ -72,7 +72,7 @@ static class AssistantApis
     /// </summary>
     [Function(nameof(GetChatState))]
     public static IActionResult GetChatState(
-       [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "assistants/{assistantId}")] HttpRequestData req,
+       [HttpTrigger(AuthorizationLevel.Function, "get", Route = "assistants/{assistantId}")] HttpRequestData req,
        string assistantId,
        [AssistantQueryInput("{assistantId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {

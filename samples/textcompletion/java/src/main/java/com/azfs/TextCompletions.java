@@ -33,7 +33,7 @@ public class TextCompletions {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.GET},
-            authLevel = AuthorizationLevel.ANONYMOUS, 
+            authLevel = AuthorizationLevel.FUNCTION, 
             route = "whois/{name}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("name") String name,
@@ -54,7 +54,7 @@ public class TextCompletions {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.POST},
-            authLevel = AuthorizationLevel.ANONYMOUS) 
+            authLevel = AuthorizationLevel.FUNCTION) 
             HttpRequestMessage<Optional<String>> request,
         @TextCompletion(prompt = "{prompt}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", name = "response", isReasoningModel = false) TextCompletionResponse response,
         final ExecutionContext context) {

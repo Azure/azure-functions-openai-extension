@@ -51,7 +51,7 @@ public class AssistantApis {
         @HttpTrigger(
             name = "req", 
             methods = {HttpMethod.PUT}, 
-            authLevel = AuthorizationLevel.ANONYMOUS, 
+            authLevel = AuthorizationLevel.FUNCTION, 
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("assistantId") String assistantId,
@@ -84,7 +84,7 @@ public class AssistantApis {
         @HttpTrigger(
             name = "req",
             methods = {HttpMethod.GET}, 
-            authLevel = AuthorizationLevel.ANONYMOUS,
+            authLevel = AuthorizationLevel.FUNCTION,
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("assistantId") String assistantId,        
@@ -104,7 +104,7 @@ public class AssistantApis {
         @HttpTrigger(
             name = "req",
             methods = {HttpMethod.POST}, 
-            authLevel = AuthorizationLevel.ANONYMOUS,
+            authLevel = AuthorizationLevel.FUNCTION,
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("assistantId") String assistantId,        

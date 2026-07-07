@@ -12,7 +12,7 @@ const chatBotCreateOutput = output.generic({
 app.http('CreateAssistant', {
     methods: ['PUT'],
     route: 'assistants/{assistantId}',
-    authLevel: 'anonymous',
+    authLevel: 'function',
     extraOutputs: [chatBotCreateOutput],
     handler: async (request: HttpRequest, context: InvocationContext) => {
         const assistantId = request.params.assistantId
@@ -44,7 +44,7 @@ const assistantPostInput = input.generic({
 app.http('PostUserResponse', {
     methods: ['POST'],
     route: 'assistants/{assistantId}',
-    authLevel: 'anonymous',
+    authLevel: 'function',
     extraInputs: [assistantPostInput],
     handler: async (_, context) => {
         const chatState: any = context.extraInputs.get(assistantPostInput)
@@ -70,7 +70,7 @@ const chatBotQueryInput = input.generic({
 app.http('GetChatState', {
     methods: ['GET'],
     route: 'assistants/{assistantId}',
-    authLevel: 'anonymous',
+    authLevel: 'function',
     extraInputs: [chatBotQueryInput],
     handler: async (_, context) => {
         const state: any = context.extraInputs.get(chatBotQueryInput)

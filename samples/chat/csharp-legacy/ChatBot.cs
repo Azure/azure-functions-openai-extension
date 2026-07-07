@@ -24,7 +24,7 @@ public static class ChatBot
 
     [FunctionName(nameof(CreateChatBot))]
     public static async Task<IActionResult> CreateChatBot(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "chats/{chatId}")] CreateRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "put", Route = "chats/{chatId}")] CreateRequest req,
         string chatId,
         [AssistantCreate] IAsyncCollector<AssistantCreateRequest> createRequests)
     {
@@ -40,7 +40,7 @@ public static class ChatBot
 
     [FunctionName(nameof(GetChatState))]
     public static AssistantState GetChatState(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "chats/{chatId}")] HttpRequest req,
         string chatId,
         [AssistantQuery("{chatId}", TimestampUtc = "{Query.timestampUTC}", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState state)
     {
@@ -49,7 +49,7 @@ public static class ChatBot
 
     [FunctionName(nameof(PostUserResponse))]
     public static IActionResult PostUserResponse(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Function, "post", Route = "chats/{chatId}")] HttpRequest req,
         string chatId,
         [AssistantPost("{chatId}", "{Query.message}", ChatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", ChatStorageConnectionSetting = DefaultChatStorageConnectionSetting, CollectionName = DefaultCollectionName)] AssistantState updatedState)
     {

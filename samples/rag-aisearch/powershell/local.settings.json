@@ -4,7 +4,7 @@
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "powershell",
     "FUNCTIONS_WORKER_RUNTIME_VERSION": "7.2",
-    "AzureOpenAI__endpoint": "https://<your-resource>.openai.azure.com/",
+    "AzureOpenAI__endpoint": "<Placeholder for the Azure OpenAI endpoint value>",
     "AzureOpenAI__credential": "managedidentity",
     "AzureOpenAI__clientId": "<user-assigned-managed-identity-client-id>",
     "AISearchEndpoint": "https://<resource-name>.search.windows.net",

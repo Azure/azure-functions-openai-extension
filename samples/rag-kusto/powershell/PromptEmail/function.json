@@ -22,7 +22,8 @@
       "collection": "Documents",
       "query": "{prompt}",
       "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",
-      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+      "aiConnectionName": "AzureOpenAI"
     }
   ]
 }

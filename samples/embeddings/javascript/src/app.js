@@ -4,7 +4,8 @@ const embeddingsHttpInput = input.generic({
     input: '{rawText}',
     inputType: 'RawText',
     type: 'embeddings',
-    embeddingsModel: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%'
+    embeddingsModel: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%',
+    aiConnectionName: 'AzureOpenAI',
 })
 
 app.http('generateEmbeddings', {
@@ -31,7 +32,8 @@ const embeddingsFilePathInput = input.generic({
     inputType: 'FilePath',
     type: 'embeddings',
     maxChunkLength: 512,
-    embeddingsModel: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%'
+    embeddingsModel: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%',
+    aiConnectionName: 'AzureOpenAI',
 })
 
 app.http('getEmbeddingsFilePath', {
@@ -58,7 +60,8 @@ const embeddingsUrlInput = input.generic({
     inputType: 'Url',
     type: 'embeddings',
     maxChunkLength: 512,
-    embeddingsModel: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%'
+    embeddingsModel: '%EMBEDDING_MODEL_DEPLOYMENT_NAME%',
+    aiConnectionName: 'AzureOpenAI',
 })
 
 app.http('getEmbeddingsUrl', {

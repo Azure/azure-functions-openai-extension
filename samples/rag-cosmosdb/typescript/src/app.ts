@@ -11,7 +11,8 @@ const embeddingsStoreOutput = output.generic({
     inputType: "url", 
     storeConnectionName: "CosmosDBMongoVCoreConnectionString", 
     collection: "openai-index", 
-    embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+    embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+    aiConnectionName: 'AzureOpenAI',
 });
 
 app.http('IngestFile', {
@@ -45,6 +46,7 @@ const semanticSearchInput = input.generic({
     collection: "openai-index",
     query: "{prompt}",
     chatModel: "%CHAT_MODEL_DEPLOYMENT_NAME%",
+    aiConnectionName: 'AzureOpenAI',
     embeddingsModel: "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
 });
 

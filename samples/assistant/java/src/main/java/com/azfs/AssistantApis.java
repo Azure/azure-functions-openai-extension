@@ -108,7 +108,7 @@ public class AssistantApis {
             route = "assistants/{assistantId}") 
             HttpRequestMessage<Optional<String>> request,
         @BindingName("assistantId") String assistantId,        
-        @AssistantPost(name="newMessages", id = "{assistantId}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", userMessage = "{Query.message}", chatStorageConnectionSetting = DEFAULT_CHATSTORAGE, collectionName = DEFAULT_COLLECTION) AssistantState state,
+        @AssistantPost(name="newMessages", id = "{assistantId}", chatModel = "%CHAT_MODEL_DEPLOYMENT_NAME%", aiConnectionName = "AzureOpenAI", userMessage = "{Query.message}", chatStorageConnectionSetting = DEFAULT_CHATSTORAGE, collectionName = DEFAULT_COLLECTION) AssistantState state,
         final ExecutionContext context) {
             
             List<AssistantMessage> recentMessages = state.getRecentMessages();

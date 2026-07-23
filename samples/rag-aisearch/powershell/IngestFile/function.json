@@ -22,7 +22,8 @@
       "inputType": "Url",
       "storeConnectionName": "AISearchEndpoint",
       "collection": "openai-index",
-      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%"
+      "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
+      "aiConnectionName": "AzureOpenAI"
     }
   ]
 }

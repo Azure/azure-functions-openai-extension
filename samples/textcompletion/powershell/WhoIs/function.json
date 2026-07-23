@@ -21,7 +21,8 @@
       "name": "TextCompletionResponse",
       "prompt": "Who is {name}?",
       "maxTokens": "100",
-      "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%"
+      "chatModel": "%CHAT_MODEL_DEPLOYMENT_NAME%",
+      "aiConnectionName": "AzureOpenAI"
     }
   ]
 }

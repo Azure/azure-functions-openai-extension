@@ -55,6 +55,7 @@ def get_chat_state(req: func.HttpRequest, state: str) -> func.HttpResponse:
     id="{chatId}",
     user_message="{Query.message}",
     chat_model="%CHAT_MODEL_DEPLOYMENT_NAME%",
+    ai_connection_name="AzureOpenAI",
     chat_storage_connection_setting=DEFAULT_CHAT_STORAGE_SETTING,
     collection_name=DEFAULT_CHAT_COLLECTION_NAME,
 )

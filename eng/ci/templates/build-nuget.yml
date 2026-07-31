@@ -19,6 +19,9 @@ jobs:
           version: '2.1.x'
           performMultiLevelLookup: true
 
+      - task: NuGetAuthenticate@1
+        displayName: 'Authenticate NuGet feeds'
+
       - task: DotNetCoreCLI@2
         displayName: 'Dotnet Restore'
         inputs:

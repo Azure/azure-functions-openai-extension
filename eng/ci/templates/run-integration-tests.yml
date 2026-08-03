@@ -12,6 +12,9 @@ jobs:
         inputs:
           version: '8.x'
 
+      - task: NuGetAuthenticate@1
+        displayName: 'Authenticate NuGet feeds'
+
       - script: |
           mkdir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
         displayName: Create new directory
@@ -54,9 +57,10 @@ jobs:
 
       - script: |
           dir "$(System.DefaultWorkingDirectory)/NuGetPackagesLocal"
-          dotnet nuget add source $(System.DefaultWorkingDirectory)/NuGetPackagesLocal --configfile  %appdata%/NuGet/NuGet.Config
-          dotnet nuget list source --configfile  %appdata%/NuGet/NuGet.Config
-          dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion) -p:CosmosDBNoSqlSearchVersion=$(fakeWebJobsPackageVersion) --configfile %appdata%/NuGet/NuGet.Config
+          copy "$(System.DefaultWorkingDirectory)\nuget.config" "$(Agent.TempDirectory)\NuGet.Local.config"
+          dotnet nuget add source "$(System.DefaultWorkingDirectory)\NuGetPackagesLocal" --configfile "$(Agent.TempDirectory)\NuGet.Local.config"
+          dotnet nuget list source --configfile "$(Agent.TempDirectory)\NuGet.Local.config"
+          dotnet build --configuration $(config) /p:WebJobsVersion=$(fakeWebJobsPackageVersion) /p:Version=$(fakeWebJobsPackageVersion) /p:AzureAISearchVersion=$(fakeWebJobsPackageVersion) /p:KustoVersion=$(fakeWebJobsPackageVersion) -p:CosmosDBSearchVersion=$(fakeWebJobsPackageVersion) -p:CosmosDBNoSqlSearchVersion=$(fakeWebJobsPackageVersion) --configfile "$(Agent.TempDirectory)\NuGet.Local.config"
         displayName: Build from local NuGet packages
 
       - task: DotNetCoreCLI@2

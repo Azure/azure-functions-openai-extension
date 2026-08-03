@@ -7,6 +7,12 @@ jobs:
           artifactName: drop-java-library
           condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     steps:
+      - task: MavenAuthenticate@0
+        displayName: Authenticate Maven feed
+        inputs:
+          # Must match the <id> of the repositories declared in the pom.xml files.
+          artifactsFeeds: central
+
       - task: Maven@3
         displayName: Build library
         inputs:

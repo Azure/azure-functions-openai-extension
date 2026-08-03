@@ -1,6 +1,12 @@
 jobs:
   - job: BuildJavaSamples
     steps:
+      - task: MavenAuthenticate@0
+        displayName: 'Authenticate Maven feed'
+        inputs:
+          # Must match the <id> of the repositories declared in the pom.xml files.
+          artifactsFeeds: central
+
       - task: npmAuthenticate@0
         displayName: 'Authenticate npm feed'
         inputs:

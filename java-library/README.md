@@ -14,12 +14,24 @@ All Maven packages and plugins are restored from the `upstream-public` Azure Art
 (`https://pkgs.dev.azure.com/azfunc/public/_packaging/upstream-public/maven/v1`), which is configured
 as the `central` repository in every `pom.xml` in this repository.
 
+The repository root also has a [`settings.xml`](../settings.xml) that mirrors `central` to the same
+feed. It exists because a `pom.xml` cannot cover everything:
+
+- Maven resolves build extensions and plugin prefixes *before* a pom's `<repositories>` are honored,
+  so those requests would otherwise go straight to Maven Central.
+- `MavenAuthenticate@0` and the credential provider key credentials off the Azure Artifacts *feed
+  name* (`upstream-public`), while the pom repository id must be `central` in order to override the
+  id Maven inherits from the Super POM. The mirror id bridges the two.
+
+CI installs this file to `~/.m2/settings.xml`. Locally you only need it when pulling a package or
+version the feed has not cached yet, in which case pass it explicitly with `mvn -s settings.xml`.
+
 ### Anonymous restore (default)
 
 The feed allows anonymous reads, so no credentials are required to build once a package version has
 been saved to the feed. External contributors and fresh clones need no setup — `mvn` just works.
-Never commit credentials or a `settings.xml` containing a `<server>` entry to this repository; doing
-so would force authentication on everyone.
+Never commit credentials or a `<server>` entry to `settings.xml` in this repository; doing so would
+force authentication on everyone.
 
 ### Authenticating (Microsoft developers only)
 

@@ -132,6 +132,13 @@
                     </filesets>
                 </configuration>
             </plugin>
+            <!-- CI runs `checkstyle:checkstyle`. Declaring the plugin here lets Maven resolve
+                 that prefix from the project, instead of from the plugin group maven-metadata.xml. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+            </plugin>
         </plugins>
     </build>
 </project>

@@ -18,6 +18,7 @@
         <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
         <maven.javadoc.plugin.version>3.10.0</maven.javadoc.plugin.version>
         <maven.surefire.plugin.version>3.5.0</maven.surefire.plugin.version>
+        <maven.checkstyle.plugin.version>3.6.0</maven.checkstyle.plugin.version>
 	</properties>
 
 	<licenses>
@@ -58,19 +59,32 @@
 		</snapshotRepository>
 	</distributionManagement>
 
+	<!-- Package sources must be routed through an Azure Artifacts feed (CFS). -->
 	<repositories>
 		<repository>
-			<id>maven.snapshots</id>
-			<name>Maven Central Snapshot Repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<id>central</id>
+			<url>https://pkgs.dev.azure.com/azfunc/public/_packaging/upstream-public/maven/v1</url>
 			<releases>
-				<enabled>false</enabled>
+				<enabled>true</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
 			</snapshots>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<url>https://pkgs.dev.azure.com/azfunc/public/_packaging/upstream-public/maven/v1</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 
 	<dependencies>
 		<dependency>
@@ -154,6 +168,13 @@
 						</property>
 					</systemProperties>
 				</configuration>
+			</plugin>
+			<!-- CI runs `checkstyle:checkstyle`. Declaring the plugin here lets Maven resolve that
+			     prefix from the project, instead of from the plugin group maven-metadata.xml. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven.checkstyle.plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>

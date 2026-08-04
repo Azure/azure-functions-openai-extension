@@ -7,6 +7,21 @@ jobs:
           artifactName: drop-java-library
           condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
     steps:
+      # Maven resolves plugins and extensions before a pom's <repositories> are honored, so the
+      # feed has to be configured as a mirror too. Must run before MavenAuthenticate@0, which
+      # edits this same file to add credentials.
+      - powershell: |
+          $m2 = Join-Path $HOME '.m2'
+          New-Item -ItemType Directory -Path $m2 -Force | Out-Null
+          Copy-Item '$(Build.SourcesDirectory)/settings.xml' (Join-Path $m2 'settings.xml') -Force
+        displayName: Install Maven settings.xml
+
+      - task: MavenAuthenticate@0
+        displayName: Authenticate Maven feed
+        inputs:
+          # Azure Artifacts feed name, which must match the <id> of the mirror in settings.xml.
+          artifactsFeeds: upstream-public
+
       - task: Maven@3
         displayName: Build library
         inputs:

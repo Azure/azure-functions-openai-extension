@@ -422,3 +422,9 @@ local.settings.json
 # Java files
 target/
 .idea/
+
+# Maven credential provider extension. This is a per-developer opt-in for
+# authenticating to Azure Artifacts and must never be committed: the extension
+# exits when it detects a build context, and committing it would impose an
+# authenticated restore on anonymous consumers. CI uses MavenAuthenticate@0.
+.mvn/

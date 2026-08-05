@@ -44,6 +44,10 @@ extends:
       os: windows
 
     sdl:
+      # GitHub is the source of truth; the ADO repo is a one-way mirror, so
+      # autobaselining pull requests must be raised against GitHub.
+      autobaseline:
+        enableForGitHub: true
       codeql:
         compiled:
           enabled: true # still only runs for default branch

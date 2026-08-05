@@ -19,3 +19,20 @@ pipelines:
           lastModifiedDate: 2024-07-22
         armory:
           lastModifiedDate: 2024-07-22
+  558:
+    retail:
+      source:
+        eslint:
+          lastModifiedDate: 2026-07-23
+        armory:
+          lastModifiedDate: 2026-07-23
+  559:
+    retail:
+      binary:
+        binskim:
+          lastModifiedDate: 2026-07-23
+      source:
+        eslint:
+          lastModifiedDate: 2026-07-23
+        armory:
+          lastModifiedDate: 2026-07-23

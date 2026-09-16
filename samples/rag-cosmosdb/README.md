@@ -82,6 +82,9 @@ Once you have an Cosmos DB resource, you can run the sample by following these s
    ```
 
 1. If using python, run `pip install -r requirements.txt` to install the correct library version.
+1. Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` in `local.settings.json` to a
+   comma-separated list of HTTPS origins that ingestion requests can use. The
+   included settings allow `https://raw.githubusercontent.com`.
 1. Build and start the app
 
    ```sh

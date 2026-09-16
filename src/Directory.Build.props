@@ -24,7 +24,7 @@
   <!--Update the version in /eng/cd/templates/release-variables after bump of any version-->
   <PropertyGroup>
     <MajorVersion>0</MajorVersion>
-    <MinorVersion>20</MinorVersion>
+    <MinorVersion>21</MinorVersion>
     <PatchVersion>0</PatchVersion>
     <VersionPrefix>$(MajorVersion).$(MinorVersion).$(PatchVersion)</VersionPrefix>
     <VersionSuffix>alpha</VersionSuffix>
@@ -35,9 +35,9 @@
     <!-- Version for kusto webjobs and worker project -->
     <KustoVersion>0.17.0-alpha</KustoVersion>
     <!-- Version for azure AI search webjobs and worker project -->
-    <AzureAISearchVersion>0.6.0-alpha</AzureAISearchVersion>
+    <AzureAISearchVersion>0.6.1-alpha</AzureAISearchVersion>
     <!-- Version for CosmosDB search webjobs and worker project -->
-    <CosmosDBSearchVersion>0.5.0-alpha</CosmosDBSearchVersion>
+    <CosmosDBSearchVersion>0.5.1-alpha</CosmosDBSearchVersion>
     <!-- Version for CosmosDB NoSql vector search webjobs and worker project -->
     <CosmosDBNoSqlSearchVersion>0.2.0-alpha</CosmosDBNoSqlSearchVersion>
   </PropertyGroup>
@@ -49,10 +49,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.*" PrivateAssets="All" />
-  </ItemGroup>
 
   <!-- https://aka.ms/nuget/authoring-best-practices/readme -->
   <ItemGroup>

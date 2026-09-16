@@ -9,6 +9,7 @@
     "AzureOpenAI__clientId": "<user-assigned-managed-identity-client-id>",
     "AISearchEndpoint": "https://<resource-name>.search.windows.net",
     "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo",
-    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
+    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002",
+    "OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS": "https://raw.githubusercontent.com"
   }
 }

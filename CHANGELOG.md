@@ -9,7 +9,20 @@ Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will ma
 
 Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
 
-## v0.20.0 - TBD
+## v0.21.0 - TBD
+
+### Changed
+
+- Refined assistant table query construction.
+- Added optional embeddings input settings:
+  - `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` limits file inputs to relative paths
+    under a configured directory.
+  - `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` limits URL inputs to configured
+    HTTPS origins.
+  - Set these values in Azure Function App configuration or in the `local.settings.json` for local development.
+- Restored Azure.Identity 1.17.1 and Microsoft.Extensions.Azure 1.13.1 compatibility.
+
+## v0.20.0 - 2026/06/15
 
 ### Changed
 

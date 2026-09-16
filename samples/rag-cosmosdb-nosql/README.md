@@ -119,7 +119,11 @@ Pass your configured `ConnectionNamePrefix` value (e.g., `CosmosDBNoSql`) to the
    pip install -r requirements.txt
    ```
 
-5. **Build and start the app**:
+5. Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` in `local.settings.json` to a
+   comma-separated list of HTTPS origins that ingestion requests can use. The
+   included settings allow `https://raw.githubusercontent.com`.
+
+6. **Build and start the app**:
 
    ```sh
    func start

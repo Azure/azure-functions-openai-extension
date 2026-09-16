@@ -69,6 +69,14 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 1. Clone this repo and navigate to the sample folder.
 1. Use a terminal window to navigate to the sample directory (e.g. `cd samples/embeddings/csharp-ooproc/Embeddings`)
 1. If using python, run `pip install -r requirements.txt` to install the correct library version.
+1. Set `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` in `local.settings.json` to the
+   directory containing files that the function app can select. The included
+   settings use the embeddings sample directory. This setting applies only to
+   `FilePath` inputs. Existing `FilePath` behavior is retained when the setting
+   is not configured.
+1. Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` to a comma-separated list of
+   HTTPS origins that URL inputs can use. The included settings allow
+   `https://raw.githubusercontent.com`.
 1. Run `func start` to build and run the sample function app
 
     If successful, you should see the following output from the `func` command:
@@ -91,10 +99,15 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 
     You should see some relevant log output in the terminal window where the app is running.
 
-1. Use an HTTP client tool to send a `POST` request to the `GetEmbeddings_Http_FilePath` function. The following is an example request:
+1. Use an HTTP client tool to send a `POST` request to the
+   `GetEmbeddings_Http_FilePath` function. Supply a relative `fileName` under
+   the configured directory. The following is an example request:
 
     ```http
     POST http://localhost:7071/api/embeddings-from-file
+    Content-Type: application/json
+
+    {"fileName": "README.md"}
     ```
 
     > **NOTE:** All the HTTP requests in this sample can also be found in the [demo.http](demo.http) file, which can be opened and run in most IDEs.

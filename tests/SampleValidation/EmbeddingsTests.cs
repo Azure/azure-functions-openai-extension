@@ -85,7 +85,7 @@ public class EmbeddingsTests
     public async Task GetEmbeddings_Url_ReturnsNoContent()
     {
         // Arrange
-        var request = new { url = "https://github.com/Azure/azure-functions-openai-extension/blob/main/README.md" };
+        var request = new { url = "https://raw.githubusercontent.com/Azure/azure-functions-openai-extension/main/README.md" };
 
         // Act
         using HttpResponseMessage response = await this.client.PostAsJsonAsync(
@@ -117,7 +117,7 @@ public class EmbeddingsTests
     public async Task GetEmbeddings_InvalidFilePath_ReturnsBadRequest()
     {
         // Arrange
-        var request = new { filePath = "invalid/file/path.txt" }; // Invalid: Non-existent file path
+        var request = new { fileName = "../README.md" };
 
         // Act
         using HttpResponseMessage response = await this.client.PostAsJsonAsync(

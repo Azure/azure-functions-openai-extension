@@ -32,11 +32,11 @@ app.http('generateEmbeddings', {
 });
 
 interface EmbeddingsFilePath {
-    filePath?: string;
+    fileName?: string;
 }
 
 const embeddingsFilePathInput = input.generic({
-    input: '{filePath}',
+    input: '{fileName}',
     inputType: 'FilePath',
     type: 'embeddings',
     maxChunkLength: 512,
@@ -54,7 +54,7 @@ app.http('getEmbeddingsFilePath', {
         let response: any = context.extraInputs.get(embeddingsFilePathInput);
 
         context.log(
-            `Received ${response.count} embedding(s) for input file ${requestBody.filePath}.`
+            `Received ${response.count} embedding(s) for input file ${requestBody.fileName}.`
         );
         
         // TODO: Store the embeddings into a database or other storage.

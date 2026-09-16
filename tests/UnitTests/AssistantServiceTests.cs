@@ -56,7 +56,7 @@ public class DefaultAssistantServiceTests
     public async Task CreateAssistantAsync_WithValidRequest_CreatesAssistantAndMessages()
     {
         // Arrange
-        var request = new AssistantCreateRequest("testId", "Test instructions")
+        var request = new AssistantCreateRequest("test' or PartitionKey ne '", "Test instructions")
         {
             CollectionName = "ChatState",
             ChatStorageConnectionSetting = "AzureWebJobsStorage"
@@ -69,7 +69,7 @@ public class DefaultAssistantServiceTests
             .ReturnsAsync(Response.FromValue(new TableItem(request.CollectionName), new Mock<Response>().Object));
 
         this.mockTableClient.Setup(x => x.QueryAsync<TableEntity>(
-                It.Is<string>(s => s == $"PartitionKey eq '{request.Id}'"),
+                It.Is<string>(s => s == TableClient.CreateQueryFilter($"PartitionKey eq {request.Id}")),
                 null,
                 null,
                  It.IsAny<CancellationToken>()))
@@ -110,7 +110,7 @@ public class DefaultAssistantServiceTests
         this.mockTableClient.Verify(x => x.CreateIfNotExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
 
         this.mockTableClient.Verify(x => x.QueryAsync<TableEntity>(
-            It.Is<string>(s => s.Contains(request.Id)),
+            It.Is<string>(s => s == TableClient.CreateQueryFilter($"PartitionKey eq {request.Id}")),
             null,
             null,
             It.IsAny<CancellationToken>()), Times.Once);
@@ -143,7 +143,7 @@ public class DefaultAssistantServiceTests
             .ReturnsAsync(Response.FromValue(new TableItem(request.CollectionName), new Mock<Response>().Object));
 
         this.mockTableClient.Setup(x => x.QueryAsync<TableEntity>(
-                It.Is<string>(s => s == $"PartitionKey eq '{request.Id}'"),
+                It.Is<string>(s => s == TableClient.CreateQueryFilter($"PartitionKey eq {request.Id}")),
                 null,
                 null,
                  It.IsAny<CancellationToken>()))
@@ -186,7 +186,7 @@ public class DefaultAssistantServiceTests
     public async Task GetStateAsync_WithValidId_ReturnsCorrectState()
     {
         // Arrange
-        string id = "testId";
+        string id = "test' or PartitionKey ne '";
         string timestamp = DateTime.UtcNow.AddHours(-1).ToString("o");
         var attribute = new AssistantQueryAttribute(id)
         {
@@ -224,7 +224,7 @@ public class DefaultAssistantServiceTests
         AsyncPageable<TableEntity> mockQueryable = MockAsyncPageable<TableEntity>.Create(mockQueryResult);
 
         this.mockTableClient.Setup(x => x.QueryAsync<TableEntity>(
-                It.Is<string>(s => s == $"PartitionKey eq '{id}'"),
+                It.Is<string>(s => s == TableClient.CreateQueryFilter($"PartitionKey eq {id}")),
                 null,
                 null,
                 It.IsAny<CancellationToken>()))
@@ -274,7 +274,7 @@ public class DefaultAssistantServiceTests
         AsyncPageable<TableEntity> mockQueryable = MockAsyncPageable<TableEntity>.Create(mockQueryResult);
 
         this.mockTableClient.Setup(x => x.QueryAsync<TableEntity>(
-                It.Is<string>(s => s == $"PartitionKey eq '{id}'"),
+                It.Is<string>(s => s == TableClient.CreateQueryFilter($"PartitionKey eq {id}")),
                 null,
                 null,
                 It.IsAny<CancellationToken>()))
@@ -360,7 +360,7 @@ public class DefaultAssistantServiceTests
         AsyncPageable<TableEntity> mockQueryable = MockAsyncPageable<TableEntity>.Create(mockQueryResult);
 
         this.mockTableClient.Setup(x => x.QueryAsync<TableEntity>(
-                It.Is<string>(s => s == $"PartitionKey eq '{assistantId}'"),
+                It.Is<string>(s => s == TableClient.CreateQueryFilter($"PartitionKey eq {assistantId}")),
                 null,
                 null,
                 It.IsAny<CancellationToken>()))

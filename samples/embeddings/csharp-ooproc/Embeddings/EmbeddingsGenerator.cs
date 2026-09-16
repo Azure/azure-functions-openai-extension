@@ -27,8 +27,8 @@ public class EmbeddingsGenerator
         [JsonPropertyName("rawText")]
         public string? RawText { get; set; }
 
-        [JsonPropertyName("filePath")]
-        public string? FilePath { get; set; }
+        [JsonPropertyName("fileName")]
+        public string? FileName { get; set; }
 
         [JsonPropertyName("url")]
         public string? Url { get; set; }
@@ -63,7 +63,7 @@ public class EmbeddingsGenerator
     [Function(nameof(GetEmbeddings_Http_FilePath))]
     public async Task GetEmbeddings_Http_FilePath(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-file")] HttpRequestData req,
-        [EmbeddingsInput("{filePath}", InputType.FilePath, MaxChunkLength = 512, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI")] EmbeddingsContext embeddings)
+        [EmbeddingsInput("{fileName}", InputType.FilePath, MaxChunkLength = 512, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI")] EmbeddingsContext embeddings)
     {
         using StreamReader reader = new(req.Body);
         string request = await reader.ReadToEndAsync();
@@ -72,7 +72,7 @@ public class EmbeddingsGenerator
         this.logger.LogInformation(
             "Received {count} embedding(s) for input file '{path}'.",
             embeddings.Count,
-            requestBody?.FilePath);
+            requestBody?.FileName);
 
         // TODO: Store the embeddings into a database or other storage.
     }

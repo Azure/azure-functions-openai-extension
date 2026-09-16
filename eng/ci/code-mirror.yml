@@ -1,6 +1,13 @@
+parameters:
+  - name: forcePush
+    displayName: 'Force Push (Manual runs only)'
+    type: boolean
+    default: false
+
 trigger:
   branches:
     include:
+      # Keep this set limited as appropriate (don't mirror individual user branches).
       - main
 
 resources:
@@ -15,3 +22,9 @@ variables:
 
 extends:
   template: ci/code-mirror.yml@eng
+  parameters:
+    # Pass -f flag when forcePush is enabled and it's a manual run
+    ${{ if and(eq(parameters.forcePush, true), eq(variables['Build.Reason'], 'Manual')) }}:
+      extraPushArgs: '-f'
+    ${{ else }}:
+      extraPushArgs: ''

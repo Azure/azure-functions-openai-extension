@@ -3,14 +3,14 @@
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"url":"https://url/test/test_file.txt"}
+{"url":"https://raw.githubusercontent.com/Azure/azure-functions-openai-extension/main/README.md"}
 
 
 ### Ingest second file into database
 POST http://localhost:7071/api/IngestFile
 Content-Type: application/json
 
-{"url":"https://url/test/test_file.txt"}
+{"url":"https://raw.githubusercontent.com/Azure/azure-functions-openai-extension/main/README.md"}
 
 
 ### Send a search query (Example #1)

@@ -1,11 +1,11 @@
 variables:
   - name: WebJobsVersion
-    value: '0.20.0-alpha'
+    value: '0.21.0-alpha'
   - name: KustoVersion
     value: '0.17.0-alpha'
   - name: AzureAISearchVersion
-    value: '0.6.0-alpha'
+    value: '0.6.1-alpha'
   - name: CosmosDBSearchVersion
-    value: '0.5.0-alpha'
+    value: '0.5.1-alpha'
   - name: CosmosDBNoSQLSearchVersion
     value: '0.2.0-alpha'

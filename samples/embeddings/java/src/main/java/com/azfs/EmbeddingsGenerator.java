@@ -64,20 +64,20 @@ public class EmbeddingsGenerator {
             authLevel = AuthorizationLevel.FUNCTION,
             route = "embeddings-from-file")
         HttpRequestMessage<EmbeddingsRequest> request,
-        @EmbeddingsInput(name = "Embeddings", input = "{FilePath}", inputType = InputType.FilePath, maxChunkLength = 512, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", aiConnectionName = "AzureOpenAI") String embeddingsContext,
+        @EmbeddingsInput(name = "Embeddings", input = "{FileName}", inputType = InputType.FilePath, maxChunkLength = 512, embeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", aiConnectionName = "AzureOpenAI") String embeddingsContext,
         final ExecutionContext context) {
 
         if (request.getBody() == null) 
         {
             throw new IllegalArgumentException(
-                    "Invalid request body. Make sure that you pass in {\"filePath\": value } as the request body.");
+                    "Invalid request body. Make sure that you pass in {\"fileName\": value } as the request body.");
         }
 
         JSONObject embeddingsContextJsonObject = new JSONObject(embeddingsContext);
 
         context.getLogger().info(String.format("Received %d embedding(s) for input file %s.",
                 embeddingsContextJsonObject.get("count"),
-                request.getBody().getFilePath()));
+                request.getBody().getFileName()));
 
         // TODO: Store the embeddings into a database or other storage.
         return request.createResponseBuilder(HttpStatus.ACCEPTED)
@@ -120,7 +120,7 @@ public class EmbeddingsGenerator {
 
     public class EmbeddingsRequest {
         private String rawText;
-        private String filePath;
+        private String fileName;
         private String url;
 
         public String getRawText() {
@@ -131,12 +131,12 @@ public class EmbeddingsGenerator {
             this.rawText = rawText;
         }
 
-        public String getFilePath() {
-            return filePath;
+        public String getFileName() {
+            return fileName;
         }
 
-        public void setFilePath(String filePath) {
-            this.filePath = filePath;
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
         }
 
         public String getUrl() {

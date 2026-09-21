@@ -20,7 +20,7 @@
       "type": "embeddings",
       "direction": "in",
       "inputType": "FilePath",
-      "input": "{filePath}",
+      "input": "{fileName}",
       "maxChunkLength": 512,
       "embeddingsModel": "%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
       "aiConnectionName": "AzureOpenAI"

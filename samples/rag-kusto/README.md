@@ -52,6 +52,9 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     ```
 
 1. If using python, run `pip install -r requirements.txt` to install the correct library version.
+1. Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` in `local.settings.json` to a
+   comma-separated list of HTTPS origins that ingestion requests can use. The
+   included settings allow `https://raw.githubusercontent.com`.
 1. Build and start the app
 
     ```sh
@@ -65,7 +68,7 @@ Once you have a Kusto cluster and database, you can run the sample by following 
     POST http://localhost:7071/api/IngestEmail
     Content-Type: application/json
 
-    {"url":"https://url/test/test_file.txt"}
+    {"url":"https://raw.githubusercontent.com/Azure/azure-functions-openai-extension/main/README.md"}
     ```
 
     The results of the request will be the embeddings of the text file, which will be saved to the Kusto database.

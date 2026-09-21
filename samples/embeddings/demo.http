@@ -9,10 +9,10 @@ Content-Type: application/json
 POST http://localhost:7071/api/embeddings-from-file
 Content-Type: application/json
 
-{"filePath": "D:\\test\\test_file.txt"}
+{"fileName": "README.md"}
 
 ### Embeddings from Url
 POST http://localhost:7071/api/embeddings-from-url
 Content-Type: application/json
 
-{"url":"https://url/test/test_file.txt"} 
+{"url":"https://raw.githubusercontent.com/Azure/azure-functions-openai-extension/main/README.md"}

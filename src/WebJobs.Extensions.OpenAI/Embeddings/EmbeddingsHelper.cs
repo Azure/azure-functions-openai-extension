@@ -7,16 +7,36 @@ using Microsoft.Extensions.Logging;
 using OpenAI.Embeddings;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
+
 static class EmbeddingsHelper
 {
+    internal const string FilePathRootSettingName = "OPENAI_EMBEDDINGS_FILE_PATH_ROOT";
+    internal const string UrlAllowedOriginsSettingName = "OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS";
+
+    const int MaxUrlContentLength = 10 * 1024 * 1024; // Cap downloads at 10 MB to bound memory use.
+    const int UrlReadBufferSize = 81920; // Match the standard .NET stream-copy buffer size.
+    static readonly TimeSpan UrlDownloadTimeout = TimeSpan.FromSeconds(30);
     static readonly char[] sentenceEndingsDefault = new[] { '.', '!', '?' };
     static readonly char[] wordBreaksDefault = new[] { ',', ';', ':', ' ', '(', ')', '[', ']', '{', '}', '\t', '\n' };
     static readonly string UserAgent = $"{typeof(OpenAIExtension).Namespace}/{FileVersionInfo.GetVersionInfo(typeof(OpenAIExtension).Assembly.Location).FileVersion}";
+
+    // Function app settings are process-level; configuration changes restart the host.
+    static readonly string? configuredFilePathRoot = Environment.GetEnvironmentVariable(FilePathRootSettingName);
+    static readonly string? configuredUrlAllowedOrigins = Environment.GetEnvironmentVariable(UrlAllowedOriginsSettingName);
     static readonly HttpClient httpClient = new();
+    static readonly HttpClient restrictedHttpClient = new(new HttpClientHandler
+    {
+        AllowAutoRedirect = false
+    });
+
+    // Log missing opt-in configuration warnings only once per host process.
+    static int filePathRootNoticeLogged;
+    static int urlAllowedOriginsNoticeLogged;
 
     static EmbeddingsHelper()
     {
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
+        restrictedHttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
     }
 
     internal static async Task<EmbeddingsContext> GenerateEmbeddingsAsync(
@@ -25,7 +45,7 @@ static class EmbeddingsHelper
         ILogger logger,
         CancellationToken cancellationToken = default)
     {
-        List<string> chunks = await BuildRequest(attribute);
+        List<string> chunks = await BuildRequest(attribute, logger, cancellationToken);
 
         logger.LogInformation("Sending OpenAI embeddings request");
 
@@ -38,9 +58,16 @@ static class EmbeddingsHelper
         return new EmbeddingsContext(chunks, response);
     }
 
-    static async Task<List<string>> BuildRequest(EmbeddingsBaseAttribute attribute)
+    static async Task<List<string>> BuildRequest(
+        EmbeddingsBaseAttribute attribute,
+        ILogger logger,
+        CancellationToken cancellationToken)
     {
-        using TextReader reader = await GetTextReader(attribute.InputType, attribute.Input);
+        using TextReader reader = await GetTextReader(
+            attribute.InputType,
+            attribute.Input,
+            logger,
+            cancellationToken);
         if (attribute.MaxOverlap >= attribute.MaxChunkLength)
         {
             throw new ArgumentOutOfRangeException($"MaxOverlap ({attribute.MaxOverlap}) must be less than MaxChunkLength ({attribute.MaxChunkLength}).");
@@ -50,7 +77,11 @@ static class EmbeddingsHelper
         return chunks;
     }
 
-    static async Task<TextReader> GetTextReader(InputType inputType, string input)
+    static async Task<TextReader> GetTextReader(
+        InputType inputType,
+        string input,
+        ILogger logger,
+        CancellationToken cancellationToken)
     {
         if (inputType == InputType.RawText)
         {
@@ -58,22 +89,240 @@ static class EmbeddingsHelper
         }
         else if (inputType == InputType.FilePath)
         {
-            return new StreamReader(input);
+            if (string.IsNullOrWhiteSpace(configuredFilePathRoot) &&
+                Interlocked.Exchange(ref filePathRootNoticeLogged, 1) == 0)
+            {
+                logger.LogWarning(
+                    "FilePath input is running without {SettingName}. Configure this setting to constrain relative paths.",
+                    FilePathRootSettingName);
+            }
+
+            return new StreamReader(ResolveFilePath(input, configuredFilePathRoot));
         }
         else if (inputType == InputType.Url)
         {
-            if (!Uri.TryCreate(input, UriKind.Absolute, out Uri? uriResult) ||
-                uriResult.Scheme != Uri.UriSchemeHttps)
+            Uri uri = ValidateUrl(input, configuredUrlAllowedOrigins);
+
+            if (string.IsNullOrWhiteSpace(configuredUrlAllowedOrigins))
             {
-                throw new ArgumentException($"Invalid Url: {input}. Ensure it is a valid https Url.");
+                if (Interlocked.Exchange(ref urlAllowedOriginsNoticeLogged, 1) == 0)
+                {
+                    logger.LogWarning(
+                        "Url input is running without {SettingName}. Configure this setting to constrain destinations.",
+                        UrlAllowedOriginsSettingName);
+                }
+
+                Stream stream = await httpClient.GetStreamAsync(uri);
+                return new StreamReader(stream);
             }
 
-            Stream stream = await httpClient.GetStreamAsync(input);
-            return new StreamReader(stream);
+            return await GetRestrictedUrlReader(
+                uri,
+                restrictedHttpClient,
+                UrlDownloadTimeout,
+                cancellationToken);
         }
         else
         {
             throw new NotSupportedException($"InputType = '{inputType}' is not supported.");
+        }
+    }
+
+    internal static Uri ValidateUrl(string input, string? allowedOrigins)
+    {
+        if (!Uri.TryCreate(input, UriKind.Absolute, out Uri? uri) ||
+            uri.Scheme != Uri.UriSchemeHttps)
+        {
+            throw new ArgumentException($"Invalid Url: {input}. Ensure it is a valid https Url.", nameof(input));
+        }
+
+        if (string.IsNullOrWhiteSpace(allowedOrigins))
+        {
+            return uri;
+        }
+
+        if (!string.IsNullOrEmpty(uri.UserInfo))
+        {
+            throw new ArgumentException(
+                $"The Url cannot contain user information when {UrlAllowedOriginsSettingName} is configured.",
+                nameof(input));
+        }
+
+        HashSet<string> configuredOrigins = ParseAllowedOrigins(allowedOrigins);
+        string inputOrigin = GetOrigin(uri);
+        if (!configuredOrigins.Contains(inputOrigin))
+        {
+            throw new ArgumentException(
+                $"The Url origin is not listed in {UrlAllowedOriginsSettingName}.",
+                nameof(input));
+        }
+
+        return uri;
+    }
+
+    static HashSet<string> ParseAllowedOrigins(string allowedOrigins)
+    {
+        HashSet<string> configuredOrigins = new(StringComparer.OrdinalIgnoreCase);
+        foreach (string value in allowedOrigins.Split(',', StringSplitOptions.RemoveEmptyEntries))
+        {
+            string origin = value.Trim();
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out Uri? originUri) ||
+                originUri.Scheme != Uri.UriSchemeHttps ||
+                !string.IsNullOrEmpty(originUri.UserInfo) ||
+                originUri.AbsolutePath != "/" ||
+                !string.IsNullOrEmpty(originUri.Query) ||
+                !string.IsNullOrEmpty(originUri.Fragment))
+            {
+                throw new InvalidOperationException(
+                    $"{UrlAllowedOriginsSettingName} contains an invalid origin: '{origin}'.");
+            }
+
+            configuredOrigins.Add(GetOrigin(originUri));
+        }
+
+        if (configuredOrigins.Count == 0)
+        {
+            throw new InvalidOperationException(
+                $"{UrlAllowedOriginsSettingName} must contain at least one https origin.");
+        }
+
+        return configuredOrigins;
+    }
+
+    static string GetOrigin(Uri uri)
+    {
+        return uri.GetLeftPart(UriPartial.Authority).TrimEnd('/');
+    }
+
+    internal static async Task<TextReader> GetRestrictedUrlReader(
+        Uri uri,
+        HttpClient client,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        using CancellationTokenSource timeoutSource =
+            CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeoutSource.CancelAfter(timeout);
+        CancellationToken downloadCancellationToken = timeoutSource.Token;
+
+        try
+        {
+            using HttpResponseMessage response = await client.GetAsync(
+                uri,
+                HttpCompletionOption.ResponseHeadersRead,
+                downloadCancellationToken);
+
+            int statusCode = (int)response.StatusCode;
+            if (statusCode >= 300 && statusCode < 400)
+            {
+                throw new InvalidOperationException("Redirect responses are not supported for configured Url origins.");
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            if (response.Content.Headers.ContentLength > MaxUrlContentLength)
+            {
+                throw new InvalidOperationException(
+                    $"Url content exceeds the maximum supported size of {MaxUrlContentLength} bytes.");
+            }
+
+            using Stream responseStream = await response.Content.ReadAsStreamAsync();
+            MemoryStream content = new();
+            try
+            {
+                byte[] buffer = new byte[UrlReadBufferSize];
+                int totalBytesRead = 0;
+                int bytesRead;
+                while ((bytesRead = await responseStream.ReadAsync(
+                    buffer,
+                    0,
+                    buffer.Length,
+                    downloadCancellationToken)) > 0)
+                {
+                    totalBytesRead += bytesRead;
+                    if (totalBytesRead > MaxUrlContentLength)
+                    {
+                        throw new InvalidOperationException(
+                            $"Url content exceeds the maximum supported size of {MaxUrlContentLength} bytes.");
+                    }
+
+                    await content.WriteAsync(buffer, 0, bytesRead, downloadCancellationToken);
+                }
+
+                content.Position = 0;
+                return new StreamReader(content);
+            }
+            catch
+            {
+                content.Dispose();
+                throw;
+            }
+        }
+        catch (OperationCanceledException exception)
+            when (!cancellationToken.IsCancellationRequested && timeoutSource.IsCancellationRequested)
+        {
+            throw new TimeoutException($"Url download exceeded the timeout of {timeout.TotalSeconds} seconds.", exception);
+        }
+    }
+
+    internal static string ResolveFilePath(string input, string? allowedRoot)
+    {
+        if (string.IsNullOrWhiteSpace(allowedRoot))
+        {
+            return input;
+        }
+
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            throw new ArgumentException("The file path cannot be empty.", nameof(input));
+        }
+
+        if (Path.IsPathRooted(input))
+        {
+            throw new ArgumentException(
+                $"The file path must be relative when {FilePathRootSettingName} is configured.",
+                nameof(input));
+        }
+
+        string rootPath = Path.GetFullPath(allowedRoot);
+        string resolvedPath = Path.GetFullPath(Path.Combine(rootPath, input));
+        string relativePath = Path.GetRelativePath(rootPath, resolvedPath);
+
+        if (relativePath == ".." ||
+            relativePath.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ||
+            relativePath.StartsWith($"..{Path.AltDirectorySeparatorChar}", StringComparison.Ordinal) ||
+            Path.IsPathRooted(relativePath))
+        {
+            throw new ArgumentException(
+                $"The file path must remain within the directory configured by {FilePathRootSettingName}.",
+                nameof(input));
+        }
+
+        RejectReparsePoints(rootPath, relativePath);
+        return resolvedPath;
+    }
+
+    static void RejectReparsePoints(string rootPath, string relativePath)
+    {
+        RejectReparsePoint(rootPath);
+
+        string currentPath = rootPath;
+        foreach (string segment in relativePath.Split(
+            new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+            StringSplitOptions.RemoveEmptyEntries))
+        {
+            currentPath = Path.Combine(currentPath, segment);
+            RejectReparsePoint(currentPath);
+        }
+    }
+
+    static void RejectReparsePoint(string path)
+    {
+        if ((File.Exists(path) || Directory.Exists(path)) &&
+            File.GetAttributes(path).HasFlag(FileAttributes.ReparsePoint))
+        {
+            throw new ArgumentException(
+                $"The configured root and file path cannot contain links when {FilePathRootSettingName} is configured.");
         }
     }
 

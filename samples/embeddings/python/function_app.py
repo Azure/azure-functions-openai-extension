@@ -32,7 +32,7 @@ def generate_embeddings_http_request(
 @app.route(route="embeddings-from-file", methods=["POST"])
 @app.embeddings_input(
     arg_name="embeddings",
-    input="{filePath}",
+    input="{fileName}",
     input_type="filePath",
     max_chunk_length=512,
     embeddings_model="%EMBEDDING_MODEL_DEPLOYMENT_NAME%",
@@ -43,10 +43,10 @@ def generate_embeddings_http_file_path(
 ) -> func.HttpResponse:
     user_message = req.get_json()
     embeddings_json = json.loads(embeddings)
-    embeddings_request = {"file_path": user_message.get("filePath")}
+    embeddings_request = {"file_name": user_message.get("fileName")}
     logging.info(
         f'Received {embeddings_json.get("count")} embedding(s) for input file '
-        f'{embeddings_request.get("file_path")}.'
+        f'{embeddings_request.get("file_name")}.'
     )
     # TODO: Store the embeddings into a database or other storage.
     return func.HttpResponse(status_code=200)

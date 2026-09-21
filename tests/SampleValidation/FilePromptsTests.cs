@@ -33,7 +33,7 @@ public class FilePromptTests
     public async Task Ingest_Prompt_File_Test()
     {
         // Step 1: Test IngestFile
-        var ingestRequest = new { url = "https://github.com/Azure/azure-functions-openai-extension/blob/main/README.md" };
+        var ingestRequest = new { url = "https://raw.githubusercontent.com/Azure/azure-functions-openai-extension/main/README.md" };
 
         using HttpResponseMessage ingestResponse = await this.client.PostAsJsonAsync(
             requestUri: $"{this.baseAddress}/api/IngestFile",

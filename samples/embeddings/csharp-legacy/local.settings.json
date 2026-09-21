@@ -8,6 +8,8 @@
     "AzureOpenAI__credential": "managedidentity",
     "AzureOpenAI__clientId": "<user-assigned-managed-identity-client-id>",
     "CHAT_MODEL_DEPLOYMENT_NAME": "gpt-3.5-turbo",
-    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002"
+    "EMBEDDING_MODEL_DEPLOYMENT_NAME": "text-embedding-ada-002",
+    "OPENAI_EMBEDDINGS_FILE_PATH_ROOT": "..",
+    "OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS": "https://raw.githubusercontent.com"
   }
 }

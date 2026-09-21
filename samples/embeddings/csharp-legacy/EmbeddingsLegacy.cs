@@ -13,7 +13,7 @@ namespace EmbeddingsLegacy;
 /// </summary>
 public static class EmbeddingsLegacy
 {
-    public record EmbeddingsRequest(string RawText, string FilePath, string Url);
+    public record EmbeddingsRequest(string RawText, string FileName, string Url);
 
     /// <summary>
     /// Example showing how to use the <see cref="EmbeddingsAttribute"/> input binding to generate embeddings 
@@ -40,13 +40,13 @@ public static class EmbeddingsLegacy
     [FunctionName(nameof(GetEmbeddings_Http_FilePath))]
     public static void GetEmbeddings_Http_FilePath(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = "embeddings-from-file")] EmbeddingsRequest req,
-        [Embeddings("{FilePath}", InputType.FilePath, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI", MaxChunkLength = 512)] EmbeddingsContext embeddings,
+        [Embeddings("{FileName}", InputType.FilePath, EmbeddingsModel = "%EMBEDDING_MODEL_DEPLOYMENT_NAME%", AIConnectionName = "AzureOpenAI", MaxChunkLength = 512)] EmbeddingsContext embeddings,
         ILogger logger)
     {
         logger.LogInformation(
             "Received {count} embedding(s) for input file '{path}'.",
             embeddings.Count,
-            req.FilePath);
+            req.FileName);
 
         // TODO: Store the embeddings into a database or other storage.
     }

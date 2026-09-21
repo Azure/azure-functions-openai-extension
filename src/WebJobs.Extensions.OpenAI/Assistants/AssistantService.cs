@@ -70,7 +70,7 @@ class DefaultAssistantService : IAssistantService
 
         // Check to see if the assistant has already been initialized
         AsyncPageable<TableEntity> queryResultsFilter = tableClient.QueryAsync<TableEntity>(
-            filter: $"PartitionKey eq '{request.Id}'",
+            filter: TableClient.CreateQueryFilter($"PartitionKey eq {request.Id}"),
             cancellationToken: cancellationToken);
 
         // Create a batch of table transaction actions for deleting entities
@@ -467,7 +467,7 @@ class DefaultAssistantService : IAssistantService
     {
         // Check to see if any entity exists with partition id
         AsyncPageable<TableEntity> itemsWithPartitionKey = tableClient.QueryAsync<TableEntity>(
-            filter: $"PartitionKey eq '{id}'",
+            filter: TableClient.CreateQueryFilter($"PartitionKey eq {id}"),
             cancellationToken: cancellationToken);
 
         // Deserialize the chat messages

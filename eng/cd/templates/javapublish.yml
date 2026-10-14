@@ -29,6 +29,7 @@ stages:
               artifactName: 'drop-java-library'
               targetPath: '$(Build.ArtifactStagingDirectory)/drop-java-library'
         steps:
+          - template: /ci/internal/install-psscript-analyzer.yml@eng
           - task: PowerShell@2
             displayName: Extract and Prepare Java Library Package
             inputs:

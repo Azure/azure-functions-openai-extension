@@ -36,6 +36,7 @@ stages:
               artifactName: ${{ parameters.artifactName }}
               targetPath: '$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}'
         steps:
+          - template: /ci/internal/install-psscript-analyzer.yml@eng
           - task: PowerShell@2
             displayName: Prepare NuGet Packages for Azure Blob Storage
             inputs:

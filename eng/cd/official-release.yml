@@ -6,6 +6,10 @@ resources:
       project: 'internal'
       source: 'azure\azure-functions-openai-extension\openai-extension.official'
   repositories:
+    - repository: eng
+      type: git
+      name: engineering
+      ref: refs/heads/main
     - repository: 1ESPipelineTemplates
       type: git
       name: 1ESPipelineTemplates/1ESPipelineTemplates
@@ -17,6 +21,8 @@ variables:
 extends:
   template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
   parameters:
+    settings:
+      networkIsolationPolicy: DefaultDeny
     pool:
       name: 1es-pool-azfunc
       image: 1es-windows-2022

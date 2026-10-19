@@ -1,7 +1,14 @@
-# Azure Functions bindings for OpenAI's GPT engine
+# Azure Functions OpenAI Extension
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://dev.azure.com/azfunc/Azure%20Functions/_apis/build/status%2FExtension-OpenAI%2FAzure%20Functions%20OpenAI%20Extension%20PR%20CI?branchName=main)](https://dev.azure.com/azfunc/Azure%20Functions/_build/latest?definitionId=303&branchName=main)
+
+> [!WARNING]
+> The Azure Functions OpenAI extension retires on **April 20, 2027**. Preview extension bundle version **4.60.0 and later** don't include the extension.
+>
+> Migrate to the OpenAI, Microsoft Foundry, or Azure AI Search SDKs directly, depending on your scenario. Existing bundle apps can use preview extension bundle versions earlier than 4.60.0 by setting the version range to `[4.*, 4.60.0)` in `host.json`. .NET apps can continue using the corresponding Azure OpenAI extension NuGet packages directly. Neither pinning an older bundle nor continuing to use the NuGet packages extends support beyond April 20, 2027.
+>
+> [More information](https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai).
 
 This project adds support for [OpenAI](https://platform.openai.com/) LLM (GPT-3.5-turbo, GPT-4, o-series) bindings in [Azure Functions](https://azure.microsoft.com/products/functions/).
 
@@ -24,7 +31,7 @@ Add following section to `host.json` of the function app for non dotnet language
 ```json
 "extensionBundle": {
     "id": "Microsoft.Azure.Functions.ExtensionBundle.Preview",
-    "version": "[4.*, 5.0.0)"
+    "version": "[4.*, 4.60.0)"
   }
 ```
 

@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenAI.Embeddings;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Search;
 using Microsoft.Azure.WebJobs.Host.Config;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Microsoft.Azure.WebJobs.Extensions.OpenAI;
@@ -21,6 +22,7 @@ partial class OpenAIExtension : IExtensionConfigProvider
     readonly SemanticSearchConverter semanticSearchConverter;
     readonly AssistantBindingConverter assistantConverter;
     readonly AssistantSkillTriggerBindingProvider assistantskillTriggerBindingProvider;
+    readonly ILogger logger;
 
     public OpenAIExtension(
         OpenAIClientFactory openAIClientFactory,
@@ -29,7 +31,8 @@ partial class OpenAIExtension : IExtensionConfigProvider
         EmbeddingsStoreConverter embeddingsStoreConverter,
         SemanticSearchConverter semanticSearchConverter,
         AssistantBindingConverter assistantConverter,
-        AssistantSkillTriggerBindingProvider assistantTriggerBindingProvider)
+        AssistantSkillTriggerBindingProvider assistantTriggerBindingProvider,
+        ILoggerFactory loggerFactory)
     {
         this.openAIClientFactory = openAIClientFactory ?? throw new ArgumentNullException(nameof(openAIClientFactory));
         this.textCompletionConverter = textCompletionConverter ?? throw new ArgumentNullException(nameof(textCompletionConverter));
@@ -38,10 +41,20 @@ partial class OpenAIExtension : IExtensionConfigProvider
         this.semanticSearchConverter = semanticSearchConverter ?? throw new ArgumentNullException(nameof(semanticSearchConverter));
         this.assistantConverter = assistantConverter ?? throw new ArgumentNullException(nameof(assistantConverter));
         this.assistantskillTriggerBindingProvider = assistantTriggerBindingProvider ?? throw new ArgumentNullException(nameof(assistantTriggerBindingProvider));
+        this.logger = loggerFactory?.CreateLogger<OpenAIExtension>() ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     void IExtensionConfigProvider.Initialize(ExtensionConfigContext context)
     {
+        this.logger.LogWarning(
+            "The Azure Functions OpenAI extension retires on April 20, 2027. " +
+            "Preview extension bundle version 4.60.0 and later don't include the extension. " +
+            "Migrate to the OpenAI, Microsoft Foundry, or Azure AI Search SDKs directly, depending on your scenario. " +
+            "Existing apps can use preview extension bundle versions earlier than 4.60.0 by setting the version range to [4.*, 4.60.0) in host.json. " +
+            ".NET apps can continue using the corresponding Azure OpenAI extension NuGet packages directly. " +
+            "Neither pinning an older bundle nor continuing to use the NuGet packages extends support beyond April 20, 2027. " +
+            "More information: https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai");
+
         // Completions input binding support
         var rule = context.AddBindingRule<TextCompletionAttribute>();
         rule.BindToInput<TextCompletionResponse>(this.textCompletionConverter);

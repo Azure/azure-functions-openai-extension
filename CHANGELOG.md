@@ -9,6 +9,16 @@ Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will ma
 
 Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
 
+## v0.22.0 - 2026/10/19
+
+### Added
+
+- Added a startup warning about the Azure OpenAI extension retirement on April 20, 2027, with SDK migration, preview bundle pinning, and .NET NuGet package guidance.
+
+### Changed
+
+- Pinned preview extension bundle references in all bundle-based samples to `[4.*, 4.60.0)` so they exclude versions that no longer contain the OpenAI extension.
+
 ## v0.21.0 - 2026/09/21
 
 ### Changed

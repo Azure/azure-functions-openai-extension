@@ -1,6 +1,6 @@
 variables:
   - name: WebJobsVersion
-    value: '0.21.0-alpha'
+    value: '0.22.0-alpha'
   - name: KustoVersion
     value: '0.17.0-alpha'
   - name: AzureAISearchVersion

@@ -288,12 +288,33 @@ chooses which file is read or which URL is fetched.
 > `local.settings.json` is used only for local development and is **not** published to Azure.
 > If you don't need file or URL inputs, use `InputType.RawText`.
 
-| App setting | Applies to | When set | When not set |
-|---|---|---|---|
-| `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` | `FilePath` | The input must be a **relative** path that resolves inside this folder. Rooted paths, paths that escape the folder (`..`), and symbolic links or junctions in the configured folder or the path are rejected. | The input is used exactly as given. Any file the app can read is accepted. A warning is logged once per host start. |
-| `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` | `Url` | Comma-separated list of `https` origins, for example `https://contoso.blob.core.windows.net,https://raw.githubusercontent.com`. Only URLs with a listed origin are fetched. URLs with user information are rejected. Redirects are not followed. Downloads are limited to 10 MB and 30 seconds. | Any `https` URL is fetched. A warning is logged once per host start. |
+#### FilePath inputs
 
-Notes:
+Set `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` to restrict `FilePath` inputs.
+
+**When set:** The input must be a **relative** path that resolves inside this folder.
+Rooted paths, paths that escape the folder (`..`), and symbolic links or junctions in
+the configured folder or the path are rejected.
+
+**When not set:** The input is used exactly as given. Any file the app can read is
+accepted. A warning is logged once per host start.
+
+#### Url inputs
+
+Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` to a comma-separated list of `https`
+origins to restrict `Url` inputs. For example:
+
+```text
+https://contoso.blob.core.windows.net,https://raw.githubusercontent.com
+```
+
+**When set:** Only URLs with a listed origin are fetched. URLs with user information
+are rejected. Redirects are not followed. Downloads are limited to 10 MB and 30 seconds.
+
+**When not set:** Any `https` URL is fetched. A warning is logged once per host start.
+
+#### Notes
+
 - Set `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` to an absolute path, for example
   `/home/site/wwwroot/data` (Linux) or `C:\home\site\wwwroot\data` (Windows).
   Pass paths relative to it, for example `{"fileName": "docs/manual.txt"}`.

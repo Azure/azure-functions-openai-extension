@@ -305,7 +305,7 @@ Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` to a comma-separated list of `https`
 origins to restrict `Url` inputs. For example:
 
 ```text
-https://contoso.blob.core.windows.net,https://raw.githubusercontent.com
+https://contoso.blob.core.windows.net
 ```
 
 **When set:** Only URLs with a listed origin are fetched. URLs with user information

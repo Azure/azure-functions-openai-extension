@@ -10,8 +10,7 @@
     "@azure/functions": "^4.11.0"
   },
   "devDependencies": {
-    "@types/node": "^22.x",
-    "rimraf": "^5.0.0"
+    "@types/node": "^22.x"
   },
   "main": "src/functions/*.js"
 }

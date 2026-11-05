@@ -179,6 +179,8 @@ The assistant will invoke a skill function whenever it decides to do so to satis
 
 Please refer to the [root README](../../README.md#requirements) for common prerequisites that apply to all samples.
 
+The JavaScript and TypeScript samples require Node.js 22 or later for Azure Identity.
+
 Additionally, if you want to run the sample with Cosmos DB, then you must also do the following:
 
 * Install the [Azure Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator), or get a connection string to a real Azure Cosmos DB resource.

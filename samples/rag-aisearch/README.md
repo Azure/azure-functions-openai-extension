@@ -94,6 +94,9 @@ Once you have an Azure AI Search resource, you can run the sample by following t
 1. Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` in `local.settings.json` to a
    comma-separated list of HTTPS origins that ingestion requests can use. The
    included settings allow `https://raw.githubusercontent.com`.
+1. **Deploying to Azure:** add `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` and
+   `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` to the function app's application
+   settings. `local.settings.json` is not published.
 1. Build and start the app
 
     ```sh

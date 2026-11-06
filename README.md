@@ -275,9 +275,61 @@ def generate_embeddings_http_request(req: func.HttpRequest, embeddings: str) -> 
     return func.HttpResponse(status_code=200)
 ```
 
+### Restricting FilePath and Url inputs
+
+The `embeddings` input binding and the `embeddingsStore` output binding can read content from a
+file (`InputType.FilePath`) or download it from a URL (`InputType.Url`). The value usually comes
+from a binding expression such as `{fileName}` or `{url}`. That means whoever calls the function
+chooses which file is read or which URL is fetched.
+
+> [!IMPORTANT]
+> If any part of a `FilePath` or `Url` input comes from a request, message, or other caller-supplied
+> data, configure the settings below in the **deployed** function app's application settings.
+> `local.settings.json` is used only for local development and is **not** published to Azure.
+> If you don't need file or URL inputs, use `InputType.RawText`.
+
+#### FilePath inputs
+
+Set `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` to restrict `FilePath` inputs.
+
+**When set:** The input must be a **relative** path that resolves inside this folder.
+Rooted paths, paths that escape the folder (`..`), and symbolic links or junctions in
+the configured folder or the path are rejected.
+
+**When not set:** The input is used exactly as given. Any file the app can read is
+accepted. A warning is logged once per host start.
+
+#### Url inputs
+
+Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` to a comma-separated list of `https`
+origins to restrict `Url` inputs. For example:
+
+```text
+https://contoso.blob.core.windows.net
+```
+
+**When set:** Only URLs with a listed origin are fetched. URLs with user information
+are rejected. Redirects are not followed. Downloads are limited to 10 MB and 30 seconds.
+
+**When not set:** Any `https` URL is fetched. A warning is logged once per host start.
+
+#### Notes
+
+- Set `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` to an absolute path, for example
+  `/home/site/wwwroot/data` (Linux) or `C:\home\site\wwwroot\data` (Windows).
+  Pass paths relative to it, for example `{"fileName": "docs/manual.txt"}`.
+- An origin entry is scheme, host, and optional port only. Paths, query strings, and fragments are
+  invalid, and an invalid entry fails every `Url` invocation until it is fixed.
+- Settings are read when the host starts. Changing an app setting restarts the host.
+- `Url` inputs always require `https`, whether or not the allowlist is set.
+- Function keys and authentication control *who* can call a function. These settings control *what*
+  the binding can read on the caller's behalf. Use both.
+
 ### Semantic Search
 
 The semantic search feature allows you to import documents into a vector database using an output binding and query the documents in that database using an input binding. For example, you can have a function that imports documents into a vector database and another function that issues queries to OpenAI using content stored in the vector database as context (also known as the Retrieval Augmented Generation, or RAG technique).
+
+When document ingestion uses caller-supplied file paths or URLs, configure the deployed app settings described in [Restricting FilePath and Url inputs](#restricting-filepath-and-url-inputs).
 
 The supported list of vector databases is extensible, and more can be added by authoring a specially crafted NuGet package. Visit the currently supported vector specific folder for specific usage information:
 

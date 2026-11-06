@@ -72,8 +72,8 @@ Please refer to the [root README](../../README.md#requirements) for common prere
 1. Set `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` in `local.settings.json` to the
    directory containing files that the function app can select. The included
    settings use the embeddings sample directory. This setting applies only to
-   `FilePath` inputs. Existing `FilePath` behavior is retained when the setting
-   is not configured.
+   `FilePath` inputs. If the setting is not configured, `FilePath` inputs are
+   not restricted.
 1. Set `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` to a comma-separated list of
    HTTPS origins that URL inputs can use. The included settings allow
    `https://raw.githubusercontent.com`.
@@ -113,3 +113,7 @@ Please refer to the [root README](../../README.md#requirements) for common prere
     > **NOTE:** All the HTTP requests in this sample can also be found in the [demo.http](demo.http) file, which can be opened and run in most IDEs.
 
     You should see some relevant log output in the terminal window where the app is running.
+
+1. **Deploying to Azure:** add `OPENAI_EMBEDDINGS_FILE_PATH_ROOT` and
+   `OPENAI_EMBEDDINGS_URL_ALLOWED_ORIGINS` to the function app's application
+   settings. `local.settings.json` is not published.

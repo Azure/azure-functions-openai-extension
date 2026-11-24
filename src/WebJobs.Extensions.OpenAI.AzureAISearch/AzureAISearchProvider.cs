@@ -19,20 +19,16 @@ namespace Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch;
 
 sealed class AzureAISearchProvider : ISearchProvider
 {
-    readonly ConcurrentDictionary<string, (SearchClient, string, string)> searchClients = new(); // value is client, endpoint, indexName
-    readonly ConcurrentDictionary<string, (SearchIndexClient, string)> searchIndexClients = new(); // value is client, endpoint
+    readonly ConcurrentDictionary<ClientCacheKey, SearchIndexClient> searchIndexClients = new();
 
     readonly IConfiguration configuration;
     readonly ILogger logger;
     readonly AzureComponentFactory azureComponentFactory;
+    readonly SearchClientOptions? clientOptions;
     readonly bool isSemanticSearchEnabled = false;
     readonly bool useSemanticCaptions = false;
     readonly int vectorSearchDimensions = 1536;
     readonly string searchAPIKeySetting = "SearchAPIKey";
-    string searchConnectionNamePrefix = "AISearch";
-    string endpoint = string.Empty;
-    string apiKey = string.Empty;
-    IConfigurationSection? searchConnectionConfigSection;
     const string defaultSearchIndexName = "openai-index";
     const string vectorSearchConfigName = "openai-vector-config";
     const string vectorSearchProfile = "openai-vector-profile";
@@ -48,7 +44,13 @@ sealed class AzureAISearchProvider : ISearchProvider
     /// <param name="loggerFactory">The logger factory.</param>
     /// <exception cref="ArgumentNullException">Throws ArgumentNullException if logger factory is null.</exception>
     public AzureAISearchProvider(IConfiguration configuration, ILoggerFactory loggerFactory, IOptions<AzureAISearchConfigOptions> azureAiSearchConfigOptions, AzureComponentFactory azureComponentFactory)
+        : this(configuration, loggerFactory, azureAiSearchConfigOptions, azureComponentFactory, clientOptions: null)
     {
+    }
+
+    internal AzureAISearchProvider(IConfiguration configuration, ILoggerFactory loggerFactory, IOptions<AzureAISearchConfigOptions> azureAiSearchConfigOptions, AzureComponentFactory azureComponentFactory, SearchClientOptions? clientOptions)
+    {
+        this.clientOptions = clientOptions;
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
 
@@ -84,13 +86,13 @@ sealed class AzureAISearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(document.ConnectionInfo));
         }
 
-        this.searchConnectionNamePrefix = document.ConnectionInfo.ConnectionName;
-        this.SetConfigSectionProperties();
+        SearchConnectionSettings settings = this.ResolveConnectionSettings(document.ConnectionInfo.ConnectionName);
+        string searchIndexName = document.ConnectionInfo.CollectionName ?? defaultSearchIndexName;
 
-        SearchIndexClient searchIndexClient = this.GetSearchIndexClient(document.ConnectionInfo);
-        SearchClient searchClient = this.GetSearchClient(document.ConnectionInfo);
+        SearchIndexClient searchIndexClient = this.GetSearchIndexClient(settings);
+        SearchClient searchClient = this.GetSearchClient(settings, searchIndexName);
 
-        await this.CreateIndexIfDoesntExist(searchIndexClient, document.ConnectionInfo.CollectionName ?? defaultSearchIndexName, cancellationToken);
+        await this.CreateIndexIfDoesntExist(searchIndexClient, searchIndexName, cancellationToken);
 
         await this.IndexSectionsAsync(searchClient, document, cancellationToken);
     }
@@ -114,9 +116,8 @@ sealed class AzureAISearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(request.ConnectionInfo));
         }
 
-        this.searchConnectionNamePrefix = request.ConnectionInfo.ConnectionName;
-        this.SetConfigSectionProperties();
-        SearchClient searchClient = this.GetSearchClient(request.ConnectionInfo);
+        SearchConnectionSettings settings = this.ResolveConnectionSettings(request.ConnectionInfo.ConnectionName);
+        SearchClient searchClient = this.GetSearchClient(settings, request.ConnectionInfo.CollectionName ?? defaultSearchIndexName);
 
         SearchOptions searchOptions = this.isSemanticSearchEnabled
             ? new SearchOptions
@@ -286,88 +287,133 @@ sealed class AzureAISearchProvider : ISearchProvider
                 succeeded);
     }
 
-    SearchIndexClient GetSearchIndexClient(ConnectionInfo connectionInfo)
-    {
-        SearchIndexClient searchIndexClient;
-        (searchIndexClient, string endpoint) =
+    SearchIndexClient GetSearchIndexClient(SearchConnectionSettings settings) =>
         this.searchIndexClients.GetOrAdd(
-            connectionInfo.ConnectionName,
-            name =>
+            ClientCacheKey.Create(settings),
+            static (key, provider) =>
             {
-                searchIndexClient = string.IsNullOrEmpty(this.apiKey) ?
-                                new(new Uri(this.endpoint), this.GetSearchTokenCredential()) :
-                                new(new Uri(this.endpoint), new AzureKeyCredential(this.apiKey));
+                SearchConnectionSettings keySettings = provider.ResolveConnectionSettingsForKey(key);
+                SearchIndexClient client = string.IsNullOrEmpty(keySettings.ApiKey)
+                    ? new(new Uri(keySettings.Endpoint), provider.CreateTokenCredential(keySettings), provider.clientOptions)
+                    : new(new Uri(keySettings.Endpoint), new AzureKeyCredential(keySettings.ApiKey), provider.clientOptions);
 
-                this.logger.LogInformation("Created SearchIndexClient for connection {connectionName}", connectionInfo.ConnectionName);
+                provider.logger.LogInformation("Created SearchIndexClient for connection {connectionName}", key.ConnectionName);
+                return client;
+            },
+            this);
 
-                return (searchIndexClient, this.endpoint);
-            });
+    SearchClient GetSearchClient(SearchConnectionSettings settings, string searchIndexName) =>
+        this.GetSearchIndexClient(settings).GetSearchClient(searchIndexName);
 
-        return searchIndexClient;
-    }
-
-    SearchClient GetSearchClient(ConnectionInfo connectionInfo)
-    {
-        SearchClient searchClient;
-
-        (searchClient, string endpoint, string searchIndexName) =
-        this.searchClients.GetOrAdd(
-            connectionInfo.ConnectionName,
-            name =>
-            {
-                string searchIndexName = connectionInfo.CollectionName ?? defaultSearchIndexName;
-                searchClient = string.IsNullOrEmpty(this.apiKey) ?
-                            new(new Uri(this.endpoint), searchIndexName, this.GetSearchTokenCredential()) :
-                            new(new Uri(this.endpoint), searchIndexName, new AzureKeyCredential(this.apiKey));
-
-                this.logger.LogInformation("Created SearchClient for connection {connectionName} and index {searchIndexName}", connectionInfo.ConnectionName, searchIndexName);
-
-                return (searchClient, this.endpoint, searchIndexName);
-            });
-
-        return searchClient;
-    }
-
-    TokenCredential GetSearchTokenCredential() =>
-        this.searchConnectionConfigSection.Exists()
-            ? this.azureComponentFactory.CreateTokenCredential(this.searchConnectionConfigSection)
+    TokenCredential CreateTokenCredential(SearchConnectionSettings settings) =>
+        settings.ConfigSection.Exists()
+            ? this.azureComponentFactory.CreateTokenCredential(settings.ConfigSection)
             : new DefaultAzureCredential();
 
-    void SetConfigSectionProperties()
+    SearchConnectionSettings ResolveConnectionSettingsForKey(ClientCacheKey key)
     {
-        // Retrieve the configuration section
-        this.searchConnectionConfigSection = this.configuration.GetSection(this.searchConnectionNamePrefix);
+        SearchConnectionSettings settings = this.ResolveConnectionSettings(key.ConnectionName);
+        if (ClientCacheKey.Create(settings) != key)
+        {
+            string errorMessage = $"The configuration for connection '{key.ConnectionName}' changed while a client was being created. Retry the operation.";
+            this.logger.LogWarning(errorMessage);
+            throw new InvalidOperationException(errorMessage);
+        }
+
+        return settings;
+    }
+
+    SearchConnectionSettings ResolveConnectionSettings(string connectionName)
+    {
+        IConfigurationSection configSection = this.configuration.GetSection(connectionName);
+        string endpoint = string.Empty;
+        string apiKey = string.Empty;
 
         // Extract values from the configuration section if it exists
-        if (this.searchConnectionConfigSection.Exists())
+        if (configSection.Exists())
         {
-            this.endpoint = this.searchConnectionConfigSection[endpointSettingSuffix] ?? string.Empty;
-            this.apiKey = this.searchConnectionConfigSection[apiKeySettingSuffix] ?? string.Empty;
+            endpoint = configSection[endpointSettingSuffix] ?? string.Empty;
+            apiKey = configSection[apiKeySettingSuffix] ?? string.Empty;
 
-
-            if (!string.IsNullOrEmpty(this.apiKey))
+            if (!string.IsNullOrEmpty(apiKey))
             {
                 this.logger.LogInformation("Using key based authentication.");
             }
 
-            if (!string.IsNullOrEmpty(this.endpoint))
+            if (!string.IsNullOrEmpty(endpoint))
             {
-                this.logger.LogInformation("Using configured endpoint in the section - {this.searchConnectionNamePrefix}", this.searchConnectionNamePrefix);
-                return;
+                this.logger.LogInformation("Using configured endpoint in the section - {connectionName}", connectionName);
+                return new SearchConnectionSettings(connectionName, endpoint, apiKey, configSection);
             }
         }
 
         // Fallback to global configuration property
-        this.endpoint = this.configuration.GetValue<string>(this.searchConnectionNamePrefix) ?? string.Empty;
-        if (!string.IsNullOrEmpty(this.endpoint))
+        endpoint = this.configuration.GetValue<string>(connectionName) ?? string.Empty;
+        if (!string.IsNullOrEmpty(endpoint))
         {
-            this.logger.LogInformation("Using DefaultAzureCredential with fallback to connection name configuration property {property} as the endpoint setting", this.searchConnectionNamePrefix);
-            return;
+            this.logger.LogInformation("Using DefaultAzureCredential with fallback to connection name configuration property {property} as the endpoint setting", connectionName);
+            return new SearchConnectionSettings(connectionName, endpoint, apiKey, configSection);
         }
 
         // Throw exception if no valid configuration is found
-        string errorMessage = $"Configuration section or endpoint '{this.searchConnectionNamePrefix}' does not exist.";
+        string errorMessage = $"Configuration section or endpoint '{connectionName}' does not exist.";
         this.logger.LogError(errorMessage);
         throw new InvalidOperationException(errorMessage);
+    }
+
+    /// <summary>
+    /// Resolved search connection settings.
+    /// </summary>
+    sealed class SearchConnectionSettings
+    {
+        public SearchConnectionSettings(string connectionName, string endpoint, string apiKey, IConfigurationSection configSection)
+        {
+            this.ConnectionName = connectionName;
+            this.Endpoint = endpoint;
+            this.ApiKey = apiKey;
+            this.ConfigSection = configSection;
+        }
+
+        public string ConnectionName { get; }
+
+        public string Endpoint { get; }
+
+        public string ApiKey { get; }
+
+        public IConfigurationSection ConfigSection { get; }
+    }
+
+    readonly struct ClientCacheKey : IEquatable<ClientCacheKey>
+    {
+        ClientCacheKey(string connectionName, string endpoint, string apiKey)
+        {
+            this.ConnectionName = connectionName;
+            this.Endpoint = endpoint;
+            this.ApiKey = apiKey;
+        }
+
+        public string ConnectionName { get; }
+
+        public string Endpoint { get; }
+
+        public string ApiKey { get; }
+
+        public static ClientCacheKey Create(SearchConnectionSettings settings) =>
+            new(settings.ConnectionName, settings.Endpoint, settings.ApiKey);
+
+        public static bool operator ==(ClientCacheKey left, ClientCacheKey right) => left.Equals(right);
+
+        public static bool operator !=(ClientCacheKey left, ClientCacheKey right) => !left.Equals(right);
+
+        public bool Equals(ClientCacheKey other) =>
+            string.Equals(this.ConnectionName, other.ConnectionName, StringComparison.Ordinal)
+            && string.Equals(this.Endpoint, other.Endpoint, StringComparison.Ordinal)
+            && string.Equals(this.ApiKey, other.ApiKey, StringComparison.Ordinal);
+
+        public override bool Equals(object? obj) => obj is ClientCacheKey other && this.Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(this.ConnectionName, this.Endpoint, this.ApiKey);
+
+        public override string ToString() => $"{this.ConnectionName}|{this.Endpoint}";
     }
 }

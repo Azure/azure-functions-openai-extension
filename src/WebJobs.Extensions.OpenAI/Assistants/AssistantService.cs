@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System.ClientModel;
+using System.Collections.Concurrent;
+using System.Security.Cryptography;
+using System.Text;
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Models;
@@ -34,8 +37,9 @@ class DefaultAssistantService : IAssistantService
     readonly ILogger logger;
     readonly AzureComponentFactory azureComponentFactory;
     readonly IConfiguration configuration;
-    TableServiceClient? tableServiceClient;
-    TableClient? tableClient;
+    readonly TableClientOptions? tableClientOptions;
+    readonly Func<string?, string?, TableClient>? tableClientFactory;
+    readonly ConcurrentDictionary<TableServiceClientCacheKey, TableServiceClient> tableServiceClients = new();
 
     public DefaultAssistantService(
         OpenAIClientFactory openAIClientFactory,
@@ -43,6 +47,18 @@ class DefaultAssistantService : IAssistantService
         IConfiguration configuration,
         IAssistantSkillInvoker skillInvoker,
         ILoggerFactory loggerFactory)
+        : this(openAIClientFactory, azureComponentFactory, configuration, skillInvoker, loggerFactory, tableClientOptions: null)
+    {
+    }
+
+    internal DefaultAssistantService(
+        OpenAIClientFactory openAIClientFactory,
+        AzureComponentFactory azureComponentFactory,
+        IConfiguration configuration,
+        IAssistantSkillInvoker skillInvoker,
+        ILoggerFactory loggerFactory,
+        TableClientOptions? tableClientOptions,
+        Func<string?, string?, TableClient>? tableClientFactory = null)
     {
         if (loggerFactory is null)
         {
@@ -54,14 +70,13 @@ class DefaultAssistantService : IAssistantService
         this.openAIClientFactory = openAIClientFactory ?? throw new ArgumentNullException(nameof(openAIClientFactory));
         this.azureComponentFactory = azureComponentFactory ?? throw new ArgumentNullException(nameof(azureComponentFactory));
         this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        this.tableClientOptions = tableClientOptions;
+        this.tableClientFactory = tableClientFactory;
     }
 
     public async Task CreateAssistantAsync(AssistantCreateRequest request, CancellationToken cancellationToken)
     {
-        this.logger.LogInformation(
-            "[{Id}] Creating new chat session with instructions = \"{Text}\"",
-            request.Id,
-            request.Instructions ?? "(none)");
+        this.logger.LogInformation("[{Id}] Creating new chat session", request.Id);
 
         TableClient tableClient = this.GetOrCreateTableClient(request.ChatStorageConnectionSetting, request.CollectionName);
 
@@ -192,7 +207,7 @@ class DefaultAssistantService : IAssistantService
             return this.CreateNonExistentAssistantState(attribute.Id);
         }
 
-        this.logger.LogInformation("[{Id}] Received message: {Text}", attribute.Id, attribute.UserMessage);
+        this.logger.LogInformation("[{Id}] Received message", attribute.Id);
 
         // Process the conversation
         List<TableTransactionAction> batch = new();
@@ -321,10 +336,9 @@ class DefaultAssistantService : IAssistantService
         List<TableTransactionAction> batch)
     {
         this.logger.LogInformation(
-            "[{Id}] Got LLM response consisting of {Count} tokens: [{Text}] && {Count} ToolCalls",
+            "[{Id}] Got LLM response consisting of {Count} tokens and {ToolCallCount} tool calls",
             assistantId,
             response.Value.Usage.OutputTokenCount,
-            replyMessage,
             response.Value.ToolCalls.Count);
 
         ChatMessageTableEntity replyFromAssistantEntity = new(
@@ -378,10 +392,9 @@ class DefaultAssistantService : IAssistantService
         CancellationToken cancellationToken)
     {
         this.logger.LogInformation(
-            "[{Id}] Calling function '{Name}' with arguments: {Args}",
+            "[{Id}] Calling function '{Name}'",
             assistantId,
-            call.FunctionName,
-            call.FunctionArguments);
+            call.FunctionName);
 
         string? functionResult = await this.InvokeFunctionWithErrorHandling(assistantId, call, cancellationToken);
 
@@ -414,10 +427,9 @@ class DefaultAssistantService : IAssistantService
             string? result = await this.skillInvoker.InvokeAsync(call, cancellationToken);
 
             this.logger.LogInformation(
-                "[{id}] Function '{Name}' returned the following content: {Content}",
+                "[{id}] Function '{Name}' completed",
                 assistantId,
-                call.FunctionName,
-                result);
+                call.FunctionName);
 
             return result;
         }
@@ -530,49 +542,143 @@ class DefaultAssistantService : IAssistantService
 
     TableClient GetOrCreateTableClient(string? chatStorageConnectionSetting, string? collectionName)
     {
-        if (this.tableClient is not null)
+        if (this.tableClientFactory is not null)
         {
-            return this.tableClient;
+            return this.tableClientFactory(chatStorageConnectionSetting, collectionName);
         }
 
-        string connectionStringName = chatStorageConnectionSetting ?? string.Empty;
-        IConfigurationSection tableConfigSection = this.configuration.GetSection(connectionStringName);
-        string storageAccountUri = string.Empty;
-        if (tableConfigSection.Exists())
+        TableServiceClientCacheKey key = TableServiceClientCacheKey.Create(
+            this.ResolveTableConnectionSettings(chatStorageConnectionSetting));
+
+        TableServiceClient tableServiceClient = this.tableServiceClients.GetOrAdd(
+            key,
+            static (key, service) => service.CreateTableServiceClient(key),
+            this);
+
+        this.logger.LogDebug("Using {CollectionName} for table storage collection name", collectionName);
+        return tableServiceClient.GetTableClient(collectionName);
+    }
+
+    TableServiceClient CreateTableServiceClient(TableServiceClientCacheKey key)
+    {
+        TableConnectionSettings settings = this.ResolveTableConnectionSettings(key.ConnectionSetting);
+        if (TableServiceClientCacheKey.Create(settings) != key)
         {
-            storageAccountUri = tableConfigSection["tableServiceUri"] ?? string.Empty;
+            string errorMessage = $"The configuration for chat storage connection '{key.ConnectionSetting}' changed while a client was being created. Retry the operation.";
+            this.logger.LogWarning(errorMessage);
+            throw new InvalidOperationException(errorMessage);
         }
 
         // Check if URI for table storage is present
-        if (!string.IsNullOrEmpty(storageAccountUri))
+        if (!string.IsNullOrEmpty(settings.ServiceUri))
         {
             this.logger.LogInformation("Using Managed Identity");
 
             // Create an instance of TablesBindingOptions and set its properties
             TableBindingOptions tableOptions = new()
             {
-                ServiceUri = new Uri(storageAccountUri),
-                Credential = this.azureComponentFactory.CreateTokenCredential(tableConfigSection)
+                ServiceUri = new Uri(settings.ServiceUri),
+                Credential = this.azureComponentFactory.CreateTokenCredential(settings.ConfigSection),
+                TableClientOptions = this.tableClientOptions,
             };
 
-            // Now call CreateClient without any arguments
-            this.tableServiceClient = tableOptions.CreateClient();
-
+            return tableOptions.CreateClient();
         }
-        else
+
+        // Else, will use the connection string
+        this.logger.LogInformation("using connection string for table service client");
+
+        return this.tableClientOptions is null
+            ? new TableServiceClient(settings.ConnectionString)
+            : new TableServiceClient(settings.ConnectionString, this.tableClientOptions);
+    }
+
+    TableConnectionSettings ResolveTableConnectionSettings(string? chatStorageConnectionSetting)
+    {
+        string connectionSetting = string.IsNullOrEmpty(chatStorageConnectionSetting)
+            ? DefaultChatStorage
+            : chatStorageConnectionSetting!;
+        IConfigurationSection tableConfigSection = this.configuration.GetSection(connectionSetting);
+        string storageAccountUri = string.Empty;
+        if (tableConfigSection.Exists())
         {
-            // Else, will use the connection string
-            connectionStringName = chatStorageConnectionSetting ?? DefaultChatStorage;
-            string? connectionString = this.configuration.GetValue<string>(connectionStringName);
-            
-            this.logger.LogInformation("using connection string for table service client");
-
-            this.tableServiceClient = new TableServiceClient(connectionString);
+            storageAccountUri = tableConfigSection["tableServiceUri"] ?? string.Empty;
         }
 
-        this.logger.LogInformation("Using {CollectionName} for table storage collection name", collectionName);
-        this.tableClient = this.tableServiceClient.GetTableClient(collectionName);
+        if (!string.IsNullOrEmpty(storageAccountUri))
+        {
+            return new TableConnectionSettings(connectionSetting, storageAccountUri, connectionString: null, tableConfigSection);
+        }
 
-        return this.tableClient;
+        string? connectionString = this.configuration.GetValue<string>(connectionSetting);
+        return new TableConnectionSettings(connectionSetting, serviceUri: null, connectionString, tableConfigSection);
+    }
+
+    /// <summary>
+    /// Resolved chat storage settings.
+    /// </summary>
+    sealed class TableConnectionSettings
+    {
+        public TableConnectionSettings(string? connectionSetting, string? serviceUri, string? connectionString, IConfigurationSection configSection)
+        {
+            this.ConnectionSetting = connectionSetting;
+            this.ServiceUri = serviceUri;
+            this.ConnectionString = connectionString;
+            this.ConfigSection = configSection;
+        }
+
+        public string? ConnectionSetting { get; }
+
+        public string? ServiceUri { get; }
+
+        public string? ConnectionString { get; }
+
+        public IConfigurationSection ConfigSection { get; }
+    }
+
+    readonly struct TableServiceClientCacheKey : IEquatable<TableServiceClientCacheKey>
+    {
+        TableServiceClientCacheKey(string? connectionSetting, string? serviceUri, string? connectionStringFingerprint)
+        {
+            this.ConnectionSetting = connectionSetting;
+            this.ServiceUri = serviceUri;
+            this.ConnectionStringFingerprint = connectionStringFingerprint;
+        }
+
+        public string? ConnectionSetting { get; }
+
+        public string? ServiceUri { get; }
+
+        public string? ConnectionStringFingerprint { get; }
+
+        public static TableServiceClientCacheKey Create(TableConnectionSettings settings) =>
+            new(settings.ConnectionSetting, settings.ServiceUri, Fingerprint(settings.ConnectionString));
+
+        static string? Fingerprint(string? value)
+        {
+            if (value is null)
+            {
+                return null;
+            }
+
+            using SHA256 sha256 = SHA256.Create();
+            return Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(value)));
+        }
+
+        public static bool operator ==(TableServiceClientCacheKey left, TableServiceClientCacheKey right) => left.Equals(right);
+
+        public static bool operator !=(TableServiceClientCacheKey left, TableServiceClientCacheKey right) => !left.Equals(right);
+
+        public bool Equals(TableServiceClientCacheKey other) =>
+            string.Equals(this.ConnectionSetting, other.ConnectionSetting, StringComparison.Ordinal)
+            && string.Equals(this.ServiceUri, other.ServiceUri, StringComparison.Ordinal)
+            && string.Equals(this.ConnectionStringFingerprint, other.ConnectionStringFingerprint, StringComparison.Ordinal);
+
+        public override bool Equals(object? obj) => obj is TableServiceClientCacheKey other && this.Equals(other);
+
+        public override int GetHashCode() =>
+            HashCode.Combine(this.ConnectionSetting, this.ServiceUri, this.ConnectionStringFingerprint);
+
+        public override string ToString() => $"{this.ConnectionSetting}|{this.ServiceUri}";
     }
 }

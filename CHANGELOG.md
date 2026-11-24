@@ -5,9 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Starting v0.13.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.Kusto, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI.Kusto/CHANGELOG.md)
+The following packages maintain separate changelogs:
 
-Starting v0.1.0 for Microsoft.Azure.WebJobs.Extensions.OpenAI.AzureAISearch, it will maintain its own [Changelog](./src/WebJobs.Extensions.OpenAI)
+- [Azure AI Search](./src/WebJobs.Extensions.OpenAI.AzureAISearch/CHANGELOG.md) (starting with v0.1.0)
+- [Azure Cosmos DB for NoSQL](./src/WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch/CHANGELOG.md)
+- [Azure Cosmos DB for MongoDB](./src/WebJobs.Extensions.OpenAI.CosmosDBSearch/CHANGELOG.md)
+- [Azure Data Explorer (Kusto)](./src/WebJobs.Extensions.OpenAI.Kusto/CHANGELOG.md) (starting with v0.13.0)
+
+## v0.22.1 - 2026/11/24
+
+### Changed
+
+- Updated client and connection configuration handling.
+- Updated model selection for chat and embedding bindings. For embedding model consistency between indexing and search, see [Semantic Search](./README.md#semantic-search).
+- Updated assistant storage configuration.
+- Updated request and assistant logging.
 
 ## v0.22.0 - 2026/10/19
 

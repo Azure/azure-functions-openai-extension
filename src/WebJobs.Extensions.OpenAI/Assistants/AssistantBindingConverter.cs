@@ -65,7 +65,7 @@ class AssistantBindingConverter :
 
     public Task<AssistantState> ConvertAsync(AssistantPostAttribute input, CancellationToken cancellationToken)
     {
-        this.logger.LogInformation("Posting message to assistant '{Id}': {Text}", input.Id, input.UserMessage);
+        this.logger.LogInformation("Posting message to assistant '{Id}'", input.Id);
         return this.assistantService.PostMessageAsync(input, cancellationToken);
     }
 

@@ -44,7 +44,7 @@ class TextCompletionConverter :
         CancellationToken cancellationToken)
     {
         ChatCompletionOptions options = attribute.BuildRequest();
-        this.logger.LogInformation("Sending OpenAI completion request with prompt: {request}", attribute.Prompt);
+        this.logger.LogInformation("Sending OpenAI completion request.");
 
         IList<ChatMessage> chatMessages = new List<ChatMessage>()
         {

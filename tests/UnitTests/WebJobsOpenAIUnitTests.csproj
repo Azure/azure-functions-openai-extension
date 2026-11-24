@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -25,6 +25,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
     <ProjectReference Include="..\..\src\WebJobs.Extensions.OpenAI.AzureAISearch\WebJobs.Extensions.OpenAI.AzureAISearch.csproj" />
+    <ProjectReference Include="..\..\src\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch\WebJobs.Extensions.OpenAI.CosmosDBNoSqlSearch.csproj" />
+    <ProjectReference Include="..\..\src\WebJobs.Extensions.OpenAI.CosmosDBSearch\WebJobs.Extensions.OpenAI.CosmosDBSearch.csproj" />
+    <ProjectReference Include="..\..\src\WebJobs.Extensions.OpenAI.Kusto\WebJobs.Extensions.OpenAI.Kusto.csproj" />
   </ItemGroup>
 
 </Project>

@@ -23,10 +23,11 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
     readonly AzureComponentFactory azureComponentFactory;
     readonly IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions;
     readonly ConcurrentDictionary<string, CosmosClient> cosmosDBClients = new();
+    readonly Func<string, TokenCredential?, CosmosClientOptions, CosmosClient> clientFactory;
 
     public string Name { get; set; } = "CosmosDBNoSqlSearch";
 
-    string CosmosDBConnectionSetting = "CosmosDBNoSqlConnectionString";
+    const string DefaultConnectionSetting = "CosmosDBNoSqlConnectionString";
     const string endpointSettingSuffix = "Endpoint";
 
     /// <summary>
@@ -43,7 +44,19 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions,
         AzureComponentFactory azureComponentFactory
     )
+        : this(configuration, loggerFactory, cosmosDBNoSqlSearchConfigOptions, azureComponentFactory, clientFactory: null)
     {
+    }
+
+    internal CosmosDBNoSqlSearchProvider(
+        IConfiguration configuration,
+        ILoggerFactory loggerFactory,
+        IOptions<CosmosDBNoSqlSearchConfigOptions> cosmosDBNoSqlSearchConfigOptions,
+        AzureComponentFactory azureComponentFactory,
+        Func<string, TokenCredential?, CosmosClientOptions, CosmosClient>? clientFactory
+    )
+    {
+        this.clientFactory = clientFactory ?? CreateDefaultCosmosClient;
         this.configuration =
             configuration ?? throw new ArgumentNullException(nameof(configuration));
         this.azureComponentFactory =
@@ -126,11 +139,9 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         CancellationToken cancellationToken
     )
     {
-        this.CosmosDBConnectionSetting =
-            document.ConnectionInfo?.ConnectionName ?? this.CosmosDBConnectionSetting;
-
         // Retrieve an existing Cosmos client or create a new one if it's not already in the cache.
-        CosmosClient cosmosClient = this.GetCosmosClient();
+        CosmosClient cosmosClient = this.GetCosmosClient(
+            document.ConnectionInfo?.ConnectionName ?? DefaultConnectionSetting);
 
         DatabaseResponse databaseResponse = await cosmosClient
             .CreateDatabaseIfNotExistsAsync(
@@ -186,22 +197,23 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
         await this.UpsertVectorAsync(cosmosClient, document, cancellationToken);
     }
 
-    CosmosClient GetCosmosClient()
+    CosmosClient GetCosmosClient(string connectionName)
     {
         CosmosClient cosmosClient = this.cosmosDBClients.GetOrAdd(
-            this.CosmosDBConnectionSetting,
-            _ => this.CreateCosmosClient()
+            connectionName,
+            static (name, provider) => provider.CreateCosmosClient(name),
+            this
         );
         return cosmosClient;
     }
 
-    CosmosClient CreateCosmosClient()
+    CosmosClient CreateCosmosClient(string connectionName)
     {
         CosmosClientOptions cosmosClientOptions = this.CreateCosmosClientOptions();
 
         // First, try to get endpoint from configuration section
         IConfigurationSection cosmosConfigSection = this.configuration.GetSection(
-            this.CosmosDBConnectionSetting
+            connectionName
         );
 
         if (cosmosConfigSection.Exists())
@@ -216,7 +228,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 
                 TokenCredential tokenCredential = this.azureComponentFactory.CreateTokenCredential(cosmosConfigSection);
 
-                return new CosmosClient(
+                return this.clientFactory(
                     cosmosAccountUri,
                     tokenCredential,
                     cosmosClientOptions
@@ -226,7 +238,7 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
 
         // Try to get connection info from connection string setting
         string? connectionSettingValue = this.configuration.GetValue<string>(
-            this.CosmosDBConnectionSetting
+            connectionName
         );
 
         if (Uri.TryCreate(connectionSettingValue, UriKind.Absolute, out Uri? uri))
@@ -236,8 +248,8 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
                 $"Using Managed Identity for Cosmos DB No SQL Connection with endpoint from connection setting value."
             );
 
-            return new CosmosClient(
-                connectionSettingValue, // This is the endpoint URI
+            return this.clientFactory(
+                connectionSettingValue!, // This is the endpoint URI
                 new DefaultAzureCredential(),
                 cosmosClientOptions
             );
@@ -251,18 +263,28 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
                 "Using connection string authentication for Cosmos DB. Consider using Managed Identity instead."
             );
 
-            return new CosmosClient(
+            return this.clientFactory(
                 connectionSettingValue,
+                null,
                 cosmosClientOptions
             );
         }
 
         // Throw exception if no valid configuration is found
         string errorMessage =
-            $"Configuration section or connection endpoint/string '{this.CosmosDBConnectionSetting}' does not exist.";
+            $"Configuration section or connection endpoint/string '{connectionName}' does not exist.";
         this.logger.LogError(errorMessage);
         throw new InvalidOperationException(errorMessage);
     }
+
+    static CosmosClient CreateDefaultCosmosClient(
+        string accountEndpointOrConnectionString,
+        TokenCredential? tokenCredential,
+        CosmosClientOptions cosmosClientOptions
+    ) =>
+        tokenCredential is null
+            ? new CosmosClient(accountEndpointOrConnectionString, cosmosClientOptions)
+            : new CosmosClient(accountEndpointOrConnectionString, tokenCredential, cosmosClientOptions);
 
     CosmosClientOptions CreateCosmosClientOptions()
     {
@@ -342,11 +364,9 @@ sealed class CosmosDBNoSqlSearchProvider : ISearchProvider
             throw new ArgumentNullException(nameof(request.ConnectionInfo));
         }
 
-        this.CosmosDBConnectionSetting =
-            request.ConnectionInfo.ConnectionName ?? this.CosmosDBConnectionSetting;
-
         // Create cosmos client if not exists in the cache.
-        CosmosClient cosmosClient = this.GetCosmosClient();
+        CosmosClient cosmosClient = this.GetCosmosClient(
+            request.ConnectionInfo.ConnectionName ?? DefaultConnectionSetting);
 
         try
         {

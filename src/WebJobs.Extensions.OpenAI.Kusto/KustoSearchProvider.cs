@@ -106,19 +106,10 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
                     return (client, connectionStringBuilder);
                 });
 
-        // TODO: Use query parameters to remove the possibility of KQL-injection:
-        // https://learn.microsoft.com/azure/data-explorer/kusto/query/queryparametersstatement
         // NOTE: Vector similarity reference:
         // https://techcommunity.microsoft.com/t5/azure-data-explorer-blog/azure-data-explorer-for-vector-similarity-search/ba-p/3819626
         string embeddingsList = GetEmbeddingsString(request.Embeddings, false);
-        string? tableName = request.ConnectionInfo.CollectionName?.Trim();
-        if (string.IsNullOrEmpty(tableName) ||
-            tableName.Contains('/') ||
-            tableName.Contains(';') ||
-            tableName.Any(char.IsWhiteSpace))
-        {
-            throw new InvalidOperationException($"The table name '{tableName}' is invalid.");
-        }
+        string tableName = GetQuotedTableName(request.ConnectionInfo.CollectionName);
 
         string query = $$"""
             let series_cosine_similarity_fl=(vec1:dynamic, vec2:dynamic, vec1_size:real=double(null), vec2_size:real=double(null))
@@ -153,6 +144,25 @@ sealed class KustoSearchProvider : ISearchProvider, IDisposable
 
         SearchResponse response = new(results);
         return Task.FromResult(response);
+    }
+
+    /// <summary>
+    /// Validates and formats a Kusto table name.
+    /// </summary>
+    /// <remarks>
+    /// https://learn.microsoft.com/kusto/query/schema-entities/entity-names
+    /// </remarks>
+    internal static string GetQuotedTableName(string? collectionName)
+    {
+        string? tableName = collectionName?.Trim();
+        if (string.IsNullOrEmpty(tableName) ||
+            tableName.Length > 1024 ||
+            !tableName.All(c => char.IsLetterOrDigit(c) || c is '_' or ' ' or '.' or '-'))
+        {
+            throw new InvalidOperationException($"The table name '{tableName}' is invalid.");
+        }
+
+        return $"['{tableName}']";
     }
 
     KustoConnectionStringBuilder GetKustoConnectionString(string connectionName)

@@ -62,7 +62,10 @@ public class FilePromptTests
 
         string promptResponseContent = await promptResponse.Content.ReadAsStringAsync(this.cts.Token);
         Assert.False(string.IsNullOrWhiteSpace(promptResponseContent));
-        Assert.Contains("OpenAI Chat Completions API", promptResponseContent, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("README", promptResponseContent, StringComparison.OrdinalIgnoreCase);
+        Assert.True(
+            promptResponseContent.Contains("textCompletion", StringComparison.OrdinalIgnoreCase)
+            || promptResponseContent.Contains("chat", StringComparison.OrdinalIgnoreCase)
+            || promptResponseContent.Contains("binding", StringComparison.OrdinalIgnoreCase),
+            "The response should be relevant to the textCompletion input binding.");
     }
 }

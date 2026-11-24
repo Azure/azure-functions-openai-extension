@@ -62,7 +62,7 @@ class SemanticSearchConverter :
         }
 
         // Get the embeddings for the query, which will be used for doing a semantic search
-        this.logger.LogInformation("Sending OpenAI embeddings request: {request}", attribute.Query);
+        this.logger.LogInformation("Sending OpenAI embeddings request.");
         ClientResult<OpenAIEmbedding> embedding = await this.openAIClientFactory.GetEmbeddingClient(
             attribute.AIConnectionName,
             attribute.EmbeddingsModel).GenerateEmbeddingAsync(attribute.Query, cancellationToken: cancellationToken);

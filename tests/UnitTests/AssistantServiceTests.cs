@@ -1,11 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 
-using System.ClientModel;
 using System.Threading;
 using Azure;
-using Azure.Core;
 using Azure.Data.Tables;
 using Azure.Data.Tables.Models;
 using Microsoft.Azure.WebJobs.Extensions.OpenAI.Assistants;
@@ -46,6 +44,9 @@ public class DefaultAssistantServiceTests
 
         this.mockLoggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>()))
             .Returns(this.mockLogger.Object);
+
+        this.mockConfiguration.Setup(x => x.GetSection(It.IsAny<string>()))
+            .Returns((string key) => new ConfigurationBuilder().Build().GetSection(key));
 
         // Setup table client
         this.mockTableServiceClient.Setup(x => x.GetTableClient(It.IsAny<string>()))
@@ -96,12 +97,9 @@ public class DefaultAssistantServiceTests
             this.mockAzureComponentFactory.Object,
             this.mockConfiguration.Object,
             this.mockSkillInvoker.Object,
-            this.mockLoggerFactory.Object);
-
-        // Use reflection to set the tableClient field
-        System.Reflection.FieldInfo? tableClientField = typeof(DefaultAssistantService).GetField("tableClient",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        tableClientField?.SetValue(assistantService, this.mockTableClient.Object);
+            this.mockLoggerFactory.Object,
+            tableClientOptions: null,
+            tableClientFactory: (_, _) => this.mockTableClient.Object);
 
         // Act
         await assistantService.CreateAssistantAsync(request, CancellationToken.None);
@@ -160,12 +158,9 @@ public class DefaultAssistantServiceTests
             this.mockAzureComponentFactory.Object,
             this.mockConfiguration.Object,
             this.mockSkillInvoker.Object,
-            this.mockLoggerFactory.Object);
-
-        // Use reflection to set the tableClient field
-        System.Reflection.FieldInfo? tableClientField = typeof(DefaultAssistantService).GetField("tableClient",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        tableClientField?.SetValue(assistantService, this.mockTableClient.Object);
+            this.mockLoggerFactory.Object,
+            tableClientOptions: null,
+            tableClientFactory: (_, _) => this.mockTableClient.Object);
 
 
         // Act
@@ -236,12 +231,9 @@ public class DefaultAssistantServiceTests
             this.mockAzureComponentFactory.Object,
             this.mockConfiguration.Object,
             this.mockSkillInvoker.Object,
-            this.mockLoggerFactory.Object);
-
-        // Use reflection to set the tableClient field
-        System.Reflection.FieldInfo? tableClientField = typeof(DefaultAssistantService).GetField("tableClient",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        tableClientField?.SetValue(assistantService, this.mockTableClient.Object);
+            this.mockLoggerFactory.Object,
+            tableClientOptions: null,
+            tableClientFactory: (_, _) => this.mockTableClient.Object);
 
         // Act
         AssistantState result = await assistantService.GetStateAsync(attribute, CancellationToken.None);
@@ -286,12 +278,9 @@ public class DefaultAssistantServiceTests
             this.mockAzureComponentFactory.Object,
             this.mockConfiguration.Object,
             this.mockSkillInvoker.Object,
-            this.mockLoggerFactory.Object);
-
-        // Use reflection to set the tableClient field
-        System.Reflection.FieldInfo? tableClientField = typeof(DefaultAssistantService).GetField("tableClient",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        tableClientField?.SetValue(assistantService, this.mockTableClient.Object);
+            this.mockLoggerFactory.Object,
+            tableClientOptions: null,
+            tableClientFactory: (_, _) => this.mockTableClient.Object);
 
         // Act
         AssistantState result = await assistantService.GetStateAsync(attribute, CancellationToken.None);
@@ -372,12 +361,9 @@ public class DefaultAssistantServiceTests
             this.mockAzureComponentFactory.Object,
             this.mockConfiguration.Object,
             this.mockSkillInvoker.Object,
-            this.mockLoggerFactory.Object);
-
-        // Use reflection to set the tableClient field
-        System.Reflection.FieldInfo? tableClientField = typeof(DefaultAssistantService).GetField("tableClient",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        tableClientField?.SetValue(assistantService, this.mockTableClient.Object);
+            this.mockLoggerFactory.Object,
+            tableClientOptions: null,
+            tableClientFactory: (_, _) => this.mockTableClient.Object);
 
         // Act
         AssistantState result = await assistantService.PostMessageAsync(attribute, CancellationToken.None);

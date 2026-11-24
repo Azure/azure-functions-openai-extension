@@ -13,4 +13,8 @@
   <ItemGroup>
     <ProjectReference Include="..\WebJobs.Extensions.OpenAI\WebJobs.Extensions.OpenAI.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="WebJobsOpenAIUnitTests" />
+  </ItemGroup>
 </Project>

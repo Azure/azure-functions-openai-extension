@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.17.2 - Unreleased
+
+### Deprecated
+
+- This package is deprecated. Retirement date: April 20, 2027. See [retirement and migration guidance](https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai).
+- Updated Microsoft.Azure.WebJobs.Extensions.OpenAI dependency to 0.22.2.
+
 ## v0.17.1 - 2026/11/24
 
 ### Changed

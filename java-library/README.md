@@ -1,5 +1,10 @@
 # Azure functions Java library for OpenAI
 
+> [!WARNING]
+> Please note, this package has been deprecated and will no longer be maintained after April 20, 2027.
+>
+> See [retirement and migration guidance](https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai).
+
 Target audience of this file - Internal developers of this library at Microsoft.
 This project contains the necessary annotations and classes needed for the interaction of functions Java runtime with the OpenAI extension.
 

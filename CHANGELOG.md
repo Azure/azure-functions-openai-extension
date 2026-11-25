@@ -12,6 +12,12 @@ The following packages maintain separate changelogs:
 - [Azure Cosmos DB for MongoDB](./src/WebJobs.Extensions.OpenAI.CosmosDBSearch/CHANGELOG.md)
 - [Azure Data Explorer (Kusto)](./src/WebJobs.Extensions.OpenAI.Kusto/CHANGELOG.md) (starting with v0.13.0)
 
+## v0.22.2 - Unreleased
+
+### Deprecated
+
+- The Azure Functions OpenAI extension is deprecated. Retirement date: April 20, 2027. Package descriptions now include the retirement date. See [retirement and migration guidance](https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai).
+
 ## v0.22.1 - 2026/11/24
 
 ### Changed

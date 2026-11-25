@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v0.6.0 - Unreleased
 
+### Deprecated
+
+- Please note, this package has been deprecated and will no longer be maintained after April 20, 2027. See [retirement and migration guidance](https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai).
+
 ### Changed
 
 - default value of `false` added to `isReasoningModel` property for bindings suporting chat completion models.

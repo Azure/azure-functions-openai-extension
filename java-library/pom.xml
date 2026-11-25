@@ -8,8 +8,8 @@
 	<version>0.6.0-preview</version>
 	<packaging>jar</packaging>
 
-	<name>Microsoft Azure Functions Java Libary for OpenAI</name>
-	<description>This package contains all Java interfaces and annotations to interact with Microsoft Azure functions java runtime.</description>
+	<name>Microsoft Azure Functions Java Library for OpenAI</name>
+	<description>Java annotations and interfaces for the Azure Functions OpenAI extension. Please note, this package has been deprecated and will no longer be maintained after April 20, 2027. See https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai.</description>
 	<url>https://azure.microsoft.com/en-us/services/functions</url>
 
 	<properties>

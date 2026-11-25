@@ -12,7 +12,7 @@ The following packages maintain separate changelogs:
 - [Azure Cosmos DB for MongoDB](./src/WebJobs.Extensions.OpenAI.CosmosDBSearch/CHANGELOG.md)
 - [Azure Data Explorer (Kusto)](./src/WebJobs.Extensions.OpenAI.Kusto/CHANGELOG.md) (starting with v0.13.0)
 
-## v0.22.2 - Unreleased
+## v0.22.2 - 2026/11/24
 
 ### Deprecated
 

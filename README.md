@@ -1,7 +1,7 @@
 # Azure Functions OpenAI Extension
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build](https://dev.azure.com/azfunc/Azure%20Functions/_apis/build/status%2FExtension-OpenAI%2FAzure%20Functions%20OpenAI%20Extension%20PR%20CI?branchName=main)](https://dev.azure.com/azfunc/Azure%20Functions/_build/latest?definitionId=303&branchName=main)
+[![Build](https://dev.azure.com/azfunc/public/_apis/build/status%2Fazure%2Fazure-functions-openai-extension%2Fopenai-extension.public?repoName=Azure%2Fazure-functions-openai-extension&branchName=main)](https://dev.azure.com/azfunc/public/_build/latest?definitionId=558&repoName=Azure%2Fazure-functions-openai-extension&branchName=main)
 
 > [!WARNING]
 > The Azure Functions OpenAI extension retires on **April 20, 2027**. Preview extension bundle version **4.60.0 and later** don't include the extension.

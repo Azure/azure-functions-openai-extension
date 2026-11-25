@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Microsoft Azure WebJobs SDK Extension for OpenAI</Description>
+    <Description>Microsoft Azure WebJobs SDK Extension for OpenAI. Retirement date: April 20, 2027. See https://learn.microsoft.com/azure/azure-functions/functions-bindings-openai.</Description>
   </PropertyGroup>
 
   <ItemGroup>
